@@ -985,4 +985,4 @@ class ds9(object):
 
 import atexit
 atexit.register(ds9._purge_tmp_dirs)
-
+atexit.register(ds9._stop_running_process)
