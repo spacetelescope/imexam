@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Comparison with the IRAF verison of imexamine &mdash; imexam 0.1dev documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="imexam 0.1dev documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">imexam 0.1dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="comparison-with-the-iraf-verison-of-imexamine">
+<h1>Comparison with the IRAF verison of imexamine<a class="headerlink" href="#comparison-with-the-iraf-verison-of-imexamine" title="Permalink to this headline">¶</a></h1>
+<p>The following is a comparison of the outputs, returned values and user options for this module versus imexamine in IRAF</p>
+<ul class="simple">
+<li>All plot types are replicated between the codes, though they may be rendered differently. The images below are representative of the basic plots from each package.</li>
+<li>The same user plot options, as in the rimexam, cimexam etc. type IRAF param files are replicated to their useful extent using python dictionaries for each imexamine key.</li>
+<li>Colormaps and point styles for the matplotlib plots may be changed by the user through the imexam key default dictionaries</li>
+<li>In imexam, once the plot is displayed on the screen, you can zoom in and out using the controls in the plotting window.</li>
+<li>imexam allows users to register their own analysis functions</li>
+<li>imexam does not attempt to replicate the colon command interaction, if users wish to change the plot settings they should exit the imexam() method, reset the options and call it again.</li>
+<li>all of the imexam() functions in imexam can be called by themselves if you supply an x,y coordinate</li>
+</ul>
+<p>How do the numerical results compare with the IRAF version? This is a little harder to judge with cursor centering.
+Visual comparison of the resulting plots shows good agreement, as well as some random checks of the photometry and statistical return methods.</p>
+<div class="section" id="statistical-returns">
+<h2>Statistical returns<a class="headerlink" href="#statistical-returns" title="Permalink to this headline">¶</a></h2>
+<p>IRAF &#8220;m&#8221; key:</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">&#8211;&gt; imexam</p>
+<p>#            SECTION     NPIX     MEAN   MEDIAN   STDDEV      MIN      MAX</p>
+<p class="last">[584:588,697:701]       25   46533.   51314.   10281.   21215.   56186.</p>
+</dd>
+</dl>
+<p>imexam &#8220;m&#8221; key (with cursor location flooring):</p>
+<div class="highlight-python"><pre>[583:588,695:700] median: 51458.000000</pre>
+</div>
+<p>imexam only shows one statistic at a time. The same function call may be used to show the results from  <em>any</em> valid numpy function, it will return an attribute error for invalid functions.
+For example, if you edit the defaults dictionary for the &#8220;m&#8221; key:</p>
+<div class="highlight-python"><pre>ds9.mimexam()
+
+    {'function': ['report_stat'],
+     'region_size': [5, 'region size in pixels to use'],
+     'stat': ['median',
+     'which numpy stat to return [median,min,max...must map to a numpy func]']}
+
+ds9.exam.report_stat_pars["stat"][0] = "max"  &lt;---- will report np.max for the array
+
+    [584:589,695:700] amax: 56186.000000
+
+ds9.exam.report_stat_pars["stat"][0] = "mean"  &lt;---- will report np.mean for the array
+
+    [583:588,694:699] mean: 45412.878906
+
+ds9.exam.report_stat_pars["stat"][0]="std"
+
+    [583:588,694:699] std: 10706.179688</pre>
+</div>
+</div>
+<div class="section" id="aperture-photometry">
+<h2>Aperture Photometry<a class="headerlink" href="#aperture-photometry" title="Permalink to this headline">¶</a></h2>
+<p>IRAF &#8220;a&#8221; key:</p>
+<div class="highlight-python"><pre>#   COL    LINE   COORDINATES
+#     R    MAG    FLUX     SKY    PEAK    E   PA BETA ENCLOSED   MOFFAT DIRECT
+585.81  698.16 585.81 698.16
+17.51   8.86 2.858E6  10840.  45443. 0.03  -64 8.32     5.23     7.10   5.83</pre>
+</div>
+<p>imexam &#8220;a&#8221; key (using the defaults):</p>
+<div class="highlight-python"><pre>xc=586.138728   yc=697.990516
+x       y       radius  flux    mag(zpt=25.00)  sky     fwhm
+586.14  697.99  5       1508664.63      9.55    11160.89        6.03</pre>
+</div>
+<p>The &#8220;xc&#8221; and &#8220;yc&#8221; returns are the gaussian fit centers, as well as the FWHM from the fit.
+If we set the values to be similar to what IRAF.imexamine used, we can see the numbers are closer, the radius for the apertures are floored though before being sent to photutil:</p>
+<div class="highlight-python"><pre>ds9.aimexam()
+
+{'center': [True, 'Center the object location using a 2d gaussian fit'],
+ 'function': ['aperphot'],
+ 'radius': [5, 'Radius of aperture for star flux'],
+ 'skyrad': [15, 'Distance to start sky annulus is pixels'],
+ 'subsky': [True, 'Subtract a sky background?'],
+ 'width': [5, 'Width of sky annulus in pixels'],
+ 'zmag': [25.0, 'zeropoint for the magnitude calculation']}
+
+
+ds9.exam.aperphot_pars["radius"][0]=17.5
+
+xc=586.213790   yc=697.501845
+x       y       radius  flux    mag(zpt=25.00)  sky     fwhm
+586.21  697.50  17      2565167.11      8.98    11162.83        6.02</pre>
+</div>
+</div>
+<div class="section" id="radial-profile-plot">
+<h2>Radial Profile plot<a class="headerlink" href="#radial-profile-plot" title="Permalink to this headline">¶</a></h2>
+<p>This one differs the most from the IRAF result. Instead of showing the fit profile of the star out to the specified radius, I chose to instead plot the curve of growth along the same radius. Users can still look at the fit profile of the star using the 1D gaussian option. The two options seemed to provide similar information in IRAF and the added curve of growth information should extend the usefulness in this python package. By default, imexam prints the data point values to the screen.</p>
+<img alt="IRAF radial plot" src="_images/iraf_radial_plot.png" style="width: 600px; height: 400px;" />
+<img alt="Radial profile plot around star" src="_images/radial_profile.png" style="width: 600px; height: 400px;" />
+<p>imexam prints the plotted data to the screen</p>
+<div class="highlight-python"><pre>xc=254.175307       yc=238.815292
+
+radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25]
+flux:[30934.408146022368, 114046.22547367863, 177389.39089718129, 202243.23883521429, 213454.31429635832, 219322.32530913973, 223395.73606952291, 226248.48319652156, 228435.17955336376, 230380.36766761239, 232201.61496279205, 234076.75246054522, 236123.10410712915, 238158.7402636983, 240158.23945478137, 241891.71717447872, 243568.62690102594, 245329.38157960901, 247033.98100633049, 248685.62548291287, 250207.19453966396, 251513.40886564567, 252770.43217266718, 253758.53886851895, 254644.90939720051]</pre>
+</div>
+</div>
+<div class="section" id="contour-plot">
+<h2>Contour plot<a class="headerlink" href="#contour-plot" title="Permalink to this headline">¶</a></h2>
+<p>Note the added availability in this package for labeling the contours</p>
+<img alt="IRAF contour plot" src="_images/iraf_contour_plot.png" style="width: 600px; height: 400px;" />
+<img alt="contour plot" src="_images/contour_plot.png" style="width: 600px; height: 400px;" />
+</div>
+<div class="section" id="column-and-line-plots">
+<h2>Column and Line plots<a class="headerlink" href="#column-and-line-plots" title="Permalink to this headline">¶</a></h2>
+<img alt="IRAF column plot" src="_images/iraf_column_plot.png" style="width: 600px; height: 400px;" />
+<img alt="Column plot" src="_images/column_plot.png" style="width: 600px; height: 400px;" />
+<p>Keep in mind that python is 0-index and IRAF returns 1-index arrays, so the equivalent IRAF plot of 587 is really 588:</p>
+<img alt="IRAF column off by 1 plot" src="_images/iraf_column_off1_plot.png" style="width: 600px; height: 400px;" />
+<p>.</p>
+<p>An added benefit in the python package is that you can zoom in and out of the plots using the window controls, below is a zoomed in area of the column plot as it appears in the window:</p>
+<img alt="Column plot zoomed" src="_images/column_zoom_plot.png" style="width: 600px; height: 400px;" />
+</div>
+<div class="section" id="histogram-plots">
+<h2>Histogram plots<a class="headerlink" href="#histogram-plots" title="Permalink to this headline">¶</a></h2>
+<img alt="IRAF histogram plot" src="_images/iraf_histogram_plot.png" style="width: 600px; height: 400px;" />
+<img alt="histogram plot" src="_images/histogram_plot.png" style="width: 600px; height: 400px;" />
+<p>imexam prints bin information to the screen</p>
+<div class="highlight-python"><pre>100 bins</pre>
+</div>
+</div>
+<div class="section" id="d-gaussian-plots">
+<h2>1D Gaussian plots<a class="headerlink" href="#d-gaussian-plots" title="Permalink to this headline">¶</a></h2>
+<p>These plots are representative for both the column and line versions</p>
+<img alt="IRAF 1D Gaussian plot" src="_images/iraf_1dgaussian_plot.png" style="width: 600px; height: 400px;" />
+<img alt="Plot of gaussian profile fit to data" src="_images/fit_line.png" style="width: 600px; height: 400px;" />
+<p>imexam prints the fit information to the screen</p>
+<div class="highlight-python"><pre>xc=585.660034       yc=697.499370
+(585,697) mean=585.900, fwhm=5.653</pre>
+</div>
+</div>
+<div class="section" id="surface-plots">
+<h2>Surface plots<a class="headerlink" href="#surface-plots" title="Permalink to this headline">¶</a></h2>
+<p>The default viewing angle for this package was set to that the axis are easiest to read, the user may choose a different azimuthal value as well.
+The most fancy imexam surface plot is displayed, the user can alter it with the available options.</p>
+<img alt="IRAF surface plot" src="_images/iraf_surface_plot.png" style="width: 600px; height: 400px;" />
+<img alt="fancy surface plot" src="_images/fancy_surface.png" style="width: 650px; height: 460px;" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Comparison with the IRAF verison of imexamine</a><ul>
+<li><a class="reference internal" href="#statistical-returns">Statistical returns</a></li>
+<li><a class="reference internal" href="#aperture-photometry">Aperture Photometry</a></li>
+<li><a class="reference internal" href="#radial-profile-plot">Radial Profile plot</a></li>
+<li><a class="reference internal" href="#contour-plot">Contour plot</a></li>
+<li><a class="reference internal" href="#column-and-line-plots">Column and Line plots</a></li>
+<li><a class="reference internal" href="#histogram-plots">Histogram plots</a></li>
+<li><a class="reference internal" href="#d-gaussian-plots">1D Gaussian plots</a></li>
+<li><a class="reference internal" href="#surface-plots">Surface plots</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/comparison_iraf.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">imexam 0.1dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Megan Sosey.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
