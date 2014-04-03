@@ -6,15 +6,13 @@ imexam is meant as a replacement for the IRAF imexamine task. You should be able
 For more information please see the `online documentation <http://imexam.readthedocs.org/>`_
 
 
-Some code in this package was adapted from pysao, which can be found at http://leejjoon.github.com/pysao/, which is licensed under the MIT and AURA general licenses, included with this package.
-Specifically this package used the existing Cython implementation to the XPA  and extended the calls to the other available XPA executables so that more functionality is added. 
-Using Cython will allow for broader development of the code and produce faster runtimes for large datasets with repeated calls to the display manager.
+Some code in this package was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. Specifically this package used the existing Cython implementation to the XPA  and extended the calls to the other available XPA executables so that more functionality is added. Using Cython will allow for broader development of the code and produce faster runtimes for large datasets with repeated calls to the display manager.
 
 
 XPA is licensed under LGPL, help can be found here: http://hea-www.cfa.harvard.edu/saord/xpa/help.html 
 The current XPA can be downloaded from here: http://hea-www.harvard.edu/saord/xpa/
 
-ds9 also supports the SAMP protocol, but that has not been fully implemented in this package. http://ds9.si.edu/doc/ref/samp.html
+DS9 also supports the SAMP protocol, but that has not been fully implemented in this package. http://ds9.si.edu/doc/ref/samp.html
 
 
 Launching multiple DS9 windows
