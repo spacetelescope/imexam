@@ -1,6 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-"""This class supports communication with DS9 through the XPA """
+"""This class supports communication with DS9 through the XPA 
+
+
+Some code in this package was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. 
+Specifically this package used the existing Cython implementation to the XPA  and extended the calls to 
+the other available XPA executables so that more functionality is added. Using Cython will allow for 
+broader development of the code and produce faster runtimes for large datasets with repeated calls to the display manager.
+
+XPA is licensed under LGPL, help can be found here: http://hea-www.cfa.harvard.edu/saord/xpa/help.html 
+The current XPA can be downloaded from here: http://hea-www.harvard.edu/saord/xpa/
+
+DS9 also supports the SAMP protocol, but that has not been fully implemented in this package. http://ds9.si.edu/doc/ref/samp.html
+"""
 
 from __future__ import print_function, division, absolute_import
 

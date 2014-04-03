@@ -9,7 +9,7 @@ Software Dependencies
 
 python > 2.6
 
-numpy > 1.5.1
+numpy > 1.6.0
 
 pyfits > 3.1.1
 

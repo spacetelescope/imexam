@@ -6,15 +6,6 @@ imexam is meant as a replacement for the IRAF imexamine task. You should be able
 For more information please see the `online documentation <http://imexam.readthedocs.org/>`_
 
 
-Some code in this package was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. Specifically this package used the existing Cython implementation to the XPA  and extended the calls to the other available XPA executables so that more functionality is added. Using Cython will allow for broader development of the code and produce faster runtimes for large datasets with repeated calls to the display manager.
-
-
-XPA is licensed under LGPL, help can be found here: http://hea-www.cfa.harvard.edu/saord/xpa/help.html 
-The current XPA can be downloaded from here: http://hea-www.harvard.edu/saord/xpa/
-
-DS9 also supports the SAMP protocol, but that has not been fully implemented in this package. http://ds9.si.edu/doc/ref/samp.html
-
-
 Launching multiple DS9 windows
 ------------------------------
 
@@ -31,7 +22,7 @@ then supply imexam the name of the window:
 
 ::
 
-    a=imexam.ds9(target='megan')
+    a=imexam.ds9('megan')
 
 * launch ds9 with nothing:   
 
@@ -43,7 +34,14 @@ then supply imexam with the XPA_METHOD from the XPA information window:
 
 ::
 
-    a=imexam.connect(target='82a7e674:51763')
+    a=imexam.connect('82a7e674:51763')
+
+
+Starting a new connection with no target specified will open a new DS9 window:
+
+::
+
+    a=imexam.connect()
 
 
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.

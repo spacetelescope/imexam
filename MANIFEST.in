@@ -10,7 +10,7 @@ recursive-include licenses *
 recursive-include cextern *
 recursive-include scripts *
 recursive-include wrappers *
-recursive-include imexam/htmlhelp/ *
+recursive-include imexam/htmlhelp *
 
 exclude *.pyc *.o
 prune docs/build
