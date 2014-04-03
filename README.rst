@@ -3,6 +3,9 @@ imexam
 
 imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided using DS9 as your display device and through a python session.
 
+For more information please see the `online documentation <http://imexam.readthedocs.org/>`
+
+
 Some code in this package was adapted from pysao, which can be found at http://leejjoon.github.com/pysao/, which is licensed under the MIT and AURA general licenses, included with this package.
 Specifically this package used the existing Cython implementation to the XPA  and extended the calls to the other available XPA executables so that more functionality is added. 
 Using Cython will allow for broader development of the code and produce faster runtimes for large datasets with repeated calls to the display manager.
@@ -35,4 +38,4 @@ then supply imexam with the XPA_METHOD from the XPA information window:
 a=imexam.connect(target='82a7e674:51763')
 
 
-Example Usage can be found in the package html documentation, imexam.display_help() will pull up the package documentation in a web browser
+Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.
