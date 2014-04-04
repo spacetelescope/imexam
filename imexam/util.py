@@ -5,9 +5,7 @@ from __future__ import print_function, division
 import os
 import sys
 import logging
-import functools
 import warnings
-import numpy as np
 
 from . import xpa
 from xpa import XpaException

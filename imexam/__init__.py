@@ -19,4 +19,4 @@ else:
         import pyfits
     except ImportError:
         print("pyfits is not installed, please install for full functionality")
-        
+

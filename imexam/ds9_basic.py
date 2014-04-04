@@ -18,24 +18,18 @@ from __future__ import print_function, division, absolute_import
 
 import os
 import shutil
-import time
-import weakref
 import numpy as np
 from subprocess import Popen
 import time
 import warnings
 import logging
-import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 from tempfile import mkdtemp
 
-import photutils
 
 import imexam.xpa_wrap as xpa
 from imexam.xpa import XpaException
 
-from . import  util
-from  .math_helper import gaussian
+from . import util
 
 try:
     import astropy
