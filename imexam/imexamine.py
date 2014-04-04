@@ -7,8 +7,6 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.mlab as mlab
 from scipy.optimize import curve_fit
 import time
 import photutils

@@ -5,7 +5,6 @@
 from __future__ import print_function, division, absolute_import
 
 import warnings
-import numpy as np
 import logging
 from .ds9_basic import ds9
 from .imexamine import Imexamine
@@ -47,23 +46,24 @@ class Connect(object):
         
     """
     def __init__(self,target=None,path=None,viewer="ds9",wait_time=10):
-        
+
         _possible_viewers=["ds9"] #better dynamic way so people can add their own viewers?
         if viewer.lower() not in _possible_viewers:
             warnings.warn("**Unsupported viewer\n")
             raise NotImplementedError
-        
-        if 'ds9' in viewer.lower():        
+
+        if 'ds9' in viewer.lower():
             self.window = ds9(target=target, path=path, wait_time=wait_time, quit_ds9_on_del=True)
-        
+
         self.exam = Imexamine() #init sets empty data array until we can load or check viewer
-    
-    def setlog(self,on=True,filename=None):
+
+    def setlog(self,on=True,fi
+ename=None):
         """turn on and off logging to the default file"""
         self.exam.setlog(on=on,filename=filename)
-                                       
+
     def close(self):
-        """ close the window and end connection"""  
+        """ close the window and end connection"""
         self.window.close()
 
     def imexam(self):
@@ -76,14 +76,14 @@ class Connect(object):
             self._run_imexam()
         else:
             warnings.warn("No image loaded in viewer")
-            
+
     def get_data_filename(self):
-        """return the filename for the data in the current window"""      
+        """return the filename for the data in the current window"""
         return self.window.get_filename()
 
     def _run_imexam(self):
         """start imexam"""
-        
+
         print("\nPress 'q' to quit\n")
         keys=self.exam.get_options() #possible commands
         self.exam.print_options()
@@ -95,10 +95,10 @@ class Connect(object):
                 self.current_frame = check_frame
                 logging.info(self.get_data_filename())
             try:
-                x,y,current_key=self.readcursor() 
+                x,y,current_key=self.readcursor()
             except KeyError:
                 print("Invalid key")
-                current_key = 'q'                
+                current_key = 'q'
             if current_key not in keys and 'q' not in current_key:
                 print("Invalid key")
             elif 'q' in current_key:
@@ -106,7 +106,7 @@ class Connect(object):
             else:
                 self.exam.do_option(current_key,x,y)
 
-                
+
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str """
         return self.window.readcursor()
@@ -114,7 +114,7 @@ class Connect(object):
     def alignwcs(self, **kwargs):
         """align frames with wcs"""
         self.window.alignwcs(**kwargs)
-                
+
     def blink(self, **kwargs):
         self.window.blink(**kwargs)
 
@@ -124,37 +124,37 @@ class Connect(object):
     def cmap(self,**kwargs):
         """Set the color map table to something else, in a defined list of options"""
         self.window.cmap(**kwargs)
-    
+
     def colorbar(self,**kwargs):
         """turn the colorbar on the screen on and off"""
         self.window.colorbar(**kwargs)
-        
+
     def contour(self,**kwargs):
         """show contours on the window"""
         self.window.contour(**kwargs)
-        
+
     def contour_load(self,*args):
         """load contours from a file"""
         self.window.contour_load(*args)
-        
+
     def crosshair(self,**kwargs):
         """Control the current position of the crosshair in the current frame, crosshair mode is turned on"""
         self.window.crosshair(**kwargs)
-        
+
     def cursor(self,**kwargs):
         """move the cursor in the current frame to the specified image pixel, it will also move selected regions"""
         self.window.cursor(**kwargs)
-        
+
     def disp_header(self, **kwargs):
         """Display the header of the current image to a window"""
         self.window.disp_header(**kwargs)
 
     def frame(self, *args, **kwargs):
         """ move to a frame """
-        return self.window.frame(*args,**kwargs)            
+        return self.window.frame(*args,**kwargs)
 
     def get_data(self):
-        """ return a numpy array of the data in the current window"""        
+        """ return a numpy array of the data in the current window"""
         return self.window.get_data()
 
     def get_header(self):
@@ -168,7 +168,7 @@ class Connect(object):
     def hideme(self):
         """lower the display window"""
         self.window.hideme()
-        
+
     def load_fits(self, *args, **kwargs):
         """convenience function to load fits image to current frame"""
         self.window.load_fits(*args,**kwargs)
@@ -188,7 +188,7 @@ class Connect(object):
     def match(self,**kwargs):
         """match all other frames to the current frame"""
         self.window.match(**kwargs)
-        
+
     def nancolor(self,**kwargs):
         """set the not-a-number color, default is red"""
         self.window.nancolor(**kwargs)
@@ -197,7 +197,7 @@ class Connect(object):
         """convenience function to change to x,y images coordinates using ra,dec
            x, y in image coord"""
         self.window.panto_image(*args,**kwargs)
-                            
+
     def panto_wcs(self, *args, **kwargs):
         """pan to wcs coordinates in image"""
         self.window.panto_wcs(*args,**kwargs)
@@ -205,27 +205,27 @@ class Connect(object):
     def save_header(self,*args,**kwargs):
         """save the header of the current image to a file"""
         self.window.save_header(*args,**kwargs)
-    
+
     def save_regions(self, *args, **kwargs):
         """save the regions on the current window to a file"""
-        self.window.save_regions(*args,**kwargs) 
-                
+        self.window.save_regions(*args,**kwargs)
+
     def scale(self, *args,**kwargs):
         """ Scale the image on display.The default zscale is the most widely used option"""
         self.window.scale(**kwargs)
-                   
+
     def set_region(self,*args):
         """display a region using the specifications in region_string"""
         self.window.set_region(*args)
-        
+
     def showme(self):
         """raise the display window"""
         self.window.showme()
-    
+
     def showpix(self):
         """display the pixel value table, close window when done"""
         self.window.showpix()
-               
+
     def snapsave(self,*args,**kwargs):
         """create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used """
         self.window.snapsave(*args,**kwargs)
@@ -233,65 +233,65 @@ class Connect(object):
     def view(self, *args, **kwargs):
         """ Display numpy image array """
         self.window.view(*args, **kwargs)
-              
+
     def zoom(self,*args,**kwargs):
         """ par is the keyword for ds9 and can be a number, to fit, open or close"""
         self.window.zoom(*args,**kwargs)
-          
+
     def zoomtofit(self):
         """zoom the image to fit the display"""
         self.window.zoomtofit()
-           
+
     #seems easiest to return the parameter dictionaries here, then the user can catch it, edit it
     #and reset the pars with self.set in the exam link or directly into the imexamine object....
-    
+
     def aimexam(self):
         """show current parameters for aperture photometry"""
         return(self.exam.aperphot_pars)
-        
+
     def cimexam(self):
         """show current parameters for column plots"""
         return(self.exam.colplot_pars)
-    
+
     def eimexam(self):
         """show current parameters for contour plots"""
         return(self.exam.contour_pars)
-         
+
     def himexam(self):
         """show current parameters for histogram plots"""
         return(self.exam.histogram_pars)
-    
+
     def jimexam(self):
         """show current parameters for 1D fit line plots"""
         return(self.exam.line_fit_pars)
-        
+
     def kimexam(self):
         """show current parameters for 1D fit column plots"""
         return(self.exam.column_fit_pars)
-        
+
     def limexam(self):
         """show current parameters for  line plots"""
         return(self.exam.lineplot_pars)
     def mimexam(self):
         """show the current parameters for statistical regions"""
         return(self.exam.report_stat_pars)
-        
+
     def rimexam(self):
         """show current parameters for radial profile plots"""
         return(self.exam.radial_profile_pars)
-        
+
     def wimexam(self):
         """show current parameters for surface plots"""
         return(self.exam.surface_pars)
-        
+
     def unlearn(self):
         """unlearn all the imexam parameters and reset to default"""
-        
+
         self.exam.unlearn_all()
-        
+
     def plotname(self,filename=None):
         """change or show the default save plotname for imexamine"""
-        
+
         if not filename:
             self.exam.get_plot_name() #show the current default
         else:
