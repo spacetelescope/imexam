@@ -57,6 +57,12 @@ class Connect(object):
             self.window = ds9(target=target, path=path, wait_time=wait_time, quit_ds9_on_del=True)
         
         self.exam = Imexamine() #init sets empty data array until we can load or check viewer
+
+        self.current_frame = 0  # You are currently defining this instance
+                                # attribute outside of the constructor in the
+                                # imexam method.  Either is isn't a public
+                                # attribute, or you should define it here in
+                                # the constructor.
     
     def setlog(self,on=True,filename=None):
         """turn on and off logging to the default file"""
