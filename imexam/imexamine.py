@@ -7,8 +7,6 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.mlab as mlab
 from scipy.optimize import curve_fit
 import time
 import photutils
@@ -44,7 +42,7 @@ class Imexamine(object):
                                     'y': (self.show_xy_coords,'return x,y coords of pixel'),
                                     'l': (self.plot_line,'return line plot'),
                                     'c': (self.plot_column,'return column plot'),
-                                    'r': (self.radial_profile_plot,'return radial profile plot *'),
+                                    'r': (self.radial_profile_plot,'return radial profile plot'),
                                     'h': (self.histogram_plot,'return a histogram in the region around the cursor'),
                                     'e': (self.contour_plot,'return a contour plot in a region around the cursor'),
                                     's': (self.save_figure,'save current figure to disk as [plot_name]'),
@@ -69,7 +67,6 @@ class Imexamine(object):
     
     def print_options(self):
         """print the imexam options to screen"""
-        print("Available options: * are NOT fully implemented\n")
         keys=self.get_options()
         for key in keys:
             print("%s\t%s" %(key,self.option_descrip(key)))
@@ -248,9 +245,9 @@ class Imexamine(object):
             xmax=int(x+dist)
             ymin=int(y-dist)
             ymax=int(y+dist)
-            pstring="[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(xmin,xmax,ymin,ymax,stat.func_name,(stat(self._data[ymin:ymax,xmin:xmax])))
-            print(pstring)
-            logging.info(pstring)
+            pstr="[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(xmin,xmax,ymin,ymax,stat.func_name,(stat(self._data[ymin:ymax,xmin:xmax])))
+            print(pstr)
+            logging.info(pstr)
         
     def save_figure(self,x,y):
         """save the figure that's currently displayed"""
@@ -534,8 +531,9 @@ class Imexamine(object):
                 flux.append(aper_flux)
         if getdata:
             rapert=np.arange(1,rapert,1)
-            print("\nradii:{} \nflux:{}".format(rapert,flux))
-            logging.info("\nradii:{} \nflux:{}".format(rapert,flux))
+            info="\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(int(centerx),int(centery),rapert,flux)
+            print(info)
+            logging.info(info)
         ax.plot(radius,flux,'o')
         ax.set_title(title)   
         plt.draw()
@@ -609,7 +607,7 @@ class Imexamine(object):
         num_bins=int(self.histogram_pars["nbins"][0])
         
         n, bins, patches = plt.hist(flat_data, num_bins, range=[mini,maxi],normed=False, facecolor='green', alpha=0.5,histtype='bar')
-        print("{0} bins".format(num_bins))
+        print("hist with {0} bins".format(num_bins))
         plt.draw()
         time.sleep(self.sleep_time)
         

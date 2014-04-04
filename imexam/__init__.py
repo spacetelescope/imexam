@@ -6,17 +6,11 @@ connect=_connect.Connect
 
 try:
     import astropy
-except ImportError:
-    print("astropy not loaded, using regular pyfits")
-    has_astropy = False
-else:
-    has_astropy = True
-
-if has_astropy:
     from astropy.io import fits as pyfits
-else:
-    try:
+except ImportError:
+    print("astropy not loaded")
+    try:    
         import pyfits
     except ImportError:
         print("pyfits is not installed, please install for full functionality")
-        
+

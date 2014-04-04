@@ -5,9 +5,7 @@ from __future__ import print_function, division
 import os
 import sys
 import logging
-import functools
 import warnings
-import numpy as np
 
 from . import xpa
 from xpa import XpaException
@@ -62,10 +60,13 @@ def display_help():
 #Set up logging ability for the user
 #consider making a private logging level for data retension
 DEFAULT_LOGFILE="imexam_session.log"
-def set_logging(on=True,filename=None, level=logging.DEBUG):
+def set_logging(on=True,filename=None,level=logging.DEBUG):
     """Turn on or off logging to a file
     
     basicConfig defaults to opening the file in append mode
+    There's still an issue here that if the user deletes the
+    log file and then continues on with functions which log
+    information, no new file is opened again and nothing gets written
     """
     if on:
         if not filename:

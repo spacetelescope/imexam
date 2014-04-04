@@ -5,11 +5,9 @@
 from __future__ import print_function, division, absolute_import
 
 import warnings
-import numpy as np
 import logging
 from .ds9_basic import ds9
 from .imexamine import Imexamine
-
 
 __all__=["Connect"]
 
@@ -57,7 +55,8 @@ class Connect(object):
             self.window = ds9(target=target, path=path, wait_time=wait_time, quit_ds9_on_del=True)
         
         self.exam = Imexamine() #init sets empty data array until we can load or check viewer
-    
+        self.current_frame=self.frame() #will be a string
+        
     def setlog(self,on=True,filename=None):
         """turn on and off logging to the default file"""
         self.exam.setlog(on=on,filename=filename)
@@ -93,7 +92,7 @@ class Connect(object):
             if  self.current_frame != check_frame: #the user has changed window frames
                 self.exam.set_data(self.window.get_data())
                 self.current_frame = check_frame
-                logging.info(self.get_data_filename())
+                logging.info("Current image {0:s}".format(self.get_data_filename()))
             try:
                 x,y,current_key=self.readcursor() 
             except KeyError:
@@ -105,17 +104,17 @@ class Connect(object):
                 current_key=None
             else:
                 self.exam.do_option(current_key,x,y)
-
+                
                 
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str """
         return self.window.readcursor()
 
-    def alignwcs(self, **kwargs):
+    def alignwcs(self,**kwargs):
         """align frames with wcs"""
         self.window.alignwcs(**kwargs)
                 
-    def blink(self, **kwargs):
+    def blink(self,**kwargs):
         self.window.blink(**kwargs)
 
     def clear_contour(self):
@@ -145,11 +144,11 @@ class Connect(object):
         """move the cursor in the current frame to the specified image pixel, it will also move selected regions"""
         self.window.cursor(**kwargs)
         
-    def disp_header(self, **kwargs):
+    def disp_header(self,**kwargs):
         """Display the header of the current image to a window"""
         self.window.disp_header(**kwargs)
 
-    def frame(self, *args, **kwargs):
+    def frame(self,*args,**kwargs):
         """ move to a frame """
         return self.window.frame(*args,**kwargs)            
 
@@ -169,19 +168,19 @@ class Connect(object):
         """lower the display window"""
         self.window.hideme()
         
-    def load_fits(self, *args, **kwargs):
+    def load_fits(self,*args,**kwargs):
         """convenience function to load fits image to current frame"""
         self.window.load_fits(*args,**kwargs)
 
-    def load_region(self,*args,  **kwargs):
+    def load_region(self,*args,**kwargs):
         """Load regions from a file which uses ds9 standard formatting"""
         self.window.load_region(*args,**kwargs)
 
-    def make_region(self,*args, **kwargs):
+    def make_region(self,*args,**kwargs):
         """make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment"""
         self.window.make_region(*args,**kwargs)
 
-    def mark_region_from_array(self,*args, **kwargs):
+    def mark_region_from_array(self,*args,**kwargs):
         """mark regions on the viewer with a list of tuples as input"""
         self.window.mark_region_from_array(*args,**kwargs)
 
@@ -193,12 +192,12 @@ class Connect(object):
         """set the not-a-number color, default is red"""
         self.window.nancolor(**kwargs)
 
-    def panto_image(self, *args, **kwargs):
+    def panto_image(self,*args,**kwargs):
         """convenience function to change to x,y images coordinates using ra,dec
            x, y in image coord"""
         self.window.panto_image(*args,**kwargs)
                             
-    def panto_wcs(self, *args, **kwargs):
+    def panto_wcs(self,*args,**kwargs):
         """pan to wcs coordinates in image"""
         self.window.panto_wcs(*args,**kwargs)
 
@@ -206,13 +205,13 @@ class Connect(object):
         """save the header of the current image to a file"""
         self.window.save_header(*args,**kwargs)
     
-    def save_regions(self, *args, **kwargs):
+    def save_regions(self,*args,**kwargs):
         """save the regions on the current window to a file"""
         self.window.save_regions(*args,**kwargs) 
                 
-    def scale(self, *args,**kwargs):
+    def scale(self,*args,**kwargs):
         """ Scale the image on display.The default zscale is the most widely used option"""
-        self.window.scale(**kwargs)
+        self.window.scale(*args,**kwargs)
                    
     def set_region(self,*args):
         """display a region using the specifications in region_string"""
@@ -230,9 +229,9 @@ class Connect(object):
         """create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used """
         self.window.snapsave(*args,**kwargs)
 
-    def view(self, *args, **kwargs):
+    def view(self,*args,**kwargs):
         """ Display numpy image array """
-        self.window.view(*args, **kwargs)
+        self.window.view(*args,**kwargs)
               
     def zoom(self,*args,**kwargs):
         """ par is the keyword for ds9 and can be a number, to fit, open or close"""

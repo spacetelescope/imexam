@@ -18,24 +18,17 @@ from __future__ import print_function, division, absolute_import
 
 import os
 import shutil
-import time
-import weakref
 import numpy as np
 from subprocess import Popen
 import time
 import warnings
 import logging
-import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 from tempfile import mkdtemp
-
-import photutils
 
 import imexam.xpa_wrap as xpa
 from imexam.xpa import XpaException
 
 from . import  util
-from  .math_helper import gaussian
 
 try:
     import astropy
@@ -139,7 +132,7 @@ class ds9(object):
     _process_list = list()
     
     
-    def __init__(self,target=None, path=None, wait_time=5, quit_ds9_on_del=True):
+    def __init__(self,target=None,path=None,wait_time=5,quit_ds9_on_del=True):
         """
         
         I think this is a quirk in the XPA communication. The xpans, and XPA prefer to have all connections
@@ -207,11 +200,11 @@ class ds9(object):
                 self._stop_process()
 
     def _set_filename(self):
-        """set the name and extension information for the data displayed in the current frame 
+        """Set the name and extension information for the data displayed in the current frame 
         
         
-        the absolute path reference is stored to make XPA happy in all cases, wherever the user
-        started the DS9 session
+        The absolute path reference is stored to make XPA happy in all cases, wherever the user
+        started the DS9 process.
         """
         
         load_header=False
@@ -223,7 +216,6 @@ class ds9(object):
                 self._filename=os.path.abspath(self._filename)
             else: 
                 self._filename=""
-                print("No file loaded")
             
         except XpaException:
             self._extver=None
@@ -248,11 +240,19 @@ class ds9(object):
         self._ext=1
 
     def get_filename(self):
-        """return the filename currently on display"""
-        if not self._filename:
-            print("No file loaded")
-        return self._filename
+        """return the filename currently on display
         
+        
+        This function will check if there is already a filename saved. It's possible that the user can
+        connect to a ds9 window with no file loaded and then ask for the data file name after loading one through
+        the ds9 menu options. This will poll the private filename and then try and set one if it's empty.
+        """
+        #see if the user has loaded a file by hand
+        self._set_filename()         
+        if not self._filename:   
+            print("No file loaded")
+        else:
+            return self._filename        
 
     @classmethod
     def _purge_tmp_dirs(cls):
@@ -342,9 +342,7 @@ class ds9(object):
             print("Exception: {0}".format(e))
             from signal import SIGTERM
             os.kill(p.pid, SIGTERM)
-            raise Exception               
-                
-        
+            raise Exception                      
         
     def _run_unixonly_ds9(self):
         """ start new ds9 window and connect to object using a unix socket
@@ -364,12 +362,11 @@ class ds9(object):
         env = os.environ
         wait_time=self.wait_time
         
-        self._tmpd_name = mkdtemp(prefix="xpa_"+env.get("USER",""),
-                                  dir="/tmp")
+        self._tmpd_name = mkdtemp(prefix="xpa_"+env.get("USER",""),dir="/tmp")
 
         env["XPA_TMPDIR"] = self._tmpd_name #this is the first directory the servers looks for on the path
 
-        iraf_unix = "%s/.IMT" % self._tmpd_name
+        iraf_unix = "{0:s}/.IMT".format(self._tmpd_name)
         title= str(time.time()) #that should be unique enough, something better? 
         try:
             #unix only flag disables the fifos and inet connections
@@ -390,13 +387,11 @@ class ds9(object):
             if wait_time==0:
                 from signal import SIGTERM
                 os.kill(p.pid, SIGTERM)
-                raise OSError("Connection timeout with the ds9. Try to increase the *wait_time* parameter (current value is  %d s)" % (self.wait_time,))
+                print("Connection timeout with the ds9. Try to increase the *wait_time* parameter (current value is  {0:d} s)".format(self.wait_time,))
             
-        except Exception as e:
-            warnings.warn("running  ds9 failed")
-            print("Exception: {0}".format(e))
+        except (OSError,ValueError) as e:
+            warnings.warn("Starting ds9 failed")
             shutil.rmtree(self._tmpd_name)
-            raise Exception
 
         else:
             self._tmp_dir_list=self._tmpd_name
@@ -405,7 +400,7 @@ class ds9(object):
         #this might be sketchy
         try:
             file_list.remove(".IMT") #should be in the directory, if not 
-        except:
+        except IOError:
             warnings.warn("IMT not found in tmp, using first thing in list")
             
         xpaname = os.path.join(self._tmpd_name, file_list[0])
@@ -414,8 +409,6 @@ class ds9(object):
         self._need_to_purge=True
         self._xpa_method=xpaname
         return xpaname, iraf_unix
-
-
 
     def set_iraf_display(self):
         """ Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance. 
@@ -435,7 +428,7 @@ class ds9(object):
                 self._purge_local()
 
 
-    def set(self, param, buf=None):
+    def set(self,param,buf=None):
         """XPA set method to ds9 instance
 
 
@@ -447,7 +440,7 @@ class ds9(object):
         self.xpa.set(param, buf)
 
 
-    def get(self, param):
+    def get(self,param):
         """XPA get method to ds9 instance
 
 
@@ -617,8 +610,9 @@ class ds9(object):
             self.set("frame {0:s}".format(str(command)))
             self._set_filename()
         else:
-            return ("{0:d}".format(int(self.get("frame"))))
-
+            return (self.get("frame")).strip() #xpa returns '\n' for no frame
+            
+            
     def get_data(self):
         """ return a numpy array of the data in the current window"""
 
@@ -637,7 +631,7 @@ class ds9(object):
         if self._filename:
             return self.get("fits header")       
         else:
-            warnings.warn("No file loaded")
+            warnings.warn("No file loaded into ds9")
             return None       
         
     def grid(self,on=True,param=False):
@@ -650,7 +644,7 @@ class ds9(object):
         """lower the ds9 window"""
         self.set("lower")
 
-    def load_fits(self, fname="", extver=1,extname=""):
+    def load_fits(self, fname="",extver=1,extname=""):
         """convenience function to load fits image to current frame
         
         
@@ -685,7 +679,7 @@ class ds9(object):
         else:
             print("No filename provided")
                         
-    def load_region(self, filename):
+    def load_region(self,filename):
         """Load regions from a file which uses ds9 standard formatting"""
         if os.access(filename,os.F_OK):
             self.set("regions load %s" % filename)
@@ -821,13 +815,13 @@ class ds9(object):
         self.set("nan {0:s}".format(color))      
         
         
-    def panto_image(self, x, y):
+    def panto_image(self,x,y):
         """convenience function to change to x,y images coordinates using ra,dec
            x, y in image coord"""
            
         self.set("pan to %10.8f %10.8f image" % (x, y)) # (ra, dec))
 
-    def panto_wcs(self, x, y,system='fk5'):
+    def panto_wcs(self,x,y,system='fk5'):
         """pan to wcs coordinates in image"""
         self.set("pan to %10.8f %10.8f wcs %s"%(x,y,system))
 
@@ -844,7 +838,7 @@ class ds9(object):
         logging.info("header saved to {0:s}".format(filename))
 
             
-    def save_regions(self, filename=None):
+    def save_regions(self,filename=None):
         """save the regions in the current window to a DS9 style regions file"""
         regions=self.get("regions save")
         
@@ -856,7 +850,12 @@ class ds9(object):
             warnings.warn("File already exists, try again")
 
     def scale(self,scale='zscale'):
-        """ The default zscale is the most widely used option"""
+        """ The default zscale is the most widely used option
+        
+        
+        The xpa doesn't return an error if you set an unknown scale,
+        it just doesn't do anything.
+        """
         
         _help="""Syntax: 
            scales available: [linear|log|pow|sqrt|squared|asinh|sinh|histequ]
@@ -870,20 +869,21 @@ class ds9(object):
           [lock [yes|no]]
           [open|close]
 
-          """
+          """        
         mode_scale=["zscale","zmax","minmax"]
+        cstring=("scale %s")%(scale)
         
         if scale in mode_scale:
-            cstring=("scale mode %s")%(scale)
-        else:
-            cstring=("scale %s")%(scale)
+            cstring=("scale mode %s")%(scale)            
         try:
+            print(cstring)
             self.set(cstring)     
-        except:
+        except (XpaException,ValueError) as e:
+            print("{0:s} not valid".format(cstring))
             print(_help)
 
 
-    def set_region(self, region_string=""):
+    def set_region(self,region_string=""):
         """display a region using the specifications in region_string"""
         if region_string[-1] != "\n":
             region_string = region_string + "\n"
@@ -926,7 +926,7 @@ class ds9(object):
         print("Image saved to {0:s}".format(filename))
         logging.info("Image saved to {0:s}".format(filename))
 
-    def view(self, img, header=None, frame=None):
+    def view(self,img,header=None,frame=None):
         """ Display numpy image array
         
         img: numpy array
@@ -935,6 +935,8 @@ class ds9(object):
         """
 
         _frame_num = self.frame()
+        if len(_frame_num) < 1:
+            _frame_num=1
 
         try:
             if frame:
@@ -942,11 +944,11 @@ class ds9(object):
 
             self.view_array(img)
 
-        except:
+        except ValueError:
             self.frame(_frame_num)
             raise
 
-    def view_array(self, img):
+    def view_array(self,img):
         """Helper function to display numpy image array"""
         
         img = np.array(img)
