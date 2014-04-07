@@ -208,7 +208,7 @@ class ds9(object):
         """
         
         load_header=False
-        #see if any file is currently loaded into ds9
+        #see if any file is currently loaded into ds9, xpa returns '\n' for none
         try:
             self._filename=str(self.get('file').strip().split('[')[0])
             if len(self._filename) > 1:
@@ -610,8 +610,11 @@ class ds9(object):
             self.set("frame {0:s}".format(str(command)))
             self._set_filename()
         else:
-            return (self.get("frame")).strip() #xpa returns '\n' for no frame
-            
+            try:
+                frame=(self.get("frame")).strip() #xpa returns '\n' for no frame
+                return frame
+            except XpaException:
+                return '1' #the default frame for XPA
             
     def get_data(self):
         """ return a numpy array of the data in the current window"""
