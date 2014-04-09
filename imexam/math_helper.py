@@ -93,13 +93,15 @@ from __future__ import print_function, division
 import numpy as np
 from scipy.optimize import curve_fit
 
-def exponential(x,a,b,c):
-    """exponential function"""
-    return a*np.exp(-b*x)-c
 
-def gaussian(x,a,mu,sigma,b=0):
+def exponential(x, a, b, c):
+    """exponential function"""
+    return a * np.exp(-b * x) - c
+
+
+def gaussian(x, a, mu, sigma, b=0):
     """gaussian function
-    
+
     1D
     x is the data
     a is amplitude, the max value of the fitted PSF and value at the centroid coordinates
@@ -107,76 +109,78 @@ def gaussian(x,a,mu,sigma,b=0):
     sigma is the standard dev
     b is the average local background
     """
-    return b+a*np.exp(-(x-mu)**2 / (2.* sigma**2))
-    
+    return b + a * np.exp(-(x - mu) ** 2 / (2. * sigma ** 2))
+
+
 def gfwhm(sigma):
     """gaussian full width half max"""
-    return 2.*sigma*np.sqrt(2. *np.log(2.))
-            
+    return 2. * sigma * np.sqrt(2. * np.log(2.))
 
-def moffat(x,alpha,beta,mu,sigma,b=0):
+
+def moffat(x, alpha, beta, mu, sigma, b=0):
     """http://en.wikipedia.org/wiki/Moffat_distribution
-    
+
     1D
     Beta controls the overall shape of the fitting function, when beta=1 it's a lorentzian
     b is the average local background
     mu is the mean
     alpha is the possible seeing for the psf
     """
-    return b+ alpha/(((x-mu)**2/sigma**2 + 1)**(1-beta))
-    
-def mfwhm(alpha,beta):
-    """moffat full width half max"""
-    return 2. * alpha *np.sqrt(2**(1./beta) - 1.)
+    return b + alpha / (((x - mu) ** 2 / sigma ** 2 + 1) ** (1 - beta))
 
-def gauss_center(data): 
+
+def mfwhm(alpha, beta):
+    """moffat full width half max"""
+    return 2. * alpha * np.sqrt(2 ** (1. / beta) - 1.)
+
+
+def gauss_center(data):
     """center the data  by fitting a 2d gaussian to the region 
-    
+
     data should be a 2d array, the initial center is used to estimate the fit center, better way?
     """
-    
-    #use a smaller bounding box so that we are only fitting the local data
-    delta=int(len(data)/2)
-    guess2dc=(1.,delta,delta,3.,0.)
 
-    xx=np.linspace(0,len(data),len(data)) 
-    yy=np.linspace(0,len(data),len(data))
-    xra,yra=np.meshgrid(xx,yy)
-    popt,pcov=curve_fit(gaussian2dc,(xra,yra),data.flatten(),p0=guess2dc) 
+    # use a smaller bounding box so that we are only fitting the local data
+    delta = int(len(data) / 2)
+    guess2dc = (1., delta, delta, 3., 0.)
+
+    xx = np.linspace(0, len(data), len(data))
+    yy = np.linspace(0, len(data), len(data))
+    xra, yra = np.meshgrid(xx, yy)
+    popt, pcov = curve_fit(gaussian2dc, (xra, yra), data.flatten(), p0=guess2dc)
     return popt
-    
-    
-def gaussian2dc((y,x),amp,xo,yo,sigma,offset):
+
+
+def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
     """circular gaussian function
     x,y are the values at x,y
     xo,yo are the means for x and y
     sigmax=sigmay=circular otherwise elliptical
     see http://en.wikipedia.org/wiki/Gaussian_function
     """
-    xo=float(xo)
-    yo=float(yo)
-  
-    a=1 / (2*sigma**2) 
-    b=0
-    c=1/(2*sigma**2)
-    result= offset + amp * np.exp(-(a*((x-xo)**2) + c*((y-yo)**2)))
+    xo = float(xo)
+    yo = float(yo)
+
+    a = 1 / (2 * sigma ** 2)
+    b = 0
+    c = 1 / (2 * sigma ** 2)
+    result = offset + amp * np.exp(-(a * ((x - xo) ** 2) + c * ((y - yo) ** 2)))
     return result.ravel()
-     
-    
-def gaussian2de((y,x),amp,xo,yo,sigmax,sigmay,theta,offset):
+
+
+def gaussian2de((y, x), amp, xo, yo, sigmax, sigmay, theta, offset):
     """elliptical gaussian function
     x,y are the values at x,y
     xo,yo are the means for x and y
     sigmax=sigmay=circular otherwise elliptical
     see http://en.wikipedia.org/wiki/Gaussian_function
     """
-    xo=float(xo)
-    yo=float(yo)
-  
-    a=(np.cos(theta)**2) / (2*sigmax**2) + (np.sin(theta)**2)/(2*sigmay**2)
-    b=-(np.sin(2*theta)) / (4*sigmax**2) + (np.sin(2*theta))/(4*sigmay**2)
-    c=(np.sin(theta)**2)/(2*sigmax**2) + (np.cos(theta)**2)/(2*sigmay**2)
-    result= offset + amp * np.exp(-(a*((x-xo)**2) + 2*b*(x-xo)*(y-yo) + c*((y-yo)**2)))
+    xo = float(xo)
+    yo = float(yo)
+
+    a = (np.cos(theta) ** 2) / (2 * sigmax ** 2) + (np.sin(theta) ** 2) / (2 * sigmay ** 2)
+    b = -(np.sin(2 * theta)) / (4 * sigmax ** 2) + (np.sin(2 * theta)) / (4 * sigmay ** 2)
+    c = (np.sin(theta) ** 2) / (2 * sigmax ** 2) + (np.cos(theta) ** 2) / (2 * sigmay ** 2)
+    result = offset + amp * \
+        np.exp(-(a * ((x - xo) ** 2) + 2 * b * (x - xo) * (y - yo) + c * ((y - yo) ** 2)))
     return result.ravel()
-    
-   

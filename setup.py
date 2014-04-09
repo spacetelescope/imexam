@@ -29,7 +29,7 @@ try:
 except:
     pass
 
-if 'build_ext' in globals(): # cython installed
+if 'build_ext' in globals():  # cython installed
     from setuptools.command.build_ext import build_ext
     from Cython.Build import cythonize
     cythonize("wrappers/xpa.pyx")
@@ -39,7 +39,9 @@ import os.path
 XPALIB_DIR = "cextern/xpa-2.1.15"
 CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
-class build_ext_with_configure( build_ext ):
+
+class build_ext_with_configure(build_ext):
+
     def build_extensions(self):
         import subprocess
         if not os.path.exists(CONF_H_NAME):
@@ -48,7 +50,10 @@ class build_ext_with_configure( build_ext ):
         build_ext.build_extensions(self)
 
 from distutils.command.clean import clean as _clean
-class clean( _clean ):
+
+
+class clean(_clean):
+
     def run(self):
         import subprocess
         subprocess.call(["make", "-f", "Makefile", "clean"],
@@ -74,9 +79,9 @@ xpalib_files = """acl.c
                   xpaio.c
                   """.split()
 
-xpa_sources = [CYTHON_SOURCE]  + [os.path.join(XPALIB_DIR, c) \
+xpa_sources = [CYTHON_SOURCE] + [os.path.join(XPALIB_DIR, c)
                                  for c in xpalib_files]
-xpalib_defines  = [("HAVE_CONFIG_H", "1")]
+xpalib_defines = [("HAVE_CONFIG_H", "1")]
 
 
 # The standard setup() call.  Notice, however, that most of the arguments
@@ -101,12 +106,12 @@ xpalib_defines  = [("HAVE_CONFIG_H", "1")]
 # to this sample package.
 
 
-xpa_module=Extension("imexam.xpa", 
-              sources=xpa_sources,
-              include_dirs=[XPALIB_DIR],
-              define_macros=xpalib_defines,
-              depends=[CONF_H_NAME],
-            )
+xpa_module = Extension("imexam.xpa",
+                       sources=xpa_sources,
+                       include_dirs=[XPALIB_DIR],
+                       define_macros=xpalib_defines,
+                       depends=[CONF_H_NAME],
+                       )
 
 setup(
     setup_requires=['d2to1>=0.2.7', 'stsci.distutils>=0.3'],
