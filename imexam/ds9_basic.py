@@ -5,8 +5,11 @@
 
 Some code in this package was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. 
 Specifically this package used the existing Cython implementation to the XPA  and extended the calls to 
-the other available XPA executables so that more functionality is added. Using Cython will allow for 
-broader development of the code and produce faster runtimes for large datasets with repeated calls to the display manager.
+the other available XPA executables so that more functionality is added. The same information is available
+here: http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen 
+
+Using Cython will allow for broader development of the code and produce faster runtimes for large datasets 
+with repeated calls to the display manager. 
 
 XPA is licensed under LGPL, help can be found here: http://hea-www.cfa.harvard.edu/saord/xpa/help.html 
 The current XPA can be downloaded from here: http://hea-www.harvard.edu/saord/xpa/
@@ -102,7 +105,7 @@ class ds9(object):
             The full path filename to the unix socket, only if unix sockets are being used with local
 
         _need_to_purge: boolean
-             whether there are unix socket directories which need to be purged when the object goes out of scope
+             whenever there are unix socket directories which need to be purged when the object goes out of scope
 
         _tmpd_name: string
             The full path name to the unix socket file on the local system
@@ -121,7 +124,7 @@ class ds9(object):
             If available, the EXTVER of the MEF extension that is loaded, taken from the current data header       
 
         _ds9_process: pointer
-            Points to the ds9 process id on the system, returned by Popen
+            Points to the ds9 process id on the system, returned by Popen, whenever this module starts DS9
 
     """
 
@@ -144,13 +147,11 @@ class ds9(object):
         found for the computer, the startup can hang. In these cases, a local connection is preferred, which 
         uses a unix filename for the socket.
 
-        The problem arises that if the user already has DS9 windows running, that were started by default,
-        imexam can run into communication problems with local sockets,and I can't register them with the xpa
-        nameserver. So I'm defaulting it to start an INET socket when no target it provided. The user can 
-        override this if they set XPA_METHOD to local  in their environment
-
-        You should not have DS9 windows which use both socket types running at the same time
-
+        The problem arises that if the user already has DS9 windows running, that was started by default, the nameserver
+        is only listening for the default socket type (inet) and not local. There are also cases where the machine
+        runing this code does not have xpa installed, so there is no xpans (nameserver) to run and keep track of the
+        open connections. In that case, the user needs to provide this init with the name of the socket in their
+        window (in XPA_METHOD) in order to create the connection.
         """
         self._quit_ds9_on_del = quit_ds9_on_del  # determine whether to quit ds9 also when object deleted.
         self.wait_time = wait_time
@@ -160,9 +161,10 @@ class ds9(object):
         self._ext = 1  # extension of the loaded image
         self._extname = ""
         self._extver = None
-        self._xpa_method = "inet"
+        self._xpa_method = "local" #default starting socket type to get around xpa installation issues
         self._xpa_name = ""
-
+        self._ds9_process = None #only used for DS9 windows started from this module
+        
         openNew = False
         if not target:
             openNew = True
@@ -179,14 +181,19 @@ class ds9(object):
 
             if 'inet' in self._xpa_method:
                 self._xpa_name = self.run_inet_ds9()
+                #xpa_name is the title of the window, need to replace inet with the socket address
+                #that XPA started, but we can only do this if xpans is installed (I think)
+                #which is why local is the default method to use.
 
             elif 'local' in self._xpa_method:
-                print("starting unixonly local")
                 self._xpa_name, self._ds9_unix_name = self._run_unixonly_ds9()
+            
+            os.environ['XPA_METHOD']=self._xpa_method #tells xpa where to find sockets
+    
         else:
             # just register with the target the user provided
             self._xpa_name = target
-            self._ds9_process = None
+            
 
         # xpa_name sets the template for the get and set commands
         self.xpa = xpa.XPA(self._xpa_name)
@@ -314,20 +321,23 @@ class ds9(object):
 
     def close(self):
         """ close the window and end connection"""
-        # make sure we clean up the object and quit_ds9ocal files
-        if 'local' in self._xpa_method:
+        # make sure we clean up the object and quit_ds9 local files
+        if 'local' in self._xpa_method or 'tmp' in self._xpa_method:
             self._purge_local()
         else:
             self._stop_process()
 
     def run_inet_ds9(self):
-        """start a new ds9 window with an inet connection
+        """start a new ds9 window using an inet connection
 
 
-        We'll give it a unique name so we can identify it later
+        We'll give it a unique title so we can identify it later
         """
 
         env = os.environ
+        
+        #this is the title of the window, without a nameserver connection
+        #is there a way to get the inet x:x address?
         xpaname = str(time.time())  # that should be unique enough, something better?
         try:
             p = Popen([self.path,
@@ -341,7 +351,7 @@ class ds9(object):
 
         except Exception as e:  # refine error class
             warnings.warn("Opening  ds9 failed")
-            print("Exception: {0}".format(e))
+            print("Exception: {}".format(repr(e)))
             from signal import SIGTERM
             os.kill(p.pid, SIGTERM)
             raise Exception
@@ -350,16 +360,12 @@ class ds9(object):
         """ start new ds9 window and connect to object using a unix socket
 
         When the xpa method in libxpa parses given template as an unix socket, it checks if the template string starts with tmpdir (from env["XPA_TMPDIR"] 
-        or default to "/tmp/.xpa"). This makes having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address
+        or default to "/tmp/.xpa"). This can make having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address
         you should be fine
 
         For unix only, we run ds9 with XPA_TMPDIR set to temporary directory whose prefix start with "/tmp/xpa" 
         (eg, "/tmp/xpa_sf23f"), them set os.environ["XPA_TMPDIR"] (which affect xpa set and/or get command from python) to "/tmp/xpa".
 
-
-        when xpaname is parsed for local, the prefix should match the XPA_TMPDIR Hence, we create temporary dir under that directory.
-
-        The env variable "XPA_TMPDIR" is set to correct value when ds9 is run, and also xpa command is called (ie, python process).
         """
         env = os.environ
         wait_time = self.wait_time
@@ -400,7 +406,8 @@ class ds9(object):
         else:
             self._tmp_dir_list = self._tmpd_name
             self._ds9_process = p
-
+            self._process_list.append(p)
+            
         # this might be sketchy
         try:
             file_list.remove(".IMT")  # should be in the directory, if not
@@ -409,9 +416,9 @@ class ds9(object):
 
         xpaname = os.path.join(self._tmpd_name, file_list[0])
 
-        env["XPA_TMPDIR"] = "/tmp/xpa"
+        env["XPA_TMPDIR"] = "/tmp/xpa" #for all local connections
         self._need_to_purge = True
-        self._xpa_method = xpaname
+        self._xpa_method = 'local' 
         return xpaname, iraf_unix
 
     def set_iraf_display(self):

@@ -7,10 +7,11 @@ import sys
 import logging
 import warnings
 
+from astropy import log
 from . import xpa
 from xpa import XpaException
 
-__all__ = ["find_ds9", "list_active_ds9", "display_help"]
+__all__ = ["find_ds9", "list_active_ds9", "display_help","list_ds9_ids","find_xpans"]
 
 
 def find_ds9():
@@ -21,15 +22,20 @@ def find_ds9():
         if os.path.isfile(possible):
             return possible
 
+def find_xpans():
+    path="xpans"
+    for dirname in os.getenv("PATH").split(":"):
+        possible = os.path.join(dirname,path)
+        if os.path.exists(possible):
+            return possible
 
 def list_active_ds9():
     """Display information about the DS9 windows currently registered with XPA and runnning
 
 
     when I start a unix socket with connect() the xpa register isn't seeing it when I call this function
-    I think because it's only listening on the inet socket which starts by default. I reset the package
-    to start inet connections by default, but the user can still choose unix through their env.
-
+    I think because it's only listening on the inet socket which starts by default. That's if xpans is installed
+    on the machine. Otherwise, no nameserver is running at all.
     """
     try:
         sessions = (xpa.get('xpans'))
@@ -37,9 +43,13 @@ def list_active_ds9():
             print("No active sessions")
         else:
             print(sessions)
-    except XpaException as e:
-        print("No active sessions")
+    except XpaException:
+            print("No active sessions registered")
+        
 
+def list_ds9_ids():
+    """return just the list of ds9 XPA_METHOD ids which are registered"""
+    return xpa.nslookup()
 
 def display_help():
     """ display local html help in a browser window"""
@@ -61,10 +71,8 @@ def display_help():
 
 # Set up logging ability for the user
 # consider making a private logging level for data retension
-DEFAULT_LOGFILE = "imexam_session.log"
 
-
-def set_logging(on=True, filename=None, level=logging.DEBUG):
+def set_logging(filename=None, on=True, level=logging.DEBUG):
     """Turn on or off logging to a file
 
     basicConfig defaults to opening the file in append mode
@@ -74,7 +82,7 @@ def set_logging(on=True, filename=None, level=logging.DEBUG):
     """
     if on:
         if not filename:
-            filename = DEFAULT_LOGFILE
+            warnings.warn("No log filename specified")
 
         root = logging.getLogger(__name__)
         logging.basicConfig(filename=filename, level=level, format='\n%(funcName)s \n%(message)s',)
@@ -87,7 +95,7 @@ def set_logging(on=True, filename=None, level=logging.DEBUG):
         root.addHandler(logging.NullHandler())  # to prevent warning in unhandled contexts
 
         print("Saving imexam commands to {0:s}".format(filename))
-        return root
-
+        logging.disable(level) #log above
+        
     if not on:
-        logging.disable(logging.CRITICAL)
+        logging.disable(logging.CRITICAL) #basically turns off logging

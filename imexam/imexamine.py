@@ -15,7 +15,6 @@ from copy import deepcopy
 
 from . import math_helper
 from . import imexam_defpars
-from .util import set_logging
 
 __all__ = ["Imexamine"]
 
@@ -54,17 +53,9 @@ class Imexamine(object):
 
         self._data = np.zeros(0)  # the data array
         self._datafile = ""  # the file from which the data came
+        self._define_default_pars()  # read from imexam_defpars which contains dicts
         self.plot_name = "imexam_plot.pdf"  # default plot name saved with "s" key
         self.sleep_time = 1e-6    # for plotting convenience
-        self._define_default_pars()  # read from imexam_defpars which contains dicts
-        self.log = None  # will point to the package logger which the user can turn on and off
-
-    def setlog(self, on=True, filename=None):
-        """set logging for actions"""
-        if on:
-            self.log = set_logging(on=on, filename=filename)
-        if not on:
-            logging.disable(logging.CRITICAL)  # dont log errors below
 
     def print_options(self):
         """print the imexam options to screen"""
@@ -227,8 +218,9 @@ class Imexamine(object):
 
     def show_xy_coords(self, x, y):
         """print the x,y coords to the screen"""
-        print(x, y)
-        logging.info("{0} {1}".format(x, y))
+        info="{0} {1}".format(x, y)
+        print(info)
+        logging.info(info)
 
     def report_stat(self, x, y):
         """report the median of values in a box with side region_size"""

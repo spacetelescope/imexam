@@ -6,6 +6,9 @@ from __future__ import print_function, division, absolute_import
 
 import warnings
 import logging
+import subprocess
+from .util import set_logging, find_xpans
+from . import xpa
 from .ds9_basic import ds9
 from .imexamine import Imexamine
 
@@ -46,22 +49,26 @@ class Connect(object):
 
     """
 
-    def __init__(self, target=None, path=None, viewer="ds9", wait_time=10):
+    def __init__(self, target=None, path=None, viewer="ds9", wait_time=10,quit_window=True):
 
         _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
         if viewer.lower() not in _possible_viewers:
             warnings.warn("**Unsupported viewer\n")
             raise NotImplementedError
 
-        if 'ds9' in viewer.lower():
-            self.window = ds9(target=target, path=path, wait_time=wait_time, quit_ds9_on_del=True)
+        if 'ds9' in viewer.lower():                                        
+            self.window = ds9(target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
 
         self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.current_frame = self.frame()  # will be a string
+        self.logfile='imexam_log.txt'
+        
+    def setlog(self, filename=None, on=True,level=logging.DEBUG):
+        """turn on and off imexam logging to the a file"""
+        if filename:
+            self.logfile=filename
 
-    def setlog(self, on=True, filename=None):
-        """turn on and off logging to the default file"""
-        self.exam.setlog(on=on, filename=filename)
+        set_logging(self.logfile,on,level)           
 
     def close(self):
         """ close the window and end connection"""

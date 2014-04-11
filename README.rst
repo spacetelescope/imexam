@@ -16,13 +16,13 @@ If you launch ds9 from outside the imexam package, you need supply the name of t
 
 ::
     
-    ds9 -title megan&   
+    ds9 -title astronomy&   
 
 then supply imexam the name of the window:
 
 ::
 
-    a=imexam.ds9('megan')
+    a=imexam.ds9('astronomy')
 
 * launch ds9 with nothing:   
 
@@ -30,14 +30,15 @@ then supply imexam the name of the window:
     
     ds9&  
 
-then supply imexam with the XPA_METHOD from the XPA information window: 
+then supply imexam with the XPA_METHOD from the XPA information window, this variable will
+contain either the INET address or the local filename representing the socket: 
 
 ::
 
     a=imexam.connect('82a7e674:51763')
 
 
-Starting a new connection with no target specified will open a new DS9 window:
+Starting a new connection with no target specified will open a new DS9 window using a local socket by default:
 
 ::
 
@@ -45,3 +46,4 @@ Starting a new connection with no target specified will open a new DS9 window:
 
 
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.
+

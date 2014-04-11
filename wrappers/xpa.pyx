@@ -42,9 +42,14 @@ cdef extern from "xpa.h":
                char *template, char *paramlist, char *mode,
                char *buf, int len, char **names, char **messages,
                int n)
-               
+                               
+
+class XpaException(Exception):
+    pass
     
-            
+
+#this is the lookup only part of xpaaccess
+#it returns a list of the XPA_METHODS which are registered            
 def nslookup(template="*"):
     cdef char **classes
     cdef char **names
@@ -77,8 +82,6 @@ def nslookup(template="*"):
     return l
 
 
-class XpaException(Exception):
-    pass
 
 
 cdef _get(XPARec *xpa, char *template, char *param):
@@ -174,7 +177,3 @@ cdef class xpa:
         _set(self._xpa, self._template, param, buf)
         
         
-        
-        
-        
-
