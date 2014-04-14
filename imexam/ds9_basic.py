@@ -161,7 +161,7 @@ class ds9(object):
         self._ext = 1  # extension of the loaded image
         self._extname = ""
         self._extver = None
-        self._xpa_method = "local" #default starting socket type to get around xpa installation issues
+        self._xpa_method = "local" #default starting socket type to get around local xpa installation issues
         self._xpa_name = ""
         self._ds9_process = None #only used for DS9 windows started from this module
         

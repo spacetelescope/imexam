@@ -6,9 +6,12 @@ imexam is meant as a replacement for the IRAF imexamine task. You should be able
 
 It communicates with the DS9 window, either one you already have open, or one that imexam explicitly opens, through the XPA messaging system. 
 
+.. note:: It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established.
+
+
 You can access this help file on your locally installed copy of the package by using the imexam.display_help() call, which will display the help in your web browser.
 
-All returned information should be considered an estimate of the actual refined result,  more precise analysis of the data should be performed for verification before publication.  
+.. note:: All information returned from this module should be considered an estimate of the actual refined result,  more precise analysis of the data should be performed for verification before publication.  
 
 
 Usage
@@ -28,9 +31,6 @@ The address of the window can be found in the File->XPA->Information menu item, 
 
     window=imexam.connect("82a7e75f:58576")
     
-
-.. note:: It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, and it keeps track of all the open socket connections for DS9 and provides their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established.
-
     
 When imexam starts up a DS9 window itself, it will create a local socket by default,  the default connection type for DS9 is inet. However, imexam will first check to see if XPA_METHOD was set in your environment and default to that option. If you are experiencing problems, or you don't have an internet connection (the two might be related because the XPA structures inet sockets with an ip address), you can set your environment variable XPA_METHOD to 'local' or 'localhost'. This will cause imexam to start a local(unix) socket which will show an "XPA_METHOD" that is a filename on your computer. imexam defaults to a local socket connection to allow for users who do not have the XPA installed on their machine or available on their PATH. The full XPA source code is installed with the imexam package, and the xpans executable is copied to the scripts directory of your local installation. If you don't have the XPA on your path, simply point it to that location, or copy xpans to the location of your choice, and make sure you update your PATH. Any time DS9 is started it will start up the xpa nameserver automatically. Then all the xpans query options will be available through imexam.  imexam itself uses cython wrappers around the get and set methods from the XPA for it's communication which is why the fully installed XPA is not needed.
 

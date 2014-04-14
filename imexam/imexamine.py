@@ -18,9 +18,6 @@ from . import imexam_defpars
 
 __all__ = ["Imexamine"]
 
-# include this class through composition
-
-
 class Imexamine(object):
 
     def __init__(self):
@@ -49,6 +46,7 @@ class Imexamine(object):
                                     's': (self.save_figure, 'save current figure to disk as [plot_name]'),
                                     'b': (self.gauss_center, 'return the gauss fit center of the object'),
                                     'w': (self.surface_plot, 'display a surface plot around the cursor location'),
+                                    '2': (self.new_plot_window, 'make the next plot in a new window'),
                                     }
 
         self._data = np.zeros(0)  # the data array
@@ -56,7 +54,11 @@ class Imexamine(object):
         self._define_default_pars()  # read from imexam_defpars which contains dicts
         self.plot_name = "imexam_plot.pdf"  # default plot name saved with "s" key
         self.sleep_time = 1e-6    # for plotting convenience
-
+        self._plot_windows=list() #let users have multiple plot windows, the list stores their names
+        self._figure_name="imexam" #this contains the name of the current plotting window
+        
+        self._plot_windows.append(self._figure_name)
+        
     def print_options(self):
         """print the imexam options to screen"""
         keys = self.get_options()
@@ -64,7 +66,7 @@ class Imexamine(object):
             print("%s\t%s" % (key, self.option_descrip(key)))
         print()
 
-    def do_option(self, key, x, y):
+    def do_option(self, x, y, key):
         """run the option"""
         self.imexam_option_funcs[key][0](x, y)
 
@@ -134,8 +136,23 @@ class Imexamine(object):
         """
         self._define_local_pars()
 
+    def new_plot_window(self,x,y):
+        """make the next plot in a new plot window
+        
+        Once the new plotting window is open all plots will be directed towards it
+        The old window cannot be used again
+        
+        x,y are not used here, but the calls are setup to take them
+        for all imexam options. Is there a better way to do the calls in general?
+        """
+        counter=len(self._plot_windows) + 1
+        self._figure_name = "imexam" + str(counter)
+        self._plot_windows.append(self._figure_name) 
+        print("Plots now directed towards {0:s}".format(self._figure_name))
+       
+
     def register(self, user_funcs):
-        """register a new imexamine function
+        """register a new imexamine function made by the user
 
         user_funcs: dict
             Contains a dictionary where each key is the binding for the (function,descrition) tuple
@@ -152,6 +169,9 @@ class Imexamine(object):
                 warnings.warn("{0:s} is not a unique key".format(key))
                 warnings.warn("{0:s}".format(self.imexam_option_funcs[key]))
                 raise ValueError
+            elif key == 'q':
+                warnings.warn("q is reserved as the quit key")
+                raise ValueError
             else:
                 self.imexam_option_funcs[key] = user_funcs[key]
                 print("User function: {0:s} added to imexam options".format(user_funcs[key]))
@@ -159,7 +179,7 @@ class Imexamine(object):
     def plot_line(self, x, y):
         """line plot of data at point x"""
 
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -189,7 +209,7 @@ class Imexamine(object):
     def plot_column(self, x, y):
         """column plot of data at point y"""
 
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -244,7 +264,7 @@ class Imexamine(object):
 
     def save_figure(self, x, y):
         """save the figure that's currently displayed"""
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         ax = fig.gca()
         plt.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
@@ -348,7 +368,7 @@ class Imexamine(object):
 
         # calculate the std about the mean
         # make a plot
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -427,7 +447,7 @@ class Imexamine(object):
 
         # calculate the std about the mean
         # make a plot
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -506,7 +526,7 @@ class Imexamine(object):
         router = self.radial_profile_pars["rplot"][0]
         getdata = bool(self.radial_profile_pars["getdata"][0])
 
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -560,7 +580,7 @@ class Imexamine(object):
     def histogram_plot(self, x, y):
         """plot a histogram of the pixel values in a region around the specified location"""
 
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -611,7 +631,7 @@ class Imexamine(object):
     def contour_plot(self, x, y):
         """plot contours in a region around the specified location"""
 
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -652,7 +672,7 @@ class Imexamine(object):
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-        fig = plt.figure("imexamine")
+        fig = plt.figure(self._figure_name)
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
