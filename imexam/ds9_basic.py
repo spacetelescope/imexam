@@ -161,10 +161,11 @@ class ds9(object):
         self._ext = 1  # extension of the loaded image
         self._extname = ""
         self._extver = None
-        self._xpa_method = "local" #default starting socket type to get around local xpa installation issues
+        # default starting socket type to get around local xpa installation issues
+        self._xpa_method = "local"
         self._xpa_name = ""
-        self._ds9_process = None #only used for DS9 windows started from this module
-        
+        self._ds9_process = None  # only used for DS9 windows started from this module
+
         openNew = False
         if not target:
             openNew = True
@@ -181,19 +182,18 @@ class ds9(object):
 
             if 'inet' in self._xpa_method:
                 self._xpa_name = self.run_inet_ds9()
-                #xpa_name is the title of the window, need to replace inet with the socket address
-                #that XPA started, but we can only do this if xpans is installed (I think)
-                #which is why local is the default method to use.
+                # xpa_name is the title of the window, need to replace inet with the socket address
+                # that XPA started, but we can only do this if xpans is installed (I think)
+                # which is why local is the default method to use.
 
             elif 'local' in self._xpa_method:
                 self._xpa_name, self._ds9_unix_name = self._run_unixonly_ds9()
-            
-            os.environ['XPA_METHOD']=self._xpa_method #tells xpa where to find sockets
-    
+
+            os.environ['XPA_METHOD'] = self._xpa_method  # tells xpa where to find sockets
+
         else:
             # just register with the target the user provided
             self._xpa_name = target
-            
 
         # xpa_name sets the template for the get and set commands
         self.xpa = xpa.XPA(self._xpa_name)
@@ -335,9 +335,9 @@ class ds9(object):
         """
 
         env = os.environ
-        
-        #this is the title of the window, without a nameserver connection
-        #is there a way to get the inet x:x address?
+
+        # this is the title of the window, without a nameserver connection
+        # is there a way to get the inet x:x address?
         xpaname = str(time.time())  # that should be unique enough, something better?
         try:
             p = Popen([self.path,
@@ -407,7 +407,7 @@ class ds9(object):
             self._tmp_dir_list = self._tmpd_name
             self._ds9_process = p
             self._process_list.append(p)
-            
+
         # this might be sketchy
         try:
             file_list.remove(".IMT")  # should be in the directory, if not
@@ -416,9 +416,9 @@ class ds9(object):
 
         xpaname = os.path.join(self._tmpd_name, file_list[0])
 
-        env["XPA_TMPDIR"] = "/tmp/xpa" #for all local connections
+        env["XPA_TMPDIR"] = "/tmp/xpa"  # for all local connections
         self._need_to_purge = True
-        self._xpa_method = 'local' 
+        self._xpa_method = 'local'
         return xpaname, iraf_unix
 
     def set_iraf_display(self):
@@ -967,7 +967,6 @@ class ds9(object):
         if img.dtype.byteorder in ["=", "|"]:
             dt = img.dtype.newbyteorder(">")
             img = np.array(img, dtype=dt)
-            # img=img.astype(dt)
             byteorder = ">"
         else:
             byteorder = img.dtype.byteorder
@@ -980,10 +979,8 @@ class ds9(object):
         itemsize = img.itemsize * 8
         try:
             bitpix = self._ImgCode[img.dtype.name]
-
-            #bitpix = pyfits.core._ImageBaseHDU.ImgCode[img.dtype.name]
-        except KeyError as a:
-            raise UnsupportedDatatypeException(a)
+        except KeyError as e:
+            raise UnsupportedDatatypeException(e)
 
         option = "[xdim=%d,ydim=%d,bitpix=%d%s]" % (xdim, ydim,
                                                     bitpix, endianness)

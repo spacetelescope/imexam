@@ -49,26 +49,27 @@ class Connect(object):
 
     """
 
-    def __init__(self, target=None, path=None, viewer="ds9", wait_time=10,quit_window=True):
+    def __init__(self, target=None, path=None, viewer="ds9", wait_time=10, quit_window=True):
 
         _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
         if viewer.lower() not in _possible_viewers:
             warnings.warn("**Unsupported viewer\n")
             raise NotImplementedError
 
-        if 'ds9' in viewer.lower():                                        
-            self.window = ds9(target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
+        if 'ds9' in viewer.lower():
+            self.window = ds9(
+                target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
 
         self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.current_frame = self.frame()  # will be a string
-        self.logfile='imexam_log.txt'
-        
-    def setlog(self, filename=None, on=True,level=logging.DEBUG):
+        self.logfile = 'imexam_log.txt'
+
+    def setlog(self, filename=None, on=True, level=logging.DEBUG):
         """turn on and off imexam logging to the a file"""
         if filename:
-            self.logfile=filename
+            self.logfile = filename
 
-        set_logging(self.logfile,on,level)           
+        set_logging(self.logfile, on, level)
 
     def close(self):
         """ close the window and end connection"""
@@ -96,6 +97,7 @@ class Connect(object):
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
         current_key = keys[0]  # q is not in the list of keys
+        logging.info("Current image {0:s}".format(self.get_data_filename()))
         while current_key:
             check_frame = self.frame()
             if self.current_frame != check_frame:  # the user has changed window frames
@@ -112,7 +114,7 @@ class Connect(object):
             elif 'q' in current_key:
                 current_key = None
             else:
-                self.exam.do_option(current_key, x, y)
+                self.exam.do_option(x, y, current_key)
 
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str """

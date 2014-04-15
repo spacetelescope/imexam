@@ -18,6 +18,7 @@ from . import imexam_defpars
 
 __all__ = ["Imexamine"]
 
+
 class Imexamine(object):
 
     def __init__(self):
@@ -54,11 +55,12 @@ class Imexamine(object):
         self._define_default_pars()  # read from imexam_defpars which contains dicts
         self.plot_name = "imexam_plot.pdf"  # default plot name saved with "s" key
         self.sleep_time = 1e-6    # for plotting convenience
-        self._plot_windows=list() #let users have multiple plot windows, the list stores their names
-        self._figure_name="imexam" #this contains the name of the current plotting window
-        
+        # let users have multiple plot windows, the list stores their names
+        self._plot_windows = list()
+        self._figure_name = "imexam"  # this contains the name of the current plotting window
+
         self._plot_windows.append(self._figure_name)
-        
+
     def print_options(self):
         """print the imexam options to screen"""
         keys = self.get_options()
@@ -136,20 +138,19 @@ class Imexamine(object):
         """
         self._define_local_pars()
 
-    def new_plot_window(self,x,y):
+    def new_plot_window(self, x, y):
         """make the next plot in a new plot window
-        
+
         Once the new plotting window is open all plots will be directed towards it
         The old window cannot be used again
-        
+
         x,y are not used here, but the calls are setup to take them
         for all imexam options. Is there a better way to do the calls in general?
         """
-        counter=len(self._plot_windows) + 1
+        counter = len(self._plot_windows) + 1
         self._figure_name = "imexam" + str(counter)
-        self._plot_windows.append(self._figure_name) 
+        self._plot_windows.append(self._figure_name)
         print("Plots now directed towards {0:s}".format(self._figure_name))
-       
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user
@@ -238,7 +239,7 @@ class Imexamine(object):
 
     def show_xy_coords(self, x, y):
         """print the x,y coords to the screen"""
-        info="{0} {1}".format(x, y)
+        info = "{0} {1}".format(x, y)
         print(info)
         logging.info(info)
 

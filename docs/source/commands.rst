@@ -40,7 +40,8 @@ imexam():
          's': 'save current figure to plotname'
          'b': 'return the gauss fit center of the object'
          'w': 'display a surface plot around the cursor location'
-
+         '2': 'make the next plot in a new window'
+         
          aimexam(): return a dict of current parameters for aperture photometery
          
          cimexam(): return dict of current parameters for column plots
