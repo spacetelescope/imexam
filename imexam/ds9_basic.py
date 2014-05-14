@@ -36,14 +36,10 @@ from . import util
 try:
     import astropy
 except ImportError:
-    has_astropy = False
-else:
-    has_astropy = True
+    raise ImportError("astropy is required")
 
-if has_astropy:
-    from astropy.io import fits as pyfits
-else:
-    import pyfits
+from astropy.io import fits 
+
 
 
 class UnsupportedDatatypeException(Exception):
@@ -128,7 +124,7 @@ class ds9(object):
 
     """
 
-    # _ImgCode : copied from pyfits, used for displaying arrays straight to DS9
+    # _ImgCode : copied from fits, used for displaying arrays straight to DS9
     _ImgCode = {'float32': -32,
                 'float64': -64,
                 'int16': 16,
@@ -236,7 +232,7 @@ class ds9(object):
         if load_header:
             # set the extension from the header information
             header = self.get('fits header')
-            header_cards = pyfits.Header.fromstring(header, sep='\n')
+            header_cards = fits.Header.fromstring(header, sep='\n')
 
             try:
                 self._extver = int(header_cards['EXTVER'])
@@ -331,7 +327,7 @@ class ds9(object):
         """start a new ds9 window using an inet connection
 
 
-        We'll give it a unique title so we can identify it later
+        It is given a unique title so it can be identified later.
         """
 
         env = os.environ
@@ -359,6 +355,8 @@ class ds9(object):
     def _run_unixonly_ds9(self):
         """ start new ds9 window and connect to object using a unix socket
 
+        Notes
+        -----
         When the xpa method in libxpa parses given template as an unix socket, it checks if the template string starts with tmpdir (from env["XPA_TMPDIR"] 
         or default to "/tmp/.xpa"). This can make having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address
         you should be fine
@@ -440,7 +438,10 @@ class ds9(object):
     def set(self, param, buf=None):
         """XPA set method to ds9 instance
 
-
+        Notes
+        -----
+        This function is linked with the Cython implementation
+          
         set(param, buf=None)
         param : parameter string (eg. "fits" "regions")
         buf : aux data string (sometime string needed to be ended with CR)
@@ -452,6 +453,10 @@ class ds9(object):
         """XPA get method to ds9 instance
 
 
+        Notes
+        -----
+        This function is linked with the Cython implementation
+          
         get(param)
         param : parameter string (eg. "fits" "regions")
         returns received string
@@ -462,8 +467,9 @@ class ds9(object):
     def readcursor(self):
         """returns image coordinate postion and key pressed, 
 
-
-           XPA returns strings of the form u'a  257.5 239 \n' 
+        Notes
+        -----
+        XPA returns strings of the form u'a  257.5 239 \n' 
         """
         try:
             xpa_string = self.get("imexam any coordinate image")
@@ -475,13 +481,29 @@ class ds9(object):
         return float(x), float(y), str(k)
 
     def alignwcs(self, on=True):
-        """align wcs?"""
+        """align wcs
+        
+        Parameters
+        ----------
+        on: bool
+            Align the images using the WCS in their headers
+        """
         self.set("align %s" % (str(on)))
 
     def blink(self, blink=True, interval=None):
         """Blink frames
 
+        Parameters
+        ----------
+        blink: bool, optional
+            Set to True to start blinking the frames which are open
+            
+        interval: int
+            Set interval equal to the length of pause for blinking
+        
 
+        Notes
+        -----
         blink_syntax=
             Syntax: 
             blink 
@@ -504,8 +526,8 @@ class ds9(object):
         self.set("contour clear")
 
     def _define_cmaps(self):
-        """
-        These are some options for the class which are used in other methods """
+        """setup the default color maps which are available"""
+        
 
         self._cmap_syntax = """
         Syntax: 
@@ -526,11 +548,32 @@ class ds9(object):
             >obj.cmap(invert=True) 
          """
 
-        # is there a list I can pull from ds9?
+        # is there a list I can pull automatically from ds9?
         self._cmap_colors = ["heat", "grey", "cool", "aips0", "a", "b", "bb", "he", "i8"]
 
-    def cmap(self, color=None, load=None, invert=None, lock=None):
-        """ Set the color map table to something else, in a defined list of options  """
+    def cmap(self, color=None, load=None, invert=False, save=False, filename='colormap.ds9'):
+        """ Set the color map table to something else, using a defined list of options  
+        
+        
+        Parameters
+        ----------
+        color: string
+            color must be set to one of the available DS9 color map names
+        
+        load: string, optional
+            set to the filename which is a valid colormap lookup table
+            valid contrast values are from 0 to 10, and valid bias values are from 0 to 1
+
+        invert: bool, optional
+            invert the colormap
+            
+        save: bool, optional
+            save the current colormap as a file   
+        
+        filename: string, optional
+            the name of the file to save the colormap to
+            
+        """
 
         if color:
             color = color.lower()
@@ -542,39 +585,88 @@ class ds9(object):
                 print(self._cmap_colors)
 
         if invert:
+            invert='yes'
             cstring = ('cmap invert %s') % (invert)
-            self.set(cstring)
-
-        if lock:
-            cstring = ('cmap lock %s') % (lock)
             self.set(cstring)
 
         if load:
             cstring = ('cmap load %s') % (load)  # where load is the filename
             self.set(cstring)
+            
+        if save:
+            cstring = ('cmap save %s') % (filename)
+            self.set(cstring)
 
     def colorbar(self, on=True):
-        """turn the colorbar on the bottom of the window on and off"""
+        """turn the colorbar on the bottom of the window on and off
+        
+        Parameters
+        ----------
+        on: bool
+            Set to True to turn on the colorbar, False to turn it off
+        
+        """
         self.set("colorbar %s".format(str(on)))
 
     def contour(self, on=True, construct=True):
         """show contours on the window
 
-            construct will open the contour dialog box with more options
+        Parameters
+        ----------
+        on: bool
+            Set to true to turn on contours
+        
+        construct: bool, optional
+            Will open the contour dialog box which has more options
+            
         """
         self.set("contour {0:s}".format(str(on)))
         if construct:
             self.set("contour levels")
 
     def contour_load(self, filename):
-        """load a contour file into the window"""
+        """load a contour file into the window
+        
+        
+        Parameters
+        ----------
+        filename: string
+            The name of the file with the contour level defined
+        
+        """
         if filename:
             self.set("contour loadlevels {0:s}".format(str(filename)))
         else:
             warnings.warn("No filename provided for contours")
 
     def crosshair(self, x=None, y=None, coordsys="physical", skyframe="wcs", skyformat="fk5", match=False, lock=False):
-        """Control the current position of the crosshair in the current frame, crosshair mode is turned on"""
+        """Control the position of the crosshair in the current frame, crosshair mode is turned on automatically
+        
+        Parameters
+        ----------
+        
+        x: string or int
+            The value of x is converted to a string for the call to XPA, use a value here appropriate for the skyformat you choose
+        
+        y: string or int
+            The value of y is converted to a string for the call to XPA, use a value here appropriate for the skyformat you choose
+        
+        coordsys: string, optional
+            The coordinate system your x and y are defined in
+            
+        skyframe: string, optional
+            If skyframe has "wcs" in it then skyformat is also sent to the XPA
+        
+        skyformat: string, optional
+            Used with skyframe, specifies the format of the coordinate which were given in x and y
+            
+        match: bool, optional
+            If set to True, then the wcs is matched for the frames
+            
+        lock: bool, optional
+            If set to True, then the frame is locked in wcs
+ 
+        """
         if x and y:
             if "wcs" in skyframe:
                 format = skyformat
@@ -588,28 +680,55 @@ class ds9(object):
             self.window.set("crosshair lock wcs")
 
     def cursor(self, x=None, y=None):
-        """move the cursor in the current frame to the specified image pixel, it will also move selected regions"""
+        """move the cursor in the current frame to the specified image pixel; selected regions will also be moved
+        
+        Parameters
+        ----------
+        x: int 
+            pixel location  x coordinate to move to
+        
+        y: int 
+            pixel location  y coordinate to move to
+            
+        x and y are converted to strings for the call
+        
+        """
         if x and y:
             self.set("cursor {0:s} {1:s}".format(str(x), str(y)))
         else:
             warnings.warn("You need to supply both an x and y location for the cursor")
 
-    def disp_header(self, ext=None):
+    def disp_header(self):
         """Display the header of the current image to a DS9 window"""
+        
         cstring = "header "
-        if not ext:
-            ext = self._ext
-        cstring += str(ext)
-        self.set(cstring)  # display the header of the current frame
-
-    def frame(self, n=None, command=None):
-        """convenience function to change or report frames"""
+        try:
+            self.set(cstring)  # display the header of the current frame
+        except XpaException:
+            print("Problem loading header")
+        
+    def frame(self, n=None):
+        """convenience function to change or report frames
+        
+        
+        Parameters
+        ----------
+        n: int, string, optional
+            The frame number to open or change to. If the number specified doesn't exist, a new frame will be opened
+            If nothing is specified, then the current frame number will be returned. The value of n is converted to 
+            a string before passing to the XPA             
+        
+        Examples
+        --------
+        frame(1)  sets the current frame to 1
+        frame("last") set the current frame to the last frame
+        frame() returns the number of the current frame
+        frame("new") opens a new frame
+        frame(3)  opens frame 3 if it doesn't exist already, otherwise goes to frame 3
+        
+        """
         if n:
             self.set("frame {0:s}".format(str(n)))
-            self._set_filename()
-
-        elif command:
-            self.set("frame {0:s}".format(str(command)))
             self._set_filename()
         else:
             try:
@@ -627,21 +746,38 @@ class ds9(object):
             return None
         else:
             if not self._extver and (len(self._extname) == 0):
-                data = pyfits.getdata(self._filename)
+                data = fits.getdata(self._filename)
             else:
-                data = pyfits.getdata(self._filename, extname=self._extname, extver=self._extver)
+                data = fits.getdata(self._filename, extname=self._extname, extver=self._extver)
             return data
 
     def get_header(self):
-        """return the current fits header as a string"""
+        """return the current fits header as a string or None if there's a problem"""
         if self._filename:
-            return self.get("fits header")
+            try:
+                header=self.get("fits header")
+            except XpaException:
+                print("Problem loading header")
+                return None
+                
+            return header 
         else:
             warnings.warn("No file loaded into ds9")
             return None
 
     def grid(self, on=True, param=False):
-        """convenience to turn the grid on and off, grid can be flushed with many more options"""
+        """convenience to turn the grid on and off, grid can be flushed with many more options
+        
+        Parameters
+        ----------
+        
+        on: bool, optional
+            Will turn the grid overlay on in the current frame
+        
+        param: bool, optional
+            Will open the parameter dialog in DS9
+        
+        """
         self.set("grid %s" % (str(on)))
         if param:
             self.set("grid open")
@@ -653,15 +789,30 @@ class ds9(object):
     def load_fits(self, fname="", extver=1, extname=""):
         """convenience function to load fits image to current frame
 
+        Parameters
+        ----------
+        fname: string, optional
+            The name of the file to be loaded. You can specify the full extension in the name, such as
+            filename_flt.fits[sci,1] or filename_flt.fits[1]
+            
+        extver: int, optional
+            The extension to load (EXTVER in the header)
+            
+        extname: string, optional
+            The name (EXTNAME in the header) of the image to load
+          
+        Notes
+        -----
+        To tell ds9 to open a file whose name or path includes spaces, 
+        surround the path with "{...}", e.g.
+        
+        % xpaset -p ds9 file "{foo bar/my image.fits}"  
+        
+        This is assuming that the image loads into the current or next new frame, watch the internal
+        file and ext values because the user can switch frames through DS9 app itself      
 
-          To tell ds9 to open a file whose name or path includes spaces, 
-          surround the path with "{...}", e.g.
-          % xpaset -p ds9 file "{foo bar/my image.fits}"  
-          This is assuming that the image loads into the current or next new frame, watch the internal
-          file and ext values because the user can switch frames through DS9 app itself      
-
-          XPA needs to have the absolute path to the filename so that if the DS9 window was started
-          in another directory it can still find the file to load. arg. 
+        XPA needs to have the absolute path to the filename so that if the DS9 window was started
+        in another directory it can still find the file to load. arg. 
         """
         if fname:
             # see if the image is MEF or Simple
@@ -669,7 +820,7 @@ class ds9(object):
             try:
                 # strip the extensions for now
                 shortname = fname.split("[")[0]
-                isExtend = pyfits.getval(shortname, ext=0, keyword='EXTEND')
+                isExtend = fits.getval(shortname, ext=0, keyword='EXTEND')
                 if not isExtend or '[' in fname:
                     cstring = ('file fits {0:s}'.format(fname))
                 elif extver and not extname:
@@ -686,12 +837,73 @@ class ds9(object):
             print("No filename provided")
 
     def load_region(self, filename):
-        """Load regions from a file which uses ds9 standard formatting"""
+        """Load regions from a file which uses ds9 standard formatting
+        
+        Parameters
+        ----------
+        
+        filename: string
+            The file containing the DS9 style region description
+        
+        """
         if os.access(filename, os.F_OK):
             self.set("regions load %s" % filename)
         else:
             warnings.warn("No such file:{0:s}".format(filename))
 
+    def load_rgb(self, red, green, blue,scale=False, lockwcs=False):
+        """load 3 images into an RGBimage frame
+        
+        Parameters
+        ----------
+        red: string
+            The name of the fits file which will be loaded into the red channel
+            
+        green: string
+            The name of the fits file which will be loaded into the green channel
+            
+        blue: string
+            The name of the fits file which will be loaded into the blue channel
+            
+        scale: bool
+            If True, then each image will be scale with zscale() after loading
+            
+        lockwcs: bool
+            If True, then the image positions will be locked to each other using the WCS
+            information in their headers
+            
+        """
+        self.set("rgb new")
+        self.set("rgb channel red")
+        self.load_fits(red)
+        if scale:
+            self.scale()
+        self.set("rgb channel green")
+        self.load_fits(green)
+        if scale:
+            self.scale()
+        self.set("rgb channel blue")
+        self.load_fits(blue)
+        if scale:
+            self.scale()
+        if lockwcs:
+            self.set("rgb wcs yes")
+
+    def load_mef_as_cube(self,filename=None):
+        """Load a Mult-Extension-Fits image into one frame as an image cube"""    
+        if not filename:    
+            print("No filename specified")
+        else:
+            self.set("mecube new {0:s}".format(filename))
+
+    def load_mef_as_multi(self, filename=None):
+        """Load a Mult-Extension-Fits image into multiple frames"""    
+        if not filename:    
+            print("No filename specified")
+        else:
+            self.set("multiframe {0:s}".format(filename))
+        
+    
     def mark_region_from_array(self, input_points, rtype="circle", ptype="image", textoff=10, size=5):
         """mark ds9 regions regions  given an input list of tuples
 
@@ -796,8 +1008,49 @@ class ds9(object):
 
         print("output reg file saved to: {0:s}".format(out))
 
-    def match(self, coordsys="physical", frame=False, crop=False, fslice=False, scale=False, bin=False, colorbar=False, smooth=False, crosshair=False):
-        """match all other frames to the current frame"""
+    def match(self, coordsys="wcs", frame=True, crop=False, fslice=False, scale=False, bin=False, colorbar=False, smooth=False, crosshair=False):
+        """match all other frames to the current frame
+        
+        
+        Parameters
+        ----------
+        
+        coordsys: string, optional
+            The coordinate system to use
+        
+        frame: bool, optional
+            Match all other frames to the current frame, using the set coordsys
+            
+        crop: bool, optional
+            Set the current image display area, using the set coordsys
+            
+        fslice: bool, optional
+            Match current slice in all frames  
+        
+        scale: bool, optional
+            Match to the current scale for all frames
+            
+        bin: bool, optional
+            Match to the current binning for all frames
+            
+        colorbar: bool, optional
+            Match to the current colorbar for all frames
+            
+        smooth: bool, optional
+            Match to the current smoothing for all frames
+        
+        crosshair: bool, optional
+            Match the crosshair in all frames, using the current coordsys   
+        
+            
+        Notes
+        -----
+        
+        You can only choose one of the options at a time, and the logic will select the first True option
+        so set frame=False and something else in addition to your choice if you don't want the default option.
+        
+        
+        """
         cstring = "match "
         if frame:
             cstring += "frame {0:s}".format(corrdsys)
@@ -818,24 +1071,97 @@ class ds9(object):
         self.set(cstring)
 
     def nancolor(self, color="red"):
-        """set the not-a-number color, default is red"""
+        """set the not-a-number color, default is red
+        
+        Parameters
+        ----------
+        
+        color: string
+            The color to use for NAN pixels
+            
+            
+        """
         self.set("nan {0:s}".format(color))
 
     def panto_image(self, x, y):
-        """convenience function to change to x,y images coordinates using ra,dec
-           x, y in image coord"""
+        """convenience function to change to x,y  physical image coordinates
+        
+        
+        Parameters
+        ----------
+        x: float
+            X location in physical coords to pan to
+            
+        y: float
+            Y location in physical coords to pan to
+        
+        
+        """
 
-        self.set("pan to %10.8f %10.8f image" % (x, y))  # (ra, dec))
+        self.set("pan to {0:f} {0:f} image".format(x, y))  
 
     def panto_wcs(self, x, y, system='fk5'):
-        """pan to wcs coordinates in image"""
-        self.set("pan to %10.8f %10.8f wcs %s" % (x, y, system))
+        """pan to wcs location coordinates in image
+        
+       
+        Parameters
+        ----------
+        
+        x: string
+            The x location to move to, specified using the given system
+        y: string
+            The y location to move to
+        system: string
+            The reference system that x and y were specified in, they should be understood by DS9        
+        
+        """
+        self.set("pan to {0:s} {1:s} wcs %s".format(x, y, system))
 
+
+    def rotate(self, value=None, to=False):
+        """rotate the current frame (in degrees)
+        
+        Parameters
+        ----------
+        
+        value: float [degrees]
+            Rotate the current frame {value} degrees
+            If value is 0, then the current rotation is printed
+            
+        to: bool 
+            Rotate the current frame to the specified value 
+           
+        """
+        if value is None:
+            print("Image rotated at {0:s}".format(self.get("rotate")))
+                
+        elif to and value >= 0:
+            cstring="rotate to {0:s}".format(str(value))
+            self.set(cstring)    
+
+        elif value >0 :
+            cstring="rotate {0:s}".format(str(value))
+            self.set(cstring)
+        cstring="Image rotated at {0:s}".format(self.get("rotate"))
+        print(cstring)
+        logging.info(cstring)
+        
     def save_header(self, filename=None):
-        """save the header of the current image to a file"""
+        """save the header of the current image to a file
+        
+        
+        Parameters
+        ----------
+        
+        filename: string
+            The name of the file to which the header is saved. If none is specified, then it will be saved
+            to the filename of the currently displayed file with _header.txt appended
+            
+        """
         cstring = "header "
         if not filename:
             filename = self._filename + "_header.txt"
+            
         # leaving this out for now so that the current header of frame is used
         # it will need to be updated if an image cube is loaded I believe
         cstring += "save %s" % (filename)
@@ -844,22 +1170,60 @@ class ds9(object):
         logging.info("header saved to {0:s}".format(filename))
 
     def save_regions(self, filename=None):
-        """save the regions in the current window to a DS9 style regions file"""
+        """save the regions in the current window to a DS9 style regions file
+        
+        Parameters
+        ----------
+        
+        filename: string
+            The nameof th file to which the regions displayed in the current window are saved
+            If no filename is provided then it will try and save the regions to the name of the
+            file in the current display with _regions.txt appended
+            
+            If a file of that name already exists on disk it will no attempt to overwrite it 
+        
+        """
         regions = self.get("regions save")
 
+        if not filename:
+            filename=self._filename+"_regions.txt"
+            
         # check if the file already exists
         if not os.access(filename, os.F_OK):
             with open(filename, "w") as region_file:
                 region_file.write(regions)
         else:
-            warnings.warn("File already exists, try again")
+            warnings.warn("File already exists: {0} try again".format(filename))
+
+    def save_rgb(self,filename=None):
+        """save an rgbimage frame as an MEF fits file
+        
+        Parameters
+        ----------
+        
+        filename: string
+            The name of the output fits image
+        
+        """
+        if not filename:
+            print("No filename specified, try again")
+        else:
+            self.set("save rgbimage {0:s}".format(filename))
 
     def scale(self, scale='zscale'):
         """ The default zscale is the most widely used option
 
-
+        Parameters
+        ----------
+        
+        scale: string
+            The scale for ds9 to use, these are set strings of 
+            [linear|log|pow|sqrt|squared|asinh|sinh|histequ]
+            
+        Notes
+        -----
         The xpa doesn't return an error if you set an unknown scale,
-        it just doesn't do anything.
+        it just doesn't do anything, this is true for all the xpa calls
         """
 
         _help = """Syntax: 
@@ -888,33 +1252,61 @@ class ds9(object):
             print(_help)
 
     def set_region(self, region_string=""):
-        """display a region using the specifications in region_string"""
+        """display a region using the specifications in region_string
+        
+        Parameters
+        ----------
+        
+        region_string: string
+            Should take the form of a region string that DS9 is expecting
+        
+        Examples
+        --------
+        set_region("physical; ruler 200 300 200 400")
+        
+        """
         if region_string[-1] != "\n":
             region_string = region_string + "\n"
 
-        self.set("regions", region_string)
+        self.set("regions {0:s}".format(region_string))
 
     def showme(self):
         """raise the ds9 window"""
         self.set("raise")
 
     def showpix(self, close=False):
-        """display the pixel value table, close window when done"""
+        """display the pixel value table, close window when done
+        
+        Parameters
+        ----------
+        
+        close: bool, optional
+            If set to True, then the pixel table dialog window is closed
+        
+        
+        """
         self.get("pixeltable")
         if close:
             self.set("pixeltable close")
 
     def snapsave(self, filename=None, format=None, resolution=100):
-        """create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used
+        """create a snap shot of the current window and save in specified format. 
+        
+        Parameters
+        ----------
 
-            filename: str
-                filename of output image
+       filename: str, optioan
+           filename of output image, the extension in the filename can also be used to specify the format
+           If no filename is specified, then the filename will be constructed from the name of the
+           currently displayed image with _snap.jpg appended.
 
-            format: str
-                available formats are fits, eps, gif, tiff, jpeg, png
+       format: str, optional
+           available formats are fits, eps, gif, tiff, jpeg, png
+           If no format is specified the filename extension is used
 
-            resolution: int
-                1 to 100, for jpeg images
+       resolution: int, optional
+           1 to 100, for jpeg images
+           
         """
         if not filename:
             filename = self._filename + "_snap.jpg"
@@ -933,9 +1325,15 @@ class ds9(object):
     def view(self, img, header=None, frame=None):
         """ Display numpy image array
 
+        Parameters
+        ----------
         img: numpy array
-        header: pyfits.header
-        frame: display frame
+            The array containing data
+            
+        header: fits.header
+        frame: int
+            Display frame to use. The current frame is used if none is specfied. If no frame exists, then a new one is created.
+            
         """
 
         _frame_num = self.frame()
@@ -992,9 +1390,34 @@ class ds9(object):
         self.set("zoom to fit")
 
     def zoom(self, par="to fit"):
-        """ par can be a number, to fit, open or close"""
-        self.set("zoom %s" % (str(par)))
+        """ zoom using the specified command in par
+        
+        Parameters
+        ----------
+        par: string
+            it can be a number (ranging 0 to 8 effectively), and successive calls continue zooming in the same direction
+            it can be two numbers '4 2', which specify zoom on different axis
+            if can be to a specific value 'to 8' or 'to fit'
+            it can be 'open' to open the dialog box
+            it can be 'close' to close the dialog box (only valid if the box is already open)
+            
+        Examples
+        --------
+        zoom("0.1")
+  
+        """
+        if "close" in par:
+            try:
+                self.set("zoom %s" % (str(par)))
+            except XpaException:
+                print("The zoom dialog is not open")
+        else:
 
+            try:
+                self.set("zoom %s" % (str(par)))
+            except XpaException:
+                print("Problem zooming")
+                
 
 import atexit
 atexit.register(ds9._purge_tmp_dirs)

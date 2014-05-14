@@ -49,7 +49,7 @@
 <h2>Aperture Photometry<a class="headerlink" href="#aperture-photometry" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Perform manual aperture photometry on supplied image</li>
-<li>Make radial profile plot</li>
+<li>Make curve of growth plot</li>
 <li>Save the profile data and plot to files.</li>
 </ul>
 <div class="section" id="method-1">
@@ -58,7 +58,7 @@
 <ul class="simple">
 <li>This method first uses the &#8220;a&#8221; key to check out the aperture photometry with the default settings</li>
 <li>Display a profile plot around the start we choose</li>
-<li>Fine tune default radial profile plot according to the object we&#8217;d like to examine</li>
+<li>Fine tune default curve of growth plot according to the object we&#8217;d like to examine</li>
 <li>Make a new profile plot, print the plotted points to the screen, and save a copy of the plotting window for reference</li>
 </ul>
 <p>Here a picture of the area I&#8217;m looking at in my ds9 window ( created with ds9.snapsave(filename=&#8217;photometry_subsection.jpg&#8217;) )</p>
@@ -78,7 +78,7 @@ j       1D [gaussian|moffat] line fit
 k       1D [gaussian|moffat] column fit
 l       return line plot
 m       square region stats, in [region_size],defayult is median
-r       return radial profile plot *
+r       return curve of growth plot *
 s       save current figure to disk as [plot_name]
 w       display a surface plot around the cursor location
 x       return x,y coords of pixel
@@ -102,13 +102,13 @@ ds9.aimexam() # print out the parameters for aperture photometry, returns a dict
  'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
 
-ds.imexam() #lets look at a radial profile (curve of growth) for the star in question
+ds.imexam() #lets look at a curve of growth for the star in question
 
 xc=813.109250   yc=706.687612 &lt;--printed because centering is turned on
 radii:[1 2 3 4 5 6 7 8]
 flux:[131647.90413345056, 498482.2347664542, 914397.81480508228, 1132799.3621327095, 1329352.9123961448, 1519686.5943709521, 1608342.6952771661, 1677361.8581732502]</pre>
 </div>
-<img alt="radial profile plot with defaults" src="_images/photometry_example_radplot.png" style="width: 600px; height: 400px;" />
+<img alt="curve of growth plot with defaults" src="_images/photometry_example_radplot.png" style="width: 600px; height: 400px;" />
 <div class="highlight-python"><pre>It looks like we should extend the radius out for the photometry to enclose the turn-off, and extend the sky annulus along with that.
 Let's alter the defaults for the aperture photometry, get some new values and then make a nicer curve of growth.
 
@@ -117,14 +117,14 @@ ds9.exam.aperphot_pars["radius"][0]=10
 ds9.exam.aperphot_pars["skyrad"][0]=20 #it looks like there are some nearby spoilers
 ds9.exam.aperphot_pars["width"][0]=10  #maybe we should just give the sky some more space (haha)
 
-We'll update the radial plot to match those:
+We'll update the curve of growth plot to match those:
 
-ds9.exam.radial_profile_pars
+ds9.exam.curve_of_growth_pars
 
-{'function': ['radial_profile'],
+{'function': ['curve_of_growth_plot'],
 'center': [True, 'Solve for center using 2d Gaussian? [bool]'],
 'pointmode': [True, 'plot points instead of lines? [bool]'],
-'title': ['Radial profile', 'Title of the plot'],
+'title': ['Curve of Growth', 'Title of the plot'],
 'buffer': [25.0, 'Background inner radius in pixels,from center of star'],
 'background': [True, 'Fit and subtract background? [bool]'],
 'magzero': [25.0, 'magnitude zero point'],
@@ -139,16 +139,16 @@ ds9.exam.radial_profile_pars
 'getdata': [True, 'return the plotted data values']}
 
 
-ds9.exam.radial_profile_pars["buffer"][0]=20
-ds9.exam.radial_profile_pars["rplot"][0]=15 #we'll go a little farther than the aperture photometry
-ds9.exam.radial_profile_pars["width"][0]=10
-ds9.exam.radial_profile_pars["title"][0]="My favorite star at 813,706"
+ds9.exam.curve_of_growth_pars["buffer"][0]=20
+ds9.exam.curve_of_growth_pars["rplot"][0]=15 #we'll go a little farther than the aperture photometry
+ds9.exam.curve_of_growth_pars["width"][0]=10
+ds9.exam.curve_of_growth_pars["title"][0]="My favorite star at 813,706"
 
 xc=813.109250   yc=706.437612
 radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]
 flux:[131842.06947972983, 499258.8961515713, 916145.30292159575, 1135906.0076731779, 1334207.0460531267, 1526676.5468370058, 1617856.7972448503, 1689788.4403351238, 1767218.0485707363, 1823198.9507934339, 1859976.8895604345, 1898754.5043149013, 1936825.2692955555, 1970456.6085569942, 2025720.3180976035]</pre>
 </div>
-<p>Below are the final radial plot as well as the the gaussian fit to the columns of the same star:</p>
+<p>Below are the final curve of growth plot as well as the the gaussian fit to the columns of the same star:</p>
 <img alt="radial profile plot with alterations" src="_images/photometry_example_radplot2.png" style="width: 600px; height: 400px;" />
 <img alt="gaussian fit column profile of star" src="_images/column_fit_phot_examp.png" style="width: 600px; height: 400px;" />
 </div>
@@ -160,7 +160,7 @@ flux:[131842.06947972983, 499258.8961515713, 916145.30292159575, 1135906.0076731
 <li>We then use the &#8220;a&#8221; key to check out the aperture photometry with the default settings, and then with our our own settings</li>
 <li>We can then use the log file, to create a plot</li>
 </ul>
-<p>Here a picture of the area I&#8217;m looking at in my ds9 window ( created with ds9.snapsave(filename=&#8217;photometry_subsection.jpg&#8217;) )</p>
+<p>Here a picture of the area I&#8217;m looking at in my DS9 window ( created with ds9.snapsave(filename=&#8217;photometry_subsection.jpg&#8217;) )</p>
 <img alt="subsection of image being examined" src="_images/photometry_subsection.png" style="width: 600px; height: 400px;" />
 <div class="highlight-python"><pre>ds9.setlog(filename="aperture_phot.log")
 ds9.unlearn() #reset all the parameters to their default values for good measure

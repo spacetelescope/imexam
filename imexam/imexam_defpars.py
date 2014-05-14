@@ -17,7 +17,7 @@ report_stat_pars = {"function": ["report_stat", ],
                     "region_size": [5, "region size in pixels to use"],
                     }
 
-radial_profile_pars = {"function": ["radial_profile", ],
+curve_of_growth_pars = {"function": ["curve_of_growth", ],
                        "title": ["Curve of growth", "Title of the plot"],
                        "xlabel": ["radius", "The string for the xaxis label"],
                        "ylabel": ["Flux", "The string for the yaxis label"],

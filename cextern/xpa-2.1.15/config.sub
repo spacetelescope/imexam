@@ -308,9 +308,8 @@ case $basic_machine in
 	  basic_machine=$basic_machine-pc
 	  ;;
 	# Object if more than one company name word.
-	*-*-*)
-		echo Invalid configuration \`$1\': machine \`$basic_machine\' not recognized 1>&2
-		exit 1
+	RHEL)
+		basic_machine=$basic_machine-pc
 		;;
 	# Recognize the basic CPU types with company name.
 	580-* \

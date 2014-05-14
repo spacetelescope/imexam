@@ -1216,6 +1216,10 @@ EOF
 	esac
 	echo ${UNAME_PROCESSOR}-apple-darwin${UNAME_RELEASE}
 	exit ;;
+	*:*.el*:*:*)
+		echo RHEL
+		exit
+		;;
     *:procnto*:*:* | *:QNX:[0123456789]*:*)
 	UNAME_PROCESSOR=`uname -p`
 	if test "$UNAME_PROCESSOR" = "x86"; then

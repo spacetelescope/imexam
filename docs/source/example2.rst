@@ -4,7 +4,7 @@ Example 2
 Aperture Photometry
 -------------------
 * Perform manual aperture photometry on supplied image
-* Make radial profile plot
+* Make curve of growth plot
 * Save the profile data and plot to files.
 
 
@@ -16,7 +16,7 @@ Assuming we've already connected to the DS9 window where the data is displayed w
 
 * This method first uses the "a" key to check out the aperture photometry with the default settings
 * Display a profile plot around the start we choose
-* Fine tune default radial profile plot according to the object we'd like to examine
+* Fine tune default curve of growth plot according to the object we'd like to examine
 * Make a new profile plot, print the plotted points to the screen, and save a copy of the plotting window for reference
 
 Here a picture of the area I'm looking at in my ds9 window ( created with ds9.snapsave(filename='photometry_subsection.jpg') )
@@ -44,7 +44,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with ds9.sn
         k	1D [gaussian|moffat] column fit
         l	return line plot
         m	square region stats, in [region_size],defayult is median
-        r	return radial profile plot *
+        r	return curve of growth plot *
         s	save current figure to disk as [plot_name]
         w	display a surface plot around the cursor location
         x	return x,y coords of pixel
@@ -68,7 +68,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with ds9.sn
          'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
 
-        ds.imexam() #lets look at a radial profile (curve of growth) for the star in question
+        ds.imexam() #lets look at a curve of growth for the star in question
         
         xc=813.109250	yc=706.687612 <--printed because centering is turned on
         radii:[1 2 3 4 5 6 7 8] 
@@ -78,7 +78,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with ds9.sn
 .. image:: photometry_example_radplot.png
     :height: 400
     :width: 600
-    :alt: radial profile plot with defaults
+    :alt: curve of growth plot with defaults
     
     
 ::
@@ -91,14 +91,14 @@ Here a picture of the area I'm looking at in my ds9 window ( created with ds9.sn
         ds9.exam.aperphot_pars["skyrad"][0]=20 #it looks like there are some nearby spoilers
         ds9.exam.aperphot_pars["width"][0]=10  #maybe we should just give the sky some more space (haha)
         
-        We'll update the radial plot to match those:
+        We'll update the curve of growth plot to match those:
         
-        ds9.exam.radial_profile_pars
+        ds9.exam.curve_of_growth_pars
         
-        {'function': ['radial_profile'], 
+        {'function': ['curve_of_growth_plot'], 
         'center': [True, 'Solve for center using 2d Gaussian? [bool]'], 
         'pointmode': [True, 'plot points instead of lines? [bool]'], 
-        'title': ['Radial profile', 'Title of the plot'], 
+        'title': ['Curve of Growth', 'Title of the plot'], 
         'buffer': [25.0, 'Background inner radius in pixels,from center of star'], 
         'background': [True, 'Fit and subtract background? [bool]'], 
         'magzero': [25.0, 'magnitude zero point'], 
@@ -113,10 +113,10 @@ Here a picture of the area I'm looking at in my ds9 window ( created with ds9.sn
         'getdata': [True, 'return the plotted data values']}
         
         
-        ds9.exam.radial_profile_pars["buffer"][0]=20
-        ds9.exam.radial_profile_pars["rplot"][0]=15 #we'll go a little farther than the aperture photometry
-        ds9.exam.radial_profile_pars["width"][0]=10
-        ds9.exam.radial_profile_pars["title"][0]="My favorite star at 813,706"
+        ds9.exam.curve_of_growth_pars["buffer"][0]=20
+        ds9.exam.curve_of_growth_pars["rplot"][0]=15 #we'll go a little farther than the aperture photometry
+        ds9.exam.curve_of_growth_pars["width"][0]=10
+        ds9.exam.curve_of_growth_pars["title"][0]="My favorite star at 813,706"
         
         xc=813.109250	yc=706.437612
         radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15] 
@@ -124,7 +124,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with ds9.sn
 
 
         
-Below are the final radial plot as well as the the gaussian fit to the columns of the same star:
+Below are the final curve of growth plot as well as the the gaussian fit to the columns of the same star:
 
 
 .. image:: photometry_example_radplot2.png
@@ -149,7 +149,7 @@ Assuming we've already connected to the DS9 window where the data is displayed w
 * We then use the "a" key to check out the aperture photometry with the default settings, and then with our our own settings
 * We can then use the log file, to create a plot
 
-Here a picture of the area I'm looking at in my ds9 window ( created with ds9.snapsave(filename='photometry_subsection.jpg') )
+Here a picture of the area I'm looking at in my DS9 window ( created with ds9.snapsave(filename='photometry_subsection.jpg') )
 
 .. image:: photometry_subsection.png
     :height: 400

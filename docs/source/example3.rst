@@ -24,11 +24,11 @@ I'll use the IRAF DAOFind to find objects in my field:
 
     from pyraf import iraf
     from iraf import noao,digiphot,daophot
-    import pyfits
+    from astropy.io import fits
     
     image='iabf01bzq_flt.fits'
     
-    pyfits.info('iabf01bzq_flt.fits')
+    fits.info('iabf01bzq_flt.fits')
     
         Filename: iabf01bzq_flt.fits
         No.    Name         Type      Cards   Dimensions   Format
@@ -209,13 +209,13 @@ tuple, or a string containing "x,y,comment".
     Out[91]: (807.57500000000005, 2.4449999999999998, 16)
    
     
-Let's open up a ds9 window (if you haven't already) and display your image. This will let us display our source locations and play with them
+Let's open up a DS9 window (if you haven't already) and display your image. This will let us display our source locations and play with them
 
 ::
 
     ds9=imexam.connect()
     ds9.load_fits('iabf01bzq_flt.fits')
-    ds9.scale() #scale to ds9 zscale by default
+    ds9.scale() #scale to DS9 zscale by default
     ds9.mark_region_from_array(locations)
     
     
@@ -235,7 +235,7 @@ Now we can get rid of some of the stars by hand and save a new file of locations
     :alt: subsection of image being examined
     
     
-Now you can save these new regions to a ds9 style region file, either through DS9 or imexam
+Now you can save these new regions to a DS9 style region file, either through DS9 or imexam
 
 ::
     
@@ -270,10 +270,10 @@ Here is what the saved region file looks like, you can choose to import this fil
 Advanced Usage II - Cycle through objects from a list
 -----------------------------------------------------
 
-This example will step through a list of object locations and center that object in the ds9 window with a narrow zoom so that you can examine it further (think about PSF profile creation options here..)
+This example will step through a list of object locations and center that object in the DS9 window with a narrow zoom so that you can examine it further (think about PSF profile creation options here..)
 
 
-If you haven't already, start ds9 and load your image into the viewer. I'll assume that you started DS9 outside of imexam and will need to connect to the window first.
+If you haven't already, start DS9 and load your image into the viewer. I'll assume that you started DS9 outside of imexam and will need to connect to the window first.
 
 ::
 
@@ -311,7 +311,7 @@ Read in your list of object locations, I'll use the same DAOphot targets from th
             
     
 
-Take your list of locations and cycle through each one, displaying a zoomed in section on the ds9 window and starting imexam for each coordinate.
+Take your list of locations and cycle through each one, displaying a zoomed in section on the DS9 window and starting imexam for each coordinate.
 I'm just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition
 in conjuection with the ds9.readcursor()
 

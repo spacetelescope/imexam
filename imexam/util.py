@@ -23,6 +23,7 @@ def find_ds9():
             return possible
 
 def find_xpans():
+    """Find the local path to the xpans executable"""
     path="xpans"
     for dirname in os.getenv("PATH").split(":"):
         possible = os.path.join(dirname,path)
@@ -32,9 +33,10 @@ def find_xpans():
 def list_active_ds9():
     """Display information about the DS9 windows currently registered with XPA and runnning
 
-
+    Notes
+    -----
     when I start a unix socket with connect() the xpa register isn't seeing it when I call this function
-    I think because it's only listening on the inet socket which starts by default. That's if xpans is installed
+    I think because it's only listening on the inet socket which starts by default in the OS. That's if xpans is installed
     on the machine. Otherwise, no nameserver is running at all.
     """
     try:
@@ -75,6 +77,8 @@ def display_help():
 def set_logging(filename=None, on=True, level=logging.DEBUG):
     """Turn on or off logging to a file
 
+    Notes
+    -----
     basicConfig defaults to opening the file in append mode
     There's still an issue here that if the user deletes the
     log file and then continues on with functions which log

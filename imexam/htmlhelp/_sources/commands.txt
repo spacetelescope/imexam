@@ -6,7 +6,9 @@ close():
     close the DS9 window and end the connection
 
 view(img, header=None, frame=None, asFits=False): 
-    Load an image array into a ds9 frame, if no frame is specified a new frame is created
+    Load an image array into a DS9 frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
+    A basic header is created and sent to DS9. You can look at this header with disp_header() but get_header() will return an error because it 
+    looks for a filename, and no file was loaded, just the array.
 
 readcursor(): 
     returns image coordinate postion and key pressed as a tuple of the for float(x), float(y), str(key)
@@ -14,9 +16,39 @@ readcursor():
 make_region(infile,doLabels=False): 
     make an input reg file with  [x,y,comment] to a view specific reg file, the input file should contain lines with x,y,comment    
 
+    infile: str
+        input filename
+
+    labels: bool
+        add labels to the regions
+
+    header: int
+        number of header lines in text file to skip
+
+    textoff: int
+        offset in pixels for labels
+
+    rtype: str
+        region type, one of the acceptable ds9 regions
+
+    size: int
+        size of the region type
+
 mark_region_from_array(input_points,rtype="circle",ptype="image",textoff=10,size=5):
     mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified
-    If no comment is specified, only the mark will appear
+
+    input_points: a tuple, or list of tuples, or a string: (x,y,comment), 
+
+
+    ptype: string
+        the reference system for the point locations, image|physical|fk5
+    rtype: string
+        the matplotlib style marker type to display
+    size: int
+        the size of the region marker
+
+    textoff: string
+        the offset for the comment text, if comment is empty it will not show
     
 unlearn():
     reset all the imexam default parameters
@@ -34,7 +66,7 @@ imexam():
          'y': 'return x,y coords of pixel',
          'l': 'return line plot',
          'c': 'return column plot',
-         'r': 'return radial profile plot',
+         'r': 'return curve of growth plot',
          'h': 'return a histogram in the region around the cursor'
          'e': 'return a contour plot in a region around the cursor'
          's': 'save current figure to plotname'
@@ -56,7 +88,7 @@ imexam():
 
          limexam(): return dict of current parameters for  line plots
 
-         rimexam(): return dict of current parameters for radial profile plots
+         rimexam(): return dict of current parameters for curve of growth plots
 
          wimexam(): return dict of current parameters for surface plots
     
@@ -118,16 +150,16 @@ Display a plot of the points through either the line or column closest to the cu
 
 
 
-Radial profile plot
--------------------
+Curve of Growth plot
+--------------------
 This displays a curve of growth for the flux around the current pointer location in successively larger radii. If centering is on, the center is computed close to the star using a 2d gaussian. 
 
 ::
     
-    radial_profile_plot(x,y)
+    curve_of_growth_plot(x,y)
 
-    radial_profile_pars={"function":["radial_profile",],
-                              "title":["Radial profile","Title of the plot"],
+    curve_of_growth_pars={"function":["curve_of_growth_plot",],
+                              "title":["Curve of Growth","Title of the plot"],
                               "xlabel":["radius","The string for the xaxis label"],
                               "ylabel":["Flux","The string for the yaxis label"],
                               "center":[True,"Solve for center using 2d Gaussian? [bool]"],
@@ -147,7 +179,7 @@ This displays a curve of growth for the flux around the current pointer location
 .. image:: radial_profile.png
     :height: 400
     :width: 600
-    :alt: Radial profile plot around star
+    :alt: Curve of growth  plot around star
 
 
 

@@ -100,44 +100,92 @@ def exponential(x, a, b, c):
 
 
 def gaussian(x, a, mu, sigma, b=0):
-    """gaussian function
+    """Functional form for the gaussian 1D function
 
-    1D
-    x is the data
-    a is amplitude, the max value of the fitted PSF and value at the centroid coordinates
-    mu is the mean
-    sigma is the standard dev
-    b is the average local background
+    Parameters
+    ----------
+    x: float
+        is the data
+    a: float
+        is amplitude, the max value of the fitted PSF and value at the centroid coordinates
+    mu: float
+        is the mean
+    sigma: float
+        is the standard dev
+
+    b: float
+        is the average local background
+            
     """
     return b + a * np.exp(-(x - mu) ** 2 / (2. * sigma ** 2))
 
 
 def gfwhm(sigma):
-    """gaussian full width half max"""
+    """Compute the gaussian full width half max
+    
+    Parameters
+    ----------
+    
+    sigma: float
+        The input sigma to use
+    
+    Returns
+    -------
+    The value of the FWHM for the gaussian 
+    
+    """
     return 2. * sigma * np.sqrt(2. * np.log(2.))
 
 
 def moffat(x, alpha, beta, mu, sigma, b=0):
-    """http://en.wikipedia.org/wiki/Moffat_distribution
+    """Functional form for a 1D Moffat profile
 
-    1D
-    Beta controls the overall shape of the fitting function, when beta=1 it's a lorentzian
-    b is the average local background
-    mu is the mean
-    alpha is the possible seeing for the psf
+    Parameters
+    ----------
+    x: float
+        the data
+    
+    alpha: float
+        the possible seeing for the psf
+
+    beta: float
+        controls the overall shape of the fitting function, when beta=1 it's a lorentzian
+    
+    b: float
+        The average local background
+    mu: float
+        The mean
+   
+    
+    See Also
+    --------
+    http://en.wikipedia.org/wiki/Moffat_distribution
+    
     """
     return b + alpha / (((x - mu) ** 2 / sigma ** 2 + 1) ** (1 - beta))
 
 
 def mfwhm(alpha, beta):
-    """moffat full width half max"""
+    """compute the <offat full width half max
+    
+    Returns
+    -------
+    The value of the FWHM for the Moffat profile with give alpha and beta
+    
+    """
     return 2. * alpha * np.sqrt(2 ** (1. / beta) - 1.)
 
 
 def gauss_center(data):
     """center the data  by fitting a 2d gaussian to the region 
 
-    data should be a 2d array, the initial center is used to estimate the fit center, better way?
+    Parameters
+    ----------
+ 
+    data: float
+        should be a 2d array, the initial center is used to estimate the fit center
+    
+    
     """
 
     # use a smaller bounding box so that we are only fitting the local data
@@ -152,11 +200,25 @@ def gauss_center(data):
 
 
 def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
-    """circular gaussian function
-    x,y are the values at x,y
-    xo,yo are the means for x and y
+    """Functional definition for a circular 2D gaussian function
+    
+    Parameters
+    ----------
+    (y,x): float array
+        The values at x,y
+    xo: float
+        The mean for x
+    
+    yo: float
+        The mean for y 
+        
+    Notes
+    -----
     sigmax=sigmay=circular otherwise elliptical
-    see http://en.wikipedia.org/wiki/Gaussian_function
+    
+    See Also
+    --------
+    http://en.wikipedia.org/wiki/Gaussian_function
     """
     xo = float(xo)
     yo = float(yo)
@@ -169,11 +231,25 @@ def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
 
 
 def gaussian2de((y, x), amp, xo, yo, sigmax, sigmay, theta, offset):
-    """elliptical gaussian function
-    x,y are the values at x,y
-    xo,yo are the means for x and y
+    """Functional definition for the 2D elliptical gaussian function
+    
+    Parameters
+    ----------
+    (x,y): float array  are the values at x,y
+    
+    xo: float
+        mean for x
+    
+    yo: float
+        mean for y
+        
+    Notes
+    -----    
     sigmax=sigmay=circular otherwise elliptical
-    see http://en.wikipedia.org/wiki/Gaussian_function
+    
+    See Also
+    --------
+    http://en.wikipedia.org/wiki/Gaussian_function
     """
     xo = float(xo)
     yo = float(yo)

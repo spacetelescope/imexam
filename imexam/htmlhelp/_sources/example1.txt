@@ -73,7 +73,7 @@ Plot stuff at cursor location, in a while loop. Type a key when the mouse is ove
      'y': 'return x,y coords of pixel',
      'l': 'return line plot',
      'c': 'return column plot',
-     'r': 'return radial profile plot',
+     'r': 'return curve of growth plot',
      'h': 'return a histogram in the region around the cursor'
      'e': 'return a contour plot in a region around the cursor'
      's': 'save current figure to plotname'

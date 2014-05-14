@@ -9,10 +9,17 @@ import warnings
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import time
-import photutils
 import logging
 from copy import deepcopy
 
+
+try:
+    import photutils
+    photutils_installed=True
+except ImportError:
+    print("photutils not installed, photometry functionality in imexam() not available")
+    photutils_installed=False
+    
 from . import math_helper
 from . import imexam_defpars
 
@@ -41,7 +48,7 @@ class Imexamine(object):
                                     'y': (self.show_xy_coords, 'return x,y coords of pixel'),
                                     'l': (self.plot_line, 'return line plot'),
                                     'c': (self.plot_column, 'return column plot'),
-                                    'r': (self.radial_profile_plot, 'return radial profile plot'),
+                                    'r': (self.curve_of_growth_plot, 'return curve of growth plot'),
                                     'h': (self.histogram_plot, 'return a histogram in the region around the cursor'),
                                     'e': (self.contour_plot, 'return a contour plot in a region around the cursor'),
                                     's': (self.save_figure, 'save current figure to disk as [plot_name]'),
@@ -69,7 +76,21 @@ class Imexamine(object):
         print()
 
     def do_option(self, x, y, key):
-        """run the option"""
+        """run the option
+        
+        Parameters
+        ----------
+        
+        x: int
+            The x location of the cursor or data point
+            
+        y: int
+            The y location of the cursor or data point
+            
+        key: string
+            The key which was pressed
+               
+        """
         self.imexam_option_funcs[key][0](x, y)
 
     def get_options(self):
@@ -79,15 +100,36 @@ class Imexamine(object):
         return keys
 
     def option_descrip(self, key, field=1):
-        """return the looked up dictionary of options"""
+        """return the looked up dictionary of options
+        
+        
+        Parameters
+        ----------
+        key: string
+            The key which was pressed, it relates to the function to call
+            
+        field: int
+            This tells where in the option dictionary the function name can be found
+        
+        
+        """
         return self.imexam_option_funcs[key][field]
 
     def set_data(self, data=np.zeros(0)):
-        """set the data that imexamine uses"""
+        """initialize the data that imexamine uses"""
         self._data = data
 
     def set_plot_name(self, filename=None):
-        """set the default plot name for the "s" key"""
+        """set the default plot name for the "s" key
+        
+        Parameters
+        ----------
+        filename: string
+            The name which is used to save the current plotting window to a file
+            The extension on the name decides which file type is used
+        
+        
+        """
         if not filename:
             warnings.warn("No filename provided")
         else:
@@ -101,7 +143,7 @@ class Imexamine(object):
         """set all pars to their defaults which are stored in a file with dicts"""
 
         self.aperphot_def_pars = imexam_defpars.aperphot_pars
-        self.radial_profile_def_pars = imexam_defpars.radial_profile_pars
+        self.curve_of_growth_def_pars = imexam_defpars.curve_of_growth_pars
         self.surface_def_pars = imexam_defpars.surface_pars
         self.line_fit_def_pars = imexam_defpars.line_fit_pars
         self.column_fit_def_pars = imexam_defpars.column_fit_pars
@@ -119,7 +161,7 @@ class Imexamine(object):
         """set a copy of the default pars that users can alter"""
 
         self.aperphot_pars = deepcopy(self.aperphot_def_pars)
-        self.radial_profile_pars = deepcopy(self.radial_profile_def_pars)
+        self.curve_of_growth_pars = deepcopy(self.curve_of_growth_def_pars)
         self.surface_pars = deepcopy(self.surface_def_pars)
         self.line_fit_pars = deepcopy(self.line_fit_def_pars)
         self.column_fit_pars = deepcopy(self.column_fit_def_pars)
@@ -141,11 +183,17 @@ class Imexamine(object):
     def new_plot_window(self, x, y):
         """make the next plot in a new plot window
 
+
+        Description
+        -----------     
         Once the new plotting window is open all plots will be directed towards it
         The old window cannot be used again
 
+        Notes
+        -----
         x,y are not used here, but the calls are setup to take them
         for all imexam options. Is there a better way to do the calls in general?
+        
         """
         counter = len(self._plot_windows) + 1
         self._figure_name = "imexam" + str(counter)
@@ -155,11 +203,16 @@ class Imexamine(object):
     def register(self, user_funcs):
         """register a new imexamine function made by the user
 
+        Parameters
+        ----------
         user_funcs: dict
             Contains a dictionary where each key is the binding for the (function,descrition) tuple
 
+        Notes
+        -----
         The new binding will be added to the dictionary of imexamine functions as long as the key is unique
         The new functions do not have to have default dictionaries associated with them
+        
         """
         if type(user_funcs) != type(dict()):
             warnings.warn("Your input needs to be a dictionary")
@@ -273,8 +326,14 @@ class Imexamine(object):
         logging.info(pstr)
 
     def aper_phot(self, x, y):
-        """Perform aperture photometry, uses photutils functions
+        """Perform aperture photometry, uses photutils functions, photutils must be available
 
+
+        Notes
+        -----
+        
+        For IRAF:
+        
             Rapert,  sum,  area  and  flux  are  the  radius  of the aperture in
             pixels, the total number of counts including sky  in  the  aperture,
             the  area  of the aperture in square pixels, and the total number of
@@ -286,61 +345,76 @@ class Imexamine(object):
                     merr = 1.0857 * error / flux
                    error = sqrt (flux / epadu + area * stdev**2 +
                            area**2 * stdev**2 / nsky)      
-          """
-        sigma = 0.  # no centering
-        amp = 0.  # no centering
-        if self.aperphot_pars["center"][0]:
-            center = True
-            delta = 10
-            popt = self.gauss_center(x, y, delta)
-            if 5 > popt.count(0) > 1:  # an error occurred in centering
-                warnings.warn("Problem fitting center, using original coordinates")
+          """  
+        if not photutils_installed:
+            print("Install photutil to enable")
+        else:
+                      
+            sigma = 0.  # no centering
+            amp = 0.  # no centering
+            if self.aperphot_pars["center"][0]:
+                center = True
+                delta = 10
+                popt = self.gauss_center(x, y, delta)
+                if 5 > popt.count(0) > 1:  # an error occurred in centering
+                    warnings.warn("Problem fitting center, using original coordinates")
+                else:
+                    amp, x, y, sigma, offset = popt
+
+            radius = int(self.aperphot_pars["radius"][0])
+            width = int(self.aperphot_pars["width"][0])
+            inner = int(self.aperphot_pars["skyrad"][0])
+            subsky = bool(self.aperphot_pars["subsky"][0])
+
+            aper_flux = photutils.aperture_photometry(
+                self._data, x, y, apertures=photutils.CircularAperture(radius), subpixels=1, method="center")
+            aperture_area = np.pi * (radius) ** 2
+            if subsky:
+                outer = inner + width
+                annulus_sky = photutils.annulus_circular(self._data, x, y, inner, outer)
+                annulus_area = np.pi * (outer ** 2 - inner ** 2)
+
+                total_flux = aper_flux - annulus_sky * (aperture_area / annulus_area)
             else:
-                amp, x, y, sigma, offset = popt
+                total_flux = aper_flux
 
-        radius = int(self.aperphot_pars["radius"][0])
-        width = int(self.aperphot_pars["width"][0])
-        inner = int(self.aperphot_pars["skyrad"][0])
-        subsky = bool(self.aperphot_pars["subsky"][0])
+            # compute the magnitude of the sky corrected flux
+            magzero = float(self.aperphot_pars["zmag"][0])
+            mag = magzero - 2.5 * (np.log10(total_flux))
 
-        aper_flux = photutils.aperture_photometry(
-            self._data, x, y, apertures=photutils.CircularAperture(radius), subpixels=1, method="center")
-        aperture_area = np.pi * (radius) ** 2
-        if subsky:
-            outer = inner + width
-            annulus_sky = photutils.annulus_circular(self._data, x, y, inner, outer)
-            annulus_area = np.pi * (outer ** 2 - inner ** 2)
+            pheader = ("x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky".format(magzero))
+            if center:
+                pheader += ("\tfwhm")
+                pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(
+                    x, y, radius, total_flux, mag, annulus_sky / annulus_area, math_helper.gfwhm(sigma))
+            else:
+                pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(
+                    x, y, radius, total_flux, mag, annulus_sky / annulus_area,)
 
-            total_flux = aper_flux - annulus_sky * (aperture_area / annulus_area)
-        else:
-            total_flux = aper_flux
-
-        # compute the magnitude of the sky corrected flux
-        magzero = float(self.aperphot_pars["zmag"][0])
-        mag = magzero - 2.5 * (np.log10(total_flux))
-
-        pheader = ("x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky".format(magzero))
-        if center:
-            pheader += ("\tfwhm")
-            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(
-                x, y, radius, total_flux, mag, annulus_sky / annulus_area, math_helper.gfwhm(sigma))
-        else:
-            pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(
-                x, y, radius, total_flux, mag, annulus_sky / annulus_area,)
-
-        print(pheader + pstr)
-        logging.info(pheader + pstr)
+            print(pheader + pstr)
+            logging.info(pheader + pstr)
 
     def line_fit(self, x, y, form=None, subsample=4):
         """compute the 1d  fit to the line of data using the specified form
 
-        subsample is used to draw the fitted function on a finer scale than the data
-        delta is the range of data values to use around the x,y location
-        form is the functional form to use
 
+        Parameters
+        ----------
+        form: string
+            This is the functional form specified  line fit parameters
+            Currently gaussian or moffat
+            
+        subsample: int
+            used to draw the fitted function on a finer scale than the data
+            delta is the range of data values to use around the x,y location
+            form is the functional form to use
+
+        Notes
+        -----
         The background is currently ignored
 
-        if centering is True, then the center is fit with a 2d gaussian
+        If centering is True in the parameter set, then the center is fit with a 2d gaussian
+        
         """
         if not form:
             form = getattr(math_helper, self.line_fit_pars["func"][0])
@@ -411,12 +485,19 @@ class Imexamine(object):
     def column_fit(self, x, y, form=None, subsample=4):
         """compute the 1d  fit to the column of data
 
-        subsample is used to draw the fitted gaussian
+        Parameters
+        ----------
+        form: string
+            This is the functional form specified  line fit parameters
+            Currently gaussian or moffat
+        
+        subsample: int
+            used to draw the fitted gaussian
+        
+        Notes
+        -----
         delta is the range of data values to use around the x,y location
-        form is the functional form to use
-
         The background is currently ignored
-
         if centering is True, then the center is fit with a 2d gaussian
 
         """
@@ -486,7 +567,14 @@ class Imexamine(object):
         logging.info(pstr)
 
     def gauss_center(self, x, y, delta=10):
-        """return the 2d gaussian fit center """
+        """return the 2d gaussian fit center 
+        
+        Parameters
+        ----------
+        delta: int
+            The range of data values to use around the x,y location for calculating the center
+
+        """
         chunk = self._data[y - delta:y + delta, x - delta:x + delta]  # flipped from xpa
         try:
             amp, ycenter, xcenter, sigma, offset = math_helper.gauss_center(chunk)
@@ -498,85 +586,112 @@ class Imexamine(object):
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def radial_profile_plot(self, x, y):
+    def curve_of_growth_plot(self, x, y):
         """display the radial profile plot for the star
 
         """
-        delta = 10  # chunk size to find center
-        subpixels = 10  # for line fit later
-
-        # center using a 2d gaussian
-        if self.radial_profile_pars["center"][0]:
-            # pull out a small chunk
-            popt = self.gauss_center(x, y, delta)
-            if popt.count(0) > 1:  # an error occurred in centering
-                centerx = x
-                centery = y
-                warnings.warn("Problem fitting center, using original coordinates")
-            else:
-                amp, centerx, centery, sigma, offset = popt
+        if not photutils_installed:
+            print("Install photutils to enable")
         else:
-            centery = y
-            centerx = x
-        centerx = int(centerx)
-        centery = int(centery)
 
-        # now grab aperture sums going out from that central pixel
-        inner = self.radial_profile_pars["buffer"][0]
-        width = self.radial_profile_pars["width"][0]
-        router = self.radial_profile_pars["rplot"][0]
-        getdata = bool(self.radial_profile_pars["getdata"][0])
+            delta = 10  # chunk size to find center
+            subpixels = 10  # for line fit later
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
-        fig.add_subplot(111)
-        ax = fig.gca()
-        title = self.radial_profile_pars["title"][0]
-        ax.set_xlabel(self.radial_profile_pars["xlabel"][0])
-        ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
-
-        radius = list()
-        flux = list()
-        rapert = int(router) + 1
-        for rad in range(1, rapert, 1):
-            aper_flux, annulus_sky, skysub_flux = self._aperture_phot(
-                centerx, centery, radsize=rad, sky_inner=inner, skywidth=width, method="exact")
-            radius.append(rad)
-            if self.radial_profile_pars["background"][0]:
-                if inner < router:
-                    warnings.warn("Your sky annulus is inside your photometr radius rplot")
-                flux.append(skysub_flux)
+            # center using a 2d gaussian
+            if self.curve_of_growth_pars["center"][0]:
+                # pull out a small chunk
+                popt = self.gauss_center(x, y, delta)
+                if popt.count(0) > 1:  # an error occurred in centering
+                    centerx = x
+                    centery = y
+                    warnings.warn("Problem fitting center, using original coordinates")
+                else:
+                    amp, centerx, centery, sigma, offset = popt
             else:
-                flux.append(aper_flux)
-        if getdata:
-            rapert = np.arange(1, rapert, 1)
-            info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
-                int(centerx), int(centery), rapert, flux)
-            print(info)
-            logging.info(info)
-        ax.plot(radius, flux, 'o')
-        ax.set_title(title)
-        plt.draw()
-        time.sleep(self.sleep_time)
+                centery = y
+                centerx = x
+            centerx = int(centerx)
+            centery = int(centery)
+
+            # now grab aperture sums going out from that central pixel
+            inner = self.curve_of_growth_pars["buffer"][0]
+            width = self.curve_of_growth_pars["width"][0]
+            router = self.curve_of_growth_pars["rplot"][0]
+            getdata = bool(self.curve_of_growth_pars["getdata"][0])
+
+            fig = plt.figure(self._figure_name)
+            plt.clf()
+            fig.add_subplot(111)
+            ax = fig.gca()
+            title = self.curve_of_growth_pars["title"][0]
+            ax.set_xlabel(self.curve_of_growth_pars["xlabel"][0])
+            ax.set_ylabel(self.curve_of_growth_pars["ylabel"][0])
+
+            radius = list()
+            flux = list()
+            rapert = int(router) + 1
+            for rad in range(1, rapert, 1):
+                aper_flux, annulus_sky, skysub_flux = self._aperture_phot(
+                    centerx, centery, radsize=rad, sky_inner=inner, skywidth=width, method="exact")
+                radius.append(rad)
+                if self.curve_of_growth_pars["background"][0]:
+                    if inner < router:
+                        warnings.warn("Your sky annulus is inside your photometr radius rplot")
+                    flux.append(skysub_flux)
+                else:
+                    flux.append(aper_flux)
+            if getdata:
+                rapert = np.arange(1, rapert, 1)
+                info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
+                    int(centerx), int(centery), rapert, flux)
+                print(info)
+                logging.info(info)
+            ax.plot(radius, flux, 'o')
+            ax.set_title(title)
+            plt.draw()
+            time.sleep(self.sleep_time)
 
     def _aperture_phot(self, x, y, radsize=1, sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
-        """Perform sky subtracted aperture photometry, uses photutils functions
+        """Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed
+        
+        Parameters
+        ----------
+        radsize: int
+            Size of the radius
+            
+        sky_inner: int
+            Inner radius of the sky annulus
+            
+        skywidth: int
+            Width of the sky annulus
+            
+        method: string
+            Pixel sampling method to use
+        
+        subpixels: int
+            How many subpixels to use
+        
+        Notes
+        -----
+           background is taken from sky annulus pixels, check into masking bad pixels
 
-           background is taken from sky annulus pixels, check into masking
         """
+        if not photutils_installed:
+            print("Install photutils to enable")
+        else:
 
-        aper_flux = photutils.aperture_circular(
-            self._data, x, y, radsize, subpixels=subpixels, method=method)
-        aperture_area = np.pi * (radsize) ** 2
+            aper_flux = photutils.aperture_circular(
+                self._data, x, y, radsize, subpixels=subpixels, method=method)
+            aperture_area = np.pi * (radsize) ** 2
 
-        annulus_sky = photutils.annulus_circular(self._data, x, y, sky_inner, sky_inner + skywidth)
-        outer = sky_inner + skywidth
-        inner = sky_inner
-        annulus_area = np.pi * (outer ** 2 - inner ** 2)
+            annulus_sky = photutils.annulus_circular(self._data, x, y, sky_inner, sky_inner + skywidth)
+            outer = sky_inner + skywidth
+            inner = sky_inner
+            annulus_area = np.pi * (outer ** 2 - inner ** 2)
 
-        skysub_flux = aper_flux - annulus_sky * (aperture_area / annulus_area)
+            skysub_flux = aper_flux - annulus_sky * (aperture_area / annulus_area)
 
-        return (aper_flux, annulus_sky, skysub_flux)
+            return (aper_flux, annulus_sky, skysub_flux)
 
     def histogram_plot(self, x, y):
         """plot a histogram of the pixel values in a region around the specified location"""
@@ -736,7 +851,7 @@ class Imexamine(object):
     def set_radial_pars(self):
         """set parameters for radial profile plots"""
 
-        self.radial_profile_pars = imexam_defpars.radial_profile_pars
+        self.curve_of_growth_pars = imexam_defpars.curve_of_growth_pars
 
     def set_surface_pars(self):
         """set parameters for surface plots"""

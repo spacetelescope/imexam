@@ -6,10 +6,7 @@ connect = _connect.Connect
 
 try:
     import astropy
-    from astropy.io import fits as pyfits
 except ImportError:
-    print("astropy not loaded")
-    try:
-        import pyfits
-    except ImportError:
-        print("pyfits is not installed, please install for full functionality")
+    raise ImportError("astropy required but not found")
+    
+from astropy.io import fits 

@@ -59,14 +59,42 @@
 <dt>close():</dt>
 <dd>close the DS9 window and end the connection</dd>
 <dt>view(img, header=None, frame=None, asFits=False):</dt>
-<dd>Load an image array into a ds9 frame, if no frame is specified a new frame is created</dd>
+<dd>Load an image array into a DS9 frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
+A basic header is created and sent to DS9. You can look at this header with disp_header() but get_header() will return an error because it
+looks for a filename, and no file was loaded, just the array.</dd>
 <dt>readcursor():</dt>
 <dd>returns image coordinate postion and key pressed as a tuple of the for float(x), float(y), str(key)</dd>
 <dt>make_region(infile,doLabels=False):</dt>
-<dd>make an input reg file with  [x,y,comment] to a view specific reg file, the input file should contain lines with x,y,comment</dd>
+<dd><p class="first">make an input reg file with  [x,y,comment] to a view specific reg file, the input file should contain lines with x,y,comment</p>
+<dl class="last docutils">
+<dt>infile: str</dt>
+<dd>input filename</dd>
+<dt>labels: bool</dt>
+<dd>add labels to the regions</dd>
+<dt>header: int</dt>
+<dd>number of header lines in text file to skip</dd>
+<dt>textoff: int</dt>
+<dd>offset in pixels for labels</dd>
+<dt>rtype: str</dt>
+<dd>region type, one of the acceptable ds9 regions</dd>
+<dt>size: int</dt>
+<dd>size of the region type</dd>
+</dl>
+</dd>
 <dt>mark_region_from_array(input_points,rtype=&#8221;circle&#8221;,ptype=&#8221;image&#8221;,textoff=10,size=5):</dt>
-<dd>mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified
-If no comment is specified, only the mark will appear</dd>
+<dd><p class="first">mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified</p>
+<p>input_points: a tuple, or list of tuples, or a string: (x,y,comment),</p>
+<dl class="last docutils">
+<dt>ptype: string</dt>
+<dd>the reference system for the point locations, image|physical|fk5</dd>
+<dt>rtype: string</dt>
+<dd>the matplotlib style marker type to display</dd>
+<dt>size: int</dt>
+<dd>the size of the region marker</dd>
+<dt>textoff: string</dt>
+<dd>the offset for the comment text, if comment is empty it will not show</dd>
+</dl>
+</dd>
 <dt>unlearn():</dt>
 <dd>reset all the imexam default parameters</dd>
 <dt>imexam():</dt>
@@ -81,7 +109,7 @@ If no comment is specified, only the mark will appear</dd>
 'y': 'return x,y coords of pixel',
 'l': 'return line plot',
 'c': 'return column plot',
-'r': 'return radial profile plot',
+'r': 'return curve of growth plot',
 'h': 'return a histogram in the region around the cursor'
 'e': 'return a contour plot in a region around the cursor'
 's': 'save current figure to plotname'
@@ -103,7 +131,7 @@ kimexam(): return dict of current parameters for 1D gaussian column plots
 
 limexam(): return dict of current parameters for  line plots
 
-rimexam(): return dict of current parameters for radial profile plots
+rimexam(): return dict of current parameters for curve of growth plots
 
 wimexam(): return dict of current parameters for surface plots
 
@@ -147,13 +175,13 @@ The user can map the function to any reasonable numpy function, it&#8217;s set t
 <img alt="Column plot" src="_images/column_plot.png" style="width: 600px; height: 400px;" />
 <img alt="Line plot" src="_images/line_plot.png" style="width: 600px; height: 400px;" />
 </div>
-<div class="section" id="radial-profile-plot">
-<h3>Radial profile plot<a class="headerlink" href="#radial-profile-plot" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="curve-of-growth-plot">
+<h3>Curve of Growth plot<a class="headerlink" href="#curve-of-growth-plot" title="Permalink to this headline">¶</a></h3>
 <p>This displays a curve of growth for the flux around the current pointer location in successively larger radii. If centering is on, the center is computed close to the star using a 2d gaussian.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">radial_profile_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">curve_of_growth_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
 
-<span class="n">radial_profile_pars</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;function&quot;</span><span class="p">:[</span><span class="s">&quot;radial_profile&quot;</span><span class="p">,],</span>
-                          <span class="s">&quot;title&quot;</span><span class="p">:[</span><span class="s">&quot;Radial profile&quot;</span><span class="p">,</span><span class="s">&quot;Title of the plot&quot;</span><span class="p">],</span>
+<span class="n">curve_of_growth_pars</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;function&quot;</span><span class="p">:[</span><span class="s">&quot;curve_of_growth_plot&quot;</span><span class="p">,],</span>
+                          <span class="s">&quot;title&quot;</span><span class="p">:[</span><span class="s">&quot;Curve of Growth&quot;</span><span class="p">,</span><span class="s">&quot;Title of the plot&quot;</span><span class="p">],</span>
                           <span class="s">&quot;xlabel&quot;</span><span class="p">:[</span><span class="s">&quot;radius&quot;</span><span class="p">,</span><span class="s">&quot;The string for the xaxis label&quot;</span><span class="p">],</span>
                           <span class="s">&quot;ylabel&quot;</span><span class="p">:[</span><span class="s">&quot;Flux&quot;</span><span class="p">,</span><span class="s">&quot;The string for the yaxis label&quot;</span><span class="p">],</span>
                           <span class="s">&quot;center&quot;</span><span class="p">:[</span><span class="bp">True</span><span class="p">,</span><span class="s">&quot;Solve for center using 2d Gaussian? [bool]&quot;</span><span class="p">],</span>
@@ -170,7 +198,7 @@ The user can map the function to any reasonable numpy function, it&#8217;s set t
                           <span class="p">}</span>
 </pre></div>
 </div>
-<img alt="Radial profile plot around star" src="_images/radial_profile.png" style="width: 600px; height: 400px;" />
+<img alt="Curve of growth  plot around star" src="_images/radial_profile.png" style="width: 600px; height: 400px;" />
 </div>
 <div class="section" id="d-gaussian-or-moffat-profile">
 <h3>1D Gaussian or Moffat profile<a class="headerlink" href="#d-gaussian-or-moffat-profile" title="Permalink to this headline">¶</a></h3>
@@ -300,7 +328,7 @@ If the centering option is True, then the center of the flux is computed by fitt
 <li><a class="reference internal" href="#circular-apterture-photometry">Circular Apterture Photometry</a></li>
 <li><a class="reference internal" href="#median-square-region-stats">Median square region stats</a></li>
 <li><a class="reference internal" href="#line-or-column-plots">Line or Column plots</a></li>
-<li><a class="reference internal" href="#radial-profile-plot">Radial profile plot</a></li>
+<li><a class="reference internal" href="#curve-of-growth-plot">Curve of Growth plot</a></li>
 <li><a class="reference internal" href="#d-gaussian-or-moffat-profile">1D Gaussian or Moffat profile</a></li>
 <li><a class="reference internal" href="#contour-plots">Contour Plots</a></li>
 <li><a class="reference internal" href="#histogram-plots">Histogram Plots</a></li>

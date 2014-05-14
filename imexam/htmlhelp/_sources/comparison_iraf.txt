@@ -107,8 +107,8 @@ If we set the values to be similar to what IRAF.imexamine used, we can see the n
 
  
  
-Radial Profile plot
-^^^^^^^^^^^^^^^^^^^
+Curve of Growth plot
+^^^^^^^^^^^^^^^^^^^^
 
 This one differs the most from the IRAF result. Instead of showing the fit profile of the star out to the specified radius, I chose to instead plot the curve of growth along the same radius. Users can still look at the fit profile of the star using the 1D gaussian option. The two options seemed to provide similar information in IRAF and the added curve of growth information should extend the usefulness in this python package. By default, imexam prints the data point values to the screen.
 
@@ -120,7 +120,7 @@ This one differs the most from the IRAF result. Instead of showing the fit profi
 .. image:: radial_profile.png
     :height: 400
     :width: 600
-    :alt: Radial profile plot around star
+    :alt: Curve of growth around star
 
 imexam prints the plotted data to the screen
 

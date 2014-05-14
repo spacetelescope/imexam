@@ -45,8 +45,7 @@ class build_ext_with_configure(build_ext):
         import subprocess
         subprocess.call(["make","-f","Makefile","clean"],
                 cwd=XPALIB_DIR)            
-        subprocess.call(["sh", "./configure","--prefix=",os.path.abspath(XPALIB_DIR)],
-                        cwd=XPALIB_DIR)        
+        subprocess.call(["sh", "./configure"],cwd=XPALIB_DIR)        
         subprocess.call(["make", "-f", "Makefile"],cwd=XPALIB_DIR)
         build_ext.build_extensions(self)
         print("building with configure")  

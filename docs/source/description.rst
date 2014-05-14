@@ -2,11 +2,11 @@
 Introduction
 ************
 
-imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided using DS9 as your display device and through a python session.
+imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python and matplotlib. 
 
-It communicates with the DS9 window, either one you already have open, or one that imexam explicitly opens, through the XPA messaging system. 
+It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens, and communicates through the XPA messaging system. The module is designed to accept other display devices in the future (for example Ginga)
 
-.. note:: It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established.
+.. note:: It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module, and the XPANS executable is compiled upon installation. You may choose whether or not to make use of this.
 
 
 You can access this help file on your locally installed copy of the package by using the imexam.display_help() call, which will display the help in your web browser.
@@ -17,7 +17,7 @@ You can access this help file on your locally installed copy of the package by u
 Usage
 =====
 
-imexam is a class based library. The user creates an object which is tied to a specific image viewing program, such as DS9. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated. For example, in order to open a new DS9 window and use the object "window" to control it, you would issue the commmand:
+imexam is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated. For example, in order to open a new DS9 window and use the object "window" to control it, you would issue the commmand:
 
 ::
     
@@ -94,7 +94,7 @@ The log will look something like this, you can see it contains a mention of the 
     xc=239.856464   yc=233.444783
 
 
-More detailed examples can be found in the examples section.
+More detailed examples can be found in the examples section of this documentation.
 
 
 .. note:: More information on DS9 can be found at: http://ds9.si.edu/site/Home.html

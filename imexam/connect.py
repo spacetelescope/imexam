@@ -156,7 +156,7 @@ class Connect(object):
 
     def disp_header(self, **kwargs):
         """Display the header of the current image to a window"""
-        self.window.disp_header(**kwargs)
+        self.window.disp_header()
 
     def frame(self, *args, **kwargs):
         """ move to a frame """
@@ -167,7 +167,7 @@ class Connect(object):
         return self.window.get_data()
 
     def get_header(self):
-        """return the current fits header as a string"""
+        """return the current fits header as a string, or None if there's a problem"""
         return self.window.get_header()
 
     def grid(self, *args, **kwargs):
@@ -185,6 +185,14 @@ class Connect(object):
     def load_region(self, *args, **kwargs):
         """Load regions from a file which uses ds9 standard formatting"""
         self.window.load_region(*args, **kwargs)
+
+    def load_mef_as_cube(self, *args, **kwargs):
+        """Load a Mult-Extension-Fits image one frame as a cube"""
+        self.window.load_mef_as_cube(*args, **kwargs)
+        
+    def load_mef_as_multi(self, *args, **kwargs):
+        """Load a Mult-Extension-Fits image into multiple frames"""
+        self.window.load_mef_as_multi(*args, **kwargs)
 
     def make_region(self, *args, **kwargs):
         """make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment"""
@@ -211,6 +219,18 @@ class Connect(object):
         """pan to wcs coordinates in image"""
         self.window.panto_wcs(*args, **kwargs)
 
+    def load_rgb(self, *args, **kwargs):
+        """load three images into a frame, each one for a different color"""
+        self.window.load_rgb(*args, **kwargs)
+
+    def rotate(self, *args, **kwargs):
+        """rotate the current frame (in degrees)"""
+        self.window.rotate(*args, **kwargs)
+            
+    def save_rgb(self, *args, **kwargs):
+        """save an rgb image frame that is displayed as an MEF fits file"""
+        self.window.save_rgb(*args, **kwargs)
+
     def save_header(self, *args, **kwargs):
         """save the header of the current image to a file"""
         self.window.save_header(*args, **kwargs)
@@ -223,17 +243,17 @@ class Connect(object):
         """ Scale the image on display.The default zscale is the most widely used option"""
         self.window.scale(*args, **kwargs)
 
-    def set_region(self, *args):
+    def set_region(self, *args, **kwargs):
         """display a region using the specifications in region_string"""
-        self.window.set_region(*args)
+        self.window.set_region(*args, **kwargs)
 
     def showme(self):
         """raise the display window"""
         self.window.showme()
 
-    def showpix(self):
+    def showpix(self, *args, **kwargs):
         """display the pixel value table, close window when done"""
-        self.window.showpix()
+        self.window.showpix(*args, **kwargs)
 
     def snapsave(self, *args, **kwargs):
         """create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used """
@@ -244,7 +264,7 @@ class Connect(object):
         self.window.view(*args, **kwargs)
 
     def zoom(self, *args, **kwargs):
-        """ par is the keyword for ds9 and can be a number, to fit, open or close"""
+        """zoom to parameter which can be any recognized string"""
         self.window.zoom(*args, **kwargs)
 
     def zoomtofit(self):
@@ -252,7 +272,7 @@ class Connect(object):
         self.window.zoomtofit()
 
     # seems easiest to return the parameter dictionaries here, then the user can catch it, edit it
-    # and reset the pars with self.set in the exam link or directly into the imexamine object....
+    # and reset the pars with self.set in the exam link or directly into the imexamine object.
 
     def aimexam(self):
         """show current parameters for aperture photometry"""
@@ -287,8 +307,8 @@ class Connect(object):
         return(self.exam.report_stat_pars)
 
     def rimexam(self):
-        """show current parameters for radial profile plots"""
-        return(self.exam.radial_profile_pars)
+        """show current parameters for curve of growth plots"""
+        return(self.exam.curve_of_growth_pars)
 
     def wimexam(self):
         """show current parameters for surface plots"""

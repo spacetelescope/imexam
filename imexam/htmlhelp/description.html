@@ -53,11 +53,11 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided using DS9 as your display device and through a python session.</p>
-<p>It communicates with the DS9 window, either one you already have open, or one that imexam explicitly opens, through the XPA messaging system.</p>
+<p>imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python and matplotlib.</p>
+<p>It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens, and communicates through the XPA messaging system. The module is designed to accept other display devices in the future (for example Ginga)</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File-&gt;Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established.</p>
+<p class="last">It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File-&gt;Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module, and the XPANS executable is compiled upon installation. You may choose whether or not to make use of this.</p>
 </div>
 <p>You can access this help file on your locally installed copy of the package by using the imexam.display_help() call, which will display the help in your web browser.</p>
 <div class="admonition note">
@@ -66,7 +66,7 @@
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>imexam is a class based library. The user creates an object which is tied to a specific image viewing program, such as DS9. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated. For example, in order to open a new DS9 window and use the object &#8220;window&#8221; to control it, you would issue the commmand:</p>
+<p>imexam is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated. For example, in order to open a new DS9 window and use the object &#8220;window&#8221; to control it, you would issue the commmand:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">window</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -121,7 +121,7 @@ show_xy_coords
 gauss_center
 xc=239.856464   yc=233.444783</pre>
 </div>
-<p>More detailed examples can be found in the examples section.</p>
+<p>More detailed examples can be found in the examples section of this documentation.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">More information on DS9 can be found at: <a class="reference external" href="http://ds9.si.edu/site/Home.html">http://ds9.si.edu/site/Home.html</a></p>
@@ -394,11 +394,11 @@ x       y       radius  flux    mag(zpt=25.00)  sky     fwhm
 586.21  697.50  17      2565167.11      8.98    11162.83        6.02</pre>
 </div>
 </div>
-<div class="section" id="radial-profile-plot">
-<h3>Radial Profile plot<a class="headerlink" href="#radial-profile-plot" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="curve-of-growth-plot">
+<h3>Curve of Growth plot<a class="headerlink" href="#curve-of-growth-plot" title="Permalink to this headline">¶</a></h3>
 <p>This one differs the most from the IRAF result. Instead of showing the fit profile of the star out to the specified radius, I chose to instead plot the curve of growth along the same radius. Users can still look at the fit profile of the star using the 1D gaussian option. The two options seemed to provide similar information in IRAF and the added curve of growth information should extend the usefulness in this python package. By default, imexam prints the data point values to the screen.</p>
 <img alt="IRAF radial plot" src="_images/iraf_radial_plot.png" style="width: 600px; height: 400px;" />
-<img alt="Radial profile plot around star" src="_images/radial_profile.png" style="width: 600px; height: 400px;" />
+<img alt="Curve of growth around star" src="_images/radial_profile.png" style="width: 600px; height: 400px;" />
 <p>imexam prints the plotted data to the screen</p>
 <div class="highlight-python"><pre>xc=254.175307       yc=238.815292
 
@@ -464,7 +464,7 @@ The most fancy imexam surface plot is displayed, the user can alter it with the 
 <li><a class="reference internal" href="#comparison-with-the-iraf-verison-of-imexamine">Comparison with the IRAF verison of imexamine</a><ul>
 <li><a class="reference internal" href="#statistical-returns">Statistical returns</a></li>
 <li><a class="reference internal" href="#aperture-photometry">Aperture Photometry</a></li>
-<li><a class="reference internal" href="#radial-profile-plot">Radial Profile plot</a></li>
+<li><a class="reference internal" href="#curve-of-growth-plot">Curve of Growth plot</a></li>
 <li><a class="reference internal" href="#contour-plot">Contour plot</a></li>
 <li><a class="reference internal" href="#column-and-line-plots">Column and Line plots</a></li>
 <li><a class="reference internal" href="#histogram-plots">Histogram plots</a></li>
