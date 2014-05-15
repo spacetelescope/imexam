@@ -21,6 +21,7 @@ def find_ds9():
         possible = os.path.join(dirname, path)
         if os.path.isfile(possible):
             return possible
+    return None
 
 def find_xpans():
     """Find the local path to the xpans executable"""

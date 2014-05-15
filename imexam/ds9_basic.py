@@ -160,15 +160,19 @@ class ds9(object):
         self._xpa_method = "local"
         self._xpa_name = ""
         self._ds9_process = None  # only used for DS9 windows started from this module
-
+        self._ds9_path=None
+        
         openNew = False
         if not target:
             openNew = True
 
         if path is None:
-            self.path = util.find_ds9()
+            self._ds9_path = util.find_ds9()
+            if not self._ds9_path:
+                raise OSError("Could not find ds9 executable on your path")
+
         else:
-            self.path = path
+            self._ds9_path = path
 
         if openNew:
             # Check to see if the user has chosen a preference first
@@ -287,7 +291,8 @@ class ds9(object):
             if self._ds9_process:
                 if self._ds9_process.poll() is None:  # none means not yet terminated
                     self.set("exit")
-                    self._process_list.remove(self._ds9_process)
+                    if self._ds9_process in self._process_list:
+                        self._process_list.remove(self._ds9_process)
 
         except XpaException as e:
             print("Exception: {0}".format(e))
@@ -335,7 +340,7 @@ class ds9(object):
         # is there a way to get the inet x:x address?
         xpaname = str(time.time())  # that should be unique enough, something better?
         try:
-            p = Popen([self.path,
+            p = Popen([self._ds9_path,
                        "-xpa", "inet",
                        "-title", xpaname],
                       shell=False, env=env)
@@ -376,7 +381,7 @@ class ds9(object):
         title = str(time.time())  # that should be unique enough, something better?
         try:
             # unix only flag disables the fifos and inet connections
-            p = Popen([self.path,
+            p = Popen([self._ds9_path,
                        "-xpa", "local",
                        "-unix_only", "-title", title,
                        "-unix",  "%s" % iraf_unix],
@@ -396,7 +401,7 @@ class ds9(object):
                 print(
                     "Connection timeout with the ds9. Try to increase the *wait_time* parameter (current value is  {0:d} s)".format(self.wait_time,))
 
-        except (OSError, ValueError) as e:
+        except (OSError, ValueError, AttributeError) as e:
             warnings.warn("Starting ds9 failed")
             shutil.rmtree(self._tmpd_name)
 
@@ -408,7 +413,7 @@ class ds9(object):
         # this might be sketchy
         try:
             file_list.remove(".IMT")  # should be in the directory, if not
-        except IOError:
+        except ValueError,IOError:
             warnings.warn("IMT not found in tmp, using first thing in list")
 
         xpaname = os.path.join(self._tmpd_name, file_list[0])
