@@ -29,6 +29,8 @@ def find_xpans():
         possible = os.path.join(dirname,path)
         if os.path.exists(possible):
             return possible
+    return None
+        
 
 def list_active_ds9():
     """Display information about the DS9 windows currently registered with XPA and runnning
@@ -39,15 +41,19 @@ def list_active_ds9():
     I think because it's only listening on the inet socket which starts by default in the OS. That's if xpans is installed
     on the machine. Otherwise, no nameserver is running at all.
     """
-    try:
-        sessions = (xpa.get('xpans'))
-        if len(sessions) < 1:
-            print("No active sessions")
-        else:
-            print(sessions)
-    except XpaException:
-            print("No active sessions registered")
-        
+    
+    #only run if XPA/xpans is installed on the machine
+    if find_xpans():
+        try:
+            sessions = (xpa.get('xpans'))
+            if len(sessions) < 1:
+                print("No active sessions")
+            else:
+                print(sessions)
+        except XpaException:
+                print("No active sessions registered")
+    else:
+        print("XPA nameserver not installed or not on PATH, function unavailable")   
 
 def list_ds9_ids():
     """return just the list of ds9 XPA_METHOD ids which are registered"""

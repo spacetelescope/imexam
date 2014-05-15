@@ -15,11 +15,11 @@ from copy import deepcopy
 
 try:
     import photutils
-    photutils_installed=True
+    photutils_installed = True
 except ImportError:
     print("photutils not installed, photometry functionality in imexam() not available")
-    photutils_installed=False
-    
+    photutils_installed = False
+
 from . import math_helper
 from . import imexam_defpars
 
@@ -77,19 +77,19 @@ class Imexamine(object):
 
     def do_option(self, x, y, key):
         """run the option
-        
+
         Parameters
         ----------
-        
+
         x: int
             The x location of the cursor or data point
-            
+
         y: int
             The y location of the cursor or data point
-            
+
         key: string
             The key which was pressed
-               
+
         """
         self.imexam_option_funcs[key][0](x, y)
 
@@ -101,17 +101,17 @@ class Imexamine(object):
 
     def option_descrip(self, key, field=1):
         """return the looked up dictionary of options
-        
-        
+
+
         Parameters
         ----------
         key: string
             The key which was pressed, it relates to the function to call
-            
+
         field: int
             This tells where in the option dictionary the function name can be found
-        
-        
+
+
         """
         return self.imexam_option_funcs[key][field]
 
@@ -121,14 +121,14 @@ class Imexamine(object):
 
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key
-        
+
         Parameters
         ----------
         filename: string
             The name which is used to save the current plotting window to a file
             The extension on the name decides which file type is used
-        
-        
+
+
         """
         if not filename:
             warnings.warn("No filename provided")
@@ -193,7 +193,7 @@ class Imexamine(object):
         -----
         x,y are not used here, but the calls are setup to take them
         for all imexam options. Is there a better way to do the calls in general?
-        
+
         """
         counter = len(self._plot_windows) + 1
         self._figure_name = "imexam" + str(counter)
@@ -212,7 +212,7 @@ class Imexamine(object):
         -----
         The new binding will be added to the dictionary of imexamine functions as long as the key is unique
         The new functions do not have to have default dictionaries associated with them
-        
+
         """
         if type(user_funcs) != type(dict()):
             warnings.warn("Your input needs to be a dictionary")
@@ -331,9 +331,9 @@ class Imexamine(object):
 
         Notes
         -----
-        
+
         For IRAF:
-        
+
             Rapert,  sum,  area  and  flux  are  the  radius  of the aperture in
             pixels, the total number of counts including sky  in  the  aperture,
             the  area  of the aperture in square pixels, and the total number of
@@ -345,11 +345,11 @@ class Imexamine(object):
                     merr = 1.0857 * error / flux
                    error = sqrt (flux / epadu + area * stdev**2 +
                            area**2 * stdev**2 / nsky)      
-          """  
+          """
         if not photutils_installed:
             print("Install photutil to enable")
         else:
-                      
+
             sigma = 0.  # no centering
             amp = 0.  # no centering
             if self.aperphot_pars["center"][0]:
@@ -403,7 +403,7 @@ class Imexamine(object):
         form: string
             This is the functional form specified  line fit parameters
             Currently gaussian or moffat
-            
+
         subsample: int
             used to draw the fitted function on a finer scale than the data
             delta is the range of data values to use around the x,y location
@@ -414,7 +414,7 @@ class Imexamine(object):
         The background is currently ignored
 
         If centering is True in the parameter set, then the center is fit with a 2d gaussian
-        
+
         """
         if not form:
             form = getattr(math_helper, self.line_fit_pars["func"][0])
@@ -490,10 +490,10 @@ class Imexamine(object):
         form: string
             This is the functional form specified  line fit parameters
             Currently gaussian or moffat
-        
+
         subsample: int
             used to draw the fitted gaussian
-        
+
         Notes
         -----
         delta is the range of data values to use around the x,y location
@@ -568,7 +568,7 @@ class Imexamine(object):
 
     def gauss_center(self, x, y, delta=10):
         """return the 2d gaussian fit center 
-        
+
         Parameters
         ----------
         delta: int
@@ -653,24 +653,24 @@ class Imexamine(object):
 
     def _aperture_phot(self, x, y, radsize=1, sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
         """Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed
-        
+
         Parameters
         ----------
         radsize: int
             Size of the radius
-            
+
         sky_inner: int
             Inner radius of the sky annulus
-            
+
         skywidth: int
             Width of the sky annulus
-            
+
         method: string
             Pixel sampling method to use
-        
+
         subpixels: int
             How many subpixels to use
-        
+
         Notes
         -----
            background is taken from sky annulus pixels, check into masking bad pixels
@@ -684,7 +684,8 @@ class Imexamine(object):
                 self._data, x, y, radsize, subpixels=subpixels, method=method)
             aperture_area = np.pi * (radsize) ** 2
 
-            annulus_sky = photutils.annulus_circular(self._data, x, y, sky_inner, sky_inner + skywidth)
+            annulus_sky = photutils.annulus_circular(
+                self._data, x, y, sky_inner, sky_inner + skywidth)
             outer = sky_inner + skywidth
             inner = sky_inner
             annulus_area = np.pi * (outer ** 2 - inner ** 2)

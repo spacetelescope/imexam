@@ -115,24 +115,24 @@ def gaussian(x, a, mu, sigma, b=0):
 
     b: float
         is the average local background
-            
+
     """
     return b + a * np.exp(-(x - mu) ** 2 / (2. * sigma ** 2))
 
 
 def gfwhm(sigma):
     """Compute the gaussian full width half max
-    
+
     Parameters
     ----------
-    
+
     sigma: float
         The input sigma to use
-    
+
     Returns
     -------
     The value of the FWHM for the gaussian 
-    
+
     """
     return 2. * sigma * np.sqrt(2. * np.log(2.))
 
@@ -144,34 +144,34 @@ def moffat(x, alpha, beta, mu, sigma, b=0):
     ----------
     x: float
         the data
-    
+
     alpha: float
         the possible seeing for the psf
 
     beta: float
         controls the overall shape of the fitting function, when beta=1 it's a lorentzian
-    
+
     b: float
         The average local background
     mu: float
         The mean
-   
-    
+
+
     See Also
     --------
     http://en.wikipedia.org/wiki/Moffat_distribution
-    
+
     """
     return b + alpha / (((x - mu) ** 2 / sigma ** 2 + 1) ** (1 - beta))
 
 
 def mfwhm(alpha, beta):
     """compute the <offat full width half max
-    
+
     Returns
     -------
     The value of the FWHM for the Moffat profile with give alpha and beta
-    
+
     """
     return 2. * alpha * np.sqrt(2 ** (1. / beta) - 1.)
 
@@ -181,11 +181,11 @@ def gauss_center(data):
 
     Parameters
     ----------
- 
+
     data: float
         should be a 2d array, the initial center is used to estimate the fit center
-    
-    
+
+
     """
 
     # use a smaller bounding box so that we are only fitting the local data
@@ -201,21 +201,21 @@ def gauss_center(data):
 
 def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
     """Functional definition for a circular 2D gaussian function
-    
+
     Parameters
     ----------
     (y,x): float array
         The values at x,y
     xo: float
         The mean for x
-    
+
     yo: float
         The mean for y 
-        
+
     Notes
     -----
     sigmax=sigmay=circular otherwise elliptical
-    
+
     See Also
     --------
     http://en.wikipedia.org/wiki/Gaussian_function
@@ -232,21 +232,21 @@ def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
 
 def gaussian2de((y, x), amp, xo, yo, sigmax, sigmay, theta, offset):
     """Functional definition for the 2D elliptical gaussian function
-    
+
     Parameters
     ----------
     (x,y): float array  are the values at x,y
-    
+
     xo: float
         mean for x
-    
+
     yo: float
         mean for y
-        
+
     Notes
     -----    
     sigmax=sigmay=circular otherwise elliptical
-    
+
     See Also
     --------
     http://en.wikipedia.org/wiki/Gaussian_function

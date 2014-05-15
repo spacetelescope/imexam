@@ -8,5 +8,5 @@ try:
     import astropy
 except ImportError:
     raise ImportError("astropy required but not found")
-    
-from astropy.io import fits 
+
+from astropy.io import fits

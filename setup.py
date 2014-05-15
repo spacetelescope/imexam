@@ -16,17 +16,19 @@ try:
 except ImportError:
     print("Unable to load Cython")
     raise ImportError
-    
+
 import os.path
 XPALIB_DIR = "cextern/xpa-2.1.15"
 CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
 
-from distutils.command.clean import clean 
+from distutils.command.clean import clean
+
+
 class my_clean(clean):
 
     def run(self):
-        import subprocess        
+        import subprocess
         subprocess.call(["make", "clean"],
                         cwd=XPALIB_DIR)
         if os.path.exists(CONF_H_NAME):
@@ -36,21 +38,23 @@ class my_clean(clean):
         print("cleaning")
 
 
-from setuptools.command.build_ext import build_ext 
-#build xpans so that we can start up the name server
-#if users dont have it installed on their machine        
-class build_ext_with_configure(build_ext):
+# uncomment this section if you want to build the full XPA
+# build xpans so that we can start up the name server
+# if users dont have it installed on their machine
 
-    def build_extensions(self):
-        import subprocess
-        subprocess.call(["make","-f","Makefile","clean"],
-                cwd=XPALIB_DIR)            
-        subprocess.call(["sh", "./configure"],cwd=XPALIB_DIR)        
-        subprocess.call(["make", "-f", "Makefile"],cwd=XPALIB_DIR)
-        build_ext.build_extensions(self)
-        print("building with configure")  
-          
-    
+#from setuptools.command.build_ext import build_ext
+# class build_ext_with_configure(build_ext):
+#
+#    def build_extensions(self):
+#        import subprocess
+#        subprocess.call(["make","-f","Makefile","clean"],
+#                cwd=XPALIB_DIR)
+#        subprocess.call(["sh", "./configure"],cwd=XPALIB_DIR)
+#        subprocess.call(["make", "-f", "Makefile"],cwd=XPALIB_DIR)
+#        build_ext.build_extensions(self)
+#        print("building with configure")
+
+
 xpalib_files = """acl.c
                   client.c
                   clipboard.c
@@ -83,6 +87,8 @@ setup(
     d2to1=True,
     use_2to3=True,
     zip_safe=False,
-    cmdclass={'build_ext':build_ext_with_configure,'clean':my_clean},
     ext_modules=[xpa_module]
 )
+
+# add this back into the setup command if you want to build the full XPA
+# cmdclass={'build_ext':build_ext_with_configure,'clean':my_clean},
