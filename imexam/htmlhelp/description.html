@@ -57,15 +57,27 @@
 <p>It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens, and communicates through the XPA messaging system. The module is designed to accept other display devices in the future (for example Ginga)</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File-&gt;Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module, and the XPANS executable is compiled upon installation. You may choose whether or not to make use of this.</p>
+<p class="last">It is important to know if you have XPANS installed on your machine and available through your PATH. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File-&gt;Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory.</p>
 </div>
 <p>You can access this help file on your locally installed copy of the package by using the imexam.display_help() call, which will display the help in your web browser.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">All information returned from this module should be considered an estimate of the actual refined result,  more precise analysis of the data should be performed for verification before publication.</p>
 </div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>These are some tips on installing the package, or tracking down problems you might be having during or after installation.</p>
+<p>imexam can be installed from the source code in the normal python fashion:</p>
+<div class="highlight-python"><pre>python setup.py install</pre>
+</div>
+<p>If you want to have access to the photometry features of the imexam analysis, download and install photutils - one of the astropy associated packages. It can be found here: <a class="reference external" href="https://github.com/astropy">https://github.com/astropy</a></p>
+<p>If photutils is not installed, imexam should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop.</p>
+<p>imexam displays plots using matplotlib, if you find that no windows are popping up after installation it&#8217;s probably the backend that was loaded. One quick way to get things started is to start ipython with the &#8211;pylab option:</p>
+<div class="highlight-python"><pre>ipython --pylab
+&gt;import imexam</pre>
+</div>
 <div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <p>imexam is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated. For example, in order to open a new DS9 window and use the object &#8220;window&#8221; to control it, you would issue the commmand:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">window</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
@@ -128,7 +140,7 @@ xc=239.856464   yc=233.444783</pre>
 </div>
 </div>
 <div class="section" id="iraf-imexam-capabilities">
-<h2>IRAF imexam capabilities<a class="headerlink" href="#iraf-imexam-capabilities" title="Permalink to this headline">¶</a></h2>
+<h3>IRAF imexam capabilities<a class="headerlink" href="#iraf-imexam-capabilities" title="Permalink to this headline">¶</a></h3>
 <p>These are the capabilities of the IRAF version of the imexam task, called with <strong>imexamine [input [frame]]</strong>. The following are imexam&#8217;s input options:</p>
 <blockquote>
 <div><ul class="simple">
@@ -313,7 +325,7 @@ zero        e           Zero level for contour plot
 </div>
 </div>
 <div class="section" id="comparison-with-the-iraf-verison-of-imexamine">
-<h2>Comparison with the IRAF verison of imexamine<a class="headerlink" href="#comparison-with-the-iraf-verison-of-imexamine" title="Permalink to this headline">¶</a></h2>
+<h3>Comparison with the IRAF verison of imexamine<a class="headerlink" href="#comparison-with-the-iraf-verison-of-imexamine" title="Permalink to this headline">¶</a></h3>
 <p>The following is a comparison of the outputs, returned values and user options for this module versus imexamine in IRAF</p>
 <ul class="simple">
 <li>All plot types are replicated between the codes, though they may be rendered differently. The images below are representative of the basic plots from each package.</li>
@@ -327,7 +339,7 @@ zero        e           Zero level for contour plot
 <p>How do the numerical results compare with the IRAF version? This is a little harder to judge with cursor centering.
 Visual comparison of the resulting plots shows good agreement, as well as some random checks of the photometry and statistical return methods.</p>
 <div class="section" id="statistical-returns">
-<h3>Statistical returns<a class="headerlink" href="#statistical-returns" title="Permalink to this headline">¶</a></h3>
+<h4>Statistical returns<a class="headerlink" href="#statistical-returns" title="Permalink to this headline">¶</a></h4>
 <p>IRAF &#8220;m&#8221; key:</p>
 <dl class="docutils">
 <dt>::</dt>
@@ -362,7 +374,7 @@ ds9.exam.report_stat_pars["stat"][0]="std"
 </div>
 </div>
 <div class="section" id="aperture-photometry">
-<h3>Aperture Photometry<a class="headerlink" href="#aperture-photometry" title="Permalink to this headline">¶</a></h3>
+<h4>Aperture Photometry<a class="headerlink" href="#aperture-photometry" title="Permalink to this headline">¶</a></h4>
 <p>IRAF &#8220;a&#8221; key:</p>
 <div class="highlight-python"><pre>#   COL    LINE   COORDINATES
 #     R    MAG    FLUX     SKY    PEAK    E   PA BETA ENCLOSED   MOFFAT DIRECT
@@ -395,7 +407,7 @@ x       y       radius  flux    mag(zpt=25.00)  sky     fwhm
 </div>
 </div>
 <div class="section" id="curve-of-growth-plot">
-<h3>Curve of Growth plot<a class="headerlink" href="#curve-of-growth-plot" title="Permalink to this headline">¶</a></h3>
+<h4>Curve of Growth plot<a class="headerlink" href="#curve-of-growth-plot" title="Permalink to this headline">¶</a></h4>
 <p>This one differs the most from the IRAF result. Instead of showing the fit profile of the star out to the specified radius, I chose to instead plot the curve of growth along the same radius. Users can still look at the fit profile of the star using the 1D gaussian option. The two options seemed to provide similar information in IRAF and the added curve of growth information should extend the usefulness in this python package. By default, imexam prints the data point values to the screen.</p>
 <img alt="IRAF radial plot" src="_images/iraf_radial_plot.png" style="width: 600px; height: 400px;" />
 <img alt="Curve of growth around star" src="_images/radial_profile.png" style="width: 600px; height: 400px;" />
@@ -407,13 +419,13 @@ flux:[30934.408146022368, 114046.22547367863, 177389.39089718129, 202243.2388352
 </div>
 </div>
 <div class="section" id="contour-plot">
-<h3>Contour plot<a class="headerlink" href="#contour-plot" title="Permalink to this headline">¶</a></h3>
+<h4>Contour plot<a class="headerlink" href="#contour-plot" title="Permalink to this headline">¶</a></h4>
 <p>Note the added availability in this package for labeling the contours</p>
 <img alt="IRAF contour plot" src="_images/iraf_contour_plot.png" style="width: 600px; height: 400px;" />
 <img alt="contour plot" src="_images/contour_plot.png" style="width: 600px; height: 400px;" />
 </div>
 <div class="section" id="column-and-line-plots">
-<h3>Column and Line plots<a class="headerlink" href="#column-and-line-plots" title="Permalink to this headline">¶</a></h3>
+<h4>Column and Line plots<a class="headerlink" href="#column-and-line-plots" title="Permalink to this headline">¶</a></h4>
 <img alt="IRAF column plot" src="_images/iraf_column_plot.png" style="width: 600px; height: 400px;" />
 <img alt="Column plot" src="_images/column_plot.png" style="width: 600px; height: 400px;" />
 <p>Keep in mind that python is 0-index and IRAF returns 1-index arrays, so the equivalent IRAF plot of 587 is really 588:</p>
@@ -423,7 +435,7 @@ flux:[30934.408146022368, 114046.22547367863, 177389.39089718129, 202243.2388352
 <img alt="Column plot zoomed" src="_images/column_zoom_plot.png" style="width: 600px; height: 400px;" />
 </div>
 <div class="section" id="histogram-plots">
-<h3>Histogram plots<a class="headerlink" href="#histogram-plots" title="Permalink to this headline">¶</a></h3>
+<h4>Histogram plots<a class="headerlink" href="#histogram-plots" title="Permalink to this headline">¶</a></h4>
 <img alt="IRAF histogram plot" src="_images/iraf_histogram_plot.png" style="width: 600px; height: 400px;" />
 <img alt="histogram plot" src="_images/histogram_plot.png" style="width: 600px; height: 400px;" />
 <p>imexam prints bin information to the screen</p>
@@ -431,7 +443,7 @@ flux:[30934.408146022368, 114046.22547367863, 177389.39089718129, 202243.2388352
 </div>
 </div>
 <div class="section" id="d-gaussian-plots">
-<h3>1D Gaussian plots<a class="headerlink" href="#d-gaussian-plots" title="Permalink to this headline">¶</a></h3>
+<h4>1D Gaussian plots<a class="headerlink" href="#d-gaussian-plots" title="Permalink to this headline">¶</a></h4>
 <p>These plots are representative for both the column and line versions</p>
 <img alt="IRAF 1D Gaussian plot" src="_images/iraf_1dgaussian_plot.png" style="width: 600px; height: 400px;" />
 <img alt="Plot of gaussian profile fit to data" src="_images/fit_line.png" style="width: 600px; height: 400px;" />
@@ -441,11 +453,12 @@ flux:[30934.408146022368, 114046.22547367863, 177389.39089718129, 202243.2388352
 </div>
 </div>
 <div class="section" id="surface-plots">
-<h3>Surface plots<a class="headerlink" href="#surface-plots" title="Permalink to this headline">¶</a></h3>
+<h4>Surface plots<a class="headerlink" href="#surface-plots" title="Permalink to this headline">¶</a></h4>
 <p>The default viewing angle for this package was set to that the axis are easiest to read, the user may choose a different azimuthal value as well.
 The most fancy imexam surface plot is displayed, the user can alter it with the available options.</p>
 <img alt="IRAF surface plot" src="_images/iraf_surface_plot.png" style="width: 600px; height: 400px;" />
 <img alt="fancy surface plot" src="_images/fancy_surface.png" style="width: 650px; height: 460px;" />
+</div>
 </div>
 </div>
 </div>
@@ -459,6 +472,7 @@ The most fancy imexam surface plot is displayed, the user can alter it with the 
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#iraf-imexam-capabilities">IRAF imexam capabilities</a></li>
 <li><a class="reference internal" href="#comparison-with-the-iraf-verison-of-imexamine">Comparison with the IRAF verison of imexamine</a><ul>
@@ -470,6 +484,8 @@ The most fancy imexam surface plot is displayed, the user can alter it with the 
 <li><a class="reference internal" href="#histogram-plots">Histogram plots</a></li>
 <li><a class="reference internal" href="#d-gaussian-plots">1D Gaussian plots</a></li>
 <li><a class="reference internal" href="#surface-plots">Surface plots</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
