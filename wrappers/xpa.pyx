@@ -1,4 +1,3 @@
-
 cdef extern from "stdio.h":
     pass
 
@@ -35,7 +34,7 @@ cdef extern from "xpa.h":
 
     int XPAGet(XPARec *xpa,
                char *template, char *paramlist, char *mode,
-               char **bufs, int *lens, char **names, char **messages,
+               char **bufs, size_t *lens, char **names, char **messages,
                int n)
 
     int XPASet(XPARec *xpa,
@@ -86,7 +85,7 @@ def nslookup(template="*"):
 
 cdef _get(XPARec *xpa, char *template, char *param):
     cdef int  i, got
-    cdef int  lens[1]
+    cdef size_t  lens[1]
     cdef char *bufs[1]
     cdef char *names[1]
     cdef char *messages[1]

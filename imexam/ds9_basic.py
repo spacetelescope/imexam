@@ -415,9 +415,13 @@ class ds9(object):
             file_list.remove(".IMT")  # should be in the directory, if not
         except ValueError,IOError:
             warnings.warn("IMT not found in tmp, using first thing in list")
-
-        xpaname = os.path.join(self._tmpd_name, file_list[0])
-
+        if len(file_list) > 0:
+            xpaname = os.path.join(self._tmpd_name, file_list[0])
+        else:
+            shutil.rmtree(self._tmpd_name)
+            raise ValueError("Problem starting ds9 local socket connection")
+            
+            
         env["XPA_TMPDIR"] = "/tmp/xpa"  # for all local connections
         self._need_to_purge = True
         self._xpa_method = 'local'
