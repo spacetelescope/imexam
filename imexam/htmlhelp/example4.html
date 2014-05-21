@@ -1,0 +1,142 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Example 4 &mdash; imexam 0.1dev documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="imexam 0.1dev documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">imexam 0.1dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="example-4">
+<h1>Example 4<a class="headerlink" href="#example-4" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="load-and-examine-an-image-cube">
+<h2>Load and examine an image CUBE<a class="headerlink" href="#load-and-examine-an-image-cube" title="Permalink to this headline">¶</a></h2>
+<p>Image cubes can be multi-extension fits files which have multidimensional (&gt; 2) images in any of their extensions. When they are loaded into DS9, a cube dialog frame is opened along with a box which allows the user to control which slices are displayed. Here&#8217;s what the structure of such a file might look like:</p>
+<div class="highlight-python"><pre>astropy.io.fits.info('test_cube.fits')
+
+Filename: test_cube.fits
+No.    Name         Type      Cards   Dimensions   Format
+0    PRIMARY     PrimaryHDU     215   ()
+1    SCI         ImageHDU        13   (1032, 1024, 35, 5)   int16
+2    REFOUT      ImageHDU        13   (258, 1024, 35, 5)   int16</pre>
+</div>
+<p>Here&#8217;s an image of what this looks like displayed in DS9:</p>
+<img alt="image capture of cube image displayed in DS9" src="_images/test_cube_capture.png" style="width: 500px; height: 400px;" />
+<p>You can use all the regular imexam methods with this image, including imexam() and the current slice which you have selected will be used for analysis. You can also ask imexam which slice is display, or the full image information of what is in the current frame for your own use (ds9 is just the name I chose, you can call the control object connected to your display window anything)</p>
+<div class="highlight-python"><pre>ds9=imexam.connect()
+ds9.load_fits('test_cube.fits')
+ds9.window.get_filename()
+
+Out[24]: '/Users/sosey/ssb/imexam/test_cube.fits'
+
+ds9.window.get_frame_info()
+Out[25]: '/Users/sosey/ssb/imexam/test_cube.fits[SCI,1](0, 0)'</pre>
+</div>
+<p>Now I&#8217;m going to use the Cube dialog to change the slice I&#8217;m looking at to (4,14) -&gt; as displayed in the dialog. DS9 displayed 1-indexed numbers, and the fits utitlity behind imexam uses 0-indexed numbers, so expect the return to be off by a value of 1.</p>
+<img alt="image capture of cube image displayed in DS9" src="_images/cube_slice_change.png" style="width: 500px; height: 400px;" />
+<p>Let&#8217;s ask for the information again:</p>
+<div class="highlight-python"><pre>In [26]: ds9.window.get_filename()
+Out[26]: '/Users/sosey/ssb/imexam/test_cube.fits'
+
+In [27]: ds9.window.get_frame_info()
+Out[27]: '/Users/sosey/ssb/imexam/test_cube.fits[SCI,1](3, 13)'</pre>
+</div>
+<p>You can ask for just the information about which slice is displayed and it will return the tuple(extension n, ...., extension n-1). The extensions are ordered in row-major form in astropy.io.fits:</p>
+<div class="highlight-python"><pre>In [28]: a.window.get_slice_info()
+Out[28]: (3, 13)</pre>
+</div>
+<p>The returned tuple contains just which 2d slice is displayed. In our cube image, which is 4D (1032, 1024, 35, 5) == (NAXIS1, NAXIS2, NAXIS3, NAXIS4) in DS9, however in astropy.io.fits this is  (5,35,1024,1032) == (NAXIS4, NAXIS3, NAXIS2, NAXIS1)</p>
+<p>By default, the first extension will be loaded from the cube fits file if none is specified. If you would rather see another extension, you can load it the same as with simpler fits files:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ds9</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;test_cube.fits&#39;</span><span class="p">,</span><span class="n">extname</span><span class="o">=</span><span class="s">&#39;REFOUT&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Example 4</a><ul>
+<li><a class="reference internal" href="#load-and-examine-an-image-cube">Load and examine an image CUBE</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/example4.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">imexam 0.1dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Megan Sosey.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

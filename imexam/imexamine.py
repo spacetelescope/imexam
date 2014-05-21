@@ -44,8 +44,8 @@ class Imexamine(object):
                                     'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
                                     'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
                                     'm': (self.report_stat, 'square region stats, in [region_size],defayult is median'),
-                                    'x': (self.show_xy_coords, 'return x,y coords of pixel'),
-                                    'y': (self.show_xy_coords, 'return x,y coords of pixel'),
+                                    'x': (self.show_xy_coords, 'return x,y,value of pixel'),
+                                    'y': (self.show_xy_coords, 'return x,y,value of pixel'),
                                     'l': (self.plot_line, 'return line plot'),
                                     'c': (self.plot_column, 'return column plot'),
                                     'r': (self.curve_of_growth_plot, 'return curve of growth plot'),
@@ -91,7 +91,7 @@ class Imexamine(object):
             The key which was pressed
 
         """
-        self.imexam_option_funcs[key][0](x, y)
+        self.imexam_option_funcs[key][0](x-1, y-1)
 
     def get_options(self):
         """return the imexam options as a key list"""
@@ -237,7 +237,7 @@ class Imexamine(object):
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title("{0:s}  line={1:d}".format(self.lineplot_pars["title"][0], int(y)))
+        ax.set_title("{0:s}  line={1:d}".format(self.lineplot_pars["title"][0], int(y+1)))
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
@@ -267,7 +267,7 @@ class Imexamine(object):
         plt.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title("{0:s}  column={1:d}".format(self.colplot_pars["title"][0], int(x)))
+        ax.set_title("{0:s}  column={1:d}".format(self.colplot_pars["title"][0], int(x+1)))
         ax.set_xlabel(self.colplot_pars["xlabel"][0])
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
@@ -291,8 +291,8 @@ class Imexamine(object):
         time.sleep(self.sleep_time)
 
     def show_xy_coords(self, x, y):
-        """print the x,y coords to the screen"""
-        info = "{0} {1}".format(x, y)
+        """print the x,y,value to the screen"""
+        info = "{0} {1}  {2}".format(x+1, y+1,self._data[y,x])
         print(info)
         logging.info(info)
 
@@ -386,10 +386,10 @@ class Imexamine(object):
             if center:
                 pheader += ("\tfwhm")
                 pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(
-                    x, y, radius, total_flux, mag, annulus_sky / annulus_area, math_helper.gfwhm(sigma))
+                    x+1, y+1, radius, total_flux, mag, annulus_sky / annulus_area, math_helper.gfwhm(sigma))
             else:
                 pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(
-                    x, y, radius, total_flux, mag, annulus_sky / annulus_area,)
+                    x+1, y+1, radius, total_flux, mag, annulus_sky / annulus_area,)
 
             print(pheader + pstr)
             logging.info(pheader + pstr)
@@ -478,7 +478,7 @@ class Imexamine(object):
         plt.legend()
         plt.draw()
         time.sleep(self.sleep_time)
-        pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}".format(int(x), int(y), fitmean, fwhm)
+        pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}".format(int(x+1), int(y+1), fitmean, fwhm)
         print(pstr)
         logging.info(pstr)
 
@@ -562,7 +562,7 @@ class Imexamine(object):
         plt.legend()
         plt.draw()
         time.sleep(self.sleep_time)
-        pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(int(x), int(y), fitmean, fwhm)
+        pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(int(x+1), int(y+1), fitmean, fwhm)
         print(pstr)
         logging.info(pstr)
 
@@ -578,7 +578,7 @@ class Imexamine(object):
         chunk = self._data[y - delta:y + delta, x - delta:x + delta]  # flipped from xpa
         try:
             amp, ycenter, xcenter, sigma, offset = math_helper.gauss_center(chunk)
-            pstr = "xc={0:4f}\tyc={1:4f}".format((xcenter + x - delta), (ycenter + y - delta))
+            pstr = "xc={0:4f}\tyc={1:4f}".format((xcenter + x - delta+1), (ycenter + y - delta+1))
             print(pstr)
             logging.info(pstr)
             return amp, (xcenter + x - delta), (ycenter + y - delta), sigma, offset
@@ -643,7 +643,7 @@ class Imexamine(object):
             if getdata:
                 rapert = np.arange(1, rapert, 1)
                 info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
-                    int(centerx), int(centery), rapert, flux)
+                    int(centerx+1), int(centery+1), rapert, flux)
                 print(info)
                 logging.info(info)
             ax.plot(radius, flux, 'o')

@@ -1,3 +1,15 @@
+version 0.2.dev (unreleased)
+----------------------------
+
+- zero-indexing bug fixed for data pixel display
+
+- added support for x-D image cubes. They display, and are correctly tracked through
+  the imexam loop. Several new functions were added to support this.
+  
+- fixed the zoom(int) bug, you can supply an int or string to the zoom function and it will be happy
+
+
+
 version 0.1.dev (unreleased)
 ----------------------------
 

@@ -9,7 +9,7 @@ Software Dependencies
 
 astropy >= 0.3
 
-python >= 2.6
+python >= 2.7
 
 numpy >= 1.6.0
 

@@ -53,7 +53,7 @@ class Connect(object):
 
         _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
         if viewer.lower() not in _possible_viewers:
-            warnings.warn("**Unsupported viewer\n")
+            warnings.warn("**Unsupported viewer**\n")
             raise NotImplementedError
 
         if 'ds9' in viewer.lower():
@@ -62,7 +62,11 @@ class Connect(object):
 
         self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.current_frame = self.frame()  # will be a string
-        self.logfile = 'imexam_log.txt'
+
+        self.current_slice=self.window.get_slice_info()
+        
+        self.logfile = 'imexam_log.txt'            
+
 
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
         """turn on and off imexam logging to the a file"""
@@ -84,14 +88,31 @@ class Connect(object):
             self.current_frame = self.frame()
             self._run_imexam()
         else:
-            warnings.warn("No image loaded in viewer")
+            warnings.warn("No image loaded in viewer, load image to examine")
 
     def get_data_filename(self):
         """return the filename for the data in the current window"""
         return self.window.get_filename()
 
+    def get_frame_info(self):
+        """return more explicit information about the data displayed in the current frame"""
+        return self.window.get_frame_info()
+
     def _run_imexam(self):
-        """start imexam"""
+        """start imexam analysis loop
+        
+        Notes
+        -----
+        The data displayed in the current frame is grabbed and sent down to the imexam loop
+        so that it only has to be grabbed once. The catch is that the user can change the data
+        that is displayed using the gui menus, so during the imexam loop the display needs to be
+        checked after each key stroke.
+        
+        This function will track the user changing the frame number using the gui display
+        for simple images and update the data array. For cube and slice images it gets more complicated 
+        because the frame stays the same,but the slice references change in a different window.
+        
+        """
 
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
@@ -100,15 +121,27 @@ class Connect(object):
         logging.info("Current image {0:s}".format(self.get_data_filename()))
         while current_key:
             check_frame = self.frame()
+
             if self.current_frame != check_frame:  # the user has changed window frames
                 self.exam.set_data(self.window.get_data())
                 self.current_frame = check_frame
-                logging.info("Current image {0:s}".format(self.get_data_filename()))
+                cstring="Current image {0:s}".format(self.get_frame_info(),)
+                logging.info(cstring)
+
+            if self.window.iscube():
+                current_slice=self.window.get_slice_info()
+                if current_slice != self.current_slice:
+                    self.exam.set_data(self.window.get_data())
+                    self.current_slice=current_slice
+                    cstring="Current image {0:s}".format(self.get_frame_info(),)
+                    logging.info(cstring)
+                     
             try:
                 x, y, current_key = self.readcursor()
             except KeyError:
                 print("Invalid key")
                 current_key = 'q'
+
             if current_key not in keys and 'q' not in current_key:
                 print("Invalid key")
             elif 'q' in current_key:
