@@ -121,6 +121,18 @@ class ds9(object):
         _ds9_process: pointer
             Points to the ds9 process id on the system, returned by Popen, whenever this module starts DS9
 
+        _mef_file: boolean
+            The file is a multi-extension fits file
+        
+        _iscube: bookean
+            The file is a multiextension fits file, and one of the extensions contains at least 1 additional extension (3D or more)
+
+        _numaxis: int
+            number of image planes, this is NAXIS
+            
+        _naxis: tuple
+            specific image plane displayed, defaulted to 1 image plane, most relevant to cube fits files
+    
     """
 
     # _ImgCode : copied from fits, used for displaying arrays straight to DS9
@@ -136,17 +148,20 @@ class ds9(object):
 
     def __init__(self, target=None, path=None, wait_time=5, quit_ds9_on_del=True):
         """
-
+        
+        Notes
+        -----
         I think this is a quirk in the XPA communication. The xpans, and XPA prefer to have all connections
         be of the same type. DS9 defaults to creating an INET connection. In some cases, if no IP address can be
         found for the computer, the startup can hang. In these cases, a local connection is preferred, which 
         uses a unix filename for the socket.
 
-        The problem arises that if the user already has DS9 windows running, that was started by default, the nameserver
+        The problem arises that if the user already has DS9 windows running, that were started by default, the nameserver
         is only listening for the default socket type (inet) and not local. There are also cases where the machine
-        runing this code does not have xpa installed, so there is no xpans (nameserver) to run and keep track of the
+        running this code does not have xpa installed, so there is no xpans (nameserver) to run and keep track of the
         open connections. In that case, the user needs to provide this init with the name of the socket in their
         window (in XPA_METHOD) in order to create the connection.
+        
         """
         self._quit_ds9_on_del = quit_ds9_on_del  # determine whether to quit ds9 also when object deleted.
         self.wait_time = wait_time
@@ -168,6 +183,7 @@ class ds9(object):
         self._numaxis=2      #number of image planes, this is NAXIS
         self._naxis=(0)   #tuple of each image plane, defaulted to 1 image plane
         self._iscube=False #data has more than 2 dimensions and loads in cube/slice frame
+        self._mef_file = False #used to check misleading headers in fits files
         
         openNew = False
         if not target:
@@ -244,7 +260,7 @@ class ds9(object):
             self._filename_string=self.get('file')
             self._filename = str(self._filename_string.strip().split('[')[0])  
         except XpaException:
-            self._filename=""
+            self._filename="" #no file loaded
         
         try:   
             if "plane" in self._filename_string:
@@ -269,28 +285,48 @@ class ds9(object):
         if load_header:
             # set the extension from the header information
             header_cards = fits.Header.fromstring(self.get_header(), sep='\n') 
-            try:
-                self._extver = int(header_cards['EXTVER'])
-            except KeyError:
-                self._extver=1
-                #fits doesn't require extver if there is only 1 extension
+            
+            if self._mef_file:
+                try:
+                    self._extver = int(header_cards['EXTVER'])
+                except KeyError:
+                    self._extver=1
+                    #fits doesn't require extver if there is only 1 extension
 
+                try:
+                    self._extname = str(header_cards['EXTNAME'])
+                except KeyError:
+                    print("Couldn't find EXTNAME in header, ignoring")      
+                    self._extname=""
+                    
             try:
-                self._extname = str(header_cards['EXTNAME'])
                 self._numaxis =int(header_cards['NAXIS'])
-
-                if not self._iscube:
-                    if self._numaxis > 2:
-                        self._iscube=True
-                        self._naxis=list()
-                        #assume the first axis in each extension is displayed
-                        for axis in range(self._numaxis,2,-1):
-                            self._naxis.append(0)
-                        self._naxis=tuple(self._naxis)
-                                    
             except KeyError:
-                raise KeyError("Problem reading image header for necessary keys")                
+                raise KeyError("Problem getting NAXIS from header")                
 
+            if not self._iscube:
+                if self._numaxis > 2:
+                    self._iscube=True
+                    self._naxis=list()
+                    #assume the first axis in each extension is displayed
+                    for axis in range(self._numaxis,2,-1):
+                        self._naxis.append(0)
+                    self._naxis=tuple(self._naxis)
+                                    
+    def _check_filetype(self,filename=None):
+        """check the file to see if it's MEF or SIMPLE fits"""
+        if not filename:
+            print("No filename provided")
+        else:
+            self._mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
+
+            #check to see if the fits file lies
+            if self._mef_file:
+                try:
+                    nextend = fits.getval(filename, ext=0, keyword='NEXTEND')
+                except KeyError:
+                    self._mef_file=False
+        
 
     def get_filename(self):
         """return the filename currently on display
@@ -829,6 +865,7 @@ class ds9(object):
         # make sure the filename and extension info are correct for the current frame in DS9
         self._set_filename()
         if not self._filename:
+            print("No filename associated with data, perhaps you have an array in memory")
             return None
         else:
             if not self._extver and not self._extname: #the simple fits case
@@ -911,8 +948,10 @@ class ds9(object):
             try:
                 # strip the extensions for now
                 shortname = fname.split("[")[0]
-                isExtend = fits.getval(shortname, ext=0, keyword='EXTEND')
-                if not isExtend or '[' in fname:
+                
+                self._check_filetype(shortname)
+                
+                if not self._mef_file or '[' in fname:
                     cstring = ('file fits {0:s}'.format(fname))
                 elif extver and not extname:
                     cstring = ('file fits {0:s}[{1:d}]'.format(fname, extver))
@@ -1022,8 +1061,12 @@ class ds9(object):
         Y = 1
         COMMENT = 2
         for location in list(input_points):
-            pline = "image; " + rtype + \
-                "(" + str(location[X]) + "," + str(location[Y]) + "," + str(size) + ")\n"
+            if rtype=="circle":
+                pline = "image; " + rtype + \
+                    "(" + str(location[X]) + "," + str(location[Y]) + "," + str(size) + ")\n"
+            if rtype=="line": #the list should contain tuple pairs for the line start and end points
+                pline = "image; " + rtype + \
+                    "("
             self.set_region(pline)
             if(len(str(location[COMMENT])) > 0):
                 pline = "image;text(" + str(float(location[X]) + textoff) + "," + str(
@@ -1351,13 +1394,12 @@ class ds9(object):
 
         Examples
         --------
-        set_region("physical; ruler 200 300 200 400")
+        set_region("physical ruler 200 300 200 400")
+        set_region("line 0 400 3 400 #color=red")
 
         """
-        if region_string[-1] != "\n":
-            region_string = region_string + "\n"
-
-        self.set("regions {0:s}".format(region_string))
+        command="regions command {{ {0:s} }}\n".format(region_string)
+        self.set(command)
 
     def showme(self):
         """raise the ds9 window"""
@@ -1384,7 +1426,7 @@ class ds9(object):
         Parameters
         ----------
 
-       filename: str, optioan
+       filename: str, optional
            filename of output image, the extension in the filename can also be used to specify the format
            If no filename is specified, then the filename will be constructed from the name of the
            currently displayed image with _snap.jpg appended.
@@ -1423,6 +1465,13 @@ class ds9(object):
         frame: int
             Display frame to use. The current frame is used if none is specfied. If no frame exists, then a new one is created.
 
+
+        Notes
+        -----
+        
+        If you have displayed an image from memory to ds9, using get_data() will not return anything, you already have the array somewhere accessable
+        It will also not allow you to run imexam() analysis loop, will think about how to fix that.
+        
         """
 
         _frame_num = self.frame()
