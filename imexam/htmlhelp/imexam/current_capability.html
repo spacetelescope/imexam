@@ -1,0 +1,251 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imexam() User Methods &mdash; imexam v0.3.dev</title>
+    
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="up" title="Imexam User Documentation" href="index.html" />
+    <link rel="next" title="Convenience functions for XPA commands" href="xpa_commands.html" />
+    <link rel="prev" title="The imexam() method" href="imexam_command.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="xpa_commands.html" title="Convenience functions for XPA commands">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="imexam_command.html" title="The imexam() method">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">imexam v0.3.dev</a>
+	 &raquo;
+      </li>
+      <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
+      
+      <li>imexam() User Methods</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="imexam-user-methods">
+<h1>imexam() User Methods<a class="headerlink" href="#imexam-user-methods" title="Permalink to this headline">¶</a></h1>
+<p>These are methods particular to the imexam package which are meant to aid users in their image analysis. They are called from the main object you created with imexam.connect().</p>
+<dl class="docutils">
+<dt><strong>close</strong> ():</dt>
+<dd><p class="first">close the DS9 window and end the connection.</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>view</strong> (img, header=None, frame=None, asFits=False):</dt>
+<dd><p class="first">Load an image array into a DS9 frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
+A basic header is created and sent to DS9. You can look at this header with disp_header() but get_header() will return an error because it
+looks for a filename, and no file was loaded, just the array.</p>
+<div class="last highlight-python"><pre>image_array=fits.getdata('image.fits')
+viewer.view(image_array)
+
+or
+
+image_array=numpy.ones([100,100])*numpy.random.rand(100)
+viewer.view(image_array)</pre>
+</div>
+</dd>
+<dt><strong>readcursor</strong> ():</dt>
+<dd><p class="first">Returns image coordinate postion and key pressed as a tuple of the for float(x), float(y), str(key).</p>
+<div class="last highlight-python"><pre>In [1]: viewer.readcursor()
+Out[2]: (56.0, 28.333333, 'a')
+
+or with a click of the first mouse button
+
+In [1]: viewer.readcursor()
+Out[2]: (67.333333, 80.0, '&lt;1&gt;')</pre>
+</div>
+</dd>
+<dt><strong>make_region</strong> (infile,doLabels=False):</dt>
+<dd><p class="first">Make an input reg file which contains rows with  &#8220;x,y,comment&#8221; into a region file that the viewer recognizes.</p>
+<dl class="docutils">
+<dt>infile: str</dt>
+<dd>input filename</dd>
+<dt>labels: bool</dt>
+<dd>add labels to the regions</dd>
+<dt>header: int</dt>
+<dd>number of header lines in text file to skip</dd>
+<dt>textoff: int</dt>
+<dd>offset in pixels for labels</dd>
+<dt>rtype: str</dt>
+<dd>region type, one of the acceptable ds9 regions</dd>
+<dt>size: int</dt>
+<dd>size of the region type</dd>
+</dl>
+<div class="last highlight-python"><pre>Here's what the input file 'test' looks like:
+
+100,100, 1
+200,200, 2
+300,300, comment 3
+
+
+viewer.make_region('test',labels=True)
+
+And the output region file:
+
+image; circle(100,100,5)
+image;text(110.0,110.0{ 1 })# font="time 12 bold"
+image; circle(200,200,5)
+image;text(210.0,210.0{ 2 })# font="time 12 bold"
+image; circle(300,300,5)
+image;text(310.0,310.0{ comment 3 })# font="time 12 bold"</pre>
+</div>
+</dd>
+</dl>
+<p>Now let&#8217;s load the region file into our image:</p>
+<img alt="image with regions plotted" src="../_images/make_region.png" style="width: 500px; height: 600px;" />
+<dl class="docutils">
+<dt><strong>mark_region_from_array</strong> (input_points,rtype=&#8221;circle&#8221;,ptype=&#8221;image&#8221;,textoff=10,size=5):</dt>
+<dd><p class="first">mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified</p>
+<p>input_points: a tuple, or list of tuples, or a string: (x,y,comment),</p>
+<dl class="docutils">
+<dt>ptype: string</dt>
+<dd>the reference system for the point locations, image|physical|fk5</dd>
+<dt>rtype: string</dt>
+<dd>the matplotlib style marker type to display</dd>
+<dt>size: int</dt>
+<dd>the size of the region marker</dd>
+<dt>textoff: string</dt>
+<dd>the offset for the comment text, if comment is empty it will not show</dd>
+</dl>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">locations</span><span class="o">=</span><span class="nb">list</span><span class="p">()</span>
+<span class="n">locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;comment 3&#39;</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">mark_region_from_array</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<img alt="image with regions plotted" src="../_images/mark_region.png" style="width: 500px; height: 600px;" />
+<dl class="docutils">
+<dt><strong>setlog</strong> (self, filename=None, on=True, level=logging.DEBUG):</dt>
+<dd>turn on and off imexam logging to the a file.</dd>
+<dt><strong>set_region</strong> (region_string):</dt>
+<dd>Use this to send the viewer a formatted region string it&#8217;s expecting</dd>
+</dl>
+<p>For example, in DS9:</p>
+<div class="highlight-python"><pre>viewer.set_region("text 110.0 110.0 '1' #font=times")
+
+
+See the DS9 XPA documentation for more examples.</pre>
+</div>
+<dl class="docutils">
+<dt><strong>unlearn</strong> ():</dt>
+<dd>reset all the imexam default parameters</dd>
+<dt><strong>get_data_filename</strong> ():</dt>
+<dd><p class="first">return the filename for the data in the current window</p>
+<div class="last highlight-python"><pre>In [1]: viewer.get_data_filename()
+Out[2]: '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits'</pre>
+</div>
+</dd>
+<dt><strong>get_frame_info</strong> ():</dt>
+<dd><p class="first">return more explicit information about the data displayed in the current frame</p>
+<div class="last highlight-python"><pre>In [1]: viewer.get_frame_info()
+Out[2]: '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits[SCI,1]'</pre>
+</div>
+</dd>
+<dt><strong>plotname</strong>:</dt>
+<dd><p class="first">change or show the default save plotname for imexamine</p>
+<div class="last highlight-python"><pre>In [1]: viewer.plotname()
+imexam_plot.pdf
+
+In [2]: viewer.plotname('myplot.jpg')
+In [3]: viewer.plotname()
+myplot.jpg</pre>
+</div>
+</dd>
+</dl>
+<p>The extension of the filename controls the plot type.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">imexam() User Methods</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/imexam/current_capability.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2014, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
+    Last built 04 Jun 2014. <br/>
+  </p>
+</footer>
+  </body>
+</html>

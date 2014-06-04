@@ -1,0 +1,179 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imexam.connect Module &mdash; imexam v0.3.dev</title>
+    
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../index.html">imexam v0.3.dev</a>
+	 &raquo;
+      </li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-imexam.connect">
+<span id="imexam-connect-module"></span><h1>imexam.connect Module<a class="headerlink" href="#module-imexam.connect" title="Permalink to this headline">¶</a></h1>
+<p>This is the main controlling class, it allows the user to connect to (at least) ds9 and the imexamine classes</p>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/imexam.connect.Connect.html#imexam.connect.Connect" title="imexam.connect.Connect"><tt class="xref py py-obj docutils literal"><span class="pre">Connect</span></tt></a>([target,&nbsp;path,&nbsp;viewer,&nbsp;wait_time,&nbsp;...])</td>
+<td>Connect to a display device to look at and examine images that are displayed within  The control features below are a basic set that should be available in all display tools.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="module-imexam.imexamine">
+<span id="imexam-imexamine-module"></span><h1>imexam.imexamine Module<a class="headerlink" href="#module-imexam.imexamine" title="Permalink to this headline">¶</a></h1>
+<p>This class implements IRAF/imexamine type capabilities</p>
+<div class="section" id="id1">
+<h2>Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine" title="imexam.imexamine.Imexamine"><tt class="xref py py-obj docutils literal"><span class="pre">Imexamine</span></tt></a>()</td>
+<td>do imexamine like routines on the current frame</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="module-imexam.ds9_basic">
+<span id="imexam-ds9-basic-module"></span><h1>imexam.ds9_basic Module<a class="headerlink" href="#module-imexam.ds9_basic" title="Permalink to this headline">¶</a></h1>
+<p>This class supports communication with DS9 through the XPA</p>
+<p>Some code in this package was adapted from pysao, which can be found at <a class="reference external" href="https://github.com/leejjoon/pysao">https://github.com/leejjoon/pysao</a>. 
+Specifically this package used the existing Cython implementation to the XPA  and extended the calls to 
+the other available XPA executables so that more functionality is added. The same information is available
+here: <a class="reference external" href="http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen">http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen</a></p>
+<p>Using Cython will allow for broader development of the code and produce faster runtimes for large datasets 
+with repeated calls to the display manager.</p>
+<p>XPA is licensed under LGPL, help can be found here: <a class="reference external" href="http://hea-www.cfa.harvard.edu/saord/xpa/help.html">http://hea-www.cfa.harvard.edu/saord/xpa/help.html</a> 
+The current XPA can be downloaded from here: <a class="reference external" href="http://hea-www.harvard.edu/saord/xpa/">http://hea-www.harvard.edu/saord/xpa/</a></p>
+<p>DS9 also supports the SAMP protocol, but that has not been fully implemented in this package. <a class="reference external" href="http://ds9.si.edu/doc/ref/samp.html">http://ds9.si.edu/doc/ref/samp.html</a></p>
+<div class="section" id="id2">
+<h2>Classes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9" title="imexam.ds9_basic.ds9"><tt class="xref py py-obj docutils literal"><span class="pre">ds9</span></tt></a>([target,&nbsp;path,&nbsp;wait_time,&nbsp;quit_ds9_on_del])</td>
+<td>A class which controls all interactions between the user and the ds9 window  The ds9() contructor takes a ds9 target as its main argument.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">imexam.connect Module</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-imexam.imexamine">imexam.imexamine Module</a><ul>
+<li><a class="reference internal" href="#id1">Classes</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-imexam.ds9_basic">imexam.ds9_basic Module</a><ul>
+<li><a class="reference internal" href="#id2">Classes</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/imexam/reference_api.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2014, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
+    Last built 04 Jun 2014. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+import glob
+import sys
+import os
 
 try:
     from setuptools import setup, Extension
@@ -6,6 +11,29 @@ except ImportError:
     from distribute_setup import use_setuptools
     use_setuptools()
     from setuptools import setup, Extension
+
+
+# Get some values from the setup.cfg
+from distutils import config
+conf = config.ConfigParser()
+conf.read(['setup.cfg'])
+metadata = dict(conf.items('metadata'))
+
+PACKAGENAME = metadata.get('package_name', 'packagename')
+DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
+LONG_DESCRIPTION=metadata.get('long_description','A package to help perform image examination through a viewing tool')
+AUTHOR = metadata.get('author', '')
+AUTHOR_EMAIL = metadata.get('author_email', '')
+LICENSE = metadata.get('license', 'unknown')
+VERSION = metadata.get('version','')
+
+# Indicates if this version is a release version
+RELEASE = 'dev' not in VERSION
+
+
+# Treat everything in scripts except README.rst as a script to be installed
+scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
+           if os.path.basename(fname) != 'README.rst']
 
 
 # check if cython is available.
@@ -17,14 +45,12 @@ except ImportError:
     print("Unable to load Cython")
     raise ImportError
 
-import os.path
+
 XPALIB_DIR = "cextern/xpa-2.1.15"
 CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
 
 from distutils.command.clean import clean
-
-
 class my_clean(clean):
 
     def run(self):
@@ -83,11 +109,22 @@ xpa_module = Extension("imexam.xpa",
                        )
 
 setup(
+    name=PACKAGENAME,
+    version=VERSION,
+    description=DESCRIPTION,
+    scripts=scripts,
+    requires=['astropy'],
+    install_requires=['astropy'],
+    provides=[PACKAGENAME],
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    license=LICENSE,
+    long_description=LONG_DESCRIPTION,
     setup_requires=['d2to1>=0.2.7', 'stsci.distutils>=0.3'],
     d2to1=True,
     use_2to3=True,
     zip_safe=False,
-    ext_modules=[xpa_module]
+    ext_modules=[xpa_module],
 )
 
 # add this back into the setup command if you want to build the full XPA

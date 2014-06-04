@@ -454,11 +454,11 @@ class ds9(object):
         Notes
         -----
         When the xpa method in libxpa parses given template as an unix socket, it checks if the template string starts with tmpdir (from env["XPA_TMPDIR"] 
-        or default to "/tmp/.xpa"). This can make having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address
+        or default to /tmp/.xpa). This can make having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address
         you should be fine
 
-        For unix only, we run ds9 with XPA_TMPDIR set to temporary directory whose prefix start with "/tmp/xpa" 
-        (eg, "/tmp/xpa_sf23f"), them set os.environ["XPA_TMPDIR"] (which affect xpa set and/or get command from python) to "/tmp/xpa".
+        For unix only, we run ds9 with XPA_TMPDIR set to temporary directory whose prefix start with /tmp/xpa
+        (eg, /tmp/xpa_sf23f), them set os.environ["XPA_TMPDIR"] (which affect xpa set and/or get command from python) to /tmp/xpa.
 
         """
         env = os.environ
@@ -549,16 +549,18 @@ class ds9(object):
         self.xpa.set(param, buf)
 
     def get(self, param):
-        """XPA get method to ds9 instance
+        """XPA get method to ds9 instance which returns received string
+
+        Parameters
+        ----------
+        param : parameter string (eg. "fits" "regions")
 
 
         Notes
         -----
         This function is linked with the Cython implementation
-
-        get(param)
-        param : parameter string (eg. "fits" "regions")
-        returns received string
+        get(param)        
+        
         """
         self._check_ds9_process()
         return self.xpa.get(param)
@@ -568,7 +570,8 @@ class ds9(object):
 
         Notes
         -----
-        XPA returns strings of the form u'a  257.5 239 \n' 
+        XPA returns strings of the form u a  257.5 239 \n 
+        
         """
         try:
             xpa_string = self.get("imexam any coordinate image")
@@ -1033,8 +1036,8 @@ class ds9(object):
         else:
             self.set("file multiframe {0:s}".format(filename))
 
-    def mark_region_from_array(self, input_points, rtype="circle", ptype="image", textoff=10, size=5):
-        """mark ds9 regions regions  given an input list of tuples
+    def mark_region_from_array(self, input_points, ptype="image", textoff=10, size=5):
+        """mark ds9 regions regions  given an input list of tuples, a convienence function, you can also use set_region
 
         Parameters
         ----------
@@ -1043,37 +1046,41 @@ class ds9(object):
 
         ptype: string
             the reference system for the point locations, image|physical|fk5
-        rtype: string
-            the matplotlib style marker type to display
+
         size: int
             the size of the region marker
 
         textoff: string
             the offset for the comment text, if comment is empty it will not show
 
+        Notes
+        -----
+        only circular regions are supported currently
+
         """
         if isinstance(input_points, tuple):
-            input_points = [tuple(input_points)]
+            input_points = [input_points]
         elif isinstance(input_points, str):
             input_points = [tuple(input_points.split())]
 
         X = 0
         Y = 1
         COMMENT = 2
-        for location in list(input_points):
-            if rtype=="circle":
-                pline = "image; " + rtype + \
-                    "(" + str(location[X]) + "," + str(location[Y]) + "," + str(size) + ")\n"
-            if rtype=="line": #the list should contain tuple pairs for the line start and end points
-                pline = "image; " + rtype + \
-                    "("
-            self.set_region(pline)
+        rtype="circle" #only one supported right now
+        
+        for location in input_points:
+            if rtype=="circle":    
+                pline = rtype + " " + str(location[X]) + " " + str(location[Y]) + " " + str(size) 
+                print(pline)
+                self.set_region(pline)
+            
             if(len(str(location[COMMENT])) > 0):
-                pline = "image;text(" + str(float(location[X]) + textoff) + "," + str(
-                    float(location[Y]) + textoff) + "{ " + str(location[COMMENT]) + " })# font=\"time 12 bold\"\n"
+                pline = "text " + str(float(location[X]) + textoff) + " " + \
+                    str(float(location[Y]) + textoff) + " '" + str(location[COMMENT]) + "' #font=times"
+                print(pline)
                 self.set_region(pline)
 
-    def make_region(self, infile, labels=False, header=0, textoff=10, rtype="circle", size=5):
+    def make_region(self, infile, labels=False, header=0, textoff=10, size=5):
         """make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment
 
 
@@ -1092,12 +1099,14 @@ class ds9(object):
         textoff: int
             offset in pixels for labels
 
-        rtype: str
-            region type, one of the acceptable ds9 regions
-
         size: int
             size of the region type
 
+
+        Notes
+        -----
+        only circular regions are supported currently
+        
         """
 
         try:
@@ -1124,7 +1133,7 @@ class ds9(object):
             words = lines[i].split(',')
             x.append(words[0].strip())
             y.append(words[1].strip())
-            if(numCols > 2 and labels):
+            if(len(words) > 2 and labels):
                 text.append(words[2].strip())
 
         # now write out to a reg file

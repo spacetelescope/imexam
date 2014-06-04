@@ -1,0 +1,172 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Example 1 &mdash; imexam v0.3.dev</title>
+    
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../index.html">imexam v0.3.dev</a>
+	 &raquo;
+      </li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="example-1">
+<h1>Example 1<a class="headerlink" href="#example-1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>First you need to import the package</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
+</pre></div>
+</div>
+<p>Start up a DS9 window (by default), a new DS9 window will be opened</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you already have a window running, you can ask for a list of windows</p>
+<div class="highlight-python"><pre>imexam.list_active_ds9()
+DS9 ds9 gs 82a7e75f:57222 sosey</pre>
+</div>
+<p>You can attach to a current DS9 window be specifying its unique name</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;ds9&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you haven&#8217;t given your windows unique names, then you must use the ip:port address</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;82a7e75f:57222&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Load a fits image into the window</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;test.fits&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Scale to default using zscale</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Change to heat map colorscheme</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">cmap</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&#39;heat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Make some marks on the image and save the regions</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="s">&#39;test.reg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Delete all the regions you made, then load from file</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">load_regions</span><span class="p">(</span><span class="s">&#39;test.reg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Plot stuff at cursor location, in a while loop. Type a key when the mouse is over your desired location and continue plotting with the available options</p>
+<div class="highlight-python"><pre>a.imexam()
+
+ 'a': 'aperture sum, with radius region_size, optional sky subtraction',
+ 'j': '1D  line fit ',
+ 'k': '1D  column fit ',
+ 'm': 'median square region stats, in region_size square',
+ 'n': 'move to the next frame',
+ 'p': 'move to the previous frame',
+ 'x': 'return x,y coords of pixel',
+ 'y': 'return x,y coords of pixel',
+ 'l': 'return line plot',
+ 'c': 'return column plot',
+ 'r': 'return curve of growth plot',
+ 'h': 'return a histogram in the region around the cursor'
+ 'e': 'return a contour plot in a region around the cursor'
+ 's': 'save current figure to plotname'
+ 'b': 'return the gauss fit center of the object'
+ 'w': 'display a surface plot around the cursor location'</pre>
+</div>
+<p>Quit out and delete windows and references</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Example 1</a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/imexam/example1.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2014, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
+    Last built 04 Jun 2014. <br/>
+  </p>
+</footer>
+  </body>
+</html>

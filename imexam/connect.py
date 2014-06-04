@@ -7,6 +7,7 @@ from __future__ import print_function, division, absolute_import
 import warnings
 import logging
 import subprocess
+import os
 from .util import set_logging, find_xpans
 from . import xpa
 from .ds9_basic import ds9
@@ -149,6 +150,7 @@ class Connect(object):
             else:
                 self.exam.do_option(x, y, current_key)
 
+    
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str """
         return self.window.readcursor()
@@ -362,15 +364,3 @@ class Connect(object):
                 warnings.warn("File with that name already exists:{0s}".format(filename))
             else:
                 self.exam.set_plot_name(filename)
-
-    def register(self, user_funcs):
-        """register a new imexamine function
-
-        user_funcs: dict
-            Contains a dictionary where each key is the binding for the (function,description) tuple
-
-        The new binding will be added to the dictionary of imexamine functions as long as the key is unique
-        The new functions do not have to have default dictionaries associated with them
-        """
-
-        self.exam.register(user_funcs)

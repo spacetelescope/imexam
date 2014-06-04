@@ -91,7 +91,8 @@ class Imexamine(object):
             The key which was pressed
 
         """
-        self.imexam_option_funcs[key][0](x-1, y-1)
+        print("pressed: {0},{1},{2}".format(key,x,y))
+        self.imexam_option_funcs[key][0](x-1, y-1) #ds9 is returning 1 based array
 
     def get_options(self):
         """return the imexam options as a key list"""
@@ -110,7 +111,7 @@ class Imexamine(object):
 
         field: int
             This tells where in the option dictionary the function name can be found
-
+            
 
         """
         return self.imexam_option_funcs[key][field]
@@ -184,15 +185,12 @@ class Imexamine(object):
         """make the next plot in a new plot window
 
 
-        Description
-        -----------     
-        Once the new plotting window is open all plots will be directed towards it
-        The old window cannot be used again
-
         Notes
         -----
         x,y are not used here, but the calls are setup to take them
         for all imexam options. Is there a better way to do the calls in general?
+        Once the new plotting window is open all plots will be directed towards it
+        The old window cannot be used again.
 
         """
         counter = len(self._plot_windows) + 1
@@ -200,35 +198,6 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         print("Plots now directed towards {0:s}".format(self._figure_name))
 
-    def register(self, user_funcs):
-        """register a new imexamine function made by the user
-
-        Parameters
-        ----------
-        user_funcs: dict
-            Contains a dictionary where each key is the binding for the (function,descrition) tuple
-
-        Notes
-        -----
-        The new binding will be added to the dictionary of imexamine functions as long as the key is unique
-        The new functions do not have to have default dictionaries associated with them
-
-        """
-        if type(user_funcs) != type(dict()):
-            warnings.warn("Your input needs to be a dictionary")
-            raise TypeError
-
-        for key in user_funcs.keys():
-            if key in self.imexam_option_funcs.keys():
-                warnings.warn("{0:s} is not a unique key".format(key))
-                warnings.warn("{0:s}".format(self.imexam_option_funcs[key]))
-                raise ValueError
-            elif key == 'q':
-                warnings.warn("q is reserved as the quit key")
-                raise ValueError
-            else:
-                self.imexam_option_funcs[key] = user_funcs[key]
-                print("User function: {0:s} added to imexam options".format(user_funcs[key]))
 
     def plot_line(self, x, y):
         """line plot of data at point x"""
@@ -327,25 +296,8 @@ class Imexamine(object):
 
     def aper_phot(self, x, y):
         """Perform aperture photometry, uses photutils functions, photutils must be available
-
-
-        Notes
-        -----
-
-        For IRAF:
-
-            Rapert,  sum,  area  and  flux  are  the  radius  of the aperture in
-            pixels, the total number of counts including sky  in  the  aperture,
-            the  area  of the aperture in square pixels, and the total number of
-            counts in  the  aperture  excluding  sky.   Mag  and  merr  are  the
-            magnitude and error in the magnitude in the aperture (see below).
-
-                    flux = sum - area * msky
-                     mag = zmag - 2.5 * log10 (flux) + 2.5 * log10 (itime)
-                    merr = 1.0857 * error / flux
-                   error = sqrt (flux / epadu + area * stdev**2 +
-                           area**2 * stdev**2 / nsky)      
-          """
+                              
+        """
         if not photutils_installed:
             print("Install photutil to enable")
         else:
@@ -382,14 +334,14 @@ class Imexamine(object):
             magzero = float(self.aperphot_pars["zmag"][0])
             mag = magzero - 2.5 * (np.log10(total_flux))
 
-            pheader = ("x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky".format(magzero))
+            pheader = ("x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky\t".format(magzero)).expandtabs(15)
             if center:
-                pheader += ("\tfwhm")
+                pheader += ("fwhm")
                 pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(
-                    x+1, y+1, radius, total_flux, mag, annulus_sky / annulus_area, math_helper.gfwhm(sigma))
+                    x+1, y+1, radius, total_flux, mag, annulus_sky / annulus_area, math_helper.gfwhm(sigma)).expandtabs(15)
             else:
                 pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(
-                    x+1, y+1, radius, total_flux, mag, annulus_sky / annulus_area,)
+                    x+1, y+1, radius, total_flux, mag, annulus_sky / annulus_area,).expandtabs(15)
 
             print(pheader + pstr)
             logging.info(pheader + pstr)
@@ -841,6 +793,44 @@ class Imexamine(object):
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
         plt.draw()
         time.sleep(self.sleep_time)
+ 
+    def register(self, user_funcs):
+        """register a new imexamine function made by the user so that it becomes an option
+
+        Parameters
+        ----------
+        user_funcs: dict
+            Contains a dictionary where each key is the binding for the (function,description) tuple
+            
+        Notes
+        -----
+        The new binding will be added to the dictionary of imexamine functions as long as the key is unique
+        The new functions do not have to have default dictionaries associated with them
+        imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size ') ->tuple example
+
+        """
+        if type(user_funcs) != type(dict()):
+            warnings.warn("Your input needs to be a dictionary")
+
+        for key in user_funcs.keys():
+            if key in self.imexam_option_funcs.keys():
+                warnings.warn("{0:s} is not a unique key".format(key))
+                warnings.warn("{0:s}".format(self.imexam_option_funcs[key]))
+                raise ValueError("{0:s} is not a unique key".format(key))
+            elif key == 'q':
+                warnings.warn("q is reserved as the quit key")
+                raise ValueError("q is reserved for the quit key")
+            else:
+                func_name=user_funcs[key][0].__name__
+                self._add_user_function(user_funcs[key][0])
+                self.imexam_option_funcs[key] = (self.__getattribute__(func_name),user_funcs[key][1])
+                print("User function: {0:s} added to imexam options with key {1:s}".format(func_name,key))
+
+    
+    @classmethod
+    def _add_user_function(cls,func):
+        import types
+        return setattr(cls,func.__name__,types.MethodType(func,None,cls))      
 
     def set_aperphot_pars(self, user_dict=None):
         """the user may supply a dictionary of par settings"""

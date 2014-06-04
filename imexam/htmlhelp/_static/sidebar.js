@@ -39,12 +39,12 @@ $(function() {
 
   // margin-left of the bodywrapper and width of the sidebar
   // with the sidebar collapsed
-  var bw_margin_collapsed = '.8em';
-  var ssb_width_collapsed = '.8em';
+  var bw_margin_collapsed = 12;
+  var ssb_width_collapsed = 12;
 
-  // colors used by the current theme
-  var dark_color = $('.related').css('background-color');
-  var light_color = $('.document').css('background-color');
+  // custom colors
+  var dark_color = '#404040';
+  var light_color = '#505050';
 
   function sidebar_is_collapsed() {
     return sidebarwrapper.is(':not(:visible)');
@@ -62,8 +62,9 @@ $(function() {
     sidebar.css('width', ssb_width_collapsed);
     bodywrapper.css('margin-left', bw_margin_collapsed);
     sidebarbutton.css({
-        'margin-left': '0',
-        'height': bodywrapper.height()
+        'margin-left': '-1px',
+        'height': bodywrapper.height(),
+	'border-radius': '3px'
     });
     sidebarbutton.find('span').text('»');
     sidebarbutton.attr('title', _('Expand sidebar'));
@@ -75,8 +76,9 @@ $(function() {
     sidebar.css('width', ssb_width_expanded);
     sidebarwrapper.show();
     sidebarbutton.css({
-        'margin-left': ssb_width_expanded-12,
-        'height': bodywrapper.height()
+        'margin-left': ssb_width_expanded - 12,
+        'height': bodywrapper.height(),
+	'border-radius': '0px 3px 3px 0px'
     });
     sidebarbutton.find('span').text('«');
     sidebarbutton.attr('title', _('Collapse sidebar'));
@@ -87,34 +89,41 @@ $(function() {
     sidebarwrapper.css({
         'float': 'left',
         'margin-right': '0',
-        'width': ssb_width_expanded - 28
+        'width': ssb_width_expanded - 18
     });
     // create the button
-    sidebar.append(
-        '<div id="sidebarbutton"><span>&laquo;</span></div>'
-    );
+    sidebar.append('<div id="sidebarbutton"><span>&laquo;</span></div>');
     var sidebarbutton = $('#sidebarbutton');
-    light_color = sidebarbutton.css('background-color');
+
     // find the height of the viewport to center the '<<' in the page
     var viewport_height;
     if (window.innerHeight)
  	  viewport_height = window.innerHeight;
     else
 	  viewport_height = $(window).height();
+    var sidebar_offset = sidebar.offset().top;
+    var sidebar_height = Math.max(bodywrapper.height(), sidebar.height());
     sidebarbutton.find('span').css({
-        'display': 'block',
-        'margin-top': (viewport_height - sidebar.position().top - 20) / 2
+        'font-family': '"Lucida Grande",Arial,sans-serif', 
+	'display': 'block',
+	'top': Math.min(viewport_height/2, sidebar_height/2 + sidebar_offset) - 10,
+	'width': 12,
+	'position': 'fixed',
+	'text-align': 'center'
     });
 
     sidebarbutton.click(toggle_sidebar);
     sidebarbutton.attr('title', _('Collapse sidebar'));
     sidebarbutton.css({
         'color': '#FFFFFF',
-        'border-left': '1px solid ' + dark_color,
+	'background-color': light_color,
+	'border': '1px solid ' + light_color,
+        'border-radius': '0px 3px 3px 0px',
         'font-size': '1.2em',
         'cursor': 'pointer',
-        'height': bodywrapper.height(),
+        'height': sidebar_height,
         'padding-top': '1px',
+	'margin': '-1px',
         'margin-left': ssb_width_expanded - 12
     });
 
