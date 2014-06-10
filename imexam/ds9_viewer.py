@@ -1343,7 +1343,7 @@ class ds9(object):
         self.set("pan to {0:s} {1:s} wcs %s".format(x, y, system))
 
     def rotate(self, value=None, to=False):
-        """rotate the current frame (in degrees)
+        """rotate the current frame (in degrees), the current rotation is printed with no params
 
         Parameters
         ----------
@@ -1449,7 +1449,7 @@ class ds9(object):
         try:
             print(cstring)
             self.set(cstring)
-        except (XpaException, ValueError) as e:
+        except (XpaException, ValueError):
             print("{0:s} not valid".format(cstring))
             print(_help)
 

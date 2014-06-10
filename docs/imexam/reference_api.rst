@@ -2,5 +2,5 @@
    :no-inheritance-diagram:
 .. automodapi:: imexam.imexamine
    :no-inheritance-diagram:
-.. automodapi:: imexam.ds9_basic
+.. automodapi:: imexam.ds9_viewer
    :no-inheritance-diagram:
