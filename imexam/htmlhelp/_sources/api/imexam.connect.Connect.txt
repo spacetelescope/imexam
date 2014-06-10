@@ -42,6 +42,7 @@ Connect
       ~Connect.get_data_filename
       ~Connect.get_frame_info
       ~Connect.get_header
+      ~Connect.get_viewer_info
       ~Connect.grid
       ~Connect.hideme
       ~Connect.himexam
@@ -71,10 +72,12 @@ Connect
       ~Connect.scale
       ~Connect.set_region
       ~Connect.setlog
+      ~Connect.show_window_commands
       ~Connect.showme
       ~Connect.showpix
       ~Connect.snapsave
       ~Connect.unlearn
+      ~Connect.valid_data_in_viewer
       ~Connect.view
       ~Connect.wimexam
       ~Connect.zoom
@@ -112,6 +115,7 @@ Connect
    .. automethod:: get_data_filename
    .. automethod:: get_frame_info
    .. automethod:: get_header
+   .. automethod:: get_viewer_info
    .. automethod:: grid
    .. automethod:: hideme
    .. automethod:: himexam
@@ -141,10 +145,12 @@ Connect
    .. automethod:: scale
    .. automethod:: set_region
    .. automethod:: setlog
+   .. automethod:: show_window_commands
    .. automethod:: showme
    .. automethod:: showpix
    .. automethod:: snapsave
    .. automethod:: unlearn
+   .. automethod:: valid_data_in_viewer
    .. automethod:: view
    .. automethod:: wimexam
    .. automethod:: zoom

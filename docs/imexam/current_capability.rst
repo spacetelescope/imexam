@@ -130,10 +130,36 @@ Now let's load the region file into our image:
 
 
 **setlog** (self, filename=None, on=True, level=logging.DEBUG):
-    turn on and off imexam logging to the a file. 
+    Turn on and off imexam logging to the a file. You can set the filename to something specific or let the package record to the default logfile.
+    Once you give the object a logfile name, it will continue to use that file until you change it.
+    
+    ::
+    
+        In [5]: viewer.setlog()
+        Saving imexam commands to imexam_log.txt
 
+This is what's displayed in the terminal when you use imexam():
+    
+.. image:: setlog1.png
+    :height: 500
+    :width: 600
+    :alt: log information to terminal
     
     
+and this is what shows up in the logfile:
+
+.. image:: setlog2.png
+    :height: 500
+    :width: 600
+    :alt: log information to terminal
+
+You can see there are some leftovers from a previous logging session to the same file. You can toggle logging during a session too:
+
+    ::
+    
+        viewer.setlog(on=False)
+        
+
 **set_region** (region_string):
     Use this to send the viewer a formatted region string it's expecting
     
@@ -145,12 +171,12 @@ For example, in DS9::
     See the DS9 XPA documentation for more examples.
     
 **unlearn** ():
-    reset all the imexam default parameters
+    Reset all the imexam default parameters
 
 
 
 **get_data_filename** ():
-    return the filename for the data in the current window
+    Return the filename for the data in the current window
     
     ::
         
@@ -159,12 +185,39 @@ For example, in DS9::
 
 
 **get_frame_info** ():
-    return more explicit information about the data displayed in the current frame
+    Return more explicit information about the data displayed in the current frame. A dictionary of the information is returned. 
     
     ::
     
         In [1]: viewer.get_frame_info()
-        Out[2]: '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits[SCI,1]'
+        
+            {'extname': 'SCI',
+            'extver': 1,
+            'filename': '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits',
+            'iscube': False,
+            'mef': True,
+            'naxis': 0,
+            'numaxis': 2,
+            'user_array': None}
+
+
+**get_viewer_info** ():
+    Return a dictionary which contains information about all frames which have data loaded.
+    This could be useful to users who are scripting an analysis for polling what items are available, 
+    how many frames or displayed, what type of data is hanging around, etc ... 
+    
+    ::
+        
+        In [1]: viewer.get_viewer_info()
+        
+        {'1': {'extname': 'SCI',
+          'extver': 1,
+          'filename': '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits',
+          'iscube': False,
+          'mef': True,
+          'naxis': 0,
+          'numaxis': 2,
+          'user_array': None}}
 
 
 
@@ -181,3 +234,17 @@ For example, in DS9::
         myplot.jpg
 
 The extension of the filename controls the plot type.
+
+
+
+**display_help**():
+    Display the help documentation into a webpage from the locally installed version. This is done from the main package:
+    
+    ::
+    
+        In [1]: import imexam
+        
+        In [2]: imexam.display_help()
+        
+        
+

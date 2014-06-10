@@ -3,7 +3,7 @@
 """This class supports communication with DS9 through the XPA 
 
 
-Some code in this package was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. 
+Some code in this class was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. 
 Specifically this package used the existing Cython implementation to the XPA  and extended the calls to 
 the other available XPA executables so that more functionality is added. The same information is available
 here: http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen 
@@ -50,8 +50,8 @@ class UnsupportedImageShapeException(Exception):
 
 __all__ = ['ds9']
 
-# make a new obect for every window you want to create
 
+# make a new object for every window you want to create
 
 class ds9(object):
 
@@ -123,16 +123,16 @@ class ds9(object):
 
         _mef_file: boolean
             The file is a multi-extension fits file
-        
+
         _iscube: bookean
             The file is a multiextension fits file, and one of the extensions contains at least 1 additional extension (3D or more)
 
         _numaxis: int
             number of image planes, this is NAXIS
-            
+
         _naxis: tuple
             specific image plane displayed, defaulted to 1 image plane, most relevant to cube fits files
-    
+
     """
 
     # _ImgCode : copied from fits, used for displaying arrays straight to DS9
@@ -143,12 +143,12 @@ class ds9(object):
                 'int64': 64,
                 'uint8': 8}
 
-    _tmp_dir_list = ""
+    _tmp_dir = ""
     _process_list = list()
 
     def __init__(self, target=None, path=None, wait_time=5, quit_ds9_on_del=True):
         """
-        
+
         Notes
         -----
         I think this is a quirk in the XPA communication. The xpans, and XPA prefer to have all connections
@@ -161,33 +161,23 @@ class ds9(object):
         running this code does not have xpa installed, so there is no xpans (nameserver) to run and keep track of the
         open connections. In that case, the user needs to provide this init with the name of the socket in their
         window (in XPA_METHOD) in order to create the connection.
-        
+
         """
         self._quit_ds9_on_del = quit_ds9_on_del  # determine whether to quit ds9 also when object deleted.
         self.wait_time = wait_time
         self._need_to_purge = False
         self._tmpd_name = None
-        self._filename = ""  # no image loaded yet, use this for faster data access
-        self._extname = None
-        self._extver = None
-        # default starting socket type to get around local xpa installation issues
+
+        # dictionary where each key is a frame number, and the values are a dictionary of details
+        # about the image loaded in that frame
+        self._viewer = dict()
+        self._current_frame = None
+
+        # default starting socket type to local in order get around user xpa installation issues
         self._xpa_method = "local"
         self._xpa_name = ""
         self._ds9_process = None  # only used for DS9 windows started from this module
-        self._ds9_path=None
-
-        #information about the file which is loaded in the current frame
-        self._extver = None  #extension number 
-        self._extname = None  #name of extension 
-        self._filename = ""  #filename of image 
-        self._numaxis=2      #number of image planes, this is NAXIS
-        self._naxis=(0)   #tuple of each image plane, defaulted to 1 image plane
-        self._iscube=False #data has more than 2 dimensions and loads in cube/slice frame
-        self._mef_file = False #used to check misleading headers in fits files
-        
-        openNew = False
-        if not target:
-            openNew = True
+        self._ds9_path = None
 
         if path is None:
             self._ds9_path = util.find_ds9()
@@ -197,16 +187,15 @@ class ds9(object):
         else:
             self._ds9_path = path
 
-        if openNew:
+        if not target:
             # Check to see if the user has chosen a preference first
             if 'XPA_METHOD' in os.environ.keys():
-                self._xpa_method = os.environ['XPA_METHOD']
+                self._xpa_method = os.environ['XPA_METHOD'].lower()
 
             if 'inet' in self._xpa_method:
                 self._xpa_name = self.run_inet_ds9()
-                # xpa_name is the title of the window, need to replace inet with the socket address
-                # that XPA started, but we can only do this if xpans is installed (I think)
-                # which is why local is the default method to use.
+                # xpa_name is the title of the window, the xpa can be referenced
+                # with either the socket address or name of the window
 
             elif 'local' in self._xpa_method:
                 self._xpa_name, self._ds9_unix_name = self._run_unixonly_ds9()
@@ -219,7 +208,8 @@ class ds9(object):
 
         # xpa_name sets the template for the get and set commands
         self.xpa = xpa.XPA(self._xpa_name)
-        self._set_filename()
+        if 'local' in self._xpa_method:
+            self._set_frameinfo()  # initial load
         self._define_cmaps()  # dictionary of color maps
 
     def __str__(self):
@@ -232,7 +222,7 @@ class ds9(object):
             else:
                 self._stop_process()
 
-    def _set_filename(self):
+    def _set_frameinfo(self):
         """Set the name and extension information for the data displayed in the current frame 
         and gather header information
 
@@ -241,7 +231,7 @@ class ds9(object):
         -----
         The absolute path reference is stored to make XPA happy in all cases, wherever the user
         started the DS9 process.
-        
+
         The only consistant way to return which cube and slice that is displayed is with the call
         to "file" which has the full plane=x:y information, but only when looking at something 
         other than the first extension for each plane. In this case, you have to look at the header
@@ -251,82 +241,135 @@ class ds9(object):
         you need to look in the header of the displayed image to find out what the actual extension that is loaded is
         """
 
-        load_header = False
-        self._iscube = False
-                
-        # see if any file is currently loaded into ds9, xpa returns '\n' for none
-        
-        try:
-            self._filename_string=self.get('file')
-            self._filename = str(self._filename_string.strip().split('[')[0])  
-        except XpaException:
-            self._filename="" #no file loaded
-        
-        try:   
-            if "plane" in self._filename_string:
-                self._iscube=True
-                if ":" in self._filename_string:
-                    self._naxis= self._filename_string.strip().split(']')[1].split("=")[1].split(":")
-                else:
-                    self._naxis= self._filename_string.strip().split(']')[1].split('=')[1].split()
-                if len(self._naxis) == 1:
-                    self._naxis.append("0")
-                self._naxis.reverse() #for astropy.fits row-major ordering
-                self._naxis=map(int,self._naxis)
-                self._naxis=[axis-1 if axis > 0 else 0 for axis in self._naxis ] #zero index fits
-                self._naxis=tuple(self._naxis)                                         
-        except ValueError:
-            raise ValueError("Problem parsing XPA filename")
-            
-        if len(self._filename) > 1:
-            load_header = True
-            self._filename = os.path.abspath(self._filename)
-        
-        if load_header:
-            # set the extension from the header information
-            header_cards = fits.Header.fromstring(self.get_header(), sep='\n') 
-            
-            if self._mef_file:
-                try:
-                    self._extver = int(header_cards['EXTVER'])
-                except KeyError:
-                    self._extver=1
-                    #fits doesn't require extver if there is only 1 extension
+        # check the current frame, if none exists, then don't continue
+        frame = self.frame()
+        if frame:
 
-                try:
-                    self._extname = str(header_cards['EXTNAME'])
-                except KeyError:
-                    print("Couldn't find EXTNAME in header, ignoring")      
-                    self._extname=""
-                    
+            if frame not in self._viewer.keys():
+                self._viewer[frame] = dict()
+
             try:
-                self._numaxis =int(header_cards['NAXIS'])
+                user_array = self._viewer[frame]['user_array']
             except KeyError:
-                raise KeyError("Problem getting NAXIS from header")                
+                user_array = None
 
-            if not self._iscube:
-                if self._numaxis > 2:
-                    self._iscube=True
-                    self._naxis=list()
-                    #assume the first axis in each extension is displayed
-                    for axis in range(self._numaxis,2,-1):
-                        self._naxis.append(0)
-                    self._naxis=tuple(self._naxis)
-                                    
-    def _check_filetype(self,filename=None):
-        """check the file to see if it's MEF or SIMPLE fits"""
+            extver = None  # extension number
+            extname = None  # name of extension
+            filename = None  # filename of image
+            numaxis = 2  # number of image planes, this is NAXIS
+            naxis = (0)  # tuple of each image plane, defaulted to 1 image plane
+            iscube = False  # data has more than 2 dimensions and loads in cube/slice frame
+            mef_file = False  # used to check misleading headers in fits files
+
+            load_header = False  # not used for in memory arrays
+            self._current_frame = frame
+
+            # see if any file is currently loaded into ds9, xpa returns '\n' for nothing loaded
+            # get the current frame
+            try:
+                filename_string = self.get('file')
+                if len(filename_string) > 1:
+                    filename = str(filename_string.strip().split('[')[0])
+                    self._viewer[frame]['filename'] = os.path.abspath(filename)
+                    load_header = True
+
+            except XpaException:
+                filename_string = ""
+
+            try:
+                if "plane" in filename_string:
+                    iscube = True
+                    if ":" in filename_string:
+                        naxis = filename_string.strip().split(']')[1].split("=")[1].split(":")
+                    else:
+                        naxis = filename_string.strip().split(']')[1].split('=')[1].split()
+                    if len(naxis) == 1:
+                        naxis.append("0")
+                    naxis.reverse()  # for astropy.fits row-major ordering
+                    naxis = map(int, naxis)
+                    naxis = [axis - 1 if axis > 0 else 0 for axis in naxis]  # zero index fits
+                    naxis = tuple(naxis)
+            except ValueError:
+                raise ValueError("Problem parsing filename")
+
+            if load_header:
+                # set the extension from the header information returned from DS9
+                # this is the best way to get the information if the user changes
+                # the loaded file using the gui
+                header_cards = fits.Header.fromstring(self.get_header(), sep='\n')
+                mef_file = self._check_filetype(filename)
+                if mef_file:
+                    try:
+                        extver = int(header_cards['EXTVER'])
+                    except KeyError:
+                        extver = 1  # fits doesn't require extver if there is only 1 extension
+
+                    try:
+                        extname = str(header_cards['EXTNAME'])
+                    except KeyError:
+                        extname = None
+
+                try:
+                    numaxis = int(header_cards['NAXIS'])
+                except KeyError:
+                    raise KeyError("Problem getting NAXIS from header")
+
+                if not iscube:
+                    if numaxis > 2:
+                        iscube = True
+                        naxis = list()
+                        # assume the first axis in each extension is displayed
+                        for axis in range(numaxis, 2, -1):
+                            naxis.append(0)
+                        naxis = tuple(naxis)
+
+            # update the viewer dictionary, if the user changes what's displayed in a frame this should update correctly
+            # this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through
+            # frame changes
+
+            self._viewer[frame] = {'filename': filename,
+                                   'extver': extver,
+                                   'extname': extname,
+                                   'naxis': naxis,
+                                   'numaxis': numaxis,
+                                   'iscube':  iscube,
+                                   'user_array': user_array,
+                                   'mef': mef_file}
+
+    def _check_filetype(self, filename=None):
+        """check the file to see if the file is a multi-extension fits file"""
         if not filename:
-            print("No filename provided")
+            raise ValueError("No filename provided")
         else:
-            self._mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
+            try:
+                mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
+            except KeyError:
+                mef_file = False
 
-            #check to see if the fits file lies
-            if self._mef_file:
+            # check to see if the fits file lies
+            if mef_file:
                 try:
                     nextend = fits.getval(filename, ext=0, keyword='NEXTEND')
                 except KeyError:
-                    self._mef_file=False
-        
+                    mef_file = False
+
+            return mef_file
+
+    def valid_data_in_viewer(self):
+        """return bool if valid file or array is loaded into the viewer"""
+        frame = self.frame()
+
+        if self._viewer[frame]['filename']:
+            return True
+        else:
+            try:
+                if self._viewer[frame]['user_array'].any():
+                    valid = True
+            except AttributeError, ValueError:
+                valid = False
+                print("error in array")
+
+            return valid
 
     def get_filename(self):
         """return the filename currently on display
@@ -336,25 +379,21 @@ class ds9(object):
         connect to a ds9 window with no file loaded and then ask for the data file name after loading one through
         the ds9 menu options. This will poll the private filename and then try and set one if it's empty.
         """
-        # see if the user has loaded a file by hand
-        self._set_filename()
-        if not self._filename:
-            print("No file loaded")
+        # see if the user has loaded a file by hand or changed frames in the gui
+        frame = self.frame()
+        if frame != self._current_frame:
+            self._set_frameinfo()
         else:
-            return self._filename
-
+            return self._viewer[frame]['filename']
 
     def get_frame_info(self):
         """return more explicit information about the data displayed in the current frame"""
-        self._set_filename()
-        if self._iscube:
-            cstring=("{0}[{1},{2}]{3:s}".format(self._filename,self._extname, self._extver,self._naxis,))
-        else:
-            cstring=("{0}[{1},{2}]".format(self._filename,self._extname, self._extver))
-        
-        if 'None' in cstring:
-            cstring=("Nothing loaded in frame")
-        return cstring
+        self._set_frameinfo()
+        return self._viewer[self.frame()]
+
+    def get_viewer_info(self):
+        """Return a dictionary of information about all frames which are loaded with data"""
+        return self._viewer
 
     @classmethod
     def _purge_tmp_dirs(cls):
@@ -365,8 +404,8 @@ class ds9(object):
         deleted. This is a work around for that.
         """
 
-        if cls._tmp_dir_list:
-            shutil.rmtree(cls._tmp_dir_list)
+        if cls._tmp_dir:
+            shutil.rmtree(cls._tmp_dir)
 
     @classmethod
     def _stop_running_process(cls):
@@ -378,7 +417,6 @@ class ds9(object):
 
     def _stop_process(self):
         """stop the ds9 window process nicely, only if this package started it"""
-
         try:
             if self._ds9_process:
                 if self._ds9_process.poll() is None:  # none means not yet terminated
@@ -387,7 +425,7 @@ class ds9(object):
                         self._process_list.remove(self._ds9_process)
 
         except XpaException as e:
-            print("Exception: {0}".format(e))
+            print("XPA Exception: {0}".format(e))
 
     def _purge_local(self):
         """remove temporary directories from the unix socket"""
@@ -420,9 +458,10 @@ class ds9(object):
             self._stop_process()
 
     def run_inet_ds9(self):
-        """start a new ds9 window using an inet connection
+        """start a new ds9 window using an inet socket connection
 
-
+        Notes
+        -----
         It is given a unique title so it can be identified later.
         """
 
@@ -430,7 +469,7 @@ class ds9(object):
 
         # this is the title of the window, without a nameserver connection
         # is there a way to get the inet x:x address?
-        xpaname = str(time.time())  # that should be unique enough, something better?
+        xpaname = "imexam" + str(time.time())  # that should be unique enough, something better?
         try:
             p = Popen([self._ds9_path,
                        "-xpa", "inet",
@@ -490,29 +529,29 @@ class ds9(object):
             if wait_time == 0:
                 from signal import SIGTERM
                 os.kill(p.pid, SIGTERM)
-                print("Connection timeout with the ds9. Try to increase the *wait_time* parameter (current value is  {0:d} s)".format(self.wait_time,))
+                print(
+                    "Connection timeout with the ds9. Try to increase the *wait_time* parameter (current value is  {0:d} s)".format(self.wait_time,))
 
         except (OSError, ValueError, AttributeError) as e:
             warnings.warn("Starting ds9 failed")
             shutil.rmtree(self._tmpd_name)
 
         else:
-            self._tmp_dir_list = self._tmpd_name
+            self._tmp_dir = self._tmpd_name
             self._ds9_process = p
             self._process_list.append(p)
 
         # this might be sketchy
         try:
             file_list.remove(".IMT")  # should be in the directory, if not
-        except ValueError,IOError:
+        except ValueError, IOError:
             warnings.warn("IMT not found in tmp, using first thing in list")
         if len(file_list) > 0:
             xpaname = os.path.join(self._tmpd_name, file_list[0])
         else:
             shutil.rmtree(self._tmpd_name)
             raise ValueError("Problem starting ds9 local socket connection")
-            
-            
+
         env["XPA_TMPDIR"] = "/tmp/xpa"  # for all local connections
         self._need_to_purge = True
         self._xpa_method = 'local'
@@ -521,13 +560,24 @@ class ds9(object):
     def set_iraf_display(self):
         """ Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance. 
 
+        Notes
+        -----
         For example, your pyraf commands will use this ds9 for display.
-        TODO: Not sure this is needed
+
+        TODO: Not sure this is still needed.
         """
         os.environ["IMTDEV"] = "unix:%s" % (self._ds9_unix_name)
 
     def _check_ds9_process(self):
-        """check to see if the ds9 process is stil running"""
+        """Check to see if the ds9 process is still running
+
+        Notes
+        -----
+        If you start a ds9 window from the shell and then connect to imexam, imexam
+        will not have a reference for the process, so this method ignores that state.
+
+        """
+
         if self._ds9_process:
             ret = self._ds9_process.poll()
             if ret is not None:
@@ -560,7 +610,7 @@ class ds9(object):
         -----
         This function is linked with the Cython implementation
         get(param)        
-        
+
         """
         self._check_ds9_process()
         return self.xpa.get(param)
@@ -570,16 +620,20 @@ class ds9(object):
 
         Notes
         -----
-        XPA returns strings of the form u a  257.5 239 \n 
-        
+        XPA returns strings of the form:  u a  257.5 239 \n 
+
         """
         try:
             xpa_string = self.get("imexam any coordinate image")
         except XpaException as e:
-            print("Xpa exception: {0}".format(str(e)))
+            print("Xpa problem reading cursor: {0}".format(str(e)))
             raise KeyError
+        except ValueError:
+            raise ValueError("Outside of data range")
+
         k, x, y = xpa_string.split()
 
+        # ds9 is returning 1 based array
         return float(x), float(y), str(k)
 
     def alignwcs(self, on=True):
@@ -805,8 +859,8 @@ class ds9(object):
         cstring = "header "
         try:
             self.set(cstring)  # display the header of the current frame
-        except XpaException:
-            print("Problem loading header")
+        except XpaException as e:
+            raise XpaException("XPA Exception getting header: {0}".format(e))
 
     def frame(self, n=None):
         """convenience function to change or report frames
@@ -828,72 +882,98 @@ class ds9(object):
         frame(3)  opens frame 3 if it doesn't exist already, otherwise goes to frame 3
 
         """
+        frame = self.get("frame").strip()  # xpa returns '\n' for no frame
+
         if n:
+            if "delete" in str(n):
+                if frame in self._viewer.keys():
+                    del self._viewer[frame]
             self.set("frame {0:s}".format(str(n)))
-            self._set_filename()
         else:
             try:
-                frame = (self.get("frame")).strip()  # xpa returns '\n' for no frame
-                return frame
-            except XpaException:
-                return '1'  # the default frame for XPA
+                if len(frame) < 1:
+                    return None  # the user can delete frame 1
+                else:
+                    return str(frame)
+            except XpaException as e:
+                raise XpaException("XPA Exception getting frame: {0}".format(e))
 
     def iscube(self):
         """return information on whether a cube image is displayed in the current frame"""
-        return self._iscube
-
+        frame = self.frame()
+        if frame != self._current_frame:
+            self._set_frameinfo()
+        else:
+            return self._viewer[frame]['iscube']
 
     def get_slice_info(self):
         """return the slice tuple that is currently displayed"""
-        
-        if self._iscube:
-            self._set_filename()
-            image_slice=self._naxis
+        frame = self.frame()
+        if frame != self._current_frame:
+            self._set_frameinfo()
         else:
-            image_slice=None
-        return image_slice
-            
+            if self._viewer[frame]['iscube']:
+                image_slice = self._viewer[frame]['naxis']
+            else:
+                image_slice = None
+            return image_slice
+
     def get_data(self):
         """ return a numpy array of the data displayed in the current window
-        
+
         Notes
         -----
         This is the data array that the imexam() function call from connect() uses for analysis
-        
-        astropy.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]
+
+        astropy.io.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]
         just the one image is retured in the case of multidimensional data, not the cube
-        
+
         """
 
-        # make sure the filename and extension info are correct for the current frame in DS9
-        self._set_filename()
-        if not self._filename:
-            print("No filename associated with data, perhaps you have an array in memory")
-            return None
-        else:
-            if not self._extver and not self._extname: #the simple fits case
-                with fits.open(self._filename) as filedata:
-                    data = filedata.data
+        # make sure the filename and extension info are correct for the current
+        # frame in DS9, users can change this in the gui
+        frame = self.frame()
+        if frame:
+
+            if isinstance(self._viewer[frame]['user_array'], np.ndarray):
+                return self._viewer[frame]['user_array']
             else:
-                with fits.open(self._filename) as filedata:
-                    if self._iscube:
-                        data=filedata[self._extname,self._extver].section[self._naxis]                                        
-                    else:
-                        data=filedata[self._extname,self._extver].data
-            return data
+                filename = self._viewer[frame]['filename']
+                extver = self._viewer[frame]['extver']
+                extname = self._viewer[frame]['extname']
+                naxis = self._viewer[frame]['naxis']
+
+                if self._viewer[frame]['mef']:
+                    with fits.open(filename) as filedata:
+                        if self._viewer[frame]['iscube']:
+                            data = filedata[extname, extver].section[naxis]
+                        else:
+                            data = filedata[extname, extver].data
+                    return data
+                else:
+                    with fits.open(filename) as filedata:
+                        data = filedata[0].data
+                    return data
 
     def get_header(self):
         """return the current fits header as a string or None if there's a problem"""
-        if self._filename:
+
+        # TODO return the simple header for arrays which are loaded
+
+        frame = self.frame()
+        if frame != self._current_frame:
+            self._set_frameinfo()
+
+        if self._viewer[frame]['filename']:
             try:
                 header = self.get("fits header")
-            except XpaException:
-                print("Problem loading header")
+            except XpaException as e:
+                print("XPA Exception getting header: {0}".format(e))
                 return None
 
             return header
         else:
-            warnings.warn("No file loaded into ds9")
+            warnings.warn("No file with header loaded into ds9")
             return None
 
     def grid(self, on=True, param=False):
@@ -917,7 +997,7 @@ class ds9(object):
         """lower the ds9 window"""
         self.set("lower")
 
-    def load_fits(self, fname="", extver=1, extname=""):
+    def load_fits(self, fname="", extver=1, extname=None):
         """convenience function to load fits image to current frame
 
         Parameters
@@ -945,16 +1025,18 @@ class ds9(object):
         XPA needs to have the absolute path to the filename so that if the DS9 window was started
         in another directory it can still find the file to load. arg. 
         """
+        if not self.frame():
+            frame = 1  # load into first frame
+
         if fname:
             # see if the image is MEF or Simple
             fname = os.path.abspath(fname)
             try:
                 # strip the extensions for now
                 shortname = fname.split("[")[0]
-                
-                self._check_filetype(shortname)
-                
-                if not self._mef_file or '[' in fname:
+
+                mef_file = self._check_filetype(shortname)
+                if not mef_file or '[' in fname:
                     cstring = ('file fits {0:s}'.format(fname))
                 elif extver and not extname:
                     cstring = ('file fits {0:s}[{1:d}]'.format(fname, extver))
@@ -965,7 +1047,7 @@ class ds9(object):
                 raise IOError
 
             self.set(cstring)
-            self._set_filename()
+            self._set_frameinfo()
         else:
             print("No filename provided")
 
@@ -1066,17 +1148,18 @@ class ds9(object):
         X = 0
         Y = 1
         COMMENT = 2
-        rtype="circle" #only one supported right now
-        
+        rtype = "circle"  # only one supported right now
+
         for location in input_points:
-            if rtype=="circle":    
-                pline = rtype + " " + str(location[X]) + " " + str(location[Y]) + " " + str(size) 
+            if rtype == "circle":
+                pline = rtype + " " + str(location[X]) + " " + str(location[Y]) + " " + str(size)
                 print(pline)
                 self.set_region(pline)
-            
+
             if(len(str(location[COMMENT])) > 0):
                 pline = "text " + str(float(location[X]) + textoff) + " " + \
-                    str(float(location[Y]) + textoff) + " '" + str(location[COMMENT]) + "' #font=times"
+                    str(float(location[Y]) + textoff) + " '" + \
+                    str(location[COMMENT]) + "' #font=times"
                 print(pline)
                 self.set_region(pline)
 
@@ -1106,7 +1189,7 @@ class ds9(object):
         Notes
         -----
         only circular regions are supported currently
-        
+
         """
 
         try:
@@ -1287,29 +1370,6 @@ class ds9(object):
         print(cstring)
         logging.info(cstring)
 
-    def save_header(self, filename=None):
-        """save the header of the current image to a file
-
-
-        Parameters
-        ----------
-
-        filename: string
-            The name of the file to which the header is saved. If none is specified, then it will be saved
-            to the filename of the currently displayed file with _header.txt appended
-
-        """
-        cstring = "header "
-        if not filename:
-            filename = self._filename + "_header.txt"
-
-        # leaving this out for now so that the current header of frame is used
-        # it will need to be updated if an image cube is loaded I believe
-        cstring += "save %s" % (filename)
-        self.set(cstring)
-        print("header saved to {0:s}".format(filename))
-        logging.info("header saved to {0:s}".format(filename))
-
     def save_regions(self, filename=None):
         """save the regions in the current window to a DS9 style regions file
 
@@ -1325,9 +1385,10 @@ class ds9(object):
 
         """
         regions = self.get("regions save")
+        frame = self.frame()
 
-        if not filename:
-            filename = self._filename + "_regions.txt"
+        if frame and not filename:
+            filename = self._viewer[frame]['filename'] + "_regions.txt"
 
         # check if the file already exists
         if not os.access(filename, os.F_OK):
@@ -1407,7 +1468,7 @@ class ds9(object):
         set_region("line 0 400 3 400 #color=red")
 
         """
-        command="regions command {{ {0:s} }}\n".format(region_string)
+        command = "regions command {{ {0:s} }}\n".format(region_string)
         self.set(command)
 
     def showme(self):
@@ -1448,8 +1509,9 @@ class ds9(object):
            1 to 100, for jpeg images
 
         """
+        frame = self.frame()
         if not filename:
-            filename = self._filename + "_snap.jpg"
+            filename = self._viewer[frame]['filename'] + "_snap.jpg"
 
         cstring = "saveimage "
         name = filename
@@ -1462,75 +1524,56 @@ class ds9(object):
         print("Image saved to {0:s}".format(filename))
         logging.info("Image saved to {0:s}".format(filename))
 
-    def view(self, img, header=None, frame=None):
-        """ Display numpy image array
+    def view(self, img):
+        """ Display numpy image array to current frame
 
         Parameters
         ----------
         img: numpy array
-            The array containing data
+            The array containing data, it will be forced to numpy.array()
 
-        header: fits.header
-        frame: int
-            Display frame to use. The current frame is used if none is specfied. If no frame exists, then a new one is created.
-
-
-        Notes
-        -----
-        
-        If you have displayed an image from memory to ds9, using get_data() will not return anything, you already have the array somewhere accessable
-        It will also not allow you to run imexam() analysis loop, will think about how to fix that.
-        
         """
 
-        _frame_num = self.frame()
-        if len(_frame_num) < 1:
-            _frame_num = 1
-
-        try:
-            if frame:
-                self.frame(frame)
-
-            self.view_array(img)
-
-        except ValueError:
-            self.frame(_frame_num)
-            raise
-
-    def view_array(self, img):
-        """Helper function to display numpy image array"""
-
-        img = np.array(img)
-        if img.dtype.type == np.bool8:
-            img = img.astype(np.uint8)
-
-        try:
-            img.shape = img.shape[-2:]
-        except:
-            raise UnsupportedImageShapeException(repr(img.shape))
-
-        if img.dtype.byteorder in ["=", "|"]:
-            dt = img.dtype.newbyteorder(">")
-            img = np.array(img, dtype=dt)
-            byteorder = ">"
+        frame = self.frame()
+        if not frame:
+            print("No valid frame")
         else:
-            byteorder = img.dtype.byteorder
+            img = np.array(img)
+            if img.dtype.type == np.bool8:
+                img = img.astype(np.uint8)
 
-        endianness = {">": ",arch=bigendian",
-                      "<": ",arch=littleendian"}[byteorder]
-        (ydim, xdim) = img.shape
-        arr_str = img.tostring()
+            try:
+                img.shape = img.shape[-2:]
+            except:
+                raise UnsupportedImageShapeException(repr(img.shape))
 
-        itemsize = img.itemsize * 8
-        try:
-            bitpix = self._ImgCode[img.dtype.name]
-        except KeyError as e:
-            raise UnsupportedDatatypeException(e)
+            if img.dtype.byteorder in ["=", "|"]:
+                dt = img.dtype.newbyteorder(">")
+                img = np.array(img, dtype=dt)
+                byteorder = ">"
+            else:
+                byteorder = img.dtype.byteorder
 
-        option = "[xdim=%d,ydim=%d,bitpix=%d%s]" % (xdim, ydim,
-                                                    bitpix, endianness)
+            endianness = {">": ",arch=bigendian",
+                          "<": ",arch=littleendian"}[byteorder]
+            (ydim, xdim) = img.shape
+            arr_str = img.tostring()
 
-        self.set("array " + option, arr_str)
+            itemsize = img.itemsize * 8
+            try:
+                bitpix = self._ImgCode[img.dtype.name]
+            except KeyError as e:
+                raise UnsupportedDatatypeException(e)
+
+            option = "[xdim=%d,ydim=%d,bitpix=%d%s]" % (xdim, ydim,
+                                                        bitpix, endianness)
+            try:
+                self.set("array " + option, arr_str)
+                self._set_frameinfo()
+                self._viewer[frame]['user_array'] = img
+            except XpaException as e:
+                raise XpaException(
+                    "XPA: {0} : Problem loading array into frame {1}".format(e, frame))
 
     def zoomtofit(self):
         """convenience function for zoom"""
@@ -1559,6 +1602,10 @@ class ds9(object):
         except XpaException:
             print("XPA problem with zoom (probably your zoom window is already closed)")
 
+    def show_commands(self):
+        """print the available XPA commands"""
+
+        print(self.get())  # with no arguments supplied, XPA returns options
 
 import atexit
 atexit.register(ds9._purge_tmp_dirs)

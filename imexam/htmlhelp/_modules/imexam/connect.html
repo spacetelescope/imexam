@@ -83,7 +83,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">set_logging</span><span class="p">,</span> <span class="n">find_xpans</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">xpa</span>
-<span class="kn">from</span> <span class="nn">.ds9_basic</span> <span class="kn">import</span> <span class="n">ds9</span>
+<span class="kn">from</span> <span class="nn">.ds9_viewer</span> <span class="kn">import</span> <span class="n">ds9</span>
 <span class="kn">from</span> <span class="nn">.imexamine</span> <span class="kn">import</span> <span class="n">Imexamine</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Connect&quot;</span><span class="p">]</span>
@@ -135,12 +135,9 @@
                 <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="n">wait_time</span><span class="p">,</span> <span class="n">quit_ds9_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">exam</span> <span class="o">=</span> <span class="n">Imexamine</span><span class="p">()</span>  <span class="c"># init sets empty data array until we can load or check viewer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>  <span class="c"># will be a string</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_slice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="s">&#39;imexam_log.txt&#39;</span>            
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="s">&#39;imexam_log.txt&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">None</span>
 
 <div class="viewcode-block" id="Connect.setlog"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.setlog">[docs]</a>    <span class="k">def</span> <span class="nf">setlog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;turn on and off imexam logging to the a file&quot;&quot;&quot;</span>
@@ -155,77 +152,99 @@
 </div>
 <div class="viewcode-block" id="Connect.imexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.imexam">[docs]</a>    <span class="k">def</span> <span class="nf">imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;run imexamine with user interaction. At a minimum it requires a copy of the data array&quot;&quot;&quot;</span>
-        <span class="c"># make sure an image is loaded into the current frame</span>
-        <span class="n">validImage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_filename</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">validImage</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_data_in_viewer</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_run_imexam</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No image loaded in viewer, load image to examine&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No valid image loaded in viewer&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Connect.get_data_filename"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_data_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the filename for the data in the current window&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span>
 </div>
+<div class="viewcode-block" id="Connect.valid_data_in_viewer"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.valid_data_in_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">valid_data_in_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return True if a valid file or array is loaded in the current viewing frame&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">valid_data_in_viewer</span><span class="p">()</span>
+</div>
 <div class="viewcode-block" id="Connect.get_frame_info"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_frame_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return more explicit information about the data displayed in the current frame&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()</span>
 </div>
+<div class="viewcode-block" id="Connect.get_viewer_info"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_viewer_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_viewer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary which has information about all frames loaded with data&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_viewer_info</span><span class="p">()</span>
+</div>
     <span class="k">def</span> <span class="nf">_run_imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;start imexam analysis loop</span>
-<span class="sd">        </span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        The data displayed in the current frame is grabbed and sent down to the imexam loop</span>
-<span class="sd">        so that it only has to be grabbed once. The catch is that the user can change the data</span>
+<span class="sd">        The data displayed in the current frame is grabbed .The catch is that the user can change the data</span>
 <span class="sd">        that is displayed using the gui menus, so during the imexam loop the display needs to be</span>
 <span class="sd">        checked after each key stroke.</span>
-<span class="sd">        </span>
+
 <span class="sd">        This function will track the user changing the frame number using the gui display</span>
-<span class="sd">        for simple images and update the data array. For cube and slice images it gets more complicated </span>
-<span class="sd">        because the frame stays the same,but the slice references change in a different window.</span>
-<span class="sd">        </span>
+<span class="sd">        for  images and update the data array.</span>
+
+<span class="sd">        TODO</span>
+<span class="sd">        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented, </span>
+<span class="sd">        the problem comes with  printing the coordinates and visual comparison with what&#39;s displayed</span>
+<span class="sd">        in the gui. The gui display seems to round up integer pixels at some zoom factors. Verify this to some level</span>
+<span class="sd">        by looking at the pixel returned and using the pixel table window in DS9 to look at surrounding values.</span>
+<span class="sd">        imexamine() returns the value at the integer pixel location. </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Press &#39;q&#39; to quit</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">get_options</span><span class="p">()</span>  <span class="c"># possible commands</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()</span>
         <span class="n">current_key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># q is not in the list of keys</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Current image {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data_filename</span><span class="p">()))</span>
+
+        <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;Current image {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data_filename</span><span class="p">(),)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
+
+        <span class="c"># set defaults</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
+
+        <span class="c"># python tests at the top of the loop</span>
         <span class="k">while</span> <span class="n">current_key</span><span class="p">:</span>
-            <span class="n">check_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span> <span class="o">!=</span> <span class="n">check_frame</span><span class="p">:</span>  <span class="c"># the user has changed window frames</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span> <span class="o">=</span> <span class="n">check_frame</span>
-                <span class="n">cstring</span><span class="o">=</span><span class="s">&quot;Current image {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">(),)</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">())</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
-                <span class="n">current_slice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">current_slice</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_slice</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">current_slice</span><span class="o">=</span><span class="n">current_slice</span>
-                    <span class="n">cstring</span><span class="o">=</span><span class="s">&quot;Current image {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">(),)</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
-                     
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_slice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">())</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readcursor</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">current_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span> <span class="ow">and</span> <span class="s">&#39;q&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Invalid key&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s">&#39;q&#39;</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
+                        <span class="n">current_key</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">current_key</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Invalid key&quot;</span><span class="p">)</span>
-                <span class="n">current_key</span> <span class="o">=</span> <span class="s">&#39;q&#39;</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Invalid key, use</span><span class="se">\n</span><span class="s">: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()))</span>
 
-            <span class="k">if</span> <span class="n">current_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span> <span class="ow">and</span> <span class="s">&#39;q&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Invalid key&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="s">&#39;q&#39;</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
-                <span class="n">current_key</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_key</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;check if the user switched frames&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">!=</span> <span class="n">frame</span><span class="p">:</span>  <span class="c"># the user has changed window frames</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="n">frame</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Current image {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()[</span><span class="s">&#39;filename&#39;</span><span class="p">],)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
-    
+    <span class="k">def</span> <span class="nf">_check_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this_slice</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; check if the user switched slice images &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">!=</span> <span class="n">this_slice</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="n">this_slice</span>
+
 <div class="viewcode-block" id="Connect.readcursor"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.readcursor">[docs]</a>    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed, in the form of x,y,str &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">readcursor</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Connect.alignwcs"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.alignwcs">[docs]</a>    <span class="k">def</span> <span class="nf">alignwcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -297,7 +316,7 @@
 <div class="viewcode-block" id="Connect.load_mef_as_cube"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.load_mef_as_cube">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image one frame as a cube&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">load_mef_as_cube</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        </div>
+</div>
 <div class="viewcode-block" id="Connect.load_mef_as_multi"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.load_mef_as_multi">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into multiple frames&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">load_mef_as_multi</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -334,7 +353,7 @@
 <div class="viewcode-block" id="Connect.rotate"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;rotate the current frame (in degrees)&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            </div>
+</div>
 <div class="viewcode-block" id="Connect.save_rgb"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.save_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">save_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;save an rgb image frame that is displayed as an MEF fits file&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">save_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -362,6 +381,10 @@
 <div class="viewcode-block" id="Connect.showpix"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.showpix">[docs]</a>    <span class="k">def</span> <span class="nf">showpix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;display the pixel value table, close window when done&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">showpix</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connect.show_window_commands"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.show_window_commands">[docs]</a>    <span class="k">def</span> <span class="nf">show_window_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;print the available commands for the selected display application&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">show_commands</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Connect.snapsave"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.snapsave">[docs]</a>    <span class="k">def</span> <span class="nf">snapsave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used &quot;&quot;&quot;</span>
@@ -456,7 +479,7 @@
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

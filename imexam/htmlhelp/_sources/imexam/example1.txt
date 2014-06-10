@@ -12,7 +12,7 @@ First you need to import the package
 Start up a DS9 window (by default), a new DS9 window will be opened
 ::
 
-    a=imexam.connect()
+    viewer=imexam.connect()
 
 If you already have a window running, you can ask for a list of windows
 ::
@@ -24,44 +24,44 @@ If you already have a window running, you can ask for a list of windows
 You can attach to a current DS9 window be specifying its unique name
 ::
 
-    a=imexam.connect('ds9')  
+    viewer=imexam.connect('ds9')  
 
 
 If you haven't given your windows unique names, then you must use the ip:port address
 ::
 
-    a=imexam.connect('82a7e75f:57222')
+    viewer=imexam.connect('82a7e75f:57222')
 
 
 Load a fits image into the window
 ::
 
-    a.load_fits('test.fits')
+    viewer.load_fits('test.fits')
 
 Scale to default using zscale
 ::
 
-    a.scale()
+    viewer.scale()
 
 Change to heat map colorscheme
 ::
 
-    a.cmap(color='heat')
+    viewer.cmap(color='heat')
 
 Make some marks on the image and save the regions
 ::
 
-    a.save_regions('test.reg')
+    viewer.save_regions('test.reg')
 
 Delete all the regions you made, then load from file
 ::
 
-    a.load_regions('test.reg')
+    viewer.load_regions('test.reg')
 
 Plot stuff at cursor location, in a while loop. Type a key when the mouse is over your desired location and continue plotting with the available options
 ::
 
-    a.imexam()
+    viewer.imexam()
     
      'a': 'aperture sum, with radius region_size, optional sky subtraction',
      'j': '1D  line fit ',
@@ -84,5 +84,5 @@ Plot stuff at cursor location, in a while loop. Type a key when the mouse is ove
 Quit out and delete windows and references
 ::
 
-    a.close()
+    viewer.close()
 

@@ -49,7 +49,7 @@ This is the main method which allows live interaction with the image display.
 .. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers   
  
         
-The imexam key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can either edit it directly, by accessing each of the values by their keyname, or save a copy of the dictionary ( for example: mydict= object.aimexam(); then reset mydict to values you prefer, and set object.exam.aperphot_pars = mydict)
+The imexam key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can either edit it directly, by accessing each of the values by their keyname, or save a copy of the dictionary ( for example: mydict= object.aimexam(); then reset mydict to values you prefer, and set object.exam.aperphot_pars = mydict)
 
 Users may also add their own imexam keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.
 
@@ -76,7 +76,7 @@ For all the examples below I will use the following session::
 Circular Apterture Photometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Aperture photometry is implemented using the `~photutils` python package, an affiliated package of astropy that is still in development, when you press the "a" key.
+Aperture photometry is performed when you press the "a" key. It is implemented using the `~photutils` python package, an affiliated package of astropy that is still in development.
 
 Currently, the calculation which is performed is similar to the "," IRAF key. It is circular aperture photometry, centered on the mouse location at the time the key is pressed, with a background annulus subtraction for the sky. The radius of the aperture is set with the regsion_size keyword (default to 5 pixels). The annulus size is also set to the width, and taken a distance of skyrad pixels from the center. The pixels used to calculate the enclosed flux are those whose centers fall inside the radius distance, in the same way that IRAF imexamine computes the flux.
 
@@ -403,6 +403,7 @@ Here's all the code for a function which makes a cutout around the clicked pixel
         fname=tempfile.mktemp(prefix=prefix,suffix=".fits",dir="./")
         hdu=fits.PrimaryHDU(cutout)
         hdulist=fits.HDUList([hdu])
+        hdulist[0].header['EXTEND']=False
         hdulist.writeto(fname)
         print("Cutout at ({0},{1}) saved to {2:s}".format(x,y,fname))        
 

@@ -182,7 +182,24 @@ image;text(310.0,310.0{ comment 3 })# font="time 12 bold"</pre>
 <img alt="image with regions plotted" src="../_images/mark_region.png" style="width: 500px; height: 600px;" />
 <dl class="docutils">
 <dt><strong>setlog</strong> (self, filename=None, on=True, level=logging.DEBUG):</dt>
-<dd>turn on and off imexam logging to the a file.</dd>
+<dd><p class="first">Turn on and off imexam logging to the a file. You can set the filename to something specific or let the package record to the default logfile.
+Once you give the object a logfile name, it will continue to use that file until you change it.</p>
+<div class="last highlight-python"><pre>In [5]: viewer.setlog()
+Saving imexam commands to imexam_log.txt</pre>
+</div>
+</dd>
+</dl>
+<p>This is what&#8217;s displayed in the terminal when you use imexam():</p>
+<img alt="log information to terminal" src="../_images/setlog1.png" style="width: 600px; height: 500px;" />
+<p>and this is what shows up in the logfile:</p>
+<img alt="log information to terminal" src="../_images/setlog2.png" style="width: 600px; height: 500px;" />
+<p>You can see there are some leftovers from a previous logging session to the same file. You can toggle logging during a session too:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">setlog</span><span class="p">(</span><span class="n">on</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="docutils">
 <dt><strong>set_region</strong> (region_string):</dt>
 <dd>Use this to send the viewer a formatted region string it&#8217;s expecting</dd>
 </dl>
@@ -194,17 +211,41 @@ See the DS9 XPA documentation for more examples.</pre>
 </div>
 <dl class="docutils">
 <dt><strong>unlearn</strong> ():</dt>
-<dd>reset all the imexam default parameters</dd>
+<dd>Reset all the imexam default parameters</dd>
 <dt><strong>get_data_filename</strong> ():</dt>
-<dd><p class="first">return the filename for the data in the current window</p>
+<dd><p class="first">Return the filename for the data in the current window</p>
 <div class="last highlight-python"><pre>In [1]: viewer.get_data_filename()
 Out[2]: '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits'</pre>
 </div>
 </dd>
 <dt><strong>get_frame_info</strong> ():</dt>
-<dd><p class="first">return more explicit information about the data displayed in the current frame</p>
+<dd><p class="first">Return more explicit information about the data displayed in the current frame. A dictionary of the information is returned.</p>
 <div class="last highlight-python"><pre>In [1]: viewer.get_frame_info()
-Out[2]: '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits[SCI,1]'</pre>
+
+    {'extname': 'SCI',
+    'extver': 1,
+    'filename': '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits',
+    'iscube': False,
+    'mef': True,
+    'naxis': 0,
+    'numaxis': 2,
+    'user_array': None}</pre>
+</div>
+</dd>
+<dt><strong>get_viewer_info</strong> ():</dt>
+<dd><p class="first">Return a dictionary which contains information about all frames which have data loaded.
+This could be useful to users who are scripting an analysis for polling what items are available,
+how many frames or displayed, what type of data is hanging around, etc ...</p>
+<div class="last highlight-python"><pre>In [1]: viewer.get_viewer_info()
+
+{'1': {'extname': 'SCI',
+  'extver': 1,
+  'filename': '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits',
+  'iscube': False,
+  'mef': True,
+  'naxis': 0,
+  'numaxis': 2,
+  'user_array': None}}</pre>
 </div>
 </dd>
 <dt><strong>plotname</strong>:</dt>
@@ -219,6 +260,15 @@ myplot.jpg</pre>
 </dd>
 </dl>
 <p>The extension of the filename controls the plot type.</p>
+<dl class="docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>display_help**():</dt>
+<dd><p class="first">Display the help documentation into a webpage from the locally installed version. This is done from the main package:</p>
+<div class="last highlight-python"><pre>In [1]: import imexam
+
+In [2]: imexam.display_help()</pre>
+</div>
+</dd>
+</dl>
 </div>
 
 
@@ -244,7 +294,7 @@ myplot.jpg</pre>
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

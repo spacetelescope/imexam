@@ -40,22 +40,22 @@ For example, if you edit the defaults dictionary for the "m" key:
 
 :: 
 
-    ds9.mimexam()
+    viewer.mimexam()
     
         {'function': ['report_stat'],
          'region_size': [5, 'region size in pixels to use'],
          'stat': ['median',
          'which numpy stat to return [median,min,max...must map to a numpy func]']}
 
-    ds9.exam.report_stat_pars["stat"][0] = "max"  <---- will report np.max for the array
+    viewer.exam.report_stat_pars["stat"][0] = "max"  <---- will report np.max for the array
     
         [584:589,695:700] amax: 56186.000000
 
-    ds9.exam.report_stat_pars["stat"][0] = "mean"  <---- will report np.mean for the array 
+    viewer.exam.report_stat_pars["stat"][0] = "mean"  <---- will report np.mean for the array 
         
         [583:588,694:699] mean: 45412.878906
     
-    ds9.exam.report_stat_pars["stat"][0]="std" 
+    viewer.exam.report_stat_pars["stat"][0]="std" 
         
         [583:588,694:699] std: 10706.179688
 
@@ -88,7 +88,7 @@ If we set the values to be similar to what IRAF.imexamine used, we can see the n
 
 ::
 
-        ds9.aimexam()
+        viewer.aimexam()
 
         {'center': [True, 'Center the object location using a 2d gaussian fit'],
          'function': ['aperphot'],
@@ -99,7 +99,7 @@ If we set the values to be similar to what IRAF.imexamine used, we can see the n
          'zmag': [25.0, 'zeropoint for the magnitude calculation']}
     
     
-        ds9.exam.aperphot_pars["radius"][0]=17.5
+        viewer.exam.aperphot_pars["radius"][0]=17.5
 
         xc=586.213790	yc=697.501845
         x	y	radius	flux	mag(zpt=25.00)	sky	fwhm

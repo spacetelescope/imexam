@@ -77,7 +77,7 @@
 </pre></div>
 </div>
 <p>Start up a DS9 window (by default), a new DS9 window will be opened</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>If you already have a window running, you can ask for a list of windows</p>
@@ -85,35 +85,35 @@
 DS9 ds9 gs 82a7e75f:57222 sosey</pre>
 </div>
 <p>You can attach to a current DS9 window be specifying its unique name</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;ds9&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;ds9&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If you haven&#8217;t given your windows unique names, then you must use the ip:port address</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;82a7e75f:57222&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;82a7e75f:57222&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Load a fits image into the window</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;test.fits&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;test.fits&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Scale to default using zscale</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Change to heat map colorscheme</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">cmap</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&#39;heat&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">cmap</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&#39;heat&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Make some marks on the image and save the regions</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="s">&#39;test.reg&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="s">&#39;test.reg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Delete all the regions you made, then load from file</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">load_regions</span><span class="p">(</span><span class="s">&#39;test.reg&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">load_regions</span><span class="p">(</span><span class="s">&#39;test.reg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Plot stuff at cursor location, in a while loop. Type a key when the mouse is over your desired location and continue plotting with the available options</p>
-<div class="highlight-python"><pre>a.imexam()
+<div class="highlight-python"><pre>viewer.imexam()
 
  'a': 'aperture sum, with radius region_size, optional sky subtraction',
  'j': '1D  line fit ',
@@ -133,7 +133,7 @@ DS9 ds9 gs 82a7e75f:57222 sosey</pre>
  'w': 'display a surface plot around the cursor location'</pre>
 </div>
 <p>Quit out and delete windows and references</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">a</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -165,7 +165,7 @@ DS9 ds9 gs 82a7e75f:57222 sosey</pre>
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

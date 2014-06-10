@@ -131,7 +131,7 @@ mimexam(): return dict of current parameters for area statistics</pre>
 <p class="first admonition-title">Note</p>
 <p class="last">Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: <a class="reference external" href="http://matplotlib.org/api/markers_api.html#module-matplotlib.markers">http://matplotlib.org/api/markers_api.html#module-matplotlib.markers</a></p>
 </div>
-<p>The imexam key dictionary is stored inside the user object as  &lt;object_name&gt;.exam.imexam_option_funcs{}. Each key in the dictionary is the key to recognize from the user, it&#8217;s associated value is a tuple which contains the name of the function to call and a description of what that function does. &#8220;q&#8221; is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can either edit it directly, by accessing each of the values by their keyname, or save a copy of the dictionary ( for example: mydict= object.aimexam(); then reset mydict to values you prefer, and set object.exam.aperphot_pars = mydict)</p>
+<p>The imexam key dictionary is stored inside the user object as  &lt;object_name&gt;.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it&#8217;s associated value is a tuple which contains the name of the function to call and a description of what that function does. &#8220;q&#8221; is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can either edit it directly, by accessing each of the values by their keyname, or save a copy of the dictionary ( for example: mydict= object.aimexam(); then reset mydict to values you prefer, and set object.exam.aperphot_pars = mydict)</p>
 <p>Users may also add their own imexam keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.</p>
 <p>For all the examples below I will use the following session:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
@@ -145,7 +145,7 @@ mimexam(): return dict of current parameters for area statistics</pre>
 <img alt="Data used for imexam command examples" src="../_images/imexam_command_example.png" style="width: 400px; height: 400px;" />
 <div class="section" id="circular-apterture-photometry">
 <h2>Circular Apterture Photometry<a class="headerlink" href="#circular-apterture-photometry" title="Permalink to this headline">¶</a></h2>
-<p>Aperture photometry is implemented using the <tt class="xref py py-obj docutils literal"><span class="pre">photutils</span></tt> python package, an affiliated package of astropy that is still in development, when you press the &#8220;a&#8221; key.</p>
+<p>Aperture photometry is performed when you press the &#8220;a&#8221; key. It is implemented using the <tt class="xref py py-obj docutils literal"><span class="pre">photutils</span></tt> python package, an affiliated package of astropy that is still in development.</p>
 <p>Currently, the calculation which is performed is similar to the &#8221;,&#8221; IRAF key. It is circular aperture photometry, centered on the mouse location at the time the key is pressed, with a background annulus subtraction for the sky. The radius of the aperture is set with the regsion_size keyword (default to 5 pixels). The annulus size is also set to the width, and taken a distance of skyrad pixels from the center. The pixels used to calculate the enclosed flux are those whose centers fall inside the radius distance, in the same way that IRAF imexamine computes the flux.</p>
 <p>These are the default parameters for aperture photometry. They live in a dictionary in the exam object:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="o">=</span> <span class="p">{</span><span class="s">&quot;function&quot;</span><span class="p">:[</span><span class="s">&quot;aperphot&quot;</span><span class="p">,],</span>
@@ -391,6 +391,7 @@ instantiations of imexam.connect() will not have the new function unless the use
     <span class="n">fname</span><span class="o">=</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mktemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span><span class="n">suffix</span><span class="o">=</span><span class="s">&quot;.fits&quot;</span><span class="p">,</span><span class="nb">dir</span><span class="o">=</span><span class="s">&quot;./&quot;</span><span class="p">)</span>
     <span class="n">hdu</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">cutout</span><span class="p">)</span>
     <span class="n">hdulist</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">([</span><span class="n">hdu</span><span class="p">])</span>
+    <span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s">&#39;EXTEND&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">False</span>
     <span class="n">hdulist</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;Cutout at ({0},{1}) saved to {2:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">fname</span><span class="p">))</span>
 </pre></div>
@@ -481,7 +482,7 @@ flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.707623
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

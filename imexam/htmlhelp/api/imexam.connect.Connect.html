@@ -180,92 +180,98 @@ The class for the display tool should override them and add it&#8217;s own extra
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.get_header" title="imexam.connect.Connect.get_header"><tt class="xref py py-obj docutils literal"><span class="pre">get_header</span></tt></a>()</td>
 <td>return the current fits header as a string, or None if there&#8217;s a problem</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.grid" title="imexam.connect.Connect.grid"><tt class="xref py py-obj docutils literal"><span class="pre">grid</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.get_viewer_info" title="imexam.connect.Connect.get_viewer_info"><tt class="xref py py-obj docutils literal"><span class="pre">get_viewer_info</span></tt></a>()</td>
+<td>Return a dictionary which has information about all frames loaded with data</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.grid" title="imexam.connect.Connect.grid"><tt class="xref py py-obj docutils literal"><span class="pre">grid</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>convenience to turn the grid on and off, grid can be flushed with many more options</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.hideme" title="imexam.connect.Connect.hideme"><tt class="xref py py-obj docutils literal"><span class="pre">hideme</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.hideme" title="imexam.connect.Connect.hideme"><tt class="xref py py-obj docutils literal"><span class="pre">hideme</span></tt></a>()</td>
 <td>lower the display window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.himexam" title="imexam.connect.Connect.himexam"><tt class="xref py py-obj docutils literal"><span class="pre">himexam</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.himexam" title="imexam.connect.Connect.himexam"><tt class="xref py py-obj docutils literal"><span class="pre">himexam</span></tt></a>()</td>
 <td>show current parameters for histogram plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.imexam" title="imexam.connect.Connect.imexam"><tt class="xref py py-obj docutils literal"><span class="pre">imexam</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.imexam" title="imexam.connect.Connect.imexam"><tt class="xref py py-obj docutils literal"><span class="pre">imexam</span></tt></a>()</td>
 <td>run imexamine with user interaction. At a minimum it requires a copy of the data array</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.jimexam" title="imexam.connect.Connect.jimexam"><tt class="xref py py-obj docutils literal"><span class="pre">jimexam</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.jimexam" title="imexam.connect.Connect.jimexam"><tt class="xref py py-obj docutils literal"><span class="pre">jimexam</span></tt></a>()</td>
 <td>show current parameters for 1D fit line plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.kimexam" title="imexam.connect.Connect.kimexam"><tt class="xref py py-obj docutils literal"><span class="pre">kimexam</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.kimexam" title="imexam.connect.Connect.kimexam"><tt class="xref py py-obj docutils literal"><span class="pre">kimexam</span></tt></a>()</td>
 <td>show current parameters for 1D fit column plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.limexam" title="imexam.connect.Connect.limexam"><tt class="xref py py-obj docutils literal"><span class="pre">limexam</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.limexam" title="imexam.connect.Connect.limexam"><tt class="xref py py-obj docutils literal"><span class="pre">limexam</span></tt></a>()</td>
 <td>show current parameters for  line plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_fits" title="imexam.connect.Connect.load_fits"><tt class="xref py py-obj docutils literal"><span class="pre">load_fits</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_fits" title="imexam.connect.Connect.load_fits"><tt class="xref py py-obj docutils literal"><span class="pre">load_fits</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>convenience function to load fits image to current frame</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_cube" title="imexam.connect.Connect.load_mef_as_cube"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_cube</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_cube" title="imexam.connect.Connect.load_mef_as_cube"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_cube</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>Load a Mult-Extension-Fits image one frame as a cube</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_multi" title="imexam.connect.Connect.load_mef_as_multi"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_multi</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_multi" title="imexam.connect.Connect.load_mef_as_multi"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_multi</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>Load a Mult-Extension-Fits image into multiple frames</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_region" title="imexam.connect.Connect.load_region"><tt class="xref py py-obj docutils literal"><span class="pre">load_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_region" title="imexam.connect.Connect.load_region"><tt class="xref py py-obj docutils literal"><span class="pre">load_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>Load regions from a file which uses ds9 standard formatting</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_rgb" title="imexam.connect.Connect.load_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">load_rgb</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_rgb" title="imexam.connect.Connect.load_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">load_rgb</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>load three images into a frame, each one for a different color</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.make_region" title="imexam.connect.Connect.make_region"><tt class="xref py py-obj docutils literal"><span class="pre">make_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.make_region" title="imexam.connect.Connect.make_region"><tt class="xref py py-obj docutils literal"><span class="pre">make_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.mark_region_from_array" title="imexam.connect.Connect.mark_region_from_array"><tt class="xref py py-obj docutils literal"><span class="pre">mark_region_from_array</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.mark_region_from_array" title="imexam.connect.Connect.mark_region_from_array"><tt class="xref py py-obj docutils literal"><span class="pre">mark_region_from_array</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>mark regions on the viewer with a list of tuples as input</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.match" title="imexam.connect.Connect.match"><tt class="xref py py-obj docutils literal"><span class="pre">match</span></tt></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.match" title="imexam.connect.Connect.match"><tt class="xref py py-obj docutils literal"><span class="pre">match</span></tt></a>(**kwargs)</td>
 <td>match all other frames to the current frame</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.mimexam" title="imexam.connect.Connect.mimexam"><tt class="xref py py-obj docutils literal"><span class="pre">mimexam</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.mimexam" title="imexam.connect.Connect.mimexam"><tt class="xref py py-obj docutils literal"><span class="pre">mimexam</span></tt></a>()</td>
 <td>show the current parameters for statistical regions</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.nancolor" title="imexam.connect.Connect.nancolor"><tt class="xref py py-obj docutils literal"><span class="pre">nancolor</span></tt></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.nancolor" title="imexam.connect.Connect.nancolor"><tt class="xref py py-obj docutils literal"><span class="pre">nancolor</span></tt></a>(**kwargs)</td>
 <td>set the not-a-number color, default is red</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.panto_image" title="imexam.connect.Connect.panto_image"><tt class="xref py py-obj docutils literal"><span class="pre">panto_image</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.panto_image" title="imexam.connect.Connect.panto_image"><tt class="xref py py-obj docutils literal"><span class="pre">panto_image</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>convenience function to change to x,y images coordinates using ra,dec</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.panto_wcs" title="imexam.connect.Connect.panto_wcs"><tt class="xref py py-obj docutils literal"><span class="pre">panto_wcs</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.panto_wcs" title="imexam.connect.Connect.panto_wcs"><tt class="xref py py-obj docutils literal"><span class="pre">panto_wcs</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>pan to wcs coordinates in image</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.plotname" title="imexam.connect.Connect.plotname"><tt class="xref py py-obj docutils literal"><span class="pre">plotname</span></tt></a>([filename])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.plotname" title="imexam.connect.Connect.plotname"><tt class="xref py py-obj docutils literal"><span class="pre">plotname</span></tt></a>([filename])</td>
 <td>change or show the default save plotname for imexamine</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.readcursor" title="imexam.connect.Connect.readcursor"><tt class="xref py py-obj docutils literal"><span class="pre">readcursor</span></tt></a>()</td>
-<td>returns image coordinate postion and key pressed, in the form of x,y,str</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.readcursor" title="imexam.connect.Connect.readcursor"><tt class="xref py py-obj docutils literal"><span class="pre">readcursor</span></tt></a>()</td>
+<td>returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.rimexam" title="imexam.connect.Connect.rimexam"><tt class="xref py py-obj docutils literal"><span class="pre">rimexam</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.rimexam" title="imexam.connect.Connect.rimexam"><tt class="xref py py-obj docutils literal"><span class="pre">rimexam</span></tt></a>()</td>
 <td>show current parameters for curve of growth plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.rotate" title="imexam.connect.Connect.rotate"><tt class="xref py py-obj docutils literal"><span class="pre">rotate</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.rotate" title="imexam.connect.Connect.rotate"><tt class="xref py py-obj docutils literal"><span class="pre">rotate</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>rotate the current frame (in degrees)</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.save_header" title="imexam.connect.Connect.save_header"><tt class="xref py py-obj docutils literal"><span class="pre">save_header</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.save_header" title="imexam.connect.Connect.save_header"><tt class="xref py py-obj docutils literal"><span class="pre">save_header</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>save the header of the current image to a file</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.save_regions" title="imexam.connect.Connect.save_regions"><tt class="xref py py-obj docutils literal"><span class="pre">save_regions</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.save_regions" title="imexam.connect.Connect.save_regions"><tt class="xref py py-obj docutils literal"><span class="pre">save_regions</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>save the regions on the current window to a file</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.save_rgb" title="imexam.connect.Connect.save_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">save_rgb</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.save_rgb" title="imexam.connect.Connect.save_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">save_rgb</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>save an rgb image frame that is displayed as an MEF fits file</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.scale" title="imexam.connect.Connect.scale"><tt class="xref py py-obj docutils literal"><span class="pre">scale</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.scale" title="imexam.connect.Connect.scale"><tt class="xref py py-obj docutils literal"><span class="pre">scale</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>Scale the image on display.The default zscale is the most widely used option</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.set_region" title="imexam.connect.Connect.set_region"><tt class="xref py py-obj docutils literal"><span class="pre">set_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.set_region" title="imexam.connect.Connect.set_region"><tt class="xref py py-obj docutils literal"><span class="pre">set_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>display a region using the specifications in region_string</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.setlog" title="imexam.connect.Connect.setlog"><tt class="xref py py-obj docutils literal"><span class="pre">setlog</span></tt></a>([filename,&nbsp;on,&nbsp;level])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.setlog" title="imexam.connect.Connect.setlog"><tt class="xref py py-obj docutils literal"><span class="pre">setlog</span></tt></a>([filename,&nbsp;on,&nbsp;level])</td>
 <td>turn on and off imexam logging to the a file</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.show_window_commands" title="imexam.connect.Connect.show_window_commands"><tt class="xref py py-obj docutils literal"><span class="pre">show_window_commands</span></tt></a>()</td>
+<td>print the available commands for the selected display application</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.showme" title="imexam.connect.Connect.showme"><tt class="xref py py-obj docutils literal"><span class="pre">showme</span></tt></a>()</td>
 <td>raise the display window</td>
@@ -279,16 +285,19 @@ The class for the display tool should override them and add it&#8217;s own extra
 <tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.unlearn" title="imexam.connect.Connect.unlearn"><tt class="xref py py-obj docutils literal"><span class="pre">unlearn</span></tt></a>()</td>
 <td>unlearn all the imexam parameters and reset to default</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.view" title="imexam.connect.Connect.view"><tt class="xref py py-obj docutils literal"><span class="pre">view</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.valid_data_in_viewer" title="imexam.connect.Connect.valid_data_in_viewer"><tt class="xref py py-obj docutils literal"><span class="pre">valid_data_in_viewer</span></tt></a>()</td>
+<td>return True if a valid file or array is loaded in the current viewing frame</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.view" title="imexam.connect.Connect.view"><tt class="xref py py-obj docutils literal"><span class="pre">view</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>Display numpy image array</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.wimexam" title="imexam.connect.Connect.wimexam"><tt class="xref py py-obj docutils literal"><span class="pre">wimexam</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.wimexam" title="imexam.connect.Connect.wimexam"><tt class="xref py py-obj docutils literal"><span class="pre">wimexam</span></tt></a>()</td>
 <td>show current parameters for surface plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.zoom" title="imexam.connect.Connect.zoom"><tt class="xref py py-obj docutils literal"><span class="pre">zoom</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.zoom" title="imexam.connect.Connect.zoom"><tt class="xref py py-obj docutils literal"><span class="pre">zoom</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td>zoom to parameter which can be any recognized string</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.zoomtofit" title="imexam.connect.Connect.zoomtofit"><tt class="xref py py-obj docutils literal"><span class="pre">zoomtofit</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.zoomtofit" title="imexam.connect.Connect.zoomtofit"><tt class="xref py py-obj docutils literal"><span class="pre">zoomtofit</span></tt></a>()</td>
 <td>zoom the image to fit the display</td>
 </tr>
 </tbody>
@@ -404,6 +413,12 @@ The class for the display tool should override them and add it&#8217;s own extra
 <dt id="imexam.connect.Connect.get_header">
 <tt class="descname">get_header</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_header" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the current fits header as a string, or None if there&#8217;s a problem</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="imexam.connect.Connect.get_viewer_info">
+<tt class="descname">get_viewer_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_viewer_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_viewer_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary which has information about all frames loaded with data</p>
 </dd></dl>
 
 <dl class="method">
@@ -530,7 +545,7 @@ x, y in image coord</p>
 <dl class="method">
 <dt id="imexam.connect.Connect.readcursor">
 <tt class="descname">readcursor</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.readcursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.readcursor" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns image coordinate postion and key pressed, in the form of x,y,str</p>
+<dd><p>returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset</p>
 </dd></dl>
 
 <dl class="method">
@@ -582,6 +597,12 @@ x, y in image coord</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="imexam.connect.Connect.show_window_commands">
+<tt class="descname">show_window_commands</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.show_window_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.show_window_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>print the available commands for the selected display application</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="imexam.connect.Connect.showme">
 <tt class="descname">showme</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.showme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.showme" title="Permalink to this definition">¶</a></dt>
 <dd><p>raise the display window</p>
@@ -603,6 +624,12 @@ x, y in image coord</p>
 <dt id="imexam.connect.Connect.unlearn">
 <tt class="descname">unlearn</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.unlearn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.unlearn" title="Permalink to this definition">¶</a></dt>
 <dd><p>unlearn all the imexam parameters and reset to default</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="imexam.connect.Connect.valid_data_in_viewer">
+<tt class="descname">valid_data_in_viewer</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.valid_data_in_viewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.valid_data_in_viewer" title="Permalink to this definition">¶</a></dt>
+<dd><p>return True if a valid file or array is loaded in the current viewing frame</p>
 </dd></dl>
 
 <dl class="method">
@@ -656,7 +683,7 @@ x, y in image coord</p>
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

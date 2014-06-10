@@ -106,22 +106,22 @@ Visual comparison of the resulting plots shows good agreement, as well as some r
 </div>
 <p>imexam only shows one statistic at a time. The same function call may be used to show the results from  <em>any</em> valid numpy function, it will return an attribute error for invalid functions.
 For example, if you edit the defaults dictionary for the &#8220;m&#8221; key:</p>
-<div class="highlight-python"><pre>ds9.mimexam()
+<div class="highlight-python"><pre>viewer.mimexam()
 
     {'function': ['report_stat'],
      'region_size': [5, 'region size in pixels to use'],
      'stat': ['median',
      'which numpy stat to return [median,min,max...must map to a numpy func]']}
 
-ds9.exam.report_stat_pars["stat"][0] = "max"  &lt;---- will report np.max for the array
+viewer.exam.report_stat_pars["stat"][0] = "max"  &lt;---- will report np.max for the array
 
     [584:589,695:700] amax: 56186.000000
 
-ds9.exam.report_stat_pars["stat"][0] = "mean"  &lt;---- will report np.mean for the array
+viewer.exam.report_stat_pars["stat"][0] = "mean"  &lt;---- will report np.mean for the array
 
     [583:588,694:699] mean: 45412.878906
 
-ds9.exam.report_stat_pars["stat"][0]="std"
+viewer.exam.report_stat_pars["stat"][0]="std"
 
     [583:588,694:699] std: 10706.179688</pre>
 </div>
@@ -141,7 +141,7 @@ x       y       radius  flux    mag(zpt=25.00)  sky     fwhm
 </div>
 <p>The &#8220;xc&#8221; and &#8220;yc&#8221; returns are the gaussian fit centers, as well as the FWHM from the fit.
 If we set the values to be similar to what IRAF.imexamine used, we can see the numbers are closer, the radius for the apertures are floored though before being sent to photutil:</p>
-<div class="highlight-python"><pre>ds9.aimexam()
+<div class="highlight-python"><pre>viewer.aimexam()
 
 {'center': [True, 'Center the object location using a 2d gaussian fit'],
  'function': ['aperphot'],
@@ -152,7 +152,7 @@ If we set the values to be similar to what IRAF.imexamine used, we can see the n
  'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
 
-ds9.exam.aperphot_pars["radius"][0]=17.5
+viewer.exam.aperphot_pars["radius"][0]=17.5
 
 xc=586.213790   yc=697.501845
 x       y       radius  flux    mag(zpt=25.00)  sky     fwhm
@@ -247,7 +247,7 @@ The most fancy imexam surface plot is displayed, the user can alter it with the 
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

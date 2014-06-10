@@ -10,7 +10,7 @@ import subprocess
 import os
 from .util import set_logging, find_xpans
 from . import xpa
-from .ds9_basic import ds9
+from .ds9_viewer import ds9
 from .imexamine import Imexamine
 
 __all__ = ["Connect"]
@@ -62,19 +62,17 @@ class Connect(object):
                 target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
 
         self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
-        self.current_frame = self.frame()  # will be a string
-
-        self.current_slice=self.window.get_slice_info()
-        
-        self.logfile = 'imexam_log.txt'            
-
+        self.logfile = 'imexam_log.txt'
+        self.log=None #points to the package logger
+        self._current_slice = None
+        self._current_frame = None
 
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
         """turn on and off imexam logging to the a file"""
         if filename:
             self.logfile = filename
 
-        set_logging(self.logfile, on, level)
+        self.log=set_logging(self.logfile, on, level)
 
     def close(self):
         """ close the window and end connection"""
@@ -82,77 +80,99 @@ class Connect(object):
 
     def imexam(self):
         """run imexamine with user interaction. At a minimum it requires a copy of the data array"""
-        # make sure an image is loaded into the current frame
-        validImage = self.get_data_filename()
-        if validImage:
-            self.exam.set_data(self.window.get_data())
-            self.current_frame = self.frame()
+
+        if self.valid_data_in_viewer():
             self._run_imexam()
         else:
-            warnings.warn("No image loaded in viewer, load image to examine")
+            warnings.warn("No valid image loaded in viewer")
 
     def get_data_filename(self):
         """return the filename for the data in the current window"""
         return self.window.get_filename()
 
+    def valid_data_in_viewer(self):
+        """return True if a valid file or array is loaded in the current viewing frame"""
+        return self.window.valid_data_in_viewer()
+
     def get_frame_info(self):
         """return more explicit information about the data displayed in the current frame"""
         return self.window.get_frame_info()
 
+    def get_viewer_info(self):
+        """Return a dictionary which has information about all frames loaded with data"""
+        return self.window.get_viewer_info()
+
     def _run_imexam(self):
         """start imexam analysis loop
-        
+
         Notes
         -----
-        The data displayed in the current frame is grabbed and sent down to the imexam loop
-        so that it only has to be grabbed once. The catch is that the user can change the data
+        The data displayed in the current frame is grabbed .The catch is that the user can change the data
         that is displayed using the gui menus, so during the imexam loop the display needs to be
         checked after each key stroke.
-        
+
         This function will track the user changing the frame number using the gui display
-        for simple images and update the data array. For cube and slice images it gets more complicated 
-        because the frame stays the same,but the slice references change in a different window.
-        
+        for  images and update the data array.
+
+        TODO
+        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented, 
+        the problem comes with  printing the coordinates and visual comparison with what's displayed
+        in the gui. The gui display seems to round up integer pixels at some zoom factors. Verify this to some level
+        by looking at the pixel returned and using the pixel table window in DS9 to look at surrounding values.
+        imexamine() returns the value at the integer pixel location. 
+
         """
 
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
         current_key = keys[0]  # q is not in the list of keys
-        logging.info("Current image {0:s}".format(self.get_data_filename()))
+
+        cstring = "Current image {0}".format(self.get_data_filename(),)
+        logging.info(cstring)
+        print(cstring)
+
+        # set defaults
+        self._current_frame = self.frame()
+        if self.window.iscube():
+            self._current_slice = self.window.get_slice_info()
+        self.exam.set_data(self.window.get_data())
+
+        # python tests at the top of the loop
         while current_key:
-            check_frame = self.frame()
-
-            if self.current_frame != check_frame:  # the user has changed window frames
-                self.exam.set_data(self.window.get_data())
-                self.current_frame = check_frame
-                cstring="Current image {0:s}".format(self.get_frame_info(),)
-                logging.info(cstring)
-
+            self._check_frame(self.frame())
             if self.window.iscube():
-                current_slice=self.window.get_slice_info()
-                if current_slice != self.current_slice:
-                    self.exam.set_data(self.window.get_data())
-                    self.current_slice=current_slice
-                    cstring="Current image {0:s}".format(self.get_frame_info(),)
-                    logging.info(cstring)
-                     
+                self._check_slice(self.window.get_slice_info())
             try:
                 x, y, current_key = self.readcursor()
+                self._check_frame(self.frame())
+                if current_key not in keys and 'q' not in current_key:
+                    print("Invalid key")
+                else:
+                    if 'q' in current_key:
+                        current_key = None
+                    else:
+                        self.exam.do_option(x - 1, y - 1, current_key) #ds9 returns 1 based array
             except KeyError:
-                print("Invalid key")
-                current_key = 'q'
+                print("Invalid key, use\n: {0}".format(self.exam.print_options()))
 
-            if current_key not in keys and 'q' not in current_key:
-                print("Invalid key")
-            elif 'q' in current_key:
-                current_key = None
-            else:
-                self.exam.do_option(x, y, current_key)
+    def _check_frame(self, frame=None):
+        """check if the user switched frames"""
+        if self._current_frame != frame:  # the user has changed window frames
+            self.exam.set_data(self.window.get_data())
+            self._current_frame = frame
+            cstring = "\nCurrent image {0:s}".format(self.get_frame_info()['filename'],)
+            logging.info(cstring)
+            print(cstring)
 
-    
+    def _check_slice(self, this_slice=None):
+        """ check if the user switched slice images """
+        if self._current_slice != this_slice:
+            self.exam.set_data(self.window.get_data())
+            self._current_slice = this_slice
+
     def readcursor(self):
-        """returns image coordinate postion and key pressed, in the form of x,y,str """
+        """returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset"""
         return self.window.readcursor()
 
     def alignwcs(self, **kwargs):
@@ -224,7 +244,7 @@ class Connect(object):
     def load_mef_as_cube(self, *args, **kwargs):
         """Load a Mult-Extension-Fits image one frame as a cube"""
         self.window.load_mef_as_cube(*args, **kwargs)
-        
+
     def load_mef_as_multi(self, *args, **kwargs):
         """Load a Mult-Extension-Fits image into multiple frames"""
         self.window.load_mef_as_multi(*args, **kwargs)
@@ -261,7 +281,7 @@ class Connect(object):
     def rotate(self, *args, **kwargs):
         """rotate the current frame (in degrees)"""
         self.window.rotate(*args, **kwargs)
-            
+
     def save_rgb(self, *args, **kwargs):
         """save an rgb image frame that is displayed as an MEF fits file"""
         self.window.save_rgb(*args, **kwargs)
@@ -289,6 +309,10 @@ class Connect(object):
     def showpix(self, *args, **kwargs):
         """display the pixel value table, close window when done"""
         self.window.showpix(*args, **kwargs)
+
+    def show_window_commands(self):
+        """print the available commands for the selected display application"""
+        self.window.show_commands()
 
     def snapsave(self, *args, **kwargs):
         """create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used """

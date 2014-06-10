@@ -86,9 +86,9 @@
 <li>Fine tune default curve of growth plot according to the object we&#8217;d like to examine</li>
 <li>Make a new profile plot, print the plotted points to the screen, and save a copy of the plotting window for reference</li>
 </ul>
-<p>Here a picture of the area I&#8217;m looking at in my ds9 window ( created with ds9.snapsave(filename=&#8217;photometry_subsection.jpg&#8217;) )</p>
+<p>Here a picture of the area I&#8217;m looking at in my ds9 window ( created with viewer.snapsave(filename=&#8217;photometry_subsection.jpg&#8217;) )</p>
 <img alt="subsection of image being examined" src="../_images/photometry_subsection.png" style="width: 600px; height: 400px;" />
-<div class="highlight-python"><pre>ds9.imexam() #start an imexam session
+<div class="highlight-python"><pre>viewer.imexam() #start an imexam session
 
 Press 'q' to quit
 
@@ -115,7 +115,7 @@ x           y       radius      flux           mag(zpt=25.00)  sky           fwh
 813.11  706.44  5           1299406.51     9.72            11429.80      4.83
 
 
-ds9.aimexam() # print out the parameters for aperture photometry, returns a dictionary which you can save and edit
+viewer.aimexam() # print out the parameters for aperture photometry, returns a dictionary which you can save and edit
 
 
 {'function': ['aperphot'],
@@ -138,13 +138,13 @@ flux:[131647.90413345056, 498482.2347664542, 914397.81480508228, 1132799.3621327
 Let's alter the defaults for the aperture photometry, get some new values and then make a nicer curve of growth.
 
 
-ds9.exam.aperphot_pars["radius"][0]=10
-ds9.exam.aperphot_pars["skyrad"][0]=20 #it looks like there are some nearby spoilers
-ds9.exam.aperphot_pars["width"][0]=10  #maybe we should just give the sky some more space (haha)
+viewer.exam.aperphot_pars["radius"][0]=10
+viewer.exam.aperphot_pars["skyrad"][0]=20 #it looks like there are some nearby spoilers
+viewer.exam.aperphot_pars["width"][0]=10  #maybe we should just give the sky some more space (haha)
 
 We'll update the curve of growth plot to match those:
 
-ds9.exam.curve_of_growth_pars
+viewer.exam.curve_of_growth_pars
 
 {'function': ['curve_of_growth_plot'],
 'center': [True, 'Solve for center using 2d Gaussian? [bool]'],
@@ -164,10 +164,10 @@ ds9.exam.curve_of_growth_pars
 'getdata': [True, 'return the plotted data values']}
 
 
-ds9.exam.curve_of_growth_pars["buffer"][0]=20
-ds9.exam.curve_of_growth_pars["rplot"][0]=15 #we'll go a little farther than the aperture photometry
-ds9.exam.curve_of_growth_pars["width"][0]=10
-ds9.exam.curve_of_growth_pars["title"][0]="My favorite star at 813,706"
+viewer.exam.curve_of_growth_pars["buffer"][0]=20
+viewer.exam.curve_of_growth_pars["rplot"][0]=15 #we'll go a little farther than the aperture photometry
+viewer.exam.curve_of_growth_pars["width"][0]=10
+viewer.exam.curve_of_growth_pars["title"][0]="My favorite star at 813,706"
 
 xc=813.109250   yc=706.437612
 radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]
@@ -185,11 +185,11 @@ flux:[131842.06947972983, 499258.8961515713, 916145.30292159575, 1135906.0076731
 <li>We then use the &#8220;a&#8221; key to check out the aperture photometry with the default settings, and then with our our own settings</li>
 <li>We can then use the log file, to create a plot</li>
 </ul>
-<p>Here a picture of the area I&#8217;m looking at in my DS9 window ( created with ds9.snapsave(filename=&#8217;photometry_subsection.jpg&#8217;) )</p>
+<p>Here a picture of the area I&#8217;m looking at in my DS9 window ( created with viewer.snapsave(filename=&#8217;photometry_subsection.jpg&#8217;) )</p>
 <img alt="subsection of image being examined" src="../_images/photometry_subsection.png" style="width: 600px; height: 400px;" />
-<div class="highlight-python"><pre>ds9.setlog(filename="aperture_phot.log")
-ds9.unlearn() #reset all the parameters to their default values for good measure
-ds9.imexam()
+<div class="highlight-python"><pre>viewer.setlog(filename="aperture_phot.log")
+viewer.unlearn() #reset all the parameters to their default values for good measure
+viewer.imexam()
 
 Press the "a" key around the star:
 
@@ -214,17 +214,17 @@ Lets get some more aperture photometry at larger radii by resetting some of the 
     'width': [5, 'Width of sky annulus in pixels'],
     'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
-ds9.exam.aperphot_pars["radius"][0]=9
+viewer.exam.aperphot_pars["radius"][0]=9
 
-ds9.imexam() #use the "a" key
+viewer.imexam() #use the "a" key
 
-ds9.exam.aperphot_pars["radius"][0]=10
+viewer.exam.aperphot_pars["radius"][0]=10
 
-ds9.imexam() #use the "a" key
+viewer.imexam() #use the "a" key
 
-ds9.exam.aperphot_pars["radius"][0]=11
+viewer.exam.aperphot_pars["radius"][0]=11
 
-ds9.imexam() #use the "a" key
+viewer.imexam() #use the "a" key
 
 This is what aperture_phot.log contains:
 
@@ -302,7 +302,7 @@ aper_phot
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

@@ -76,7 +76,7 @@
 <span class="sd">&quot;&quot;&quot;This class supports communication with DS9 through the XPA </span>
 
 
-<span class="sd">Some code in this package was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. </span>
+<span class="sd">Some code in this class was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. </span>
 <span class="sd">Specifically this package used the existing Cython implementation to the XPA  and extended the calls to </span>
 <span class="sd">the other available XPA executables so that more functionality is added. The same information is available</span>
 <span class="sd">here: http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen </span>
@@ -122,9 +122,9 @@
     <span class="k">pass</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;ds9&#39;</span><span class="p">]</span>
+    
 
-<span class="c"># make a new obect for every window you want to create</span>
-
+<span class="c"># make a new object for every window you want to create</span>
 
 <div class="viewcode-block" id="ds9"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9">[docs]</a><span class="k">class</span> <span class="nc">ds9</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
@@ -216,7 +216,7 @@
                 <span class="s">&#39;int64&#39;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
                 <span class="s">&#39;uint8&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span>
 
-    <span class="n">_tmp_dir_list</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="n">_tmp_dir</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
     <span class="n">_process_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">quit_ds9_on_del</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
@@ -240,28 +240,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">=</span> <span class="n">wait_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_need_to_purge</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>  <span class="c"># no image loaded yet, use this for faster data access</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_extname</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_extver</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="c"># default starting socket type to get around local xpa installation issues</span>
+        
+        
+        <span class="c">#dictionary where each key is a frame number, and the values are a dictionary of details</span>
+        <span class="c">#about the image loaded in that frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="o">=</span><span class="bp">None</span>
+        
+        <span class="c"># default starting socket type to local in order get around user xpa installation issues</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span> <span class="o">=</span> <span class="s">&quot;local&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># only used for DS9 windows started from this module</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span><span class="o">=</span><span class="bp">None</span>
 
-        <span class="c">#information about the file which is loaded in the current frame</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_extver</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c">#extension number </span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_extname</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c">#name of extension </span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>  <span class="c">#filename of image </span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_numaxis</span><span class="o">=</span><span class="mi">2</span>      <span class="c">#number of image planes, this is NAXIS</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>   <span class="c">#tuple of each image plane, defaulted to 1 image plane</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span><span class="o">=</span><span class="bp">False</span> <span class="c">#data has more than 2 dimensions and loads in cube/slice frame</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_mef_file</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#used to check misleading headers in fits files</span>
         
-        <span class="n">openNew</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="p">:</span>
-            <span class="n">openNew</span> <span class="o">=</span> <span class="bp">True</span>
-
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">find_ds9</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span><span class="p">:</span>
@@ -270,16 +262,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span> <span class="o">=</span> <span class="n">path</span>
 
-        <span class="k">if</span> <span class="n">openNew</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="p">:</span>
             <span class="c"># Check to see if the user has chosen a preference first</span>
             <span class="k">if</span> <span class="s">&#39;XPA_METHOD&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;XPA_METHOD&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;XPA_METHOD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="s">&#39;inet&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_inet_ds9</span><span class="p">()</span>
-                <span class="c"># xpa_name is the title of the window, need to replace inet with the socket address</span>
-                <span class="c"># that XPA started, but we can only do this if xpans is installed (I think)</span>
-                <span class="c"># which is why local is the default method to use.</span>
+                <span class="c"># xpa_name is the title of the window, the xpa can be referenced</span>
+                <span class="c"># with either the socket address or name of the window</span>
 
             <span class="k">elif</span> <span class="s">&#39;local&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_unix_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_unixonly_ds9</span><span class="p">()</span>
@@ -292,7 +283,8 @@
 
         <span class="c"># xpa_name sets the template for the get and set commands</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xpa</span> <span class="o">=</span> <span class="n">xpa</span><span class="o">.</span><span class="n">XPA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_filename</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s">&#39;local&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span> <span class="c">#initial load</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_define_cmaps</span><span class="p">()</span>  <span class="c"># dictionary of color maps</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -305,7 +297,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stop_process</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_set_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_set_frameinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the name and extension information for the data displayed in the current frame </span>
 <span class="sd">        and gather header information</span>
 
@@ -323,84 +315,139 @@
 <span class="sd">        If you load a single extension from an MEF into DS9, XPA references the extension as 1 afterwards for access points</span>
 <span class="sd">        you need to look in the header of the displayed image to find out what the actual extension that is loaded is</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">load_header</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span> <span class="o">=</span> <span class="bp">False</span>
-                
-        <span class="c"># see if any file is currently loaded into ds9, xpa returns &#39;\n&#39; for none</span>
         
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_filename_string</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;file&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;[&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>  
-        <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="o">=</span><span class="s">&quot;&quot;</span> <span class="c">#no file loaded</span>
-        
-        <span class="k">try</span><span class="p">:</span>   
-            <span class="k">if</span> <span class="s">&quot;plane&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename_string</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span><span class="o">=</span><span class="bp">True</span>
-                <span class="k">if</span> <span class="s">&quot;:&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename_string</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="c">#for astropy.fits row-major ordering</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span><span class="p">[</span><span class="n">axis</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">axis</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span> <span class="p">]</span> <span class="c">#zero index fits</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="p">)</span>                                         
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Problem parsing XPA filename&quot;</span><span class="p">)</span>
+        <span class="c">#check the current frame, if none exists, then don&#39;t continue</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span> 
+        <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
             
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">load_header</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">load_header</span><span class="p">:</span>
-            <span class="c"># set the extension from the header information</span>
-            <span class="n">header_cards</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_header</span><span class="p">(),</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> 
-            
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mef_file</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_extver</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;EXTVER&#39;</span><span class="p">])</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_extver</span><span class="o">=</span><span class="mi">1</span>
-                    <span class="c">#fits doesn&#39;t require extver if there is only 1 extension</span>
+            <span class="k">if</span> <span class="n">frame</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
 
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_extname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;EXTNAME&#39;</span><span class="p">])</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Couldn&#39;t find EXTNAME in header, ignoring&quot;</span><span class="p">)</span>      
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_extname</span><span class="o">=</span><span class="s">&quot;&quot;</span>
-                    
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_numaxis</span> <span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;NAXIS&#39;</span><span class="p">])</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;Problem getting NAXIS from header&quot;</span><span class="p">)</span>                
+                <span class="n">user_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>           
+                <span class="n">user_array</span> <span class="o">=</span> <span class="bp">None</span>         
+            
+            <span class="n">extver</span> <span class="o">=</span> <span class="bp">None</span>       <span class="c">#extension number </span>
+            <span class="n">extname</span> <span class="o">=</span> <span class="bp">None</span>      <span class="c">#name of extension </span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">None</span>     <span class="c">#filename of image </span>
+            <span class="n">numaxis</span><span class="o">=</span><span class="mi">2</span>           <span class="c">#number of image planes, this is NAXIS</span>
+            <span class="n">naxis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>           <span class="c">#tuple of each image plane, defaulted to 1 image plane</span>
+            <span class="n">iscube</span><span class="o">=</span><span class="bp">False</span>        <span class="c">#data has more than 2 dimensions and loads in cube/slice frame</span>
+            <span class="n">mef_file</span> <span class="o">=</span> <span class="bp">False</span>    <span class="c">#used to check misleading headers in fits files</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numaxis</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span><span class="o">=</span><span class="bp">True</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span><span class="nb">list</span><span class="p">()</span>
-                    <span class="c">#assume the first axis in each extension is displayed</span>
-                    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_numaxis</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="p">)</span>
-                                    
+            <span class="n">load_header</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#not used for in memory arrays</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="o">=</span><span class="n">frame</span>
+            
+            <span class="c"># see if any file is currently loaded into ds9, xpa returns &#39;\n&#39; for nothing loaded</span>
+            <span class="c">#get the current frame        </span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">filename_string</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;file&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename_string</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;[&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                    <span class="n">load_header</span><span class="o">=</span><span class="bp">True</span>
+                
+            <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
+                <span class="n">filename_string</span><span class="o">=</span><span class="s">&quot;&quot;</span>
+
+            <span class="k">try</span><span class="p">:</span>   
+                <span class="k">if</span> <span class="s">&quot;plane&quot;</span> <span class="ow">in</span> <span class="n">filename_string</span><span class="p">:</span>
+                    <span class="n">iscube</span><span class="o">=</span><span class="bp">True</span>
+                    <span class="k">if</span> <span class="s">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">filename_string</span><span class="p">:</span>
+                        <span class="n">naxis</span><span class="o">=</span> <span class="n">filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">naxis</span><span class="o">=</span> <span class="n">filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">naxis</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">naxis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">)</span>
+                    <span class="n">naxis</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="c">#for astropy.fits row-major ordering</span>
+                    <span class="n">naxis</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span><span class="n">naxis</span><span class="p">)</span>
+                    <span class="n">naxis</span><span class="o">=</span><span class="p">[</span><span class="n">axis</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">axis</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">naxis</span> <span class="p">]</span> <span class="c">#zero index fits</span>
+                    <span class="n">naxis</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">naxis</span><span class="p">)</span>                                         
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Problem parsing filename&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">load_header</span><span class="p">:</span>
+                <span class="c"># set the extension from the header information returned from DS9</span>
+                <span class="c"># this is the best way to get the information if the user changes</span>
+                <span class="c"># the loaded file using the gui</span>
+                <span class="n">header_cards</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_header</span><span class="p">(),</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> 
+                <span class="n">mef_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_check_filetype</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">mef_file</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">extver</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;EXTVER&#39;</span><span class="p">])</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">extver</span><span class="o">=</span><span class="mi">1</span>  <span class="c">#fits doesn&#39;t require extver if there is only 1 extension</span>
+
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">extname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;EXTNAME&#39;</span><span class="p">])</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">extname</span><span class="o">=</span><span class="bp">None</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">numaxis</span> <span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;NAXIS&#39;</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;Problem getting NAXIS from header&quot;</span><span class="p">)</span>                
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">iscube</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">numaxis</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">iscube</span><span class="o">=</span><span class="bp">True</span>
+                        <span class="n">naxis</span><span class="o">=</span><span class="nb">list</span><span class="p">()</span>
+                        <span class="c">#assume the first axis in each extension is displayed</span>
+                        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numaxis</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                            <span class="n">naxis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">naxis</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">naxis</span><span class="p">)</span>
+
+            <span class="c">#update the viewer dictionary, if the user changes what&#39;s displayed in a frame this should update correctly</span>
+            <span class="c">#this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through</span>
+            <span class="c">#frame changes</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;filename&#39;</span><span class="p">:</span><span class="n">filename</span><span class="p">,</span>
+                                 <span class="s">&#39;extver&#39;</span><span class="p">:</span> <span class="n">extver</span><span class="p">,</span>
+                                 <span class="s">&#39;extname&#39;</span><span class="p">:</span> <span class="n">extname</span><span class="p">,</span>
+                                 <span class="s">&#39;naxis&#39;</span><span class="p">:</span> <span class="n">naxis</span><span class="p">,</span>
+                                 <span class="s">&#39;numaxis&#39;</span><span class="p">:</span> <span class="n">numaxis</span><span class="p">,</span>
+                                 <span class="s">&#39;iscube&#39;</span><span class="p">:</span>  <span class="n">iscube</span><span class="p">,</span>
+                                 <span class="s">&#39;user_array&#39;</span><span class="p">:</span> <span class="n">user_array</span><span class="p">,</span>
+                                 <span class="s">&#39;mef&#39;</span><span class="p">:</span> <span class="n">mef_file</span><span class="p">}</span>
+
+
     <span class="k">def</span> <span class="nf">_check_filetype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;check the file to see if it&#39;s MEF or SIMPLE fits&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;check the file to see if the file is a multi-extension fits file&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;No filename provided&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;No filename provided&quot;</span><span class="p">)</span>            
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_mef_file</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">getval</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="s">&#39;EXTEND&#39;</span><span class="p">)</span>
-
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">mef_file</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">getval</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="s">&#39;EXTEND&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">mef_file</span><span class="o">=</span><span class="bp">False</span>
+                
             <span class="c">#check to see if the fits file lies</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mef_file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mef_file</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">nextend</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">getval</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="s">&#39;NEXTEND&#39;</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_mef_file</span><span class="o">=</span><span class="bp">False</span>
+                    <span class="n">mef_file</span><span class="o">=</span><span class="bp">False</span>
         
+            <span class="k">return</span> <span class="n">mef_file</span>
 
+<div class="viewcode-block" id="ds9.valid_data_in_viewer"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.valid_data_in_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">valid_data_in_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return bool if valid file or array is loaded into the viewer&quot;&quot;&quot;</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]:</span>
+            <span class="k">return</span>  <span class="bp">True</span> 
+        <span class="k">else</span><span class="p">:</span>   
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="n">valid</span><span class="o">=</span><span class="bp">True</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">valid</span><span class="o">=</span><span class="bp">False</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;error in array&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">valid</span>
+
+            </div>
 <div class="viewcode-block" id="ds9.get_filename"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.get_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the filename currently on display</span>
 
@@ -409,25 +456,21 @@
 <span class="sd">        connect to a ds9 window with no file loaded and then ask for the data file name after loading one through</span>
 <span class="sd">        the ds9 menu options. This will poll the private filename and then try and set one if it&#39;s empty.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># see if the user has loaded a file by hand</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_filename</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;No file loaded&quot;</span><span class="p">)</span>
+        <span class="c"># see if the user has loaded a file by hand or changed frames in the gui</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span>
-
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]</span>
 </div>
 <div class="viewcode-block" id="ds9.get_frame_info"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.get_frame_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return more explicit information about the data displayed in the current frame&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_filename</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span><span class="p">:</span>
-            <span class="n">cstring</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;{0}[{1},{2}]{3:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_extname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extver</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="p">,))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">cstring</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;{0}[{1},{2}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_extname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extver</span><span class="p">))</span>
-        
-        <span class="k">if</span> <span class="s">&#39;None&#39;</span> <span class="ow">in</span> <span class="n">cstring</span><span class="p">:</span>
-            <span class="n">cstring</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;Nothing loaded in frame&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">cstring</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()]</span>
+</div>
+<div class="viewcode-block" id="ds9.get_viewer_info"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.get_viewer_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_viewer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary of information about all frames which are loaded with data&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span>
 </div>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_purge_tmp_dirs</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
@@ -438,8 +481,8 @@
 <span class="sd">        deleted. This is a work around for that.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">_tmp_dir_list</span><span class="p">:</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_tmp_dir_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">_tmp_dir</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_tmp_dir</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_stop_running_process</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
@@ -460,7 +503,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">_process_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Exception: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;XPA Exception: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_purge_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;remove temporary directories from the unix socket&quot;&quot;&quot;</span>
@@ -493,7 +536,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_stop_process</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="ds9.run_inet_ds9"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.run_inet_ds9">[docs]</a>    <span class="k">def</span> <span class="nf">run_inet_ds9</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;start a new ds9 window using an inet connection</span>
+        <span class="sd">&quot;&quot;&quot;start a new ds9 window using an inet socket connection</span>
 
 
 <span class="sd">        It is given a unique title so it can be identified later.</span>
@@ -503,7 +546,7 @@
 
         <span class="c"># this is the title of the window, without a nameserver connection</span>
         <span class="c"># is there a way to get the inet x:x address?</span>
-        <span class="n">xpaname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>  <span class="c"># that should be unique enough, something better?</span>
+        <span class="n">xpaname</span> <span class="o">=</span> <span class="s">&quot;imexam&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>  <span class="c"># that should be unique enough, something better?</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span><span class="p">,</span>
                        <span class="s">&quot;-xpa&quot;</span><span class="p">,</span> <span class="s">&quot;inet&quot;</span><span class="p">,</span>
@@ -570,7 +613,7 @@
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_tmp_dir_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tmp_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span> <span class="o">=</span> <span class="n">p</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
@@ -594,13 +637,24 @@
 <div class="viewcode-block" id="ds9.set_iraf_display"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.set_iraf_display">[docs]</a>    <span class="k">def</span> <span class="nf">set_iraf_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance. </span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        For example, your pyraf commands will use this ds9 for display.</span>
-<span class="sd">        TODO: Not sure this is needed</span>
+<span class="sd">        </span>
+<span class="sd">        TODO: Not sure this is still needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;IMTDEV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;unix:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_unix_name</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">_check_ds9_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;check to see if the ds9 process is stil running&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;check to see if the ds9 process is still running</span>
+<span class="sd">    </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If you start a ds9 window from the shell and then connect to imexam, imexam</span>
+<span class="sd">        will not have a reference for the process, so this method ignores that state.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -643,17 +697,21 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        XPA returns strings of the form u a  257.5 239 \n </span>
+<span class="sd">        XPA returns strings of the form:  u a  257.5 239 \n </span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">xpa_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;imexam any coordinate image&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Xpa exception: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Xpa problem reading cursor: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
             <span class="k">raise</span> <span class="ne">KeyError</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Outside of data range&quot;</span><span class="p">)</span>
+            
         <span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">xpa_string</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="c">#ds9 is returning 1 based array, return 0 instead</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> 
 </div>
 <div class="viewcode-block" id="ds9.alignwcs"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.alignwcs">[docs]</a>    <span class="k">def</span> <span class="nf">alignwcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;align wcs</span>
@@ -878,8 +936,8 @@
         <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;header &quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>  <span class="c"># display the header of the current frame</span>
-        <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Problem loading header&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">XpaException</span><span class="p">(</span><span class="s">&quot;XPA Exception getting header: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="ds9.frame"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.frame">[docs]</a>    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;convenience function to change or report frames</span>
@@ -901,30 +959,42 @@
 <span class="sd">        frame(3)  opens frame 3 if it doesn&#39;t exist already, otherwise goes to frame 3</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;frame&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="c"># xpa returns &#39;\n&#39; for no frame</span>
+        
         <span class="k">if</span> <span class="n">n</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;frame {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_filename</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s">&quot;delete&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;frame {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>                
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;frame&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c"># xpa returns &#39;\n&#39; for no frame</span>
-                <span class="k">return</span> <span class="n">frame</span>
-            <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s">&#39;1&#39;</span>  <span class="c"># the default frame for XPA</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">None</span> <span class="c">#the user can delete frame 1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">XpaException</span><span class="p">(</span><span class="s">&quot;XPA Exception getting frame: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="ds9.iscube"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.iscube">[docs]</a>    <span class="k">def</span> <span class="nf">iscube</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return information on whether a cube image is displayed in the current frame&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;iscube&#39;</span><span class="p">]</span>
 
 </div>
 <div class="viewcode-block" id="ds9.get_slice_info"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.get_slice_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_slice_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the slice tuple that is currently displayed&quot;&quot;&quot;</span>
-        
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_filename</span><span class="p">()</span>
-            <span class="n">image_slice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">image_slice</span><span class="o">=</span><span class="bp">None</span>
-        <span class="k">return</span> <span class="n">image_slice</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;iscube&#39;</span><span class="p">]:</span>
+                <span class="n">image_slice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;naxis&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">image_slice</span><span class="o">=</span><span class="bp">None</span>
+            <span class="k">return</span> <span class="n">image_slice</span>
             </div>
 <div class="viewcode-block" id="ds9.get_data"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; return a numpy array of the data displayed in the current window</span>
@@ -933,40 +1003,55 @@
 <span class="sd">        -----</span>
 <span class="sd">        This is the data array that the imexam() function call from connect() uses for analysis</span>
 <span class="sd">        </span>
-<span class="sd">        astropy.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]</span>
+<span class="sd">        astropy.io.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]</span>
 <span class="sd">        just the one image is retured in the case of multidimensional data, not the cube</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># make sure the filename and extension info are correct for the current frame in DS9</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_filename</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;No filename associated with data, perhaps you have an array in memory&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extver</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extname</span><span class="p">:</span> <span class="c">#the simple fits case</span>
-                <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">filedata</span><span class="p">:</span>
-                    <span class="n">data</span> <span class="o">=</span> <span class="n">filedata</span><span class="o">.</span><span class="n">data</span>
+        <span class="c"># make sure the filename and extension info are correct for the current frame in DS9, users can change this in the gui</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span> 
+        <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">filedata</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iscube</span><span class="p">:</span>
-                        <span class="n">data</span><span class="o">=</span><span class="n">filedata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_extname</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_extver</span><span class="p">]</span><span class="o">.</span><span class="n">section</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_naxis</span><span class="p">]</span>                                        
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">data</span><span class="o">=</span><span class="n">filedata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_extname</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_extver</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
-            <span class="k">return</span> <span class="n">data</span>
-</div>
+                <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]</span>
+                <span class="n">extver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;extver&#39;</span><span class="p">]</span>
+                <span class="n">extname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;extname&#39;</span><span class="p">]</span>
+                <span class="n">naxis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;naxis&#39;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;mef&#39;</span><span class="p">]:</span>
+                    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">filedata</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;iscube&#39;</span><span class="p">]:</span>
+                            <span class="n">data</span><span class="o">=</span><span class="n">filedata</span><span class="p">[</span><span class="n">extname</span><span class="p">,</span><span class="n">extver</span><span class="p">]</span><span class="o">.</span><span class="n">section</span><span class="p">[</span><span class="n">naxis</span><span class="p">]</span>     
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">data</span><span class="o">=</span><span class="n">filedata</span><span class="p">[</span><span class="n">extname</span><span class="p">,</span><span class="n">extver</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                    <span class="k">return</span> <span class="n">data</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">filedata</span><span class="p">:</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="n">filedata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> 
+                    <span class="k">return</span> <span class="n">data</span>
+
+ </div>
 <div class="viewcode-block" id="ds9.get_header"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.get_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the current fits header as a string or None if there&#39;s a problem&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">:</span>
+
+        <span class="c">#TODO return the simple header for arrays which are loaded</span>
+
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;fits header&quot;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Problem loading header&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;XPA Exception getting header: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                 <span class="k">return</span> <span class="bp">None</span>
 
             <span class="k">return</span> <span class="n">header</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No file loaded into ds9&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No file with header loaded into ds9&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">None</span>
 </div>
 <div class="viewcode-block" id="ds9.grid"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.grid">[docs]</a>    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -990,7 +1075,7 @@
         <span class="sd">&quot;&quot;&quot;lower the ds9 window&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;lower&quot;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ds9.load_fits"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.load_fits">[docs]</a>    <span class="k">def</span> <span class="nf">load_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">extver</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">extname</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="ds9.load_fits"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.load_fits">[docs]</a>    <span class="k">def</span> <span class="nf">load_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">extver</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">extname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;convenience function to load fits image to current frame</span>
 
 <span class="sd">        Parameters</span>
@@ -1017,7 +1102,10 @@
 
 <span class="sd">        XPA needs to have the absolute path to the filename so that if the DS9 window was started</span>
 <span class="sd">        in another directory it can still find the file to load. arg. </span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">():</span>
+            <span class="n">frame</span><span class="o">=</span><span class="mi">1</span> <span class="c">#load into first frame</span>
+            
         <span class="k">if</span> <span class="n">fname</span><span class="p">:</span>
             <span class="c"># see if the image is MEF or Simple</span>
             <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
@@ -1025,9 +1113,8 @@
                 <span class="c"># strip the extensions for now</span>
                 <span class="n">shortname</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_check_filetype</span><span class="p">(</span><span class="n">shortname</span><span class="p">)</span>
-                
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mef_file</span> <span class="ow">or</span> <span class="s">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">fname</span><span class="p">:</span>
+                <span class="n">mef_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filetype</span><span class="p">(</span><span class="n">shortname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">mef_file</span> <span class="ow">or</span> <span class="s">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">fname</span><span class="p">:</span>
                     <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;file fits {0:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
                 <span class="k">elif</span> <span class="n">extver</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extname</span><span class="p">:</span>
                     <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;file fits {0:s}[{1:d}]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">extver</span><span class="p">))</span>
@@ -1038,7 +1125,7 @@
                 <span class="k">raise</span> <span class="ne">IOError</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_filename</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;No filename provided&quot;</span><span class="p">)</span>
 </div>
@@ -1359,29 +1446,7 @@
         <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;Image rotated at {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;rotate&quot;</span><span class="p">))</span>
         <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="ds9.save_header"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.save_header">[docs]</a>    <span class="k">def</span> <span class="nf">save_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;save the header of the current image to a file</span>
 
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-
-<span class="sd">        filename: string</span>
-<span class="sd">            The name of the file to which the header is saved. If none is specified, then it will be saved</span>
-<span class="sd">            to the filename of the currently displayed file with _header.txt appended</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;header &quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">+</span> <span class="s">&quot;_header.txt&quot;</span>
-
-        <span class="c"># leaving this out for now so that the current header of frame is used</span>
-        <span class="c"># it will need to be updated if an image cube is loaded I believe</span>
-        <span class="n">cstring</span> <span class="o">+=</span> <span class="s">&quot;save </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;header saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;header saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="ds9.save_regions"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.save_regions">[docs]</a>    <span class="k">def</span> <span class="nf">save_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;save the regions in the current window to a DS9 style regions file</span>
@@ -1398,9 +1463,10 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;regions save&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">+</span> <span class="s">&quot;_regions.txt&quot;</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">frame</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;_regions.txt&quot;</span>
 
         <span class="c"># check if the file already exists</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">F_OK</span><span class="p">):</span>
@@ -1521,8 +1587,9 @@
 <span class="sd">           1 to 100, for jpeg images</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">+</span> <span class="s">&quot;_snap.jpg&quot;</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;_snap.jpg&quot;</span>
 
         <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;saveimage &quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">filename</span>
@@ -1535,76 +1602,57 @@
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;Image saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Image saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="ds9.view"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Display numpy image array</span>
+<div class="viewcode-block" id="ds9.view"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Display numpy image array to current frame</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        img: numpy array</span>
-<span class="sd">            The array containing data</span>
-
-<span class="sd">        header: fits.header</span>
-<span class="sd">        frame: int</span>
-<span class="sd">            Display frame to use. The current frame is used if none is specfied. If no frame exists, then a new one is created.</span>
-
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        </span>
-<span class="sd">        If you have displayed an image from memory to ds9, using get_data() will not return anything, you already have the array somewhere accessable</span>
-<span class="sd">        It will also not allow you to run imexam() analysis loop, will think about how to fix that.</span>
-<span class="sd">        </span>
+<span class="sd">            The array containing data, it will be forced to numpy.array()</span>
+<span class="sd">       </span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">_frame_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_frame_num</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">_frame_num</span> <span class="o">=</span> <span class="mi">1</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">view_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">_frame_num</span><span class="p">)</span>
-            <span class="k">raise</span>
-</div>
-<div class="viewcode-block" id="ds9.view_array"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.view_array">[docs]</a>    <span class="k">def</span> <span class="nf">view_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Helper function to display numpy image array&quot;&quot;&quot;</span>
-
-        <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">bool8</span><span class="p">:</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">img</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">UnsupportedImageShapeException</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">byteorder</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="s">&quot;|&quot;</span><span class="p">]:</span>
-            <span class="n">dt</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">newbyteorder</span><span class="p">(</span><span class="s">&quot;&gt;&quot;</span><span class="p">)</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
-            <span class="n">byteorder</span> <span class="o">=</span> <span class="s">&quot;&gt;&quot;</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frame</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;No valid frame&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">byteorder</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">byteorder</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">bool8</span><span class="p">:</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-        <span class="n">endianness</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;&gt;&quot;</span><span class="p">:</span> <span class="s">&quot;,arch=bigendian&quot;</span><span class="p">,</span>
-                      <span class="s">&quot;&lt;&quot;</span><span class="p">:</span> <span class="s">&quot;,arch=littleendian&quot;</span><span class="p">}[</span><span class="n">byteorder</span><span class="p">]</span>
-        <span class="p">(</span><span class="n">ydim</span><span class="p">,</span> <span class="n">xdim</span><span class="p">)</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">arr_str</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">img</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnsupportedImageShapeException</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
 
-        <span class="n">itemsize</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="mi">8</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">bitpix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ImgCode</span><span class="p">[</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">UnsupportedDatatypeException</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">byteorder</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="s">&quot;|&quot;</span><span class="p">]:</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">newbyteorder</span><span class="p">(</span><span class="s">&quot;&gt;&quot;</span><span class="p">)</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+                <span class="n">byteorder</span> <span class="o">=</span> <span class="s">&quot;&gt;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">byteorder</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">byteorder</span>
 
-        <span class="n">option</span> <span class="o">=</span> <span class="s">&quot;[xdim=</span><span class="si">%d</span><span class="s">,ydim=</span><span class="si">%d</span><span class="s">,bitpix=</span><span class="si">%d%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">xdim</span><span class="p">,</span> <span class="n">ydim</span><span class="p">,</span>
-                                                    <span class="n">bitpix</span><span class="p">,</span> <span class="n">endianness</span><span class="p">)</span>
+            <span class="n">endianness</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;&gt;&quot;</span><span class="p">:</span> <span class="s">&quot;,arch=bigendian&quot;</span><span class="p">,</span>
+                          <span class="s">&quot;&lt;&quot;</span><span class="p">:</span> <span class="s">&quot;,arch=littleendian&quot;</span><span class="p">}[</span><span class="n">byteorder</span><span class="p">]</span>
+            <span class="p">(</span><span class="n">ydim</span><span class="p">,</span> <span class="n">xdim</span><span class="p">)</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">arr_str</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;array &quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">,</span> <span class="n">arr_str</span><span class="p">)</span>
-</div>
+            <span class="n">itemsize</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="mi">8</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">bitpix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ImgCode</span><span class="p">[</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnsupportedDatatypeException</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+            <span class="n">option</span> <span class="o">=</span> <span class="s">&quot;[xdim=</span><span class="si">%d</span><span class="s">,ydim=</span><span class="si">%d</span><span class="s">,bitpix=</span><span class="si">%d%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">xdim</span><span class="p">,</span> <span class="n">ydim</span><span class="p">,</span>
+                                                        <span class="n">bitpix</span><span class="p">,</span> <span class="n">endianness</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;array &quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">,</span> <span class="n">arr_str</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">img</span>
+            <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">XpaException</span><span class="p">(</span><span class="s">&quot;XPA: {0} : Problem loading array into frame {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">frame</span><span class="p">))</span>
+                
+        </div>
 <div class="viewcode-block" id="ds9.zoomtofit"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.zoomtofit">[docs]</a>    <span class="k">def</span> <span class="nf">zoomtofit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;convenience function for zoom&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="s">&quot;to fit&quot;</span><span class="p">)</span>
@@ -1631,7 +1679,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;zoom </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">par</span><span class="p">)))</span>
         <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;XPA problem with zoom (probably your zoom window is already closed)&quot;</span><span class="p">)</span>
-
+</div>
+<div class="viewcode-block" id="ds9.show_commands"><a class="viewcode-back" href="../../api/imexam.ds9_basic.ds9.html#imexam.ds9_basic.ds9.show_commands">[docs]</a>    <span class="k">def</span> <span class="nf">show_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;print the available XPA commands&quot;&quot;&quot;</span>
+        
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="c">#with no arguments supplied, XPA returns options</span>
 </div></div>
 <span class="kn">import</span> <span class="nn">atexit</span>
 <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ds9</span><span class="o">.</span><span class="n">_purge_tmp_dirs</span><span class="p">)</span>
@@ -1655,7 +1707,7 @@
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 04 Jun 2014. <br/>
+    Last built 10 Jun 2014. <br/>
   </p>
 </footer>
   </body>

@@ -213,10 +213,10 @@ Let's open up a DS9 window (if you haven't already) and display your image. This
 
 ::
 
-    ds9=imexam.connect()
-    ds9.load_fits('iabf01bzq_flt.fits')
-    ds9.scale() #scale to DS9 zscale by default
-    ds9.mark_region_from_array(locations)
+    viewer=imexam.connect()
+    viewer.load_fits('iabf01bzq_flt.fits')
+    viewer.scale() #scale to DS9 zscale by default
+    viewer.mark_region_from_array(locations)
     
     
     
@@ -239,10 +239,10 @@ Now you can save these new regions to a DS9 style region file, either through DS
 
 ::
     
-    ds9.save_regions('badstars.reg')
+    viewer.save_regions('badstars.reg')
 
     
-Here is what the saved region file looks like, you can choose to import this file into any future DS9 display of the same image using the ds9.load_regions() method. You might also want to parse the file to save just the location and comment information in a separate text file.
+Here is what the saved region file looks like, you can choose to import this file into any future DS9 display of the same image using the viewer.load_regions() method. You might also want to parse the file to save just the location and comment information in a separate text file.
 
 ::  
     
@@ -282,15 +282,15 @@ If you haven't already, start DS9 and load your image into the viewer. I'll assu
     
         DS9 1396283378.28 gs 82a7e75f:53892 sosey
 
-    ds9=imexam.connect('82a7e75f:53892')
+    viewer=imexam.connect('82a7e75f:53892')
     
     #A little unsure this is the corrent window? Let's check by asking what image is loaded. The image I'm working with is iabf01bzq_flt.fits
     
-    ds9.get_data_filename()
+    viewer.get_data_filename()
         
         '/Users/sosey/ssb/sosey/testme/iabf01bzq_flt.fits'  <-- notice it returned the full pathname to the file
         
-    ds9.zoomtofit()  <-- let's zoom out  to see the whole image, incase just a small section was loaded
+    viewer.zoomtofit()  <-- let's zoom out  to see the whole image, incase just a small section was loaded
     
     
 Read in your list of object locations, I'll use the same DAOphot targets from the previous example
@@ -313,17 +313,17 @@ Read in your list of object locations, I'll use the same DAOphot targets from th
 
 Take your list of locations and cycle through each one, displaying a zoomed in section on the DS9 window and starting imexam for each coordinate.
 I'm just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition
-in conjuection with the ds9.readcursor()
+in conjuection with the viewer.readcursor()
 
 I'll also mark the object we're interested in on the display for reference
 
 ::
 
-    ds9.zoom(8)
+    viewer.zoom(8)
     for object in locations[100:110]:
-        ds9.panto_image(object[0],object[1])
-        ds9.mark_region_from_array(object)
-        ds9.imexam()
+        viewer.panto_image(object[0],object[1])
+        viewer.mark_region_from_array(object)
+        viewer.imexam()
             
         
             

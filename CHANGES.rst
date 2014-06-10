@@ -1,3 +1,22 @@
+version 0.3.dev (unreleased)
+----------------------------
+
+- restructured docs for astropy style and added more detailed example information
+
+- general bugs fixed as they were found
+
+- full imexam() support for arrays loaded from memory added
+
+- restructured how the code tracks what is in the viewer. It used to track just the
+  current frame, now it keeps a dictionary of what's loaded into the viewer which also
+  contains some specifics about the data in each respective frame. This was necessary to 
+  allow user display and tracking of arrays, but also is a nicer way to store the information
+  and give users access to more details about the viewer in general if they are scripting something
+  themselves. 
+  
+- the logging method dropped a reference in one of the last commits, this was fixed and logging the 
+  session to a file for reference should be functioning correctly again.
+
 version 0.2.dev (unreleased)
 ----------------------------
 

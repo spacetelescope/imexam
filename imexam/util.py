@@ -11,7 +11,7 @@ from astropy import log
 from . import xpa
 from xpa import XpaException
 
-__all__ = ["find_ds9", "list_active_ds9", "display_help","list_ds9_ids","find_xpans"]
+__all__ = ["find_ds9", "list_active_ds9", "display_help", "list_ds9_ids", "find_xpans"]
 
 
 def find_ds9():
@@ -23,15 +23,16 @@ def find_ds9():
             return possible
     return None
 
+
 def find_xpans():
     """Find the local path to the xpans executable"""
-    path="xpans"
+    path = "xpans"
     for dirname in os.getenv("PATH").split(":"):
-        possible = os.path.join(dirname,path)
+        possible = os.path.join(dirname, path)
         if os.path.exists(possible):
             return possible
     return None
-        
+
 
 def list_active_ds9():
     """Display information about the DS9 windows currently registered with XPA and runnning
@@ -42,8 +43,8 @@ def list_active_ds9():
     I think because it's only listening on the inet socket which starts by default in the OS. That's if xpans is installed
     on the machine. Otherwise, no nameserver is running at all.
     """
-    
-    #only run if XPA/xpans is installed on the machine
+
+    # only run if XPA/xpans is installed on the machine
     if find_xpans():
         try:
             sessions = (xpa.get('xpans'))
@@ -52,13 +53,15 @@ def list_active_ds9():
             else:
                 print(sessions)
         except XpaException:
-                print("No active sessions registered")
+            print("No active sessions registered")
     else:
-        print("XPA nameserver not installed or not on PATH, function unavailable")   
+        print("XPA nameserver not installed or not on PATH, function unavailable")
+
 
 def list_ds9_ids():
     """return just the list of ds9 XPA_METHOD ids which are registered"""
     return xpa.nslookup()
+
 
 def display_help():
     """ display local html help in a browser window"""
@@ -80,7 +83,6 @@ def display_help():
 
 # Set up logging ability for the user
 # consider making a private logging level for data retension
-
 def set_logging(filename=None, on=True, level=logging.DEBUG):
     """Turn on or off logging to a file
 
@@ -94,7 +96,8 @@ def set_logging(filename=None, on=True, level=logging.DEBUG):
     if on:
         if not filename:
             warnings.warn("No log filename specified")
-
+            raise ValueError
+            
         root = logging.getLogger(__name__)
         logging.basicConfig(filename=filename, level=level, format='\n%(funcName)s \n%(message)s',)
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
@@ -106,7 +109,8 @@ def set_logging(filename=None, on=True, level=logging.DEBUG):
         root.addHandler(logging.NullHandler())  # to prevent warning in unhandled contexts
 
         print("Saving imexam commands to {0:s}".format(filename))
-        logging.disable(level) #log above
-        
+        logging.disable(level)  # log above
+        return root
+
     if not on:
-        logging.disable(logging.CRITICAL) #basically turns off logging
+        logging.disable(logging.CRITICAL)  # basically turns off logging
