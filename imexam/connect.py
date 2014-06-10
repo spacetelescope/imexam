@@ -126,8 +126,6 @@ class Connect(object):
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
-        current_key = keys[0]  # q is not in the list of keys
-
         cstring = "Current image {0}".format(self.get_data_filename(),)
         logging.info(cstring)
         print(cstring)
@@ -137,27 +135,30 @@ class Connect(object):
         if self.window.iscube():
             self._current_slice = self.window.get_slice_info()
         self.exam.set_data(self.window.get_data())
+        current_key = keys[0]  # q is not in the list of keys
 
-        # python tests at the top of the loop
         while current_key:
-            self._check_frame(self.frame())
+            self._check_frame()
             if self.window.iscube():
-                self._check_slice(self.window.get_slice_info())
+                self._check_slice()
             try:
                 x, y, current_key = self.readcursor()
-                self._check_frame(self.frame())
+                self._check_frame()
+                if self.window.iscube():
+                    self._check_slice()
                 if current_key not in keys and 'q' not in current_key:
                     print("Invalid key")
                 else:
                     if 'q' in current_key:
                         current_key = None
                     else:
-                        self.exam.do_option(x - 1, y - 1, current_key) #ds9 returns 1 based array
+                        self.exam.do_option(x-1, y-1, current_key) #ds9 returns 1 based array
             except KeyError:
                 print("Invalid key, use\n: {0}".format(self.exam.print_options()))
 
-    def _check_frame(self, frame=None):
+    def _check_frame(self):
         """check if the user switched frames"""
+        frame=self.frame()
         if self._current_frame != frame:  # the user has changed window frames
             self.exam.set_data(self.window.get_data())
             self._current_frame = frame
@@ -165,11 +166,15 @@ class Connect(object):
             logging.info(cstring)
             print(cstring)
 
-    def _check_slice(self, this_slice=None):
+    def _check_slice(self):
         """ check if the user switched slice images """
+        this_slice=self.window.get_slice_info()
         if self._current_slice != this_slice:
             self.exam.set_data(self.window.get_data())
             self._current_slice = this_slice
+            cstring = "\nCurrent slice {0:s}".format(self.get_frame_info()['naxis'],)
+            logging.info(cstring)
+            print(cstring)
 
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset"""

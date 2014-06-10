@@ -172,7 +172,7 @@ class ds9(object):
         # about the image loaded in that frame
         self._viewer = dict()
         self._current_frame = None
-
+        self._current_slice = None
         # default starting socket type to local in order get around user xpa installation issues
         self._xpa_method = "local"
         self._xpa_name = ""
@@ -908,22 +908,21 @@ class ds9(object):
 
     def get_slice_info(self):
         """return the slice tuple that is currently displayed"""
+        self._set_frameinfo()
         frame = self.frame()
-        if frame != self._current_frame:
-            self._set_frameinfo()
+
+        if self._viewer[frame]['iscube']:
+            image_slice = self._viewer[frame]['naxis']
         else:
-            if self._viewer[frame]['iscube']:
-                image_slice = self._viewer[frame]['naxis']
-            else:
-                image_slice = None
-            return image_slice
+            image_slice = None
+        return image_slice
 
     def get_data(self):
-        """ return a numpy array of the data displayed in the current window
+        """ return a numpy array of the data displayed in the current frame
 
         Notes
         -----
-        This is the data array that the imexam() function call from connect() uses for analysis
+        This is the data array that the imexam() function from connect() uses for analysis
 
         astropy.io.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]
         just the one image is retured in the case of multidimensional data, not the cube
@@ -932,6 +931,7 @@ class ds9(object):
 
         # make sure the filename and extension info are correct for the current
         # frame in DS9, users can change this in the gui
+        self._set_frameinfo() #users can change frame and slice before calling this, best to check
         frame = self.frame()
         if frame:
 

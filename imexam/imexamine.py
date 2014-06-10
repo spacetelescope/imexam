@@ -119,7 +119,7 @@ class Imexamine(object):
     def set_data(self, data=np.zeros(0)):
         """initialize the data that imexamine uses"""
         self._data = data
-
+        
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key
 
