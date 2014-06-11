@@ -638,8 +638,6 @@ No.    Name         Type      Cards   Dimensions   Format
 1    SCI         ImageHDU        13   (1032, 1024, 35, 5)   int16
 2    REFOUT      ImageHDU        13   (258, 1024, 35, 5)   int16</pre>
 </div>
-<p>Here&#8217;s an image of what this looks like displayed in DS9:</p>
-<img alt="image capture of cube image displayed in DS9" src="../_images/test_cube_capture.png" style="width: 500px; height: 400px;" />
 <p>You can use all the regular imexam methods with this image, including imexam() and the current slice which you have selected will be used for analysis. You can also ask imexam which slice is display, or the full image information of what is in the current frame for your own use (ds9 is just the name I chose, you can call the control object connected to your display window anything)</p>
 <div class="highlight-python"><pre>viewer=imexam.connect()
 viewer.load_fits('test_cube.fits')
@@ -651,7 +649,6 @@ viewer.window.get_frame_info()
 Out[25]: '/Users/sosey/ssb/imexam/test_cube.fits[SCI,1](0, 0)'</pre>
 </div>
 <p>Now I&#8217;m going to use the Cube dialog to change the slice I&#8217;m looking at to (4,14) -&gt; as displayed in the dialog. DS9 displayed 1-indexed numbers, and the fits utitlity behind imexam uses 0-indexed numbers, so expect the return to be off by a value of 1.</p>
-<img alt="image capture of cube image displayed in DS9" src="../_images/cube_slice_change.png" style="width: 500px; height: 400px;" />
 <p>Let&#8217;s ask for the information again:</p>
 <div class="highlight-python"><pre>In [26]: viewer.window.get_filename()
 Out[26]: '/Users/sosey/ssb/imexam/test_cube.fits'
@@ -714,7 +711,7 @@ Out[28]: (3, 13)</pre>
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 10 Jun 2014. <br/>
+    Last built 11 Jun 2014. <br/>
   </p>
 </footer>
   </body>

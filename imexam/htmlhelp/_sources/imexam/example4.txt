@@ -14,14 +14,6 @@ Image cubes can be multi-extension fits files which have multidimensional (> 2) 
     2    REFOUT      ImageHDU        13   (258, 1024, 35, 5)   int16   
 
 
-Here's an image of what this looks like displayed in DS9:
-
-.. image:: test_cube_capture.png
-    :height: 400
-    :width: 500
-    :alt: image capture of cube image displayed in DS9
-
-
 You can use all the regular imexam methods with this image, including imexam() and the current slice which you have selected will be used for analysis. You can also ask imexam which slice is display, or the full image information of what is in the current frame for your own use (ds9 is just the name I chose, you can call the control object connected to your display window anything) ::
 
 
@@ -37,12 +29,6 @@ You can use all the regular imexam methods with this image, including imexam() a
     
 
 Now I'm going to use the Cube dialog to change the slice I'm looking at to (4,14) -> as displayed in the dialog. DS9 displayed 1-indexed numbers, and the fits utitlity behind imexam uses 0-indexed numbers, so expect the return to be off by a value of 1. 
-
-
-.. image:: cube_slice_change.png
-    :height: 400
-    :width: 500
-    :alt: image capture of cube image displayed in DS9
 
 
 Let's ask for the information again::

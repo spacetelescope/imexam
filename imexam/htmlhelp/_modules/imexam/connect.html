@@ -136,6 +136,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">exam</span> <span class="o">=</span> <span class="n">Imexamine</span><span class="p">()</span>  <span class="c"># init sets empty data array until we can load or check viewer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="s">&#39;imexam_log.txt&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">=</span><span class="bp">None</span> <span class="c">#points to the package logger</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -144,7 +145,7 @@
         <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">filename</span>
 
-        <span class="n">set_logging</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="n">on</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">=</span><span class="n">set_logging</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="n">on</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Connect.close"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; close the window and end connection&quot;&quot;&quot;</span>
@@ -198,8 +199,6 @@
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Press &#39;q&#39; to quit</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">get_options</span><span class="p">()</span>  <span class="c"># possible commands</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()</span>
-        <span class="n">current_key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># q is not in the list of keys</span>
-
         <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;Current image {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data_filename</span><span class="p">(),)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
@@ -209,27 +208,30 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
+        <span class="n">current_key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># q is not in the list of keys</span>
 
-        <span class="c"># python tests at the top of the loop</span>
         <span class="k">while</span> <span class="n">current_key</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_check_slice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_slice</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readcursor</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_check_slice</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">current_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span> <span class="ow">and</span> <span class="s">&#39;q&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
                     <span class="k">print</span><span class="p">(</span><span class="s">&quot;Invalid key&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="s">&#39;q&#39;</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
                         <span class="n">current_key</span> <span class="o">=</span> <span class="bp">None</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">current_key</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">current_key</span><span class="p">)</span> <span class="c">#ds9 returns 1 based array</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Invalid key, use</span><span class="se">\n</span><span class="s">: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()))</span>
 
-    <span class="k">def</span> <span class="nf">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;check if the user switched frames&quot;&quot;&quot;</span>
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">!=</span> <span class="n">frame</span><span class="p">:</span>  <span class="c"># the user has changed window frames</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="n">frame</span>
@@ -237,11 +239,15 @@
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_check_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this_slice</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; check if the user switched slice images &quot;&quot;&quot;</span>
+        <span class="n">this_slice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">!=</span> <span class="n">this_slice</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="n">this_slice</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Current slice {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()[</span><span class="s">&#39;naxis&#39;</span><span class="p">],)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Connect.readcursor"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.readcursor">[docs]</a>    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset&quot;&quot;&quot;</span>
@@ -479,7 +485,7 @@
   <p>
     &copy; Copyright 2014, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 10 Jun 2014. <br/>
+    Last built 11 Jun 2014. <br/>
   </p>
 </footer>
   </body>
