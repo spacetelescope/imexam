@@ -393,6 +393,7 @@ class ds9(object):
 
     def get_viewer_info(self):
         """Return a dictionary of information about all frames which are loaded with data"""
+        self._set_frameinfo()
         return self._viewer
 
     @classmethod
