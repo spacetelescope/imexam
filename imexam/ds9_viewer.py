@@ -335,7 +335,10 @@ class ds9(object):
                                    'iscube':  iscube,
                                    'user_array': user_array,
                                    'mef': mef_file}
-
+        
+        else:
+            warnings.warn("No frame loaded in viewer")
+        
     def _check_filetype(self, filename=None):
         """check the file to see if the file is a multi-extension fits file"""
         if not filename:
@@ -358,19 +361,21 @@ class ds9(object):
     def valid_data_in_viewer(self):
         """return bool if valid file or array is loaded into the viewer"""
         frame = self.frame()
-
-        if self._viewer[frame]['filename']:
-            return True
-        else:
-            try:
-                if self._viewer[frame]['user_array'].any():
-                    valid = True
-            except AttributeError, ValueError:
-                valid = False
-                print("error in array")
-
-            return valid
-
+        
+        if frame:
+            self._set_frameinfo()
+            
+            if self._viewer[frame]['filename']:
+                return True
+            
+            else:
+                try:
+                    if self._viewer[frame]['user_array'].any():
+                        return True
+                except AttributeError, ValueError:
+                    print("error in array")
+        return False
+        
     def get_filename(self):
         """return the filename currently on display
 
@@ -392,7 +397,16 @@ class ds9(object):
         return self._viewer[self.frame()]
 
     def get_viewer_info(self):
-        """Return a dictionary of information about all frames which are loaded with data"""
+        """Return a dictionary of information about all frames which are loaded with data
+        
+        
+        Notes
+        -----
+        Consider adding a loop to verify that all the frames still exist and the user
+        has not deleted any through the gui.
+    
+        
+        """
         self._set_frameinfo()
         return self._viewer
 
@@ -885,20 +899,26 @@ class ds9(object):
         """
         frame = self.get("frame").strip()  # xpa returns '\n' for no frame
 
-        if n:
-            if "delete" in str(n):
-                if frame in self._viewer.keys():
-                    del self._viewer[frame]
-            self.set("frame {0:s}".format(str(n)))
+        if frame:
+            if n:
+                if "delete" in str(n):
+                    if frame in self._viewer.keys():
+                        del self._viewer[frame]
+                self.set("frame {0:s}".format(str(n)))
+            else:
+                try:
+                    if len(frame) < 1:
+                        self.set("frame 1")
+                        return '1'  # the user can delete frame 1, but ds9 defaults to 1, so set it
+                    else:
+                        return str(frame)
+                except XpaException as e:
+                    raise XpaException("XPA Exception getting frame: {0}".format(e))
         else:
-            try:
-                if len(frame) < 1:
-                    return None  # the user can delete frame 1
-                else:
-                    return str(frame)
-            except XpaException as e:
-                raise XpaException("XPA Exception getting frame: {0}".format(e))
-
+            if len(frame) < 1:
+                self.set("frame 1")
+                return '1'  # the user can delete frame 1, but ds9 defaults to 1, so set it
+    
     def iscube(self):
         """return information on whether a cube image is displayed in the current frame"""
         frame = self.frame()
@@ -1027,7 +1047,7 @@ class ds9(object):
         in another directory it can still find the file to load. arg. 
         """
         if not self.frame():
-            frame = 1  # load into first frame
+            frame = '1'  # load into first frame
 
         if fname:
             # see if the image is MEF or Simple
