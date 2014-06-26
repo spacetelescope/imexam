@@ -2,18 +2,18 @@
 Software Dependencies
 *********************
 
-*   Astropy (for some analysis functions)
-*   photutils (for photometry)
+Required
+--------
+
+*   Python 2.7 or 3.3+ (Python 2.6 and 3.2 are not supported)
+*   numpy >= 1.6.0
+*   Astropy >= 0.3 (for some analysis functions)
 *   matplotlib (for plotting)
 *   DS9 (for image display) 
 
-astropy >= 0.3
+Optional
+--------
 
-python >= 2.7
+*   scipy (optional, for curve fitting)
+*   photutils development version (optional, for photometry options in imexam())
 
-numpy >= 1.6.0
-
-photutils > 0.0.dev
-    This must be installed to enable the photometry options for imexam() but it is not required
-
-scipy.optimize.curve_fit
