@@ -98,7 +98,7 @@ Now let's load the region file into our image:
 **mark_region_from_array** (input_points,rtype="circle",ptype="image",textoff=10,size=5):
     mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified
 
-    input_points: a tuple, or list of tuples, or a string: (x,y,comment), 
+    input_points: a tuple, or list of tuples, or a string which contain: (x,y,comment), 
 
 
     ptype: string

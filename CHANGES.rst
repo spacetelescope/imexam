@@ -17,6 +17,11 @@ version 0.3.dev (unreleased)
 - the logging method dropped a reference in one of the last commits, this was fixed and logging the 
   session to a file for reference should be functioning correctly again.
 
+- fixed an internal tracking problem in cases where the user loaded files through the gui and then
+  immediately issued the imexam() command. The viewer information for the object had not been updated in
+  between because it waits for a call to the window before checking - I added this check to the top of 
+  imexam function.
+
 version 0.2.dev (unreleased)
 ----------------------------
 

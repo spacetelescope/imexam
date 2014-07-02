@@ -1177,13 +1177,16 @@ class ds9(object):
                 print(pline)
                 self.set_region(pline)
 
-            if(len(str(location[COMMENT])) > 0):
-                pline = "text " + str(float(location[X]) + textoff) + " " + \
-                    str(float(location[Y]) + textoff) + " '" + \
-                    str(location[COMMENT]) + "' #font=times"
-                print(pline)
-                self.set_region(pline)
-
+            try:
+                if(len(str(location[COMMENT])) > 0):
+                    pline = "text " + str(float(location[X]) + textoff) + " " + \
+                        str(float(location[Y]) + textoff) + " '" + \
+                        str(location[COMMENT]) + "' #font=times"
+                    print(pline)
+                    self.set_region(pline)
+            except IndexError:
+                pass
+                
     def make_region(self, infile, labels=False, header=0, textoff=10, size=5):
         """make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment
 
