@@ -11,6 +11,11 @@ import os
 from .util import set_logging, find_xpans
 from . import xpa
 from .ds9_viewer import ds9
+try:
+    from .ginga_viewer import ginga_mp
+    have_ginga = True
+except ImportError:
+    have_ginga = False
 from .imexamine import Imexamine
 
 __all__ = ["Connect"]
@@ -53,6 +58,8 @@ class Connect(object):
     def __init__(self, target=None, path=None, viewer="ds9", wait_time=10, quit_window=True):
 
         _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
+        if have_ginga:
+            _possible_viewers.append('ginga_mp')
         if viewer.lower() not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
             raise NotImplementedError
@@ -60,6 +67,8 @@ class Connect(object):
         if 'ds9' in viewer.lower():
             self.window = ds9(
                 target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
+        elif 'ginga_mp' in viewer.lower():
+            self.window = ginga_mp(close_on_del=quit_window)
 
         self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.logfile = 'imexam_log.txt'
