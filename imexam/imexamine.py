@@ -7,6 +7,8 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
+# turn on interactive mode
+plt.ion()
 from scipy.optimize import curve_fit
 import time
 import logging
@@ -226,6 +228,7 @@ class Imexamine(object):
             ax.plot(self._data[y, :])
 
         plt.draw()
+        fig.show()
         time.sleep(self.sleep_time)
 
     def plot_column(self, x, y):
@@ -256,6 +259,7 @@ class Imexamine(object):
             ax.plot(self._data[:, x])
 
         plt.draw()
+        fig.show()
         time.sleep(self.sleep_time)
 
     def show_xy_coords(self, x, y):
@@ -429,6 +433,7 @@ class Imexamine(object):
         ax.plot(fitx + x - delta, fity, c='r', label=str(form.__name__) + " fit")
         plt.legend()
         plt.draw()
+        fig.show()
         time.sleep(self.sleep_time)
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
@@ -514,6 +519,7 @@ class Imexamine(object):
         ax.plot(fitx + y - delta, fity, c='r', label=str(form.__name__) + " fit")
         plt.legend()
         plt.draw()
+        fig.show()
         time.sleep(self.sleep_time)
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
@@ -604,6 +610,7 @@ class Imexamine(object):
             ax.plot(radius, flux, 'o')
             ax.set_title(title)
             plt.draw()
+            fig.show()
             time.sleep(self.sleep_time)
 
     def _aperture_phot(self, x, y, radsize=1, sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
@@ -698,6 +705,7 @@ class Imexamine(object):
             flat_data, num_bins, range=[mini, maxi], normed=False, facecolor='green', alpha=0.5, histtype='bar')
         print("hist with {0} bins".format(num_bins))
         plt.draw()
+        fig.show()
         time.sleep(self.sleep_time)
 
     def contour_plot(self, x, y):
@@ -728,6 +736,7 @@ class Imexamine(object):
         if self.contour_pars["label"][0]:
             plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
         plt.draw()
+        fig.show()
         time.sleep(self.sleep_time)
 
     def surface_plot(self, x, y):
@@ -795,6 +804,7 @@ class Imexamine(object):
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
         plt.draw()
+        fig.show()
         time.sleep(self.sleep_time)
 
     def register(self, user_funcs):
