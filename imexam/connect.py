@@ -59,22 +59,22 @@ class Connect(object):
 
         _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
         if have_ginga:
-            _possible_viewers.append('ginga_mp')
+            _possible_viewers.extend(['ginga_mp'])
         if viewer.lower() not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
             raise NotImplementedError
-
-        if 'ds9' in viewer.lower():
-            self.window = ds9(
-                target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
-        elif 'ginga_mp' in viewer.lower():
-            self.window = ginga_mp(close_on_del=quit_window)
 
         self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.logfile = 'imexam_log.txt'
         self.log=None #points to the package logger
         self._current_slice = None
         self._current_frame = None
+
+        if 'ds9' in viewer.lower():
+            self.window = ds9(
+                target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
+        elif 'ginga_mp' in viewer.lower():
+            self.window = ginga_mp(close_on_del=quit_window, exam=self.exam)
 
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
         """turn on and off imexam logging to the a file"""
