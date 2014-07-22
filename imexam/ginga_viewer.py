@@ -3,17 +3,9 @@
 """
 This class supports communication with a Ginga-based viewer.
 
-For generality, we create a matplotlib-backend simple Ginga viewer.
-This kind of viewer is less performant speed-wise than if we
-choose a particular widget back end.  OTOH, we don't have to
-care what widget set the user has installed and the overplotting
-capabilities are very, very good!
-
 For default key and mouse shortcuts in a Ginga window, see:
     https://ginga.readthedocs.org/en/latest/quickref.html
 
-For more information about Ginga, visit
-    https://github.com/ejeschke/ginga
 """
 
 from __future__ import print_function, division, absolute_import
@@ -34,27 +26,18 @@ except ImportError:
 from astropy.io import fits
 import numpy as np
 
-import matplotlib
-import matplotlib.pyplot as plt
-# turn on interactive mode
-plt.ion()
-
-# Ginga imports
-from ginga.mplw.ImageViewCanvasMpl import ImageViewCanvas
-from ginga.mplw.ImageViewCanvasTypesMpl import DrawingCanvas
-from ginga.misc import log
+from ginga.misc import log, Settings
 from ginga.AstroImage import AstroImage
 from ginga import cmap
-# add matplotlib colormaps to ginga's own set
-cmap.add_matplotlib_cmaps()
+from ginga.util import paths
+
+# module variables
+_matplotlib_cmaps_added = False
+
+__all__ = ['ginga_mp', ]
 
 
-__all__ = ['ginga_mp']
-
-
-# make a new object for every window you want to create
-
-class ginga_mp(object):
+class ginga_general(object):
 
     """ A class which controls all interactions between the user and the
     ginga window
@@ -69,31 +52,29 @@ class ginga_mp(object):
 
         Attributes
         ----------
-
         view: Ginga view object
              The object instantiated from a Ginga view class
 
-        figure: a matplotlib figure
-            (only valid if the Ginga backend is a matplotlib figure)
-
+        exam: imexamine object
     """
 
-    def __init__(self, backend='matplotlib', close_on_del=True):
+    def __init__(self, exam=None, close_on_del=True, logger=None):
         """
 
         Notes
         -----
         """
+        global _matplotlib_cmaps_added
+        
+        self.exam = exam
         self._close_on_del = close_on_del
-        # dictionary where each key is a frame number, and the values are a dictionary of details
-        # about the image loaded in that frame
+        # dictionary where each key is a frame number, and the values are a
+        # dictionary of details about the image loaded in that frame
         self._viewer = dict()
         self._current_frame = 1
         self._current_slice = None
 
         self.view = None  # ginga view object
-        self.figure = None  # matplotlib figure
-        self.backend = backend
 
         self._define_cmaps()  # set up possible color maps
 
@@ -102,55 +83,123 @@ class ginga_mp(object):
         self._kv = []
         self._capturing = False
 
-        use_logger = False
-        self.logger = log.get_logger(null=not use_logger, log_stderr=True)
-        
-        if backend == 'matplotlib':
-            # create a regular matplotlib figure
-            fig = plt.figure()
-            self.figure = fig
+        # ginga objects need a logger, create a null one if we are not
+        # handed one in the constructor
+        if logger == None:
+            logger = log.get_logger(null=True)
+        self.logger = logger
 
-            # create a ginga object, initialize some defaults and
-            # tell it about the figure
-            view = ImageViewCanvas(self.logger)
-            view.enable_autocuts('on')
-            view.set_autocut_params('zscale')
-            view.set_figure(fig)
+        # Establish settings (preferences) for ginga viewers
+        basedir = paths.ginga_home
+        self.prefs = Settings.Preferences(basefolder=basedir, logger=logger)
 
-            # enable all interactive ginga features
-            view.get_bindings().enable_all(True)
-            self.view = view
+        # general preferences shared with other ginga viewers
+        settings = self.prefs.createCategory('general')
+        settings.load(onError='silent')
+        settings.setDefaults(useMatplotlibColormaps=False,
+                             autocuts='on', autocut_method='zscale')
+        self.settings = settings
 
-            fig.show()
+        # add matplotlib colormaps to ginga's own set if user has this
+        # preference set
+        if settings.get('useMatplotlibColormaps', False) and \
+               (not _matplotlib_cmaps_added):
+            # Add matplotlib color maps if matplotlib is installed
+            try:
+                cmap.add_matplotlib_cmaps()
+                _matplotlib_cmaps_added = True
+            except Exception as e:
+                print("Failed to load matplotlib colormaps: {0}".format(str(e)))
 
-        # create a canvas that we insert when doing imexam mode
-        canvas = DrawingCanvas()
+        # bindings preferences shared with other ginga viewers
+        bind_prefs = self.prefs.createCategory('bindings')
+        bind_prefs.load(onError='silent')
+
+        # viewer preferences unique to imexam ginga viewers
+        viewer_prefs = self.prefs.createCategory('imexam')
+        viewer_prefs.load(onError='silent')
+
+        # create the viewer specific to this backend
+        self._create_viewer(bind_prefs, viewer_prefs)
+
+        # enable all interactive ginga features
+        bindings = self.view.get_bindings()
+        bindings.enable_all(True)
+        self.view.add_callback('key-press', self._key_press_normal)
+
+        canvas = self.canvas
         canvas.enable_draw(False)
-        canvas.add_callback('key-press', self._key_press_cb)
+        canvas.add_callback('key-press', self._key_press_imexam)
         canvas.setSurface(self.view)
         canvas.ui_setActive(True)
-        self.canvas = canvas
-        
+
+    def _draw_indicator(self):
+        # -- Here be black magic ------
+        # This function draws the imexam indicator on the lower left
+        # hand corner of the canvas
+
+        try:
+            # delete previous indicator, if there was one
+            self.canvas.deleteObjectByTag('indicator')
+        except:
+            pass
+
+        # assemble drawing classes
+        canvas = self.canvas
+        Text = canvas.getDrawClass('text')
+        Rect = canvas.getDrawClass('rectangle')
+        Compound = canvas.getDrawClass('compoundobject')
+
+        # calculations for canvas coordinates
+        mode = 'imexam'
+        xsp, ysp = 6, 6
+        wd, ht = self.view.get_window_size()
+        #x1, y1 = wd-12*len(mode), ht-12
+        x1, y1 = 12, 12
+        o1 = Text(x1, y1, mode,
+                  fontsize=12, color='orange')
+        o1.use_cc(True)
+        # hack necessary to be able to compute text extents _before_
+        # adding the object to the canvas
+        o1.fitsimage = self.view
+        wd, ht = o1.get_dimensions()
+
+        # yellow text on a black filled rectangle
+        o2 = Compound(Rect(x1-xsp, y1-ht-ysp, x1+wd+xsp, y1+ht+ysp,
+                           color='black',
+                           fill=True, fillcolor='black'),
+                           o1)
+        # use canvas, not data coordinates
+        o2.use_cc(True)
+        canvas.add(o2, tag='indicator')
+        # -- end black magic ------
+
+    def _create_viewer(self, bind_prefs, viewer_prefs):
+        """Create backend-specific viewer."""
+        raise Exception("Subclass should override this method!")
+    
 
     def _capture(self):
         """
         Insert our canvas so that we intercept all events before they reach
         processing by the bindings layer of Ginga.
         """
+        ## self.view.onscreen_message("Entering imexam mode",
+        ##                            delay=1.0)
         # insert the canvas
-        self.view.onscreen_message("Moving to capture mode",
-                                   delay=1.0)
         self.view.add(self.canvas, tag='mycanvas')
+        self._draw_indicator()
         self._capturing = True
 
     def _release(self):
         """
         Remove our canvas so that we no longer intercept events.
         """
-        # retract the canvas 
-        self.view.onscreen_message("Moving to regular mode",
-                                   delay=1.0)
+        ## self.view.onscreen_message("Leaving imexam mode",
+        ##                            delay=1.0)
         self._capturing = False
+        self.canvas.deleteObjectByTag('indicator')
+        # retract the canvas 
         self.view.deleteObjectByTag('mycanvas')
 
     def __str__(self):
@@ -295,7 +344,8 @@ class ginga_mp(object):
 
     def close(self):
         """ close the window"""
-        self.figure.close()
+        import matplotlib.pyplot as plt
+        plt.close(self.figure)
 
     def readcursor(self):
         """returns image coordinate postion and key pressed, 
@@ -310,9 +360,9 @@ class ginga_mp(object):
         with self._cv:
             self._kv = ()
             
-        # wait for an event
-        # it would be better to program this using events driven
-        # by keystrokes, but the caller is using a procedural style
+        # wait for a key press
+        # NOTE: the viewer now calls the functions directly from the
+        # dispatch table, and only returns on the quit key here
         while True:
             # ugly hack to suppress deprecation warning by mpl
             with warnings.catch_warnings():
@@ -485,15 +535,59 @@ class ginga_mp(object):
             warnings.warn("No file with header loaded into ginga")
             return None
 
-    def _key_press_cb(self, canvas, keyname):
-        if keyname == 'q':
-            self._release()
+    def _key_press_normal(self, canvas, keyname):
+        """
+        This callback function is called when a key is pressed in the
+        ginga window without the canvas overlaid.  It's sole purpose is to
+        recognize an 'i' to put us into 'imexam' mode.
+        """
+        if keyname == 'i':
+            self._capture()
+            return True
+        return False
         
+    def _key_press_imexam(self, canvas, keyname):
+        """
+        This callback function is called when a key is pressed in the
+        ginga window with the canvas overlaid.  It handles all the
+        dispatch of the 'imexam' mode.
+        """
         data_x, data_y = self.view.get_last_data_xy()
         ## print("key %s pressed at data %f,%f" % (
         ##     keyname, data_x, data_y))
-        with self._cv:
-            self._kv = (keyname, data_x, data_y)
+
+        if keyname == 'i':
+            # temporarily switch to non-imexam mode
+            self._release()
+            return True
+        
+        elif keyname == 'q':
+            # exit imexam mode
+            self._release()
+        
+            with self._cv:
+                # this will be picked up by the caller in readcursor()
+                self._kv = (keyname, data_x, data_y)
+            return True
+
+        # get our data array
+        image = self.view.get_image()
+        data = image.get_data()
+        
+        # call the imexam function directly
+        if self.exam != None:
+            try:
+                method = self.exam.imexam_option_funcs[keyname][0]
+            except KeyError:
+                return False
+            
+            self.logger.debug("calling examine function key={0}".format(keyname))
+            try:
+                method(data_x, data_y, data)
+            except Exception as e:
+                # TODO: print out stack trace
+                pass
+
         return True
 
     def load_fits(self, fname="", extver=1, extname=None):
@@ -704,4 +798,47 @@ class ginga_mp(object):
         except Exception as e:
             print("problem with zoom: %s" % str(e))
 
+
+class ginga_mp(ginga_general):
+    """
+    A ginga-based viewer that uses a matplotlib widget.
+
+    This kind of viewer is less performant speed-wise than if we
+    choose a particular widget back end, but the advantage is that
+    it works so long as the user has a working matplotlib.
+    """
+
+    def _create_viewer(self, bind_prefs, viewer_prefs):
+        
+        import matplotlib
+        #matplotlib.use('Qt4Agg')
+        import matplotlib.pyplot as plt
+        # turn on interactive mode
+        plt.ion()
+
+        # Ginga imports for matplotlib backend
+        from ginga.mplw.ImageViewCanvasMpl import ImageViewCanvas
+        from ginga.mplw.ImageViewCanvasTypesMpl import DrawingCanvas
+
+        # create a regular matplotlib figure
+        fig = plt.figure()
+        self.figure = fig
+
+        # create bindings class from users bindings preferences
+        bclass = ImageViewCanvas.bindingsClass
+        bd = bclass(self.logger, settings=bind_prefs)
+
+        # create a ginga object, initialize some defaults and
+        # tell it about the figure
+        view = ImageViewCanvas(self.logger, settings=viewer_prefs,
+                               bindings=bd)
+        view.set_figure(fig)
+        self.view = view
+
+        fig.show()
+
+        # create a canvas that we insert when doing imexam mode
+        canvas = DrawingCanvas()
+        self.canvas = canvas
+        
 

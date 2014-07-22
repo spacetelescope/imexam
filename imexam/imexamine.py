@@ -94,7 +94,7 @@ class Imexamine(object):
 
         """
         print("pressed: {0}".format(key))
-        self.imexam_option_funcs[key][0](x, y)
+        self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
         """return the imexam options as a key list"""
@@ -183,7 +183,7 @@ class Imexamine(object):
         """
         self._define_local_pars()
 
-    def new_plot_window(self, x, y):
+    def new_plot_window(self, x, y, data):
         """make the next plot in a new plot window
 
 
@@ -200,11 +200,12 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         print("Plots now directed towards {0:s}".format(self._figure_name))
 
-    def plot_line(self, x, y):
+    def plot_line(self, x, y, data, fig=None):
         """line plot of data at point x"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig == None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_title("{0:s}  line={1:d}".format(self.lineplot_pars["title"][0], int(y + 1)))
@@ -212,7 +213,7 @@ class Imexamine(object):
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
         if not self.lineplot_pars["xmax"][0]:
-            xmax = len(self._data[y, :])
+            xmax = len(data[y, :])
         else:
             xmax = self.lineplot_pars["xmax"][0]
         ax.set_xlim(self.lineplot_pars["xmin"][0], xmax)
@@ -223,19 +224,20 @@ class Imexamine(object):
             ax.set_yscale("log")
 
         if self.lineplot_pars["pointmode"][0]:
-            ax.plot(self._data[y, :], self.lineplot_pars["marker"][0])
+            ax.plot(data[y, :], self.lineplot_pars["marker"][0])
         else:
-            ax.plot(self._data[y, :])
+            ax.plot(data[y, :])
 
         plt.draw()
         fig.show()
         time.sleep(self.sleep_time)
 
-    def plot_column(self, x, y):
+    def plot_column(self, x, y, data, fig=None):
         """column plot of data at point y"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig == None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_title("{0:s}  column={1:d}".format(self.colplot_pars["title"][0], int(x + 1)))
@@ -243,7 +245,7 @@ class Imexamine(object):
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
         if not self.colplot_pars["xmax"][0]:
-            xmax = len(self._data[:, x])
+            xmax = len(data[:, x])
         else:
             xmax = self.colplot_pars["xmax"][0]
         ax.set_xlim(self.colplot_pars["xmin"][0], xmax)
@@ -254,21 +256,21 @@ class Imexamine(object):
         if self.colplot_pars["logy"][0]:
             ax.set_yscale("log")
         if self.colplot_pars["pointmode"][0]:
-            ax.plot(self._data[:, x], self.colplot_pars["marker"][0])
+            ax.plot(data[:, x], self.colplot_pars["marker"][0])
         else:
-            ax.plot(self._data[:, x])
+            ax.plot(data[:, x])
 
         plt.draw()
         fig.show()
         time.sleep(self.sleep_time)
 
-    def show_xy_coords(self, x, y):
+    def show_xy_coords(self, x, y, data):
         """print the x,y,value to the screen"""
-        info = "{0} {1}  {2}".format(x + 1, y + 1, self._data[(y), (x)])
+        info = "{0} {1}  {2}".format(x + 1, y + 1, data[(y), (x)])
         print(info)
         logging.info(info)
 
-    def report_stat(self, x, y):
+    def report_stat(self, x, y, data):
         """report the median of values in a box with side region_size"""
         region_size = self.report_stat_pars["region_size"][0]
         resolve = True
@@ -284,11 +286,11 @@ class Imexamine(object):
             ymin = int(y - dist)
             ymax = int(y + dist)
             pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(
-                xmin, xmax, ymin, ymax, stat.func_name, (stat(self._data[ymin:ymax, xmin:xmax])))
+                xmin, xmax, ymin, ymax, stat.func_name, (stat(data[ymin:ymax, xmin:xmax])))
             print(pstr)
             logging.info(pstr)
 
-    def save_figure(self, x, y):
+    def save_figure(self, x, y, data):
         """save the figure that's currently displayed"""
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
@@ -297,7 +299,7 @@ class Imexamine(object):
         print(pstr)
         logging.info(pstr)
 
-    def aper_phot(self, x, y):
+    def aper_phot(self, x, y, data):
         """Perform aperture photometry, uses photutils functions, photutils must be available
 
         """
@@ -310,7 +312,7 @@ class Imexamine(object):
             if self.aperphot_pars["center"][0]:
                 center = True
                 delta = 10
-                popt = self.gauss_center(x, y, delta)
+                popt = self.gauss_center(x, y, data, delta=delta)
                 if 5 > popt.count(0) > 1:  # an error occurred in centering
                     warnings.warn("Problem fitting center, using original coordinates")
                 else:
@@ -322,11 +324,11 @@ class Imexamine(object):
             subsky = bool(self.aperphot_pars["subsky"][0])
 
             aper_flux = photutils.aperture_photometry(
-                self._data, x, y, apertures=photutils.CircularAperture(radius), subpixels=1, method="center")
+                data, x, y, apertures=photutils.CircularAperture(radius), subpixels=1, method="center")
             aperture_area = np.pi * (radius) ** 2
             if subsky:
                 outer = inner + width
-                annulus_sky = photutils.annulus_circular(self._data, x, y, inner, outer)
+                annulus_sky = photutils.annulus_circular(data, x, y, inner, outer)
                 annulus_area = np.pi * (outer ** 2 - inner ** 2)
 
                 total_flux = aper_flux - annulus_sky * (aperture_area / annulus_area)
@@ -350,7 +352,7 @@ class Imexamine(object):
             print(pheader + pstr)
             logging.info(pheader + pstr)
 
-    def line_fit(self, x, y, form=None, subsample=4):
+    def line_fit(self, x, y, data, form=None, subsample=4, fig=None):
         """compute the 1d  fit to the line of data using the specified form
 
 
@@ -378,7 +380,7 @@ class Imexamine(object):
         delta = self.line_fit_pars["rplot"][0]
 
         if self.line_fit_pars["center"][0]:
-            popt = self.gauss_center(x, y, delta)
+            popt = self.gauss_center(x, y, data, delta=delta)
             if popt.count(0) > 1:  # an error occurred in centering
                 centerx = x
                 centery = y
@@ -386,7 +388,7 @@ class Imexamine(object):
             else:
                 amp, x, y, sigma, offset = popt
 
-        line = self._data[y, :]
+        line = data[y, :]
         chunk = line[x - delta:x + delta]
 
         # use x location as the first estimate for the mean, use 20 pixel distance to guess center
@@ -399,8 +401,9 @@ class Imexamine(object):
 
         # calculate the std about the mean
         # make a plot
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig == None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_xlabel(self.line_fit_pars["xlabel"][0])
@@ -440,7 +443,7 @@ class Imexamine(object):
         print(pstr)
         logging.info(pstr)
 
-    def column_fit(self, x, y, form=None, subsample=4):
+    def column_fit(self, x, y, data, form=None, subsample=4, fig=None):
         """compute the 1d  fit to the column of data
 
         Parameters
@@ -466,7 +469,7 @@ class Imexamine(object):
         delta = self.column_fit_pars["rplot"][0]
 
         if self.column_fit_pars["center"][0]:
-            popt = self.gauss_center(x, y, delta)
+            popt = self.gauss_center(x, y, data, delta=delta)
             if popt.count(0) > 1:  # an error occurred in centering
                 centerx = x
                 centery = y
@@ -474,7 +477,7 @@ class Imexamine(object):
             else:
                 amp, x, y, sigma, offset = popt
 
-        line = self._data[:, x]
+        line = data[:, x]
         chunk = line[y - delta:y + delta]
 
         # use y location as the first estimate for the mean, use 20 pixel distance to guess center
@@ -487,8 +490,9 @@ class Imexamine(object):
 
         # calculate the std about the mean
         # make a plot
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig == None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_xlabel(self.column_fit_pars["xlabel"][0])
@@ -526,7 +530,7 @@ class Imexamine(object):
         print(pstr)
         logging.info(pstr)
 
-    def gauss_center(self, x, y, delta=10):
+    def gauss_center(self, x, y, data, delta=10):
         """return the 2d gaussian fit center 
 
         Parameters
@@ -535,7 +539,7 @@ class Imexamine(object):
             The range of data values to use around the x,y location for calculating the center
 
         """
-        chunk = self._data[y - delta:y + delta, x - delta:x + delta]  # flipped from xpa
+        chunk = data[y - delta:y + delta, x - delta:x + delta]  # flipped from xpa
         try:
             amp, ycenter, xcenter, sigma, offset = math_helper.gauss_center(chunk)
             pstr = "xc={0:4f}\tyc={1:4f}".format(
@@ -547,7 +551,7 @@ class Imexamine(object):
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def curve_of_growth_plot(self, x, y):
+    def curve_of_growth_plot(self, x, y, data, fig=None):
         """display the radial profile plot for the star
 
         """
@@ -561,7 +565,7 @@ class Imexamine(object):
             # center using a 2d gaussian
             if self.curve_of_growth_pars["center"][0]:
                 # pull out a small chunk
-                popt = self.gauss_center(x, y, delta)
+                popt = self.gauss_center(x, y, data, delta=delta)
                 if popt.count(0) > 1:  # an error occurred in centering
                     centerx = x
                     centery = y
@@ -580,8 +584,9 @@ class Imexamine(object):
             router = self.curve_of_growth_pars["rplot"][0]
             getdata = bool(self.curve_of_growth_pars["getdata"][0])
 
-            fig = plt.figure(self._figure_name)
-            plt.clf()
+            if fig == None:
+                fig = plt.figure(self._figure_name)
+            fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
             title = self.curve_of_growth_pars["title"][0]
@@ -643,11 +648,11 @@ class Imexamine(object):
         else:
 
             aper_flux = photutils.aperture_circular(
-                self._data, x, y, radsize, subpixels=subpixels, method=method)
+                data, x, y, radsize, subpixels=subpixels, method=method)
             aperture_area = np.pi * (radsize) ** 2
 
             annulus_sky = photutils.annulus_circular(
-                self._data, x, y, sky_inner, sky_inner + skywidth)
+                data, x, y, sky_inner, sky_inner + skywidth)
             outer = sky_inner + skywidth
             inner = sky_inner
             annulus_area = np.pi * (outer ** 2 - inner ** 2)
@@ -656,11 +661,12 @@ class Imexamine(object):
 
             return (aper_flux, annulus_sky, skysub_flux)
 
-    def histogram_plot(self, x, y):
+    def histogram_plot(self, x, y, data, fig=None):
         """plot a histogram of the pixel values in a region around the specified location"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig == None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_title(self.histogram_pars["title"][0])
@@ -673,32 +679,32 @@ class Imexamine(object):
         deltax = np.ceil(self.histogram_pars["ncolumns"][0] / 2.)
         deltay = np.ceil(self.histogram_pars["nlines"][0] / 2.)
 
-        data = self._data[y - deltay:y + deltay, x - deltax:x + deltax]
+        data_cut = data[y - deltay:y + deltay, x - deltax:x + deltax]
 
         # mask data for min and max intensity specified
         if self.histogram_pars["z1"][0]:
             mini = float(self.histogram_pars["z1"][0])
         else:
-            mini = np.min(data)
+            mini = np.min(data_cut)
 
         if self.histogram_pars["z2"][0]:
             maxi = float(self.histogram_pars["z2"][0])
         else:
-            maxi = np.max(data)
+            maxi = np.max(data_cut)
 
-        # ltb=np.array(len(data)*[True],bool)
-        # gtb=np.array(len(data)*[True],bool)
+        # ltb=np.array(len(data_cut)*[True],bool)
+        # gtb=np.array(len(data_cut)*[True],bool)
 
-        lt = (data < maxi)
-        gt = (data > mini)
+        lt = (data_cut < maxi)
+        gt = (data_cut > mini)
 
         total_mask = lt * gt
-        flat_data = data[total_mask].flatten()
+        flat_data = data_cut[total_mask].flatten()
 
         if not maxi:
-            maxi = np.max(data)
+            maxi = np.max(data_cut)
         if not mini:
-            mini = np.min(data)
+            mini = np.min(data_cut)
         num_bins = int(self.histogram_pars["nbins"][0])
 
         n, bins, patches = plt.hist(
@@ -708,11 +714,12 @@ class Imexamine(object):
         fig.show()
         time.sleep(self.sleep_time)
 
-    def contour_plot(self, x, y):
+    def contour_plot(self, x, y, data, fig=None):
         """plot contours in a region around the specified location"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig == None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_title(self.contour_pars["title"][0])
@@ -721,7 +728,7 @@ class Imexamine(object):
 
         deltax = np.ceil(self.contour_pars["ncolumns"][0] / 2.)
         deltay = np.ceil(self.contour_pars["nlines"][0] / 2.)
-        data = self._data[y - deltay:y + deltay, x - deltax:x + deltax]
+        data_cut = data[y - deltay:y + deltay, x - deltax:x + deltax]
 
         plt.rcParams['xtick.direction'] = 'out'
         plt.rcParams['ytick.direction'] = 'out'
@@ -731,15 +738,15 @@ class Imexamine(object):
 
         X, Y = np.meshgrid(np.arange(0, deltax, 0.5) + x - deltax / 2.,
                            np.arange(0, deltay, 0.5) + y - deltay / 2.)  # check this
-        plt.contourf(X, Y, data, ncont, alpha=.75, cmap=colormap)
-        C = plt.contour(X, Y, data, ncont, linewidth=.5, colors='black', linestyle=lsty)
+        plt.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
+        C = plt.contour(X, Y, data_cut, ncont, linewidth=.5, colors='black', linestyle=lsty)
         if self.contour_pars["label"][0]:
             plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
         plt.draw()
         fig.show()
         time.sleep(self.sleep_time)
 
-    def surface_plot(self, x, y):
+    def surface_plot(self, x, y, data, fig=None):
         """plot a surface around the specified location
 
                        "ncolumns":[21,"Number of columns"],
@@ -753,8 +760,9 @@ class Imexamine(object):
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig == None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
         if self.surface_pars["title"][0]:
@@ -771,7 +779,7 @@ class Imexamine(object):
         Y = np.arange(y - deltay, y + deltay, 1)
 
         X, Y = np.meshgrid(X, Y)
-        Z = self._data[y - deltay:y + deltay, x - deltax:x + deltax]
+        Z = data[y - deltay:y + deltay, x - deltax:x + deltax]
         if self.surface_pars["floor"][0]:
             zmin = float(self.surface_pars["floor"][0])
         else:
