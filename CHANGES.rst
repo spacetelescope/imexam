@@ -1,5 +1,6 @@
 version 0.3.dev (unreleased)
 ----------------------------
+- added suggested changes from 2to3, and set use_2to3 to False
 
 - restructured docs for astropy style and added more detailed example information
 

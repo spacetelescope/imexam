@@ -5,7 +5,7 @@ This is an Astropy affiliated package
 """
 
 from .util import *
-import connect as _connect
+from . import connect as _connect
 connect = _connect.Connect
 
 try:

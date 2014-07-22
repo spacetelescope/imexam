@@ -122,7 +122,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     setup_requires=['d2to1>=0.2.7', 'stsci.distutils>=0.3'],
     d2to1=True,
-    use_2to3=True,
+    use_2to3=False,
     zip_safe=False,
     ext_modules=[xpa_module],
 )
