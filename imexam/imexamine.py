@@ -11,6 +11,7 @@ from scipy.optimize import curve_fit
 import time
 import logging
 from copy import deepcopy
+import inspect
 
 
 try:
@@ -29,7 +30,7 @@ __all__ = ["Imexamine"]
 class Imexamine(object):
 
     def __init__(self):
-        """ do imexamine like routines on the current frame  
+        """ do imexamine like routines on the current frame
 
         read the returned cursor key value to decide what to do
 
@@ -119,7 +120,7 @@ class Imexamine(object):
     def set_data(self, data=np.zeros(0)):
         """initialize the data that imexamine uses"""
         self._data = data
-        
+
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key
 
@@ -386,9 +387,11 @@ class Imexamine(object):
         chunk = line[x - delta:x + delta]
 
         # use x location as the first estimate for the mean, use 20 pixel distance to guess center
-        xline = np.arange(len(chunk))
-        popt, pcov = curve_fit(form, xline, chunk)
+        argmap = {'a': amp, 'mu': len(chunk)/2, 'sigma': sigma, 'b':0}
+        args = inspect.getargspec(form)[0][1:]  # get rid of "self"
 
+        xline = np.arange(len(chunk))
+        popt, pcov = curve_fit(form, xline, chunk, [argmap.get(arg, 1) for arg in args])
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(xline), step=1. / subsample)
         fity = form(fitx, *popt)
@@ -473,8 +476,11 @@ class Imexamine(object):
         chunk = line[y - delta:y + delta]
 
         # use y location as the first estimate for the mean, use 20 pixel distance to guess center
+        argmap = {'a': amp, 'mu': len(chunk)/2, 'sigma': sigma, 'b':0}
+        args = inspect.getargspec(form)[0][1:]  # get rid of "self"
+
         yline = np.arange(len(chunk))
-        popt, pcov = curve_fit(form, yline, chunk)
+        popt, pcov = curve_fit(form, yline, chunk, [argmap.get(arg, 1) for arg in args])
 
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(yline), step=1. / subsample)
@@ -521,7 +527,7 @@ class Imexamine(object):
         logging.info(pstr)
 
     def gauss_center(self, x, y, delta=10):
-        """return the 2d gaussian fit center 
+        """return the 2d gaussian fit center
 
         Parameters
         ----------
