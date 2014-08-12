@@ -120,7 +120,7 @@ setup(
     author_email=AUTHOR_EMAIL,
     license=LICENSE,
     long_description=LONG_DESCRIPTION,
-    setup_requires=['d2to1>=0.2.7', 'stsci.distutils>=0.3'],
+    setup_requires=['d2to1>=0.2.7'],
     d2to1=True,
     use_2to3=False,
     zip_safe=False,
