@@ -1025,7 +1025,9 @@ class ds9(object):
         XPA needs to have the absolute path to the filename so that if the DS9 window was started
         in another directory it can still find the file to load. arg. 
         """
-        if not self.frame():
+        
+        frame=self.frame()    
+        if not frame:
             frame = 1  # load into first frame
 
         if fname:
@@ -1048,6 +1050,7 @@ class ds9(object):
 
             self.set(cstring)
             self._set_frameinfo()
+            self._viewer[frame]['user_array']=None #make sure any previous reference is reset
         else:
             print("No filename provided")
 
