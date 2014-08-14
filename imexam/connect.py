@@ -58,24 +58,56 @@ class Connect(object):
     def __init__(self, target=None, path=None, viewer="ds9", wait_time=10, quit_window=True):
 
         _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
+
+        self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
+        self._viewer=viewer.lower()
+        
         if have_ginga:
             _possible_viewers.append('ginga_mp')
-        if viewer.lower() not in _possible_viewers:
+        if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
             raise NotImplementedError
 
-        if 'ds9' in viewer.lower():
+        if 'ds9' in self._viewer:
             self.window = ds9(
                 target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
-        elif 'ginga_mp' in viewer.lower():
+            self._event_driven_exam=False #use the imexam loop 
+                
+        elif 'ginga_mp' in self._viewer:
             self.window = ginga_mp(close_on_del=quit_window)
+            #self.window.view.add_callback('key-press',self.window._imexam)
+            #rotate canvas in before this can be used
+            #self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
+            self._event_driven_exam=True #the viewer will track imexam with callbacks
+            
+            #alter the exam.imexam_option_funcs{} here through the viewer code if you want to
+            #change key+function associations
+            self.exam.imexam_option_funcs
+            self.window._reassign_keys(imexam_dict)
 
-        self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
+
         self.logfile = 'imexam_log.txt'
         self.log=None #points to the package logger
         self._current_slice = None
         self._current_frame = None
 
+     
+    def ginga_test(self, canvas, keyname):
+        """ how to get key information from the ginga window
+        
+        see also example5_mpl.py in the ginga source example directories
+        """
+        
+        if keyname == 'd':
+            #self.window.view.fitsimage.onscreen_message("pressed d",delay=1.0)
+ 
+            fi = canvas.fitsimage
+            data_x, data_y = fi.get_last_data_xy()
+            print("key {0:s} pressed at data {1} {2}".format(keyname,data_x,data_y))
+
+        #image=fi.get_image() #this attaches to the model
+        #data=image.get_data() #this gets the actual data from the model
+        
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
         """turn on and off imexam logging to the a file"""
         if filename:
@@ -89,12 +121,27 @@ class Connect(object):
 
     def imexam(self):
         """run imexamine with user interaction. At a minimum it requires a copy of the data array"""
-
-        if self.valid_data_in_viewer():
-            self._run_imexam()
+        if not self._event_driven_exam:
+            if self.valid_data_in_viewer():
+                self._run_imexam()
+            else:
+                warnings.warn("No valid image loaded in viewer")
         else:
-            warnings.warn("No valid image loaded in viewer")
-
+            self._run_event_imexam()
+            
+            
+    def _run_event_imexam(self):
+        """ let the viewer run an event driven imexam 
+        
+        
+        pass the key binding dictionary in for it to attach to?
+        
+        
+        """        
+        if not self._event_driven_exam:
+            warnings.warn("Event driven imexam not implemented for viewer")
+           
+           
     def get_data_filename(self):
         """return the filename for the data in the current window"""
         return self.window.get_filename()
@@ -112,7 +159,7 @@ class Connect(object):
         return self.window.get_viewer_info()
 
     def _run_imexam(self):
-        """start imexam analysis loop
+        """start imexam analysis loop for non event driven viewers
 
         Notes
         -----

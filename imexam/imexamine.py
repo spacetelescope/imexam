@@ -9,10 +9,15 @@ import warnings
 import matplotlib.pyplot as plt
 # turn on interactive mode
 plt.ion()
+
 from scipy.optimize import curve_fit
 import time
 import logging
 from copy import deepcopy
+
+#enable display plot in iPython notebook
+from IPython.display import Image
+import StringIO
 
 
 try:
@@ -37,11 +42,31 @@ class Imexamine(object):
 
         region_size is the default radius or side of the square for stat info
         """
+        
+        self.set_option_funcs() #define the dictionary of keys and functions
+        self._data = np.zeros(0)  # the data array
+        self._datafile = ""  # the file from which the data came
+        self._define_default_pars()  # read from imexam_defpars which contains dicts
+        self.plot_name = "imexam_plot.pdf"  # default plot name saved with "s" key
+        self.sleep_time = 1e-6    # for plotting convenience
+        # let users have multiple plot windows, the list stores their names
+        self._plot_windows = list()
+        self._figure_name = "imexam"  # this contains the name of the current plotting window
 
-        # The user can modify this dictionary to add or change options,
-        # the first item in the tuple is the associated function
-        # the second item in the tuple is the description of what the function
-        # does when that key is pressed
+        self._plot_windows.append(self._figure_name)
+
+    def set_option_funcs(self):
+        """Define the dictionary which maps imexam option keys to their functions
+ 
+ 
+         Notes
+         -----
+         The user can modify this dictionary to add or change options,
+         the first item in the tuple is the associated function
+         the second item in the tuple is the description of what the function
+         does when that key is pressed
+        """
+        
         self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
                                     'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
                                     'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
@@ -58,17 +83,7 @@ class Imexamine(object):
                                     'w': (self.surface_plot, 'display a surface plot around the cursor location'),
                                     '2': (self.new_plot_window, 'make the next plot in a new window'),
                                     }
-
-        self._data = np.zeros(0)  # the data array
-        self._datafile = ""  # the file from which the data came
-        self._define_default_pars()  # read from imexam_defpars which contains dicts
-        self.plot_name = "imexam_plot.pdf"  # default plot name saved with "s" key
-        self.sleep_time = 1e-6    # for plotting convenience
-        # let users have multiple plot windows, the list stores their names
-        self._plot_windows = list()
-        self._figure_name = "imexam"  # this contains the name of the current plotting window
-
-        self._plot_windows.append(self._figure_name)
+        
 
     def print_options(self):
         """print the imexam options to screen"""
@@ -845,6 +860,18 @@ class Imexamine(object):
     def _add_user_function(cls, func):
         import types
         return setattr(cls, func.__name__, types.MethodType(func, None, cls))
+
+    # Some boilderplate to display matplotlib plots in notebook
+    # If QT GUI could interact nicely with --pylab=inline we wouldn't need this
+
+    def showplt(self):
+        buf = StringIO.StringIO()
+        plt.savefig(buf, bbox_inches=0)
+        img = Image(data=bytes(buf.getvalue()),
+                       format='png', embed=True)
+        buf.close()
+        return img
+
 
     def set_aperphot_pars(self, user_dict=None):
         """the user may supply a dictionary of par settings"""

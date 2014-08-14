@@ -131,6 +131,7 @@ class ginga_mp(object):
         canvas.ui_setActive(True)
         self.canvas = canvas
         
+        self.view.add_callback('key-press',self._imexam)
 
     def _capture(self):
         """
@@ -159,6 +160,47 @@ class ginga_mp(object):
     def __del__(self):
         if self._close_on_del:
             self.close()
+
+    def _imexam(self,canvas,keyname):
+        """start imexam in ginga window"""
+        if keyname == 'i':
+            self.view.fitsimage.onscreen_message("imexam",delay=1.0)
+            
+            fi = self.window.canvas.fitsimage
+            data_x, data_y = fi.get_last_data_xy()
+            print("key {0:s} pressed at data {1} {2}".format(keyname,data_x,data_y))
+            
+            #bind to the imexamine class keys here somehow?
+    
+    def set_option_funcs(self):
+        """Define the dictionary which maps imexam option keys to their functions
+ 
+ 
+         Notes
+         -----
+         The user can modify this dictionary to add or change options,
+         the first item in the tuple is the associated function
+         the second item in the tuple is the description of what the function
+         does when that key is pressed
+        """
+        
+        self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
+                                    'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
+                                    'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
+                                    'm': (self.report_stat, 'square region stats, in [region_size],defayult is median'),
+                                    'x': (self.show_xy_coords, 'return x,y,value of pixel'),
+                                    'y': (self.show_xy_coords, 'return x,y,value of pixel'),
+                                    'l': (self.plot_line, 'return line plot'),
+                                    'c': (self.plot_column, 'return column plot'),
+                                    'r': (self.curve_of_growth_plot, 'return curve of growth plot'),
+                                    'h': (self.histogram_plot, 'return a histogram in the region around the cursor'),
+                                    'e': (self.contour_plot, 'return a contour plot in a region around the cursor'),
+                                    's': (self.save_figure, 'save current figure to disk as [plot_name]'),
+                                    'b': (self.gauss_center, 'return the gauss fit center of the object'),
+                                    'w': (self.surface_plot, 'display a surface plot around the cursor location'),
+                                    '2': (self.new_plot_window, 'make the next plot in a new window'),
+                                    }
+        
 
     def _set_frameinfo(self, frame, fname=None, hdu=None, data=None, 
                        image=None):
@@ -314,7 +356,7 @@ class ginga_mp(object):
         # it would be better to program this using events driven
         # by keystrokes, but the caller is using a procedural style
         while True:
-            # ugly hack to suppress deprecation warning by mpl
+            # ugly hack to suppress deprecation  by mpl
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 # run event loop, so window can get a keystroke
@@ -521,7 +563,7 @@ class ginga_mp(object):
                 #mef_file = self._check_filetype(shortname)
                 image = AstroImage()
                 with fits.open(fname) as filedata:
-                    hdu = filedata[extver - 1]
+                    hdu = filedata[extver]
                     image.load_hdu(hdu)
                     
             except Exception as e:

@@ -1,6 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-"""These are default parameters for some of the plotting functions in Imexam"""
+"""These are default parameters for some of the plotting functions in Imexam
+Maybe it would be better to put these along with the imexam functions into their own class
+which the connect class can import?
+
+"""
 
 aperphot_pars = {"function": ["aperphot", ],
                  "center": [True, "Center the object location using a 2d gaussian fit"],

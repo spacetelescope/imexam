@@ -1,3 +1,9 @@
+version 0.4dev (unreleased)
+---------------------------
+
+- Ginga is added as an optional viewer
+
+
 version 0.3.dev (unreleased)
 ----------------------------
 
