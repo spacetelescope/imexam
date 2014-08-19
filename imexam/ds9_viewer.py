@@ -365,7 +365,7 @@ class ds9(object):
             try:
                 if self._viewer[frame]['user_array'].any():
                     valid = True
-            except AttributeError, ValueError:
+            except (AttributeError, ValueError):
                 valid = False
                 print("error in array")
 
@@ -544,7 +544,7 @@ class ds9(object):
         # this might be sketchy
         try:
             file_list.remove(".IMT")  # should be in the directory, if not
-        except ValueError, IOError:
+        except (ValueError, IOError):
             warnings.warn("IMT not found in tmp, using first thing in list")
         if len(file_list) > 0:
             xpaname = os.path.join(self._tmpd_name, file_list[0])
