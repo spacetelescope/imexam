@@ -138,6 +138,7 @@ class ds9(object):
     # _ImgCode : copied from fits, used for displaying arrays straight to DS9
     _ImgCode = {'float32': -32,
                 'float64': -64,
+                'float16': -16,
                 'int16': 16,
                 'int32': 32,
                 'int64': 64,
