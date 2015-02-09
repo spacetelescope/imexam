@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -100,13 +99,15 @@
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>These are some tips on installing the package, or tracking down problems you might be having during or after installation.</p>
 <p>imexam can be installed from the source code in the normal python fashion:</p>
-<div class="highlight-python"><pre>python setup.py install</pre>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install
+</pre></div>
 </div>
 <p>If you want to have access to the photometry features of the imexam analysis, download and install photutils - one of the astropy associated packages. It can be found here: <a class="reference external" href="https://github.com/astropy">https://github.com/astropy</a></p>
 <p>If photutils is not installed, imexam should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop which requires photutils to render a result.</p>
 <p>imexam displays plots using matplotlib, if you find that no windows are popping up after installation it&#8217;s probably the backend that was loaded. One quick way to get things started is to start ipython with the &#8211;pylab option, this will make sure the proper display backend loads when matplotlib is imported:</p>
-<div class="highlight-python"><pre>ipython --pylab
-&gt;import imexam</pre>
+<div class="highlight-python"><div class="highlight"><pre>ipython --pylab
+&gt;import imexam
+</pre></div>
 </div>
 </div>
 <div class="section" id="usage">
@@ -118,18 +119,20 @@
 </div>
 <p>&#8220;viewer&#8221; now has associated methods to view, manipulate and analyze data in the DS9 session. When you start the connection, you also have the option of specifying a currently open DS9 window using the target keyword. This keyword can contain the name, the actual text name that you gave the window, or the address of the window.  The address of the window can be found in the File-&gt;XPA-&gt;Information menu item,  is stored as &#8220;XPA_METHOD&#8221;, and is of the form &#8220;82a7e75f:58576&#8221; for inet sockets, and a filepath for local sockets.
 The following is an exaple of connecting to an already active DS9 window which was started outside of imexam:</p>
-<div class="highlight-python"><pre>viewer=imexam.connect("82a7e75f:58576")
+<div class="highlight-python"><div class="highlight"><pre>viewer=imexam.connect(&quot;82a7e75f:58576&quot;)
 
 or
 
-viewer=imexam.connect("my_window_title")</pre>
+viewer=imexam.connect(&quot;my_window_title&quot;)
+</pre></div>
 </div>
 <p>When imexam starts up a DS9 window itself, it will create a local socket by default, even though the default socket type for DS9 is INET. However, imexam will first check to see if XPA_METHOD was set in your environment and default to that option. If you are experiencing problems, or you don&#8217;t have an internet connection (the two might be related because the XPA structures INET sockets with an ip address), you can set your environment variable XPA_METHOD to &#8216;local&#8217; or &#8216;localhost&#8217;. This will cause imexam to start a local(unix) socket which will show an &#8220;XPA_METHOD&#8221; that is a filename on your computer. imexam defaults to a local socket connection to allow for users who do not have the XPA installed on their machine or available on their PATH. The full XPA source code is available in the imexam package. If you don&#8217;t have the XPA on your path, simply point it to that location, or copy the xpans executable to the location of your choice, and make sure you update your PATH. Any time DS9 is started it will start up the xpa nameserver automatically. Then all the xpans query options will be available through imexam (such as imexam.list_active_ds9()).  imexam itself uses Cython wrappers around the get and set methods from the XPA for it&#8217;s communication which is why the fully installed XPA is not necessary.</p>
 <p>If you wish to open multiple DS9 windows outside of imexam, then it&#8217;s recommended that you give each a unique name. If you&#8217;ve forgotten which window had which name, you can look in the same XPA info menu and use the &#8220;XPA_NAME&#8221; specified there. If you haven&#8217;t given them a unique name, you can list the available windows using imexam.list_active_ds9() (as long as xpans is running) and specify their unique address.</p>
 <p>imexam will attempt to find the current location of the DS9 executable by default, but you may also supply the path to the DS9 executable of your choice using the path keyword when you call connect. The fully optional calling sequence is:</p>
-<div class="highlight-python"><pre>imexam.connect(target="",path=None,viewer="ds9",wait_time=10)
+<div class="highlight-python"><div class="highlight"><pre>imexam.connect(target=&quot;&quot;,path=None,viewer=&quot;ds9&quot;,wait_time=10)
 
-Where target is the name of the ds9 window that is already running, path is the location of the ds9 executable, viewer is the name of the viewer to use (ds9 is the only one which is currently activated), and wait_time is the time to wait to establish a connection to the socket before exiting the process.</pre>
+Where target is the name of the ds9 window that is already running, path is the location of the ds9 executable, viewer is the name of the viewer to use (ds9 is the only one which is currently activated), and wait_time is the time to wait to establish a connection to the socket before exiting the process.
+</pre></div>
 </div>
 <p>In order to return a list of the current DS9 windows that are running, issue the command:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">imexam</span><span class="o">.</span><span class="n">list_active_ds9</span><span class="p">()</span>
@@ -137,15 +140,16 @@ Where target is the name of the ds9 window that is already running, path is the 
 </div>
 <p>In order to turn logging to a file on, issue the command: window.setlog(). The log will be saved to the default filename imexam_session.log in the current directory unless you give it another filename to use.
 Here&#8217;s an example of how that might work:</p>
-<div class="highlight-python"><pre>import imexam
-window=imexam.connect('ds9')
+<div class="highlight-python"><div class="highlight"><pre>import imexam
+window=imexam.connect(&#39;ds9&#39;)
 window.setlog() &lt;-- turns on logging with default filename
 window.imexam() &lt;-- all output will be logged to the file and displayed on the screen
 window.setlog(on=False) &lt;-- turns off logging to file
-window.setlog(filename='my_other_log.txt') &lt;-- turns on logging and sets the save filename</pre>
+window.setlog(filename=&#39;my_other_log.txt&#39;) &lt;-- turns on logging and sets the save filename
+</pre></div>
 </div>
 <p>The log will look something like this, you can see it contains a mention of the command used along with the results</p>
-<div class="highlight-python"><pre>gauss_center
+<div class="highlight-python"><div class="highlight"><pre>gauss_center
 xc=812.984250   yc=706.562612
 
 aper_phot
@@ -169,13 +173,38 @@ show_xy_coords
 253.0 234.75
 
 gauss_center
-xc=239.856464   yc=233.444783</pre>
+xc=239.856464   yc=233.444783
+</pre></div>
 </div>
 <p>More detailed examples can be found in the examples section of this documentation.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">More information on DS9 can be found at: <a class="reference external" href="http://ds9.si.edu/site/Home.html">http://ds9.si.edu/site/Home.html</a></p>
 </div>
+</div>
+<div class="section" id="common-problems">
+<h2>Common Problems<a class="headerlink" href="#common-problems" title="Permalink to this headline">¶</a></h2>
+<p>You&#8217;re getting the following error statement when you try to connect() to a DS9 window, or display an image:</p>
+<div class="highlight-python"><div class="highlight"><pre>XpaException: Unknown XPA Error : XPAGet returned 0!
+</pre></div>
+</div>
+<p>You can first try using local unix sockets by setting your environment variable XPA_METHOD to local:</p>
+<div class="highlight-python"><div class="highlight"><pre>setenv XPA_METHOD local
+</pre></div>
+</div>
+<p>That will create local unix file sockets for communication with ds9. If that doesn&#8217;t solve the problem, see if
+your path includes the location of xpans, the XPA name server. If you have it installed, but it&#8217;s not on your path, put it there.
+You can also compile and install the XPA software included with imexam by editing the setup.py file:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Uncomment the section towards the bottom of the file which instructs you to uncomment to compile the full XPA</li>
+<li>Also uncomment the last line with CMDCLASS and add that line inside the parenthesis for the setup command just above.</li>
+<li>Now you can reinstall imexam the normal way and it will also build the XPA executables and store them in cextern/</li>
+<li>Make sure the path to the executables is on your system PATH</li>
+</ul>
+</div></blockquote>
+<p>Now you can start an ipython window, import imexam and try starting a new DS9 connection. If this still doesn&#8217;t solve your
+problem, send email to the developers or open an issue in github.</p>
 </div>
 </div>
 
@@ -189,6 +218,7 @@ xc=239.856464   yc=233.444783</pre>
 <li><a class="reference internal" href="#">Introduction</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#common-problems">Common Problems</a></li>
 </ul>
 </li>
 </ul>
@@ -204,9 +234,9 @@ xc=239.856464   yc=233.444783</pre>
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2014, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 11 Jun 2014. <br/>
+    &copy; Copyright 2015, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
+    Last built 09 Feb 2015. <br/>
   </p>
 </footer>
   </body>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -211,6 +210,7 @@
     <span class="c"># _ImgCode : copied from fits, used for displaying arrays straight to DS9</span>
     <span class="n">_ImgCode</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;float32&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">32</span><span class="p">,</span>
                 <span class="s">&#39;float64&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">64</span><span class="p">,</span>
+                <span class="s">&#39;float16&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span>
                 <span class="s">&#39;int16&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
                 <span class="s">&#39;int32&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
                 <span class="s">&#39;int64&#39;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
@@ -438,7 +438,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                     <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                 <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
                 <span class="k">print</span><span class="p">(</span><span class="s">&quot;error in array&quot;</span><span class="p">)</span>
 
@@ -617,7 +617,7 @@
         <span class="c"># this might be sketchy</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">file_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&quot;.IMT&quot;</span><span class="p">)</span>  <span class="c"># should be in the directory, if not</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;IMT not found in tmp, using first thing in list&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">xpaname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">,</span> <span class="n">file_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -1098,7 +1098,9 @@
 <span class="sd">        XPA needs to have the absolute path to the filename so that if the DS9 window was started</span>
 <span class="sd">        in another directory it can still find the file to load. arg. </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">():</span>
+        
+        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>    
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frame</span><span class="p">:</span>
             <span class="n">frame</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># load into first frame</span>
 
         <span class="k">if</span> <span class="n">fname</span><span class="p">:</span>
@@ -1121,6 +1123,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">None</span> <span class="c">#make sure any previous reference is reset</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;No filename provided&quot;</span><span class="p">)</span>
 </div>
@@ -1700,9 +1703,9 @@
   <p class="pull-right"> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2014, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 11 Jun 2014. <br/>
+    &copy; Copyright 2015, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
+    Last built 09 Feb 2015. <br/>
   </p>
 </footer>
   </body>

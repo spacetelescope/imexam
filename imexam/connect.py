@@ -8,7 +8,7 @@ import warnings
 import logging
 import subprocess
 import os
-from .util import set_logging, find_xpans
+from .util import set_logging
 from . import xpa
 from .ds9_viewer import ds9
 from .imexamine import Imexamine

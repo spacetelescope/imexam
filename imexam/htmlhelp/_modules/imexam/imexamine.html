@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -84,6 +83,7 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 
 
 <span class="k">try</span><span class="p">:</span>
@@ -102,7 +102,7 @@
 <div class="viewcode-block" id="Imexamine"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine">[docs]</a><span class="k">class</span> <span class="nc">Imexamine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; do imexamine like routines on the current frame  </span>
+        <span class="sd">&quot;&quot;&quot; do imexamine like routines on the current frame</span>
 
 <span class="sd">        read the returned cursor key value to decide what to do</span>
 
@@ -192,7 +192,7 @@
 <div class="viewcode-block" id="Imexamine.set_data"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;initialize the data that imexamine uses&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
-        </div>
+</div>
 <div class="viewcode-block" id="Imexamine.set_plot_name"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_plot_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_plot_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;set the default plot name for the &quot;s&quot; key</span>
 
@@ -373,7 +373,6 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Install photutil to enable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-
             <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c"># no centering</span>
             <span class="n">amp</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c"># no centering</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;center&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
@@ -389,19 +388,29 @@
             <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;width&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">inner</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;skyrad&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">subsky</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;subsky&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-
-            <span class="n">aper_flux</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">(</span><span class="n">radius</span><span class="p">),</span> <span class="n">subpixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">)</span>
-            <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">radius</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">outer</span><span class="o">=</span><span class="n">inner</span><span class="o">+</span><span class="n">width</span>
+            
+            <span class="n">apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">radius</span><span class="p">)</span>
+            <span class="n">rawflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">apertures</span><span class="p">,</span><span class="n">subpixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">)</span>
+            
             <span class="k">if</span> <span class="n">subsky</span><span class="p">:</span>
-                <span class="n">outer</span> <span class="o">=</span> <span class="n">inner</span> <span class="o">+</span> <span class="n">width</span>
-                <span class="n">annulus_sky</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">annulus_circular</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">outer</span><span class="p">)</span>
-                <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">outer</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">inner</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">annulus_apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAnnulus</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">r_in</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span> <span class="n">r_out</span><span class="o">=</span><span class="n">outer</span><span class="p">)</span>
+                <span class="n">bkgflux_table</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">annulus_apertures</span><span class="p">)</span>
 
-                <span class="n">total_flux</span> <span class="o">=</span> <span class="n">aper_flux</span> <span class="o">-</span> <span class="n">annulus_sky</span> <span class="o">*</span> <span class="p">(</span><span class="n">aperture_area</span> <span class="o">/</span> <span class="n">annulus_area</span><span class="p">)</span>
+                <span class="c">#to calculate the mean local background, divide the circular annulus aperture sums</span>
+                <span class="c">#by the area fo teh circular annuls. The bkg sum with the circular aperture is then</span>
+                <span class="c">#then mean local background tims the circular apreture area.</span>
+                <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
+                <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">annulus_apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
+
+                <span class="n">bkg_sum</span><span class="o">=</span><span class="nb">float</span><span class="p">((</span><span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">aperture_area</span><span class="o">/</span><span class="n">annulus_area</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">total_flux</span> <span class="o">=</span> <span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">bkg_sum</span>
+                <span class="n">sky_per_pix</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">annulus_area</span><span class="p">)</span>
+                
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">total_flux</span> <span class="o">=</span> <span class="n">aper_flux</span>
-
+                <span class="n">total_flux</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            
+            
             <span class="c"># compute the magnitude of the sky corrected flux</span>
             <span class="n">magzero</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;zmag&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">mag</span> <span class="o">=</span> <span class="n">magzero</span> <span class="o">-</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">total_flux</span><span class="p">))</span>
@@ -411,10 +420,10 @@
             <span class="k">if</span> <span class="n">center</span><span class="p">:</span>
                 <span class="n">pheader</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&quot;fwhm&quot;</span><span class="p">)</span>
                 <span class="n">pstr</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">{0:.2f}</span><span class="se">\t</span><span class="s">{1:0.2f}</span><span class="se">\t</span><span class="s">{2:d}</span><span class="se">\t</span><span class="s">{3:0.2f}</span><span class="se">\t</span><span class="s">{4:0.2f}</span><span class="se">\t</span><span class="s">{5:0.2f}</span><span class="se">\t</span><span class="s">{6:0.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">total_flux</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">annulus_sky</span> <span class="o">/</span> <span class="n">annulus_area</span><span class="p">,</span> <span class="n">math_helper</span><span class="o">.</span><span class="n">gfwhm</span><span class="p">(</span><span class="n">sigma</span><span class="p">))</span><span class="o">.</span><span class="n">expandtabs</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+                    <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">total_flux</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">sky_per_pix</span><span class="p">,</span> <span class="n">math_helper</span><span class="o">.</span><span class="n">gfwhm</span><span class="p">(</span><span class="n">sigma</span><span class="p">))</span><span class="o">.</span><span class="n">expandtabs</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">pstr</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">{0:0.2f}</span><span class="se">\t</span><span class="s">{1:0.2f}</span><span class="se">\t</span><span class="s">{2:d}</span><span class="se">\t</span><span class="s">{3:0.2f}</span><span class="se">\t</span><span class="s">{4:0.2f}</span><span class="se">\t</span><span class="s">{5:0.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">total_flux</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">annulus_sky</span> <span class="o">/</span> <span class="n">annulus_area</span><span class="p">,)</span><span class="o">.</span><span class="n">expandtabs</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+                    <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">total_flux</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">sky_per_pix</span><span class="p">,)</span><span class="o">.</span><span class="n">expandtabs</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
 
             <span class="k">print</span><span class="p">(</span><span class="n">pheader</span> <span class="o">+</span> <span class="n">pstr</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pheader</span> <span class="o">+</span> <span class="n">pstr</span><span class="p">)</span>
@@ -459,9 +468,11 @@
         <span class="n">chunk</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">delta</span><span class="p">]</span>
 
         <span class="c"># use x location as the first estimate for the mean, use 20 pixel distance to guess center</span>
-        <span class="n">xline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
-        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">xline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="n">argmap</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="n">amp</span><span class="p">,</span> <span class="s">&#39;mu&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">form</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>  <span class="c"># get rid of &quot;self&quot;</span>
 
+        <span class="n">xline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">xline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="p">[</span><span class="n">argmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
         <span class="c"># do these so that it fits the real pixel range of the data</span>
         <span class="n">fitx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xline</span><span class="p">),</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">subsample</span><span class="p">)</span>
         <span class="n">fity</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">fitx</span><span class="p">,</span> <span class="o">*</span><span class="n">popt</span><span class="p">)</span>
@@ -546,8 +557,11 @@
         <span class="n">chunk</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">delta</span><span class="p">]</span>
 
         <span class="c"># use y location as the first estimate for the mean, use 20 pixel distance to guess center</span>
+        <span class="n">argmap</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="n">amp</span><span class="p">,</span> <span class="s">&#39;mu&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">form</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>  <span class="c"># get rid of &quot;self&quot;</span>
+
         <span class="n">yline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
-        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">yline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">yline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="p">[</span><span class="n">argmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
 
         <span class="c"># do these so that it fits the real pixel range of the data</span>
         <span class="n">fitx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">yline</span><span class="p">),</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">subsample</span><span class="p">)</span>
@@ -594,7 +608,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Imexamine.gauss_center"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.gauss_center">[docs]</a>    <span class="k">def</span> <span class="nf">gauss_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the 2d gaussian fit center </span>
+        <span class="sd">&quot;&quot;&quot;return the 2d gaussian fit center</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -615,7 +629,7 @@
             <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Imexamine.curve_of_growth_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.curve_of_growth_plot">[docs]</a>    <span class="k">def</span> <span class="nf">curve_of_growth_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;display the radial profile plot for the star</span>
+        <span class="sd">&quot;&quot;&quot;display the radial profile plot for the star with background subtraction at each radii</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
@@ -664,7 +678,7 @@
                 <span class="n">radius</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">[</span><span class="s">&quot;background&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">inner</span> <span class="o">&lt;</span> <span class="n">router</span><span class="p">:</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Your sky annulus is inside your photometr radius rplot&quot;</span><span class="p">)</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Your sky annulus is inside your photometry radius rplot&quot;</span><span class="p">)</span>
                     <span class="n">flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skysub_flux</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aper_flux</span><span class="p">)</span>
@@ -708,19 +722,23 @@
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Install photutils to enable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
 
-            <span class="n">aper_flux</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_circular</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">radsize</span><span class="p">,</span> <span class="n">subpixels</span><span class="o">=</span><span class="n">subpixels</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
-            <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">radsize</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">radsize</span><span class="p">)</span>
+            <span class="n">rawflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">apertures</span><span class="p">,</span><span class="n">subpixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">)</span>
 
-            <span class="n">annulus_sky</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">annulus_circular</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sky_inner</span><span class="p">,</span> <span class="n">sky_inner</span> <span class="o">+</span> <span class="n">skywidth</span><span class="p">)</span>
-            <span class="n">outer</span> <span class="o">=</span> <span class="n">sky_inner</span> <span class="o">+</span> <span class="n">skywidth</span>
-            <span class="n">inner</span> <span class="o">=</span> <span class="n">sky_inner</span>
-            <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">outer</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">inner</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">outer</span><span class="o">=</span><span class="n">sky_inner</span> <span class="o">+</span> <span class="n">skywidth</span>
+            <span class="n">annulus_apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAnnulus</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">r_in</span><span class="o">=</span><span class="n">sky_inner</span><span class="p">,</span> <span class="n">r_out</span><span class="o">=</span><span class="n">outer</span><span class="p">)</span>
+            <span class="n">bkgflux_table</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">annulus_apertures</span><span class="p">)</span>
 
-            <span class="n">skysub_flux</span> <span class="o">=</span> <span class="n">aper_flux</span> <span class="o">-</span> <span class="n">annulus_sky</span> <span class="o">*</span> <span class="p">(</span><span class="n">aperture_area</span> <span class="o">/</span> <span class="n">annulus_area</span><span class="p">)</span>
+            <span class="c">#to calculate the mean local background, divide the circular annulus aperture sums</span>
+            <span class="c">#by the area fo the circular annuls. The bkg sum with the circular aperture is then</span>
+            <span class="c">#then mean local background tims the circular apreture area.</span>
+            <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
+            <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">annulus_apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
 
-            <span class="k">return</span> <span class="p">(</span><span class="n">aper_flux</span><span class="p">,</span> <span class="n">annulus_sky</span><span class="p">,</span> <span class="n">skysub_flux</span><span class="p">)</span>
+            <span class="n">bkg_sum</span><span class="o">=</span><span class="p">(</span><span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">aperture_area</span><span class="o">/</span><span class="n">annulus_area</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">skysub_flux</span> <span class="o">=</span> <span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">bkg_sum</span>
+ 
+            <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">bkg_sum</span><span class="p">,</span> <span class="n">skysub_flux</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Imexamine.histogram_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.histogram_plot">[docs]</a>    <span class="k">def</span> <span class="nf">histogram_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;plot a histogram of the pixel values in a region around the specified location&quot;&quot;&quot;</span>
@@ -986,9 +1004,9 @@
   <p class="pull-right"> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2014, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 11 Jun 2014. <br/>
+    &copy; Copyright 2015, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
+    Last built 09 Feb 2015. <br/>
   </p>
 </footer>
   </body>

@@ -126,3 +126,36 @@ More detailed examples can be found in the examples section of this documentatio
 
 
 .. note:: More information on DS9 can be found at: http://ds9.si.edu/site/Home.html
+
+
+===============
+Common Problems
+===============
+
+You're getting the following error statement when you try to connect() to a DS9 window, or display an image:
+
+::  
+
+    XpaException: Unknown XPA Error : XPAGet returned 0!
+
+
+You can first try using local unix sockets by setting your environment variable XPA_METHOD to local:
+
+::
+
+    setenv XPA_METHOD local
+    
+
+That will create local unix file sockets for communication with ds9. If that doesn't solve the problem, see if 
+your path includes the location of xpans, the XPA name server. If you have it installed, but it's not on your path, put it there.
+You can also compile and install the XPA software included with imexam by editing the setup.py file:
+
+
+    * Uncomment the section towards the bottom of the file which instructs you to uncomment to compile the full XPA
+    * Also uncomment the last line with CMDCLASS and add that line inside the parenthesis for the setup command just above.
+    * Now you can reinstall imexam the normal way and it will also build the XPA executables and store them in cextern/
+    * Make sure the path to the executables is on your system PATH
+    
+
+Now you can start an ipython window, import imexam and try starting a new DS9 connection. If this still doesn't solve your
+problem, send email to the developers or open an issue in github.
