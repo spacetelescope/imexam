@@ -1,4 +1,5 @@
-astropy_helpers==0.4rc1
+astropy_helpers
+astropy
 numpy>=1.5.0
 matplotlib
 Cython
