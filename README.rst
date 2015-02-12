@@ -6,6 +6,13 @@ imexam is meant as a replacement for the IRAF imexamine task. You should be able
 For more information please see the `online documentation <http://imexam.readthedocs.org/en/latest/imexam/index.html>`_
 
 
+To install using pip:
+
+::
+
+    pip install --pre imexam
+    
+    
 Launching multiple DS9 windows
 ------------------------------
 
