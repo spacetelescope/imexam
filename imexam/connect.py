@@ -39,7 +39,7 @@ class Connect(object):
         absolute path to the viewers executable
 
     viewer: string, optional
-        The name of the image view you want to use, currently only DS9 is supported
+        The name of the image viewer you want to use, currently only DS9 is supported
 
     wait_time: int, optional
         The time to wait for a connection to be eastablished before quitting
@@ -64,6 +64,7 @@ class Connect(object):
         
         if have_ginga:
             _possible_viewers.append('ginga_mp')
+            
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
             raise NotImplementedError
@@ -82,8 +83,8 @@ class Connect(object):
             
             #alter the exam.imexam_option_funcs{} here through the viewer code if you want to
             #change key+function associations
-            self.exam.imexam_option_funcs
-            self.window._reassign_keys(imexam_dict)
+            #self.exam.imexam_option_funcs
+            #self.window._reassign_keys(imexam_dict)
 
 
         self.logfile = 'imexam_log.txt'
@@ -141,6 +142,9 @@ class Connect(object):
         if not self._event_driven_exam:
             warnings.warn("Event driven imexam not implemented for viewer")
            
+        else:
+            self._run_imexam() #for now
+            
            
     def get_data_filename(self):
         """return the filename for the data in the current window"""

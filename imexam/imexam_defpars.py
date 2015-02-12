@@ -2,7 +2,9 @@
 
 """These are default parameters for some of the plotting functions in Imexam
 Maybe it would be better to put these along with the imexam functions into their own class
-which the connect class can import?
+which the connect class can import? Users could edit this file to set their own defaults before
+installation, they could script something that resets the dictionaries themselves, or we could
+create a method to let them set from a json or text file maybe
 
 """
 

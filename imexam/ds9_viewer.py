@@ -190,7 +190,7 @@ class ds9(object):
 
         if not target:
             # Check to see if the user has chosen a preference first
-            if 'XPA_METHOD' in os.environ.keys():
+            if 'XPA_METHOD' in os.environ:
                 self._xpa_method = os.environ['XPA_METHOD'].lower()
 
             if 'inet' in self._xpa_method:
@@ -246,7 +246,7 @@ class ds9(object):
         frame = self.frame()
         if frame:
 
-            if frame not in self._viewer.keys():
+            if frame not in self._viewer:
                 self._viewer[frame] = dict()
 
             try:
@@ -903,7 +903,7 @@ class ds9(object):
         if frame:
             if n:
                 if "delete" in str(n):
-                    if frame in self._viewer.keys():
+                    if frame in self._viewer:
                         del self._viewer[frame]
                 self.set("frame {0:s}".format(str(n)))
             else:
