@@ -174,6 +174,7 @@ class ds9(object):
         self._viewer = dict()
         self._current_frame = None
         self._current_slice = None
+        
         # default starting socket type to local in order get around user xpa installation issues
         self._xpa_method = "local"
         self._xpa_name = ""
@@ -560,7 +561,7 @@ class ds9(object):
         # this might be sketchy
         try:
             file_list.remove(".IMT")  # should be in the directory, if not
-        except ValueError, IOError:
+        except (ValueError, IOError):
             warnings.warn("IMT not found in tmp, using first thing in list")
         if len(file_list) > 0:
             xpaname = os.path.join(self._tmpd_name, file_list[0])
@@ -1047,8 +1048,10 @@ class ds9(object):
         XPA needs to have the absolute path to the filename so that if the DS9 window was started
         in another directory it can still find the file to load. arg.
         """
-        if not self.frame():
-            frame = '1'  # load into first frame
+        
+        frame=self.frame()    
+        if not frame:
+            frame = 1  # load into first frame
 
         if fname:
             # see if the image is MEF or Simple
@@ -1070,6 +1073,7 @@ class ds9(object):
 
             self.set(cstring)
             self._set_frameinfo()
+            self._viewer[frame]['user_array']=None #make sure any previous reference is reset
         else:
             print("No filename provided")
 

@@ -194,17 +194,16 @@ def gauss_center(data):
 
     xx = np.linspace(0, len(data), len(data))
     yy = np.linspace(0, len(data), len(data))
-    xra, yra = np.meshgrid(xx, yy)
-    popt, pcov = curve_fit(gaussian2dc, (xra, yra), data.flatten(), p0=guess2dc)
+    popt, pcov = curve_fit(gaussian2dc, np.meshgrid(xx, yy), data.flatten(), p0=guess2dc)
     return popt
 
 
-def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
+def gaussian2dc(point, amp, xo, yo, sigma, offset):
     """Functional definition for a circular 2D gaussian function
 
     Parameters
     ----------
-    (y,x): float array
+    point: (y,x) float array
         The values at x,y
     xo: float
         The mean for x
@@ -220,6 +219,7 @@ def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
     --------
     http://en.wikipedia.org/wiki/Gaussian_function
     """
+    y,x = point
     xo = float(xo)
     yo = float(yo)
 
@@ -230,12 +230,13 @@ def gaussian2dc((y, x), amp, xo, yo, sigma, offset):
     return result.ravel()
 
 
-def gaussian2de((y, x), amp, xo, yo, sigmax, sigmay, theta, offset):
+def gaussian2de(point, amp, xo, yo, sigmax, sigmay, theta, offset):
     """Functional definition for the 2D elliptical gaussian function
 
     Parameters
     ----------
-    (x,y): float array  are the values at x,y
+    point: (y,x) float array
+        the values at x,y
 
     xo: float
         mean for x
@@ -251,6 +252,7 @@ def gaussian2de((y, x), amp, xo, yo, sigmax, sigmay, theta, offset):
     --------
     http://en.wikipedia.org/wiki/Gaussian_function
     """
+    y,x = point
     xo = float(xo)
     yo = float(yo)
 

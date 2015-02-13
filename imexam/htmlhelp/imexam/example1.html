@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -81,8 +80,9 @@
 </pre></div>
 </div>
 <p>If you already have a window running, you can ask for a list of windows</p>
-<div class="highlight-python"><pre>imexam.list_active_ds9()
-DS9 ds9 gs 82a7e75f:57222 sosey</pre>
+<div class="highlight-python"><div class="highlight"><pre>imexam.list_active_ds9()
+DS9 ds9 gs 82a7e75f:57222 sosey
+</pre></div>
 </div>
 <p>You can attach to a current DS9 window be specifying its unique name</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;ds9&#39;</span><span class="p">)</span>
@@ -113,24 +113,25 @@ DS9 ds9 gs 82a7e75f:57222 sosey</pre>
 </pre></div>
 </div>
 <p>Plot stuff at cursor location, in a while loop. Type a key when the mouse is over your desired location and continue plotting with the available options</p>
-<div class="highlight-python"><pre>viewer.imexam()
+<div class="highlight-python"><div class="highlight"><pre>viewer.imexam()
 
- 'a': 'aperture sum, with radius region_size, optional sky subtraction',
- 'j': '1D  line fit ',
- 'k': '1D  column fit ',
- 'm': 'median square region stats, in region_size square',
- 'n': 'move to the next frame',
- 'p': 'move to the previous frame',
- 'x': 'return x,y coords of pixel',
- 'y': 'return x,y coords of pixel',
- 'l': 'return line plot',
- 'c': 'return column plot',
- 'r': 'return curve of growth plot',
- 'h': 'return a histogram in the region around the cursor'
- 'e': 'return a contour plot in a region around the cursor'
- 's': 'save current figure to plotname'
- 'b': 'return the gauss fit center of the object'
- 'w': 'display a surface plot around the cursor location'</pre>
+ &#39;a&#39;: &#39;aperture sum, with radius region_size, optional sky subtraction&#39;,
+ &#39;j&#39;: &#39;1D  line fit &#39;,
+ &#39;k&#39;: &#39;1D  column fit &#39;,
+ &#39;m&#39;: &#39;median square region stats, in region_size square&#39;,
+ &#39;n&#39;: &#39;move to the next frame&#39;,
+ &#39;p&#39;: &#39;move to the previous frame&#39;,
+ &#39;x&#39;: &#39;return x,y coords of pixel&#39;,
+ &#39;y&#39;: &#39;return x,y coords of pixel&#39;,
+ &#39;l&#39;: &#39;return line plot&#39;,
+ &#39;c&#39;: &#39;return column plot&#39;,
+ &#39;r&#39;: &#39;return curve of growth plot&#39;,
+ &#39;h&#39;: &#39;return a histogram in the region around the cursor&#39;
+ &#39;e&#39;: &#39;return a contour plot in a region around the cursor&#39;
+ &#39;s&#39;: &#39;save current figure to plotname&#39;
+ &#39;b&#39;: &#39;return the gauss fit center of the object&#39;
+ &#39;w&#39;: &#39;display a surface plot around the cursor location&#39;
+</pre></div>
 </div>
 <p>Quit out and delete windows and references</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -163,9 +164,9 @@ DS9 ds9 gs 82a7e75f:57222 sosey</pre>
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2014, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 11 Jun 2014. <br/>
+    &copy; Copyright 2015, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
+    Last built 09 Feb 2015. <br/>
   </p>
 </footer>
   </body>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -91,21 +90,21 @@
 <dd>access realtime imexamine functions through the keyboard and mouse</dd>
 </dl>
 <p><strong>Current recognized keys for use during imexam are</strong></p>
-<div class="highlight-python"><pre>'a': 'aperture sum, with radius region_size, optional sky subtraction ',
-'j': '1D  line fit ',
-'k': '1D  column fit ',
-'m': 'square region stats, in region_size square, default stat is median',
-'x': 'return x,y coords of pixel',
-'y': 'return x,y coords of pixel',
-'l': 'return line plot',
-'c': 'return column plot',
-'r': 'return curve of growth plot',
-'h': 'return a histogram in the region around the cursor'
-'e': 'return a contour plot in a region around the cursor'
-'s': 'save current figure to plotname'
-'b': 'return the gauss fit center of the object'
-'w': 'display a surface plot around the cursor location'
-'2': 'make the next plot in a new window'
+<div class="highlight-python"><div class="highlight"><pre>&#39;a&#39;: &#39;aperture sum, with radius region_size, optional sky subtraction &#39;,
+&#39;j&#39;: &#39;1D  line fit &#39;,
+&#39;k&#39;: &#39;1D  column fit &#39;,
+&#39;m&#39;: &#39;square region stats, in region_size square, default stat is median&#39;,
+&#39;x&#39;: &#39;return x,y coords of pixel&#39;,
+&#39;y&#39;: &#39;return x,y coords of pixel&#39;,
+&#39;l&#39;: &#39;return line plot&#39;,
+&#39;c&#39;: &#39;return column plot&#39;,
+&#39;r&#39;: &#39;return curve of growth plot&#39;,
+&#39;h&#39;: &#39;return a histogram in the region around the cursor&#39;
+&#39;e&#39;: &#39;return a contour plot in a region around the cursor&#39;
+&#39;s&#39;: &#39;save current figure to plotname&#39;
+&#39;b&#39;: &#39;return the gauss fit center of the object&#39;
+&#39;w&#39;: &#39;display a surface plot around the cursor location&#39;
+&#39;2&#39;: &#39;make the next plot in a new window&#39;
 
 aimexam(): return a dict of current parameters for aperture photometery
 
@@ -125,7 +124,8 @@ rimexam(): return dict of current parameters for curve of growth plots
 
 wimexam(): return dict of current parameters for surface plots
 
-mimexam(): return dict of current parameters for area statistics</pre>
+mimexam(): return dict of current parameters for area statistics
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -142,7 +142,7 @@ mimexam(): return dict of current parameters for area statistics</pre>
 <span class="n">viewer</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="Data used for imexam command examples" src="../_images/imexam_command_example.png" style="width: 400px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/imexam_command_example.png"><img alt="Data used for imexam command examples" src="../_images/imexam_command_example.png" style="width: 400px; height: 400px;" /></a>
 <div class="section" id="circular-apterture-photometry">
 <h2>Circular Apterture Photometry<a class="headerlink" href="#circular-apterture-photometry" title="Permalink to this headline">¶</a></h2>
 <p>Aperture photometry is performed when you press the &#8220;a&#8221; key. It is implemented using the <tt class="xref py py-obj docutils literal"><span class="pre">photutils</span></tt> python package, an affiliated package of astropy that is still in development.</p>
@@ -164,9 +164,9 @@ mimexam(): return dict of current parameters for area statistics</pre>
 </div>
 <p>It might seem a little odd to non-python users at the moment. What you are doing is updating the value of the first item in that list. I intend on changing this interface to make it a little more seamless to users in the near future.</p>
 <p>This is what the return looks like when you do photometry, where I&#8217;ve asked for photometry from the star circled in green above:</p>
-<div class="highlight-python"><pre>viewer.imexam()
+<div class="highlight-python"><div class="highlight"><pre>viewer.imexam()
 
-Press 'q' to quit
+Press &#39;q&#39; to quit
 
 2   make the next plot in a new window
 a   aperture sum, with radius region_size
@@ -187,7 +187,8 @@ y   return x,y,value of pixel
 
 xc=576.855763       yc=634.911425
 x              y              radius         flux           mag(zpt=25.00) sky            fwhm
-576.86         634.91         10             2191284.53     9.15           10998.89       5.58</pre>
+576.86         634.91         10             2191284.53     9.15           10998.89       5.58
+</pre></div>
 </div>
 <p>xc = xcenter, yc=ycenter; these were found using a 2d gaussian fit centered on the pixel location of the mouse. You can turn the fit off by setting the &#8220;center&#8221; parameter to &#8220;False&#8221;.</p>
 </div>
@@ -229,40 +230,43 @@ If the centering option is True, then the center of the flux is computed by fitt
 </pre></div>
 </div>
 <p>This is the resulting line fit:</p>
-<img alt="Plot of gaussian profile fit to data" src="../_images/fit_line.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/fit_line.png"><img alt="Plot of gaussian profile fit to data" src="../_images/fit_line.png" style="width: 600px; height: 400px;" /></a>
 <p>and the corresponding column fit:</p>
-<img alt="Plot of gaussian profile fit to data" src="../_images/fit_column.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/fit_column.png"><img alt="Plot of gaussian profile fit to data" src="../_images/fit_column.png" style="width: 600px; height: 400px;" /></a>
 </div>
 <div class="section" id="median-square-region-stats">
 <h2>Median square region stats<a class="headerlink" href="#median-square-region-stats" title="Permalink to this headline">¶</a></h2>
 <p>If you press the &#8220;m&#8221; key, the  pixel values around the pointer location are calculated inside a box which has a side equal to the region_size, defaulted to 5 pixels, and using the statistical function chosen.
 The user can map the function to any reasonable numpy function, it&#8217;s set to numpy.median by default</p>
-<div class="highlight-python"><pre>report_stat_pars= {"function":["report_stat",],
-                    "stat":["median","which numpy stat to return [median,min,max...must map to numpy func]"],
-                    "region_size":[5,"region size in pixels to use"],
+<div class="highlight-python"><div class="highlight"><pre>report_stat_pars= {&quot;function&quot;:[&quot;report_stat&quot;,],
+                    &quot;stat&quot;:[&quot;median&quot;,&quot;which numpy stat to return [median,min,max...must map to numpy func]&quot;],
+                    &quot;region_size&quot;:[5,&quot;region size in pixels to use&quot;],
                 }
 
 
-[573:578,629:634] median: 50632.000000</pre>
+[573:578,629:634] median: 50632.000000
+</pre></div>
 </div>
 <p>You can change the statistic reported by changing the &#8220;stat&#8221; parameter:</p>
-<div class="highlight-python"><pre>viewer.exam.report_stat_pars["stat"][0]="max"
+<div class="highlight-python"><div class="highlight"><pre>viewer.exam.report_stat_pars[&quot;stat&quot;][0]=&quot;max&quot;
 
-[572:577,629:634] amax: 55271.000000</pre>
+[572:577,629:634] amax: 55271.000000
+</pre></div>
 </div>
 <p>You can make a quick comparison of the max reported above with the line fit graph in the 1D gaussian profile example.</p>
 </div>
 <div class="section" id="pixel-coordinates-and-value">
 <h2>Pixel Coordinates and Value<a class="headerlink" href="#pixel-coordinates-and-value" title="Permalink to this headline">¶</a></h2>
 <p>Hitting the &#8216;x&#8217; or &#8216;y&#8217; will return the x,y coordinate and pixel value under the mouse pointer.:</p>
-<div class="highlight-python"><pre>576.0 633.66667  55271.0</pre>
+<div class="highlight-python"><div class="highlight"><pre>576.0 633.66667  55271.0
+</pre></div>
 </div>
 </div>
 <div class="section" id="line-or-column-plots">
 <h2>Line or Column plots<a class="headerlink" href="#line-or-column-plots" title="Permalink to this headline">¶</a></h2>
 <p>Pressing the &#8220;l&#8221; or &#8220;c&#8221; keys will display a plot of the points through either the line or column closest to the cursor location.</p>
-<img alt="Column plot" src="../_images/column_plot.png" style="width: 600px; height: 400px;" />
-<img alt="Line plot" src="../_images/line_plot.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/column_plot.png"><img alt="Column plot" src="../_images/column_plot.png" style="width: 600px; height: 400px;" /></a>
+<a class="reference internal image-reference" href="../_images/line_plot.png"><img alt="Line plot" src="../_images/line_plot.png" style="width: 600px; height: 400px;" /></a>
 </div>
 <div class="section" id="curve-of-growth-plot">
 <h2>Curve of Growth plot<a class="headerlink" href="#curve-of-growth-plot" title="Permalink to this headline">¶</a></h2>
@@ -287,15 +291,16 @@ If centering is on, the center is computed close to the star using a 2d gaussian
                       <span class="p">}</span>
 </pre></div>
 </div>
-<img alt="Curve of growth  plot around star" src="../_images/radial_profile.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/radial_profile.png"><img alt="Curve of growth  plot around star" src="../_images/radial_profile.png" style="width: 600px; height: 400px;" /></a>
 <p>Returned to the screen is the data information from the plot, the (x,y) location of the center, followed by the radius and corresponding flux which was measured:</p>
-<div class="highlight-python"><pre>viewer.exam.curve_of_growth_pars["rplot"][0]=25  #set the default radius larger
+<div class="highlight-python"><div class="highlight"><pre>viewer.exam.curve_of_growth_pars[&quot;rplot&quot;][0]=25  #set the default radius larger
 
 xc=577.242311       yc=634.578361
 
 at (x,y)=577,634
 radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25]
-flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.7189847208, 1547865.8684735354, 1777547.7859571185, 1940955.1267221647, 2047700.7156964755, 2165971.1952809561, 2280391.5901085823, 2376090.3555588746, 2458370.0006153183, 2523384.2243051622, 2575208.3657517368, 2609309.6524876151, 2643279.3635597304, 2672443.1546003688, 2687659.5178374872, 2702128.5513395425, 2709501.1520242952, 2720134.8632924128, 2734777.3482598308, 2746056.5231984705, 2770352.0070485324, 2781242.3299104609]</pre>
+flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.7189847208, 1547865.8684735354, 1777547.7859571185, 1940955.1267221647, 2047700.7156964755, 2165971.1952809561, 2280391.5901085823, 2376090.3555588746, 2458370.0006153183, 2523384.2243051622, 2575208.3657517368, 2609309.6524876151, 2643279.3635597304, 2672443.1546003688, 2687659.5178374872, 2702128.5513395425, 2709501.1520242952, 2720134.8632924128, 2734777.3482598308, 2746056.5231984705, 2770352.0070485324, 2781242.3299104609]
+</pre></div>
 </div>
 </div>
 <div class="section" id="histogram-plots">
@@ -317,7 +322,7 @@ flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.718984
                 <span class="p">}</span>
 </pre></div>
 </div>
-<img alt="histogram plot" src="../_images/histogram_plot.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/histogram_plot.png"><img alt="histogram plot" src="../_images/histogram_plot.png" style="width: 600px; height: 400px;" /></a>
 </div>
 <div class="section" id="contour-plots">
 <h2>Contour Plots<a class="headerlink" href="#contour-plots" title="Permalink to this headline">¶</a></h2>
@@ -337,7 +342,7 @@ flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.718984
                    <span class="p">}</span>
 </pre></div>
 </div>
-<img alt="contour plot" src="../_images/contour_plot.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/contour_plot.png"><img alt="contour plot" src="../_images/contour_plot.png" style="width: 600px; height: 400px;" /></a>
 <p>Here&#8217;s what it looks like if we change some of the default parameters:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="s">&quot;gist_heat&quot;</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="s">&quot;Contours around my favorite star&quot;</span>
@@ -345,7 +350,7 @@ flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.718984
 <span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s">&quot;floor&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
 </pre></div>
 </div>
-<img alt="contour plot" src="../_images/contour_plot2.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/contour_plot2.png"><img alt="contour plot" src="../_images/contour_plot2.png" style="width: 600px; height: 400px;" /></a>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">You can use any of the matplotlib standard cmaps, see here for more information: <a class="reference external" href="http://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps">http://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps</a></p>
@@ -370,9 +375,9 @@ flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.718984
                    <span class="p">}</span>
 </pre></div>
 </div>
-<img alt="surface plot" src="../_images/surface_plot.png" style="width: 800px; height: 600px;" />
+<a class="reference internal image-reference" href="../_images/surface_plot.png"><img alt="surface plot" src="../_images/surface_plot.png" style="width: 800px; height: 600px;" /></a>
 <p>Or, if you&#8217;d like to get fancy and add some nice contours:</p>
-<img alt="fancy surface plot" src="../_images/fancy_surface.png" style="width: 800px; height: 600px;" />
+<a class="reference internal image-reference" href="../_images/fancy_surface.png"><img alt="fancy surface plot" src="../_images/fancy_surface.png" style="width: 800px; height: 600px;" /></a>
 </div>
 <div class="section" id="user-specified-functions">
 <h2>User Specified Functions<a class="headerlink" href="#user-specified-functions" title="Permalink to this headline">¶</a></h2>
@@ -399,13 +404,14 @@ instantiations of imexam.connect() will not have the new function unless the use
 <p>Now, import that into your python session, file, or here I&#8217;ll just copy paste the definition to the session. This is an important step becuase
 the function reference is what you are going to send to the registration method. The registration method wants you to supply a dictionary which
 contains the key you want to assign that function to during the imexam loop, and a tuple with the function name and description:</p>
-<div class="highlight-python"><pre>my_dict = {'t': (cutout, 'Cut out an image stamp from under the mouse and save it')}
+<div class="highlight-python"><div class="highlight"><pre>my_dict = {&#39;t&#39;: (cutout, &#39;Cut out an image stamp from under the mouse and save it&#39;)}
 
 viewer.exam.register(my_dict)
-User function: cutout added to imexam options with key t</pre>
+User function: cutout added to imexam options with key t
+</pre></div>
 </div>
 <p>Okay, so let&#8217;s try out our new function! We should be able to see it in the list of available options.</p>
-<img alt="user function 1" src="../_images/user_func_1.png" style="width: 600px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/user_func_1.png"><img alt="user function 1" src="../_images/user_func_1.png" style="width: 600px; height: 400px;" /></a>
 <p>Okay, I went to the star I like and pressed &#8220;t&#8221;. Let&#8217;s verify that we got what we wanted, it should be a cutout centered on the star that we&#8217;ve used in all the examples here:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">image</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s">&#39;cutout_575.0_633.07fdinJ.fits&#39;</span><span class="p">)</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -413,24 +419,24 @@ User function: cutout added to imexam options with key t</pre>
 </pre></div>
 </div>
 <p>And the resulting frame view?</p>
-<img alt="user function 1" src="../_images/user_func_2.png" style="width: 400px; height: 400px;" />
+<a class="reference internal image-reference" href="../_images/user_func_2.png"><img alt="user function 1" src="../_images/user_func_2.png" style="width: 400px; height: 400px;" /></a>
 <p>Sweet.</p>
 </div>
 <div class="section" id="plot-multiple-windows">
 <h2>Plot Multiple Windows<a class="headerlink" href="#plot-multiple-windows" title="Permalink to this headline">¶</a></h2>
 <p>During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the &#8220;2&#8221;  key. This will save the current plotting window on your desktop and send the next plot to a new window.Here&#8217;s what that might look like:</p>
-<div class="highlight-python"><pre>#run aperture photometry("a"):
+<div class="highlight-python"><div class="highlight"><pre>#run aperture photometry(&quot;a&quot;):
 
 xc=576.522433       yc=634.578085
 x              y              radius         flux           mag(zpt=25.00) sky            fwhm
 576.52         634.58         5              1560462.68     9.52           10996.52       5.58
 
-#make a column plot ("c")
+#make a column plot (&quot;c&quot;)
 
-#direct to a new window and make a contour plot ("e")
+#direct to a new window and make a contour plot (&quot;e&quot;)
 Plots now directed towards imexam2
 
-#direct to a new window and make a curve of growth ("r")
+#direct to a new window and make a curve of growth (&quot;r&quot;)
 Plots now directed towards imexam3
 
 #the resulting curve of growth information on the screen
@@ -438,11 +444,12 @@ xc=576.855763       yc=634.911425
 
 at (x,y)=576,634
 radii:[1 2 3 4 5 6 7 8]
-flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.7076232315, 1568629.6771239617, 1813434.3810552177, 1935335.7549474821, 2049080.846300941]</pre>
+flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.7076232315, 1568629.6771239617, 1813434.3810552177, 1935335.7549474821, 2049080.846300941]
+</pre></div>
 </div>
-<img alt="multiple plots in imexam" src="../_images/multiple_plots.png" style="width: 800px; height: 650px;" />
+<a class="reference internal image-reference" href="../_images/multiple_plots.png"><img alt="multiple plots in imexam" src="../_images/multiple_plots.png" style="width: 800px; height: 650px;" /></a>
 <p>As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:</p>
-<img alt="contour zoom plot" src="../_images/contour_zoom.png" style="width: 800px; height: 600px;" />
+<a class="reference internal image-reference" href="../_images/contour_zoom.png"><img alt="contour zoom plot" src="../_images/contour_zoom.png" style="width: 800px; height: 600px;" /></a>
 </div>
 </div>
 
@@ -480,9 +487,9 @@ flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.707623
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2014, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2. &nbsp;
-    Last built 11 Jun 2014. <br/>
+    &copy; Copyright 2015, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
+    Last built 09 Feb 2015. <br/>
   </p>
 </footer>
   </body>

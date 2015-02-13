@@ -14,6 +14,7 @@ from scipy.optimize import curve_fit
 import time
 import logging
 from copy import deepcopy
+import inspect
 
 #enable display plot in iPython notebook
 from IPython.display import Image
@@ -36,7 +37,7 @@ __all__ = ["Imexamine"]
 class Imexamine(object):
 
     def __init__(self):
-        """ do imexamine like routines on the current frame  
+        """ do imexamine like routines on the current frame
 
         read the returned cursor key value to decide what to do
 
@@ -136,7 +137,7 @@ class Imexamine(object):
     def set_data(self, data=np.zeros(0)):
         """initialize the data that imexamine uses"""
         self._data = data
-        
+
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key
 
@@ -321,7 +322,6 @@ class Imexamine(object):
         if not photutils_installed:
             print("Install photutil to enable")
         else:
-
             sigma = 0.  # no centering
             amp = 0.  # no centering
             if self.aperphot_pars["center"][0]:
@@ -338,18 +338,29 @@ class Imexamine(object):
             inner = int(self.aperphot_pars["skyrad"][0])
             subsky = bool(self.aperphot_pars["subsky"][0])
 
-            aper_flux = photutils.aperture_photometry(
-                data, x, y, apertures=photutils.CircularAperture(radius), subpixels=1, method="center")
-            aperture_area = np.pi * (radius) ** 2
+            outer=inner+width
+            
+            apertures=photutils.CircularAperture((x,y),radius)
+            rawflux_table = photutils.aperture_photometry(self._data,apertures,subpixels=1, method="center")
+            
             if subsky:
-                outer = inner + width
-                annulus_sky = photutils.annulus_circular(data, x, y, inner, outer)
-                annulus_area = np.pi * (outer ** 2 - inner ** 2)
+                annulus_apertures=photutils.CircularAnnulus((x,y),r_in=inner, r_out=outer)
+                bkgflux_table=photutils.aperture_photometry(self._data,annulus_apertures)
 
-                total_flux = aper_flux - annulus_sky * (aperture_area / annulus_area)
+                #to calculate the mean local background, divide the circular annulus aperture sums
+                #by the area fo teh circular annuls. The bkg sum with the circular aperture is then
+                #then mean local background tims the circular apreture area.
+                aperture_area = apertures.area()
+                annulus_area = annulus_apertures.area()
+
+                bkg_sum=float((bkgflux_table['aperture_sum'] * aperture_area/annulus_area)[0])
+                total_flux = rawflux_table['aperture_sum'][0] - bkg_sum
+                sky_per_pix=float(bkgflux_table['aperture_sum']/annulus_area)
+                
             else:
-                total_flux = aper_flux
-
+                total_flux=float(rawflux_table['aperture_sum'][0])
+            
+            
             # compute the magnitude of the sky corrected flux
             magzero = float(self.aperphot_pars["zmag"][0])
             mag = magzero - 2.5 * (np.log10(total_flux))
@@ -359,10 +370,10 @@ class Imexamine(object):
             if center:
                 pheader += ("fwhm")
                 pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(
-                    x + 1, y + 1, radius, total_flux, mag, annulus_sky / annulus_area, math_helper.gfwhm(sigma)).expandtabs(15)
+                    x + 1, y + 1, radius, total_flux, mag, sky_per_pix, math_helper.gfwhm(sigma)).expandtabs(15)
             else:
                 pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(
-                    x + 1, y + 1, radius, total_flux, mag, annulus_sky / annulus_area,).expandtabs(15)
+                    x + 1, y + 1, radius, total_flux, mag, sky_per_pix,).expandtabs(15)
 
             print(pheader + pstr)
             logging.info(pheader + pstr)
@@ -407,9 +418,11 @@ class Imexamine(object):
         chunk = line[x - delta:x + delta]
 
         # use x location as the first estimate for the mean, use 20 pixel distance to guess center
-        xline = np.arange(len(chunk))
-        popt, pcov = curve_fit(form, xline, chunk)
+        argmap = {'a': amp, 'mu': len(chunk)/2, 'sigma': sigma, 'b':0}
+        args = inspect.getargspec(form)[0][1:]  # get rid of "self"
 
+        xline = np.arange(len(chunk))
+        popt, pcov = curve_fit(form, xline, chunk, [argmap.get(arg, 1) for arg in args])
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(xline), step=1. / subsample)
         fity = form(fitx, *popt)
@@ -496,8 +509,11 @@ class Imexamine(object):
         chunk = line[y - delta:y + delta]
 
         # use y location as the first estimate for the mean, use 20 pixel distance to guess center
+        argmap = {'a': amp, 'mu': len(chunk)/2, 'sigma': sigma, 'b':0}
+        args = inspect.getargspec(form)[0][1:]  # get rid of "self"
+
         yline = np.arange(len(chunk))
-        popt, pcov = curve_fit(form, yline, chunk)
+        popt, pcov = curve_fit(form, yline, chunk, [argmap.get(arg, 1) for arg in args])
 
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(yline), step=1. / subsample)
@@ -567,7 +583,8 @@ class Imexamine(object):
             return (0, 0, 0, 0, 0)
 
     def curve_of_growth_plot(self, x, y, data, fig=None):
-        """display the radial profile plot for the star
+        """
+        display the radial profile plot for the star
 
         """
         if not photutils_installed:
@@ -617,7 +634,7 @@ class Imexamine(object):
                 radius.append(rad)
                 if self.curve_of_growth_pars["background"][0]:
                     if inner < router:
-                        warnings.warn("Your sky annulus is inside your photometr radius rplot")
+                        warnings.warn("Your sky annulus is inside your photometry radius rplot")
                     flux.append(skysub_flux)
                 else:
                     flux.append(aper_flux)
@@ -662,19 +679,24 @@ class Imexamine(object):
             print("Install photutils to enable")
         else:
 
-            aper_flux = photutils.aperture_circular(
-                data, x, y, radsize, subpixels=subpixels, method=method)
-            aperture_area = np.pi * (radsize) ** 2
 
-            annulus_sky = photutils.annulus_circular(
-                data, x, y, sky_inner, sky_inner + skywidth)
-            outer = sky_inner + skywidth
-            inner = sky_inner
-            annulus_area = np.pi * (outer ** 2 - inner ** 2)
+            apertures=photutils.CircularAperture((x,y),radsize)
+            rawflux_table = photutils.aperture_photometry(self._data,apertures,subpixels=1, method="center")
 
-            skysub_flux = aper_flux - annulus_sky * (aperture_area / annulus_area)
+            outer=sky_inner + skywidth
+            annulus_apertures=photutils.CircularAnnulus((x,y),r_in=sky_inner, r_out=outer)
+            bkgflux_table=photutils.aperture_photometry(self._data,annulus_apertures)
 
-            return (aper_flux, annulus_sky, skysub_flux)
+            #to calculate the mean local background, divide the circular annulus aperture sums
+            #by the area fo the circular annuls. The bkg sum with the circular aperture is then
+            #then mean local background tims the circular apreture area.
+            aperture_area = apertures.area()
+            annulus_area = annulus_apertures.area()
+
+            bkg_sum=(bkgflux_table['aperture_sum'] * aperture_area/annulus_area)[0]
+            skysub_flux = rawflux_table['aperture_sum'][0] - bkg_sum
+ 
+            return (float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
     def histogram_plot(self, x, y, data, fig=None):
         """plot a histogram of the pixel values in a region around the specified location"""
