@@ -59,11 +59,10 @@ class Connect(object):
 
         _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
 
-        self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self._viewer=viewer.lower()
         
         if have_ginga:
-            _possible_viewers.append('ginga_mp')
+            _possible_viewers.extend('ginga_mp')
             
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
@@ -86,7 +85,7 @@ class Connect(object):
             #self.exam.imexam_option_funcs
             #self.window._reassign_keys(imexam_dict)
 
-
+        self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.logfile = 'imexam_log.txt'
         self.log=None #points to the package logger
         self._current_slice = None

@@ -3,17 +3,9 @@
 """
 This class supports communication with a Ginga-based viewer.
 
-For generality, we create a matplotlib-backend simple Ginga viewer.
-This kind of viewer is less performant speed-wise than if we
-choose a particular widget back end.  OTOH, we don't have to
-care what widget set the user has installed and the overplotting
-capabilities are very, very good!
-
 For default key and mouse shortcuts in a Ginga window, see:
     https://ginga.readthedocs.org/en/latest/quickref.html
 
-For more information about Ginga, visit
-    https://github.com/ejeschke/ginga
 """
 
 from __future__ import print_function, division, absolute_import
@@ -217,47 +209,6 @@ class ginga_general(object):
         if self._close_on_del:
             self.close()
 
-    def _imexam(self,canvas,keyname):
-        """start imexam in ginga window"""
-        if keyname == 'i':
-            self.view.fitsimage.onscreen_message("imexam",delay=1.0)
-            
-            fi = self.window.canvas.fitsimage
-            data_x, data_y = fi.get_last_data_xy()
-            print("key {0:s} pressed at data {1} {2}".format(keyname,data_x,data_y))
-            
-            #bind to the imexamine class keys here somehow?
-    
-    def set_option_funcs(self):
-        """Define the dictionary which maps imexam option keys to their functions
- 
- 
-         Notes
-         -----
-         The user can modify this dictionary to add or change options,
-         the first item in the tuple is the associated function
-         the second item in the tuple is the description of what the function
-         does when that key is pressed
-        """
-        
-        self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
-                                    'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
-                                    'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
-                                    'm': (self.report_stat, 'square region stats, in [region_size],defayult is median'),
-                                    'x': (self.show_xy_coords, 'return x,y,value of pixel'),
-                                    'y': (self.show_xy_coords, 'return x,y,value of pixel'),
-                                    'l': (self.plot_line, 'return line plot'),
-                                    'c': (self.plot_column, 'return column plot'),
-                                    'r': (self.curve_of_growth_plot, 'return curve of growth plot'),
-                                    'h': (self.histogram_plot, 'return a histogram in the region around the cursor'),
-                                    'e': (self.contour_plot, 'return a contour plot in a region around the cursor'),
-                                    's': (self.save_figure, 'save current figure to disk as [plot_name]'),
-                                    'b': (self.gauss_center, 'return the gauss fit center of the object'),
-                                    'w': (self.surface_plot, 'display a surface plot around the cursor location'),
-                                    '2': (self.new_plot_window, 'make the next plot in a new window'),
-                                    }
-        
-
     def _set_frameinfo(self, frame, fname=None, hdu=None, data=None, 
                        image=None):
         """Set the name and extension information for the data displayed in
@@ -288,6 +239,40 @@ class ginga_general(object):
 
             if hdu:
                 pass
+                ## naxis.reverse()  # for astropy.fits row-major ordering
+                ## naxis = map(int, naxis)
+                ## naxis = [axis - 1 if axis > 0 else 0 for axis in naxis]  # zero index fits
+                ## naxis = tuple(naxis)
+
+                ## # set the extension from the header information returned from DS9
+                ## # this is the best way to get the information if the user changes
+                ## # the loaded file using the gui
+                ## header_cards = fits.Header.fromstring(self.get_header(), sep='\n')
+                ## mef_file = self._check_filetype(filename)
+                ## if mef_file:
+                ##     try:
+                ##         extver = int(header_cards['EXTVER'])
+                ##     except KeyError:
+                ##         extver = 1  # fits doesn't require extver if there is only 1 extension
+
+                ##     try:
+                ##         extname = str(header_cards['EXTNAME'])
+                ##     except KeyError:
+                ##         extname = None
+
+                ## try:
+                ##     numaxis = int(header_cards['NAXIS'])
+                ## except KeyError:
+                ##     raise KeyError("Problem getting NAXIS from header")
+
+                ## if not iscube:
+                ##     if numaxis > 2:
+                ##         iscube = True
+                ##         naxis = list()
+                ##         # assume the first axis in each extension is displayed
+                ##         for axis in range(numaxis, 2, -1):
+                ##             naxis.append(0)
+                ##         naxis = tuple(naxis)
 
             # update the viewer dictionary, if the user changes what's displayed in a frame this should update correctly
             # this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through
@@ -330,7 +315,6 @@ class ginga_general(object):
         if self._viewer[frame]['filename']:
             return True
         else:
-            valid=False
             try:
                 if self._viewer[frame]['user_array'].any():
                     valid = True
@@ -339,6 +323,7 @@ class ginga_general(object):
                 elif self._viewer[frame]['image'].any():
                     valid = True
             except AttributeError, ValueError:
+                valid = False
                 print("error in array")
 
             return valid
@@ -359,7 +344,7 @@ class ginga_general(object):
 
     def close(self):
         """ close the window"""
-        import matplotlib.pylab as plt
+        import matplotlib.pyplot as plt
         plt.close(self.figure)
 
     def readcursor(self):
@@ -627,10 +612,9 @@ class ginga_general(object):
             # see if the image is MEF or Simple
             fname = os.path.abspath(fname)
             try:
-                #mef_file = self._check_filetype(shortname)
                 image = AstroImage()
                 with fits.open(fname) as filedata:
-                    hdu = filedata[extver]
+                    hdu = filedata[extver - 1]
                     image.load_hdu(hdu)
                     
             except Exception as e:
@@ -781,14 +765,13 @@ class ginga_general(object):
         """
 
         frame = self.frame()
-        
         if not frame:
             print("No valid frame")
         else:
             img_np = np.array(img)
             image = AstroImage(img_np, logger=self.logger)
-            self._set_frameinfo(frame, image=image)
-            self._viewer[frame]['user_array']=image
+            self._set_frameinfo(frame, data=img_np, image=image)
+            self.view.set_image(image)
 
     def zoomtofit(self):
         """convenience function for zoom"""
@@ -827,6 +810,7 @@ class ginga_mp(ginga_general):
     def _create_viewer(self, bind_prefs, viewer_prefs):
         
         import matplotlib
+        #matplotlib.use('Qt4Agg')
         import matplotlib.pyplot as plt
         # turn on interactive mode
         plt.ion()
@@ -856,4 +840,6 @@ class ginga_mp(ginga_general):
         canvas = DrawingCanvas()
         self.canvas = canvas
         
+
+
 
