@@ -32,14 +32,7 @@ import imexam.xpa_wrap as xpa
 from imexam.xpa import XpaException
 
 from . import util
-
-try:
-    import astropy
-except ImportError:
-    raise ImportError("astropy is required")
-
 from astropy.io import fits
-
 
 class UnsupportedDatatypeException(Exception):
     pass

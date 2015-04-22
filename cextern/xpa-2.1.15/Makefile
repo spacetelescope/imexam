@@ -54,7 +54,7 @@ MAN_SHARE_DIR =		$(INSTALL_ROOT)$(prefix)/share/xpa
 # Platform-specific X compiler flags (include file specifications)
 X_CFLAGS = 		
 # Platform-specific link directive for X libraries (-L specification)
-X_LIBS = 		 -L/usr/X11/lib -R/usr/X11/lib
+X_LIBS = 		 -L/usr/X11/lib
 # Platform-specific libraries that must go before -lXt
 X_PRE_LIBS = 		 -lSM -lICE
 # Platform-specific libraries that must go after -lXt
@@ -119,7 +119,7 @@ EXE =
 #----------------------------------------------------------------
 RM =		rm -f
 
-CC =		cc
+CC =		gcc
 
 CC_SWITCHES =	-I. ${CFLAGS} ${AC_FLAGS}
 

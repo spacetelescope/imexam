@@ -17,20 +17,17 @@ import logging
 import threading
 
 from . import util
-
-try:
-    import astropy
-except ImportError:
-    raise ImportError("astropy is required")
-
 from astropy.io import fits
-import numpy as np
 
 from ginga.misc import log, Settings
 from ginga.AstroImage import AstroImage
 from ginga import cmap
 from ginga.util import paths
+from ginga.qtw.QtHelp import QtGui
 
+import matplotlib
+matplotlib.use('Qt4Agg')
+from matplotlib import pyplot as plt
 # module variables
 _matplotlib_cmaps_added = False
 
@@ -91,7 +88,7 @@ class ginga_general(object):
 
         # Establish settings (preferences) for ginga viewers
         basedir = paths.ginga_home
-        self.prefs = Settings.Preferences(basefolder=basedir, logger=logger)
+        self.prefs = Settings.Preferences(basefolder=basedir, logger=self.logger)
 
         # general preferences shared with other ginga viewers
         settings = self.prefs.createCategory('general')
@@ -130,8 +127,10 @@ class ginga_general(object):
         canvas = self.canvas
         canvas.enable_draw(False)
         canvas.add_callback('key-press', self._key_press_imexam)
+#        self.view.add_callback('key-press',self._imexam)
         canvas.setSurface(self.view)
         canvas.ui_setActive(True)
+        self.canvas = canvas
 
     def _draw_indicator(self):
         # -- Here be black magic ------
@@ -169,6 +168,7 @@ class ginga_general(object):
                            color='black',
                            fill=True, fillcolor='black'),
                            o1)
+                           
         # use canvas, not data coordinates
         o2.use_cc(True)
         canvas.add(o2, tag='indicator')
@@ -184,8 +184,8 @@ class ginga_general(object):
         Insert our canvas so that we intercept all events before they reach
         processing by the bindings layer of Ginga.
         """
-        ## self.view.onscreen_message("Entering imexam mode",
-        ##                            delay=1.0)
+        self.view.onscreen_message("Entering imexam mode",
+                                   delay=1.0)
         # insert the canvas
         self.view.add(self.canvas, tag='mycanvas')
         self._draw_indicator()
@@ -195,10 +195,11 @@ class ginga_general(object):
         """
         Remove our canvas so that we no longer intercept events.
         """
-        ## self.view.onscreen_message("Leaving imexam mode",
-        ##                            delay=1.0)
+        self.view.onscreen_message("Leaving imexam mode",
+                                   delay=1.0)
         self._capturing = False
         self.canvas.deleteObjectByTag('indicator')
+        
         # retract the canvas 
         self.view.deleteObjectByTag('mycanvas')
 
@@ -208,6 +209,47 @@ class ginga_general(object):
     def __del__(self):
         if self._close_on_del:
             self.close()
+
+    def _imexam(self,canvas,keyname):
+        """start imexam in ginga window"""
+        if keyname == 'i':
+            self.view.fitsimage.onscreen_message("imexam",delay=1.0)
+            
+            fi = self.window.canvas.fitsimage
+            data_x, data_y = fi.get_last_data_xy()
+            print("key {0:s} pressed at data {1} {2}".format(keyname,data_x,data_y))
+            
+            #bind to the imexamine class keys here somehow?
+    
+    def set_option_funcs(self):
+        """Define the dictionary which maps imexam option keys to their functions
+ 
+ 
+         Notes
+         -----
+         The user can modify this dictionary to add or change options,
+         the first item in the tuple is the associated function
+         the second item in the tuple is the description of what the function
+         does when that key is pressed
+        """
+        
+        self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
+                                    'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
+                                    'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
+                                    'm': (self.report_stat, 'square region stats, in [region_size],defayult is median'),
+                                    'x': (self.show_xy_coords, 'return x,y,value of pixel'),
+                                    'y': (self.show_xy_coords, 'return x,y,value of pixel'),
+                                    'l': (self.plot_line, 'return line plot'),
+                                    'c': (self.plot_column, 'return column plot'),
+                                    'r': (self.curve_of_growth_plot, 'return curve of growth plot'),
+                                    'h': (self.histogram_plot, 'return a histogram in the region around the cursor'),
+                                    'e': (self.contour_plot, 'return a contour plot in a region around the cursor'),
+                                    's': (self.save_figure, 'save current figure to disk as [plot_name]'),
+                                    'b': (self.gauss_center, 'return the gauss fit center of the object'),
+                                    'w': (self.surface_plot, 'display a surface plot around the cursor location'),
+                                    '2': (self.new_plot_window, 'make the next plot in a new window'),
+                                    }
+        
 
     def _set_frameinfo(self, frame, fname=None, hdu=None, data=None, 
                        image=None):
@@ -344,7 +386,6 @@ class ginga_general(object):
 
     def close(self):
         """ close the window"""
-        import matplotlib.pyplot as plt
         plt.close(self.figure)
 
     def readcursor(self):
@@ -364,7 +405,7 @@ class ginga_general(object):
         # NOTE: the viewer now calls the functions directly from the
         # dispatch table, and only returns on the quit key here
         while True:
-            # ugly hack to suppress deprecation warning by mpl
+            # ugly hack to suppress deprecation  by mpl
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 # run event loop, so window can get a keystroke
@@ -612,9 +653,10 @@ class ginga_general(object):
             # see if the image is MEF or Simple
             fname = os.path.abspath(fname)
             try:
+                #mef_file = self._check_filetype(shortname)
                 image = AstroImage()
                 with fits.open(fname) as filedata:
-                    hdu = filedata[extver - 1]
+                    hdu = filedata[extver]
                     image.load_hdu(hdu)
                     
             except Exception as e:
@@ -805,16 +847,12 @@ class ginga_mp(ginga_general):
     This kind of viewer is less performant speed-wise than if we
     choose a particular widget back end, but the advantage is that
     it works so long as the user has a working matplotlib.
+    
+    This implementation has the benefit of adding image overlays
     """
 
     def _create_viewer(self, bind_prefs, viewer_prefs):
         
-        import matplotlib
-        #matplotlib.use('Qt4Agg')
-        import matplotlib.pyplot as plt
-        # turn on interactive mode
-        plt.ion()
-
         # Ginga imports for matplotlib backend
         from ginga.mplw.ImageViewCanvasMpl import ImageViewCanvas
         from ginga.mplw.ImageViewCanvasTypesMpl import DrawingCanvas
@@ -842,4 +880,101 @@ class ginga_mp(ginga_general):
         
 
 
+class ginga_qt(ginga_general):
+    """
+    a ginga-based viewer that uses QT for display.
+    
+    Faster or nicer than the MPL view implementation?
+    """
+    
+    def _create_viewer(self, bind_prefs, viewer_prefs, x=512, y=512):
+        #Ginga imports for QT backend
+        from ginga.qtw.QtHelp import QtGui, QtCore
+        from ginga.qtw.ImageViewQt import ImageViewZoom
+        
+        app = QtGui.QApplication([])
+        app.connect(app, QtCore.SIGNAL('lastWindowClosed()'),
+                    app, QtCore.SLOT('quit()'))
+        
+        self.figure=FitsViewer(self.logger)
+        self.figure.resize(x,y)
+        self.figure.show()
+        
+        app.setActiveWindow(self.figure)
+        self.figure.raise_()
+        self.figure.activateWindow()
 
+        self.view = self.figure
+
+        app.exec_()
+
+
+class FitsViewer(QtGui.QMainWindow):
+
+    def __init__(self, logger):
+        super(FitsViewer, self).__init__()
+        self.logger = logger
+
+        from ginga.qtw.QtHelp import QtGui, QtCore
+        from ginga.qtw.ImageViewQt import ImageViewZoom
+
+        self.figure = ImageViewZoom(self.logger, render='widget')
+        self.figure.enable_autocuts('on')
+        self.figure.set_autocut_params('zscale')
+        self.figure.enable_autozoom('on')
+        self.figure.set_callback('drag-drop', self.drop_file)
+        self.figure.set_bg(0.2, 0.2, 0.2)
+        self.figure.ui_setActive(True)
+
+        w=self.figure.get_widget()
+        w.resize(512,512)
+        
+        vbox = QtGui.QVBoxLayout()
+        vbox.setContentsMargins(QtCore.QMargins(2, 2, 2, 2))
+        vbox.setSpacing(1)
+        vbox.addWidget(w, stretch=1)
+
+        hbox = QtGui.QHBoxLayout()
+        hbox.setContentsMargins(QtCore.QMargins(4, 2, 4, 2))
+
+        wopen = QtGui.QPushButton("Open File")
+        wopen.clicked.connect(self.open_fits)
+        wquit = QtGui.QPushButton("Quit")
+        self.connect(wquit,
+                     QtCore.SIGNAL("clicked()"),
+                     self, QtCore.SLOT("close()"))
+
+        hbox.addStretch(1)
+        for w in (wopen, wquit):
+            hbox.addWidget(w, stretch=0)
+
+        hw = QtGui.QWidget()
+        hw.setLayout(hbox)
+        vbox.addWidget(hw, stretch=0)
+
+        vw = QtGui.QWidget()
+        self.setCentralWidget(vw)
+        vw.setLayout(vbox)
+
+
+    def load_fits(self, fname=""):
+        image = AstroImage(logger=self.logger)
+        image.load_file(fname)
+        self.figure.set_image(image)
+        self.setWindowTitle(fname)
+
+    def open_fits(self):
+        res = QtGui.QFileDialog.getOpenFileName(self, "Open FITS file",
+                                                ".", "FITS files (*.fits)")
+        if isinstance(res, tuple):
+            fileName = res[0].encode('ascii')
+        else:
+            fileName = str(res)
+        self.load_fits(fileName)
+
+    def drop_file(self, fitsimage, paths):
+        fileName = paths[0]
+        self.load_fits(fileName)
+
+    def get_bindings(self):
+        self.figure.get_bindings()

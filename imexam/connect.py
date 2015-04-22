@@ -13,6 +13,7 @@ from . import xpa
 from .ds9_viewer import ds9
 try:
     from .ginga_viewer import ginga_mp
+    from .ginga_viewer import ginga_qt
     have_ginga = True
 except ImportError:
     have_ginga = False
@@ -62,7 +63,8 @@ class Connect(object):
         self._viewer=viewer.lower()
         
         if have_ginga:
-            _possible_viewers.extend('ginga_mp')
+            _possible_viewers.append('ginga_mp')
+            _possible_viewers.append('ginga_qt')
             
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
@@ -74,7 +76,7 @@ class Connect(object):
             self._event_driven_exam=False #use the imexam loop 
                 
         elif 'ginga_mp' in self._viewer:
-            self.window = ginga_mp(close_on_del=quit_window)
+            self.window = ginga_mp(close_on_del=quit_window, logger=logging)
             #self.window.view.add_callback('key-press',self.window._imexam)
             #rotate canvas in before this can be used
             #self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
@@ -84,6 +86,10 @@ class Connect(object):
             #change key+function associations
             #self.exam.imexam_option_funcs
             #self.window._reassign_keys(imexam_dict)
+        
+        elif 'ginga_qt' in self._viewer:
+            self.window=ginga_qt(close_on_del=quit_window, logger=logging)
+            
 
         self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.logfile = 'imexam_log.txt'
