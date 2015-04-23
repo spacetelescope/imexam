@@ -130,10 +130,10 @@ class Connect(object):
     def imexam(self):
         """run imexamine with user interaction. At a minimum it requires a copy of the data array"""
         if self.valid_data_in_viewer():
-            if not self._event_driven_exam:
-                self._run_imexam()
-            else:
+            if self._event_driven_exam:
                 self._run_event_imexam()
+            else:
+                self._run_imexam()
         else:
             warnings.warn("No valid image loaded in viewer")
             
@@ -146,9 +146,8 @@ class Connect(object):
         """        
         if not self._event_driven_exam:
             warnings.warn("Event driven imexam not implemented for viewer")
-           
         else:
-            self._run_event_imexam() #for now
+            self.exam.print_options()
             
            
     def get_data_filename(self):
@@ -165,21 +164,7 @@ class Connect(object):
 
     def get_viewer_info(self):
         """Return a dictionary which has information about all frames loaded with data"""
-        return self.window.get_viewer_info()
-
-    def _run_event_imexam(self):
-        """ access event driven imexam for viewers in which it's implemented
-        
-        This basically means that imexam functions are available either all the time
-        with the press of a key, or the loop starts and ends with a key press event
-        capture instead of a commanded loop function
-        
-        """
-        if self._event_driven_exam:
-            self.exam.print_options()
-        else:
-            warnings.warn("Event driven imexam not implemented for this viewer")
-            
+        return self.window.get_viewer_info()            
         
     def _run_imexam(self):
         """start imexam analysis loop for non event driven viewers

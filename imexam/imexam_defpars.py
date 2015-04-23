@@ -53,7 +53,7 @@ surface_pars = {"function": ["surface", ],
                 "ceiling": [None, "Maximum value to be contoured"],
                 "stride": [1, "step size, higher vals will have less contour"],
                 "cmap": ["jet", "colormap (matplotlib) for display"],
-                "fancy": [False, "This aint your grandpas iraf"],
+                "fancy": [True, "This aint your grandpas iraf"],
                 }
 
 line_fit_pars = {"function": ["line_fit", ],

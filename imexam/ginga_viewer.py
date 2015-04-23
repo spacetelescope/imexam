@@ -28,12 +28,11 @@ from ginga.util import paths
 from ginga.qtw.QtHelp import QtGui
 
 import matplotlib
-matplotlib.use('Qt4Agg')
 from matplotlib import pyplot as plt
 # module variables
 _matplotlib_cmaps_added = False
 
-__all__ = ['ginga_mp', ]
+__all__ = ['ginga_mp','ginga_qt' ]
 
 
 class ginga_general(object):
@@ -73,7 +72,7 @@ class ginga_general(object):
         self._current_frame = 1
         self._current_slice = None
 
-        self.view = None  # ginga view object
+        self.ginga_view = None  # ginga view object
 
         self._define_cmaps()  # set up possible color maps
 
@@ -124,15 +123,14 @@ class ginga_general(object):
         self._create_viewer(bind_prefs, viewer_prefs)
 
         # enable all interactive ginga features
-        bindings = self.view.get_bindings()
+        bindings = self.ginga_view.get_bindings()
         bindings.enable_all(True)
-        self.view.add_callback('key-press', self._key_press_normal)
+        self.ginga_view.add_callback('key-press', self._key_press_normal)
 
         canvas = self.canvas
         canvas.enable_draw(False)
         canvas.add_callback('key-press', self._key_press_imexam)
-#        self.view.add_callback('key-press',self._imexam)
-        canvas.setSurface(self.view)
+        canvas.setSurface(self.ginga_view)
         canvas.ui_setActive(True)
         self.canvas = canvas
 
@@ -157,7 +155,7 @@ class ginga_general(object):
         # calculations for canvas coordinates
         mode = 'imexam'
         xsp, ysp = 6, 6
-        wd, ht = self.view.get_window_size()
+        wd, ht = self.ginga_view.get_window_size()
         #x1, y1 = wd-12*len(mode), ht-12
         x1, y1 = 12, 12
         o1 = Text(x1, y1, mode,
@@ -186,10 +184,10 @@ class ginga_general(object):
         Insert our canvas so that we intercept all events before they reach
         processing by the bindings layer of Ginga.
         """
-        self.view.onscreen_message("Entering imexam mode",
+        self.ginga_view.onscreen_message("Entering imexam mode",
                                    delay=1.0)
         # insert the canvas
-        self.view.add(self.canvas, tag='mycanvas')
+        self.ginga_view.add(self.canvas, tag='mycanvas')
         self._draw_indicator()
         self._capturing = True
 
@@ -197,13 +195,13 @@ class ginga_general(object):
         """
         Remove our canvas so that we no longer intercept events.
         """
-        self.view.onscreen_message("Leaving imexam mode",
+        self.ginga_view.onscreen_message("Leaving imexam mode",
                                    delay=1.0)
         self._capturing = False
         self.canvas.deleteObjectByTag('indicator')
         
         # retract the canvas 
-        self.view.deleteObjectByTag('mycanvas')
+        self.ginga_view.deleteObjectByTag('mycanvas')
 
     def __str__(self):
         return "<ginga viewer>"
@@ -215,43 +213,12 @@ class ginga_general(object):
     def _imexam(self,canvas,keyname):
         """start imexam in ginga window"""
         if keyname == 'i':
-            self.view.fitsimage.onscreen_message("imexam",delay=1.0)
+            self.ginga_view.fitsimage.onscreen_message("imexam",delay=1.0)
             
             fi = self.window.canvas.fitsimage
             data_x, data_y = fi.get_last_data_xy()
             print("key {0:s} pressed at data {1} {2}".format(keyname,data_x,data_y))
-            
-            #bind to the imexamine class keys here somehow?
-    
-    def set_option_funcs(self):
-        """Define the dictionary which maps imexam option keys to their functions
- 
- 
-         Notes
-         -----
-         The user can modify this dictionary to add or change options,
-         the first item in the tuple is the associated function
-         the second item in the tuple is the description of what the function
-         does when that key is pressed
-        """
-        
-        self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
-                                    'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
-                                    'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
-                                    'm': (self.report_stat, 'square region stats, in [region_size],defayult is median'),
-                                    'x': (self.show_xy_coords, 'return x,y,value of pixel'),
-                                    'y': (self.show_xy_coords, 'return x,y,value of pixel'),
-                                    'l': (self.plot_line, 'return line plot'),
-                                    'c': (self.plot_column, 'return column plot'),
-                                    'r': (self.curve_of_growth_plot, 'return curve of growth plot'),
-                                    'h': (self.histogram_plot, 'return a histogram in the region around the cursor'),
-                                    'e': (self.contour_plot, 'return a contour plot in a region around the cursor'),
-                                    's': (self.save_figure, 'save current figure to disk as [plot_name]'),
-                                    'b': (self.gauss_center, 'return the gauss fit center of the object'),
-                                    'w': (self.surface_plot, 'display a surface plot around the cursor location'),
-                                    '2': (self.new_plot_window, 'make the next plot in a new window'),
-                                    }
-        
+                   
 
     def _set_frameinfo(self, frame, fname=None, hdu=None, data=None, 
                        image=None):
@@ -267,7 +234,7 @@ class ginga_general(object):
             if frame not in self._viewer.keys():
                 self._viewer[frame] = dict()
 
-            if data == None:
+            if not data:
                 try:
                     data = self._viewer[frame]['user_array']
                 except KeyError:
@@ -454,7 +421,7 @@ class ginga_general(object):
 
         if color:
             if color in self._cmap_colors:
-                self.view.set_color_map(color)
+                self.ginga_view.set_color_map(color)
             else:
                 print("Unrecognized color map, choose one of these:")
                 print(self._cmap_colors)
@@ -524,7 +491,7 @@ class ginga_general(object):
             self._current_frame = n
             image = self._viewer[frame]['image']
             if image != None:
-                self.view.set_image(image)
+                self.ginga_view.set_image(image)
             return n
 
         else:
@@ -595,7 +562,7 @@ class ginga_general(object):
         ginga window with the canvas overlaid.  It handles all the
         dispatch of the 'imexam' mode.
         """
-        data_x, data_y = self.view.get_last_data_xy()
+        data_x, data_y = self.ginga_view.get_last_data_xy()
         self.logger.debug("key %s pressed at data %f,%f" % (
             keyname, data_x, data_y))
 
@@ -608,11 +575,11 @@ class ginga_general(object):
             # exchange normal logger for the stdout debug logger
             if self.logger != self._debug_logger:
                 self.logger = self._debug_logger
-                self.view.onscreen_message("Debug logging on",
+                self.ginga_view.onscreen_message("Debug logging on",
                                            delay=1.0)
             else:
                 self.logger = self._saved_logger
-                self.view.onscreen_message("Debug logging off",
+                self.ginga_view.onscreen_message("Debug logging off",
                                            delay=1.0)
             return True
             
@@ -626,16 +593,15 @@ class ginga_general(object):
             return True
 
         # get our data array
-        image = self.view.get_image()
-        data = image.get_data()
-
+        data = self.get_data()
+        
         self.logger.debug("exam=%s" % str(self.exam))
         # call the imexam function directly
         if self.exam != None:
             try:
                 method = self.exam.imexam_option_funcs[keyname][0]
             except KeyError:
-                self.logger.debug("no method defined in option_funcs")
+                self.logger.debug("no method defined in the option_funcs dictionary")
                 return False
             
             self.logger.debug("calling examine function key={0}".format(keyname))
@@ -693,7 +659,7 @@ class ginga_general(object):
 
             frame = self.frame()
             self._set_frameinfo(frame, fname=fname, hdu=hdu, image=image)
-            self.view.set_image(image)
+            self.ginga_view.set_image(image)
 
         else:
             print("No filename provided")
@@ -715,7 +681,7 @@ class ginga_general(object):
         # ginga deals in 0-based coords
         x, y = x - 1, y - 1
         
-        self.view.set_pan(x, y)
+        self.ginga_view.set_pan(x, y)
 
     def panto_wcs(self, x, y, system='fk5'):
         """pan to wcs location coordinates in image
@@ -733,9 +699,9 @@ class ginga_general(object):
 
         """
         # this should be replaced by querying our own copy of the wcs
-        image = self.view.get_image()
+        image = self.ginga_view.get_image()
         a, b = image.radectopix(x, y, coords='data')
-        self.view.set_pan(a, b)
+        self.ginga_view.set_pan(a, b)
 
     def rotate(self, value=None):
         """rotate the current frame (in degrees), the current rotation is printed with no params
@@ -749,9 +715,9 @@ class ginga_general(object):
 
         """
         if value is not None:
-            self.view.rotate(value)
+            self.ginga_view.rotate(value)
 
-        rot_deg = self.view.get_rotation()
+        rot_deg = self.ginga_view.get_rotation()
         print("Image rotated at {0:f} deg".format(rot_deg))
 
     def transform(self, flipx=None, flipy=None, flipxy=None):
@@ -767,7 +733,7 @@ class ginga_general(object):
         swapxy: boolean
             if True swap the X and Y axes, if False don't, if None leave current
         """
-        _flipx, _flipy, _swapxy = self.view.get_transform()
+        _flipx, _flipy, _swapxy = self.ginga_view.get_transform()
 
         # preserve current transform if not supplied as a parameter
         if flipx is None:
@@ -777,7 +743,7 @@ class ginga_general(object):
         if swapxy is None:
             swapxy = _swapxy
             
-        self.view.transform(flipx, flipy, swapxy)
+        self.ginga_view.transform(flipx, flipy, swapxy)
 
     def save_png(self, filename=None):
         """save a frame display as a PNG file
@@ -792,7 +758,7 @@ class ginga_general(object):
         if not filename:
             print("No filename specified, try again")
         else:
-            buf = self.view.get_png_image_as_buffer()
+            buf = self.ginga_view.get_png_image_as_buffer()
             with open(filename, 'w') as out_f:
                 out_f.write(buf)
 
@@ -811,17 +777,17 @@ class ginga_general(object):
         """
 
         # setting the autocut method?
-        mode_scale = self.view.get_autocut_methods()
+        mode_scale = self.ginga_view.get_autocut_methods()
 
         if scale in mode_scale:
-            self.view.set_autocut_params(scale)
+            self.ginga_view.set_autocut_params(scale)
             return
 
         # setting the color distribution algorithm?
-        color_dist = self.view.get_color_algorithms()
+        color_dist = self.ginga_view.get_color_algorithms()
 
         if scale in color_dist:
-            self.view.set_color_algorithm(scale)
+            self.ginga_view.set_color_algorithm(scale)
             return
 
     def view(self, img):
@@ -841,11 +807,11 @@ class ginga_general(object):
             img_np = np.array(img)
             image = AstroImage(img_np, logger=self.logger)
             self._set_frameinfo(frame, data=img_np, image=image)
-            self.view.set_image(image)
+            self.ginga_view.set_image(image)
 
     def zoomtofit(self):
         """convenience function for zoom"""
-        self.view.zoom_fit()
+        self.ginga_view.zoom_fit()
 
     def zoom(self, zoomlevel):
         """ zoom using the specified level
@@ -862,7 +828,7 @@ class ginga_general(object):
         """
 
         try:
-            self.view.zoom_to(zoomlevel)
+            self.ginga_view.zoom_to(zoomlevel)
             
         except Exception as e:
             print("problem with zoom: %s" % str(e))
@@ -898,7 +864,7 @@ class ginga_mp(ginga_general):
         view = ImageViewCanvas(self.logger, settings=viewer_prefs,
                                bindings=bd)
         view.set_figure(fig)
-        self.view = view
+        self.ginga_view = view
 
         fig.show()
 
@@ -917,6 +883,7 @@ class ginga_qt(ginga_general):
     
     def _create_viewer(self, bind_prefs, viewer_prefs, x=512, y=512):
         #Ginga imports for QT backend
+        #matplotlib.use('Qt4Agg') #when QT implemented
         from ginga.qtw.QtHelp import QtGui, QtCore
         from ginga.qtw.ImageViewQt import ImageViewZoom
         
