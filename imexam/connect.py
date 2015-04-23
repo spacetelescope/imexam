@@ -70,13 +70,16 @@ class Connect(object):
             warnings.warn("**Unsupported viewer**\n")
             raise NotImplementedError
 
+        self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
+
         if 'ds9' in self._viewer:
             self.window = ds9(
                 target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
             self._event_driven_exam=False #use the imexam loop 
                 
         elif 'ginga_mp' in self._viewer:
-            self.window = ginga_mp(close_on_del=quit_window, logger=logging)
+            self.window = ginga_mp(exam=self.exam,
+                                   close_on_del=quit_window, logger=logging)
             #self.window.view.add_callback('key-press',self.window._imexam)
             #rotate canvas in before this can be used
             #self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
@@ -88,10 +91,10 @@ class Connect(object):
             #self.window._reassign_keys(imexam_dict)
         
         elif 'ginga_qt' in self._viewer:
-            self.window=ginga_qt(close_on_del=quit_window, logger=logging)
+            self.window=ginga_qt(exam=self.exam,
+                                 close_on_del=quit_window, logger=logging)
             
 
-        self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
         self.logfile = 'imexam_log.txt'
         self.log=None #points to the package logger
         self._current_slice = None

@@ -11,10 +11,12 @@ For default key and mouse shortcuts in a Ginga window, see:
 from __future__ import print_function, division, absolute_import
 
 import sys, os
+import traceback
 import time
 import warnings
 import logging
 import threading
+import numpy as np
 
 from . import util
 from astropy.io import fits
@@ -85,6 +87,8 @@ class ginga_general(object):
         if logger == None:
             logger = log.get_logger(null=True)
         self.logger = logger
+        self._saved_logger = logger
+        self._debug_logger = log.get_logger(level=10, log_stderr=True)
 
         # Establish settings (preferences) for ginga viewers
         basedir = paths.ginga_home
@@ -133,6 +137,7 @@ class ginga_general(object):
         self.canvas = canvas
 
     def _draw_indicator(self):
+        return
         # -- Here be black magic ------
         # This function draws the imexam indicator on the lower left
         # hand corner of the canvas
@@ -156,21 +161,18 @@ class ginga_general(object):
         #x1, y1 = wd-12*len(mode), ht-12
         x1, y1 = 12, 12
         o1 = Text(x1, y1, mode,
-                  fontsize=12, color='orange')
-        o1.use_cc(True)
-        # hack necessary to be able to compute text extents _before_
-        # adding the object to the canvas
-        o1.fitsimage = self.view
+                  fontsize=12, color='orange', coord='canvas')
+        #o1.fitsimage = self.view
         wd, ht = o1.get_dimensions()
 
         # yellow text on a black filled rectangle
         o2 = Compound(Rect(x1-xsp, y1-ht-ysp, x1+wd+xsp, y1+ht+ysp,
                            color='black',
-                           fill=True, fillcolor='black'),
-                           o1)
+                           fill=True, fillcolor='black', coord='canvas'),
+                           o1, coord='canvas')
                            
         # use canvas, not data coordinates
-        o2.use_cc(True)
+        
         canvas.add(o2, tag='indicator')
         # -- end black magic ------
 
@@ -594,14 +596,26 @@ class ginga_general(object):
         dispatch of the 'imexam' mode.
         """
         data_x, data_y = self.view.get_last_data_xy()
-        ## print("key %s pressed at data %f,%f" % (
-        ##     keyname, data_x, data_y))
+        self.logger.debug("key %s pressed at data %f,%f" % (
+            keyname, data_x, data_y))
 
         if keyname == 'i':
             # temporarily switch to non-imexam mode
             self._release()
             return True
         
+        elif keyname == 'backslash':
+            # exchange normal logger for the stdout debug logger
+            if self.logger != self._debug_logger:
+                self.logger = self._debug_logger
+                self.view.onscreen_message("Debug logging on",
+                                           delay=1.0)
+            else:
+                self.logger = self._saved_logger
+                self.view.onscreen_message("Debug logging off",
+                                           delay=1.0)
+            return True
+            
         elif keyname == 'q':
             # exit imexam mode
             self._release()
@@ -614,20 +628,29 @@ class ginga_general(object):
         # get our data array
         image = self.view.get_image()
         data = image.get_data()
-        
+
+        self.logger.debug("exam=%s" % str(self.exam))
         # call the imexam function directly
         if self.exam != None:
             try:
                 method = self.exam.imexam_option_funcs[keyname][0]
             except KeyError:
+                self.logger.debug("no method defined in option_funcs")
                 return False
             
             self.logger.debug("calling examine function key={0}".format(keyname))
             try:
                 method(data_x, data_y, data)
             except Exception as e:
-                # TODO: print out stack trace
-                pass
+                self.logger.error("Failed examine function: %s" % (str(e)))
+                try:
+                    # log traceback, if possible
+                    (type, value, tb) = sys.exc_info()
+                    tb_str = "".join(traceback.format_tb(tb))
+                    self.logger.error("Traceback:\n%s" % (tb_str))
+                except Exception:
+                    tb_str = "Traceback information unavailable."
+                    self.logger.error(tb_str)
 
         return True
 
@@ -656,12 +679,15 @@ class ginga_general(object):
                 #mef_file = self._check_filetype(shortname)
                 image = AstroImage()
                 with fits.open(fname) as filedata:
+                    if extver >= len(filedata):
+                        raise ValueError("extver (%d) > number of HDUs (%d)" % (
+                            extver, len(filedata)))
                     hdu = filedata[extver]
                     image.load_hdu(hdu)
                     
             except Exception as e:
-                print("Exception: {0}".format(e))
-                raise IOError
+                self.logger.error("Exception opening file: {0}".format(e))
+                raise IOError(str(e))
 
             frame = self.frame()
             self._set_frameinfo(frame, fname=fname, hdu=hdu, image=image)
