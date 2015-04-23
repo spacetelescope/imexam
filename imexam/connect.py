@@ -256,8 +256,8 @@ class Connect(object):
             print(cstring)
 
 
-"""Implement the following functions in your viewer class"""
-
+    """Implement the following functions in your viewer class"""
+    
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset"""
         return self.window.readcursor()
@@ -417,7 +417,7 @@ class Connect(object):
         """zoom the image to fit the display"""
         self.window.zoomtofit()
 
-""" These are imexam parameters that the user can change for plotting  """
+    """ These are imexam parameters that the user can change for plotting  """
 
     # seems easiest to return the parameter dictionaries here, then the user can catch it, edit it
     # and reset the pars with self.set in the exam link or directly into the imexamine object.
