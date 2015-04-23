@@ -204,7 +204,7 @@ class Imexamine(object):
 
         Notes
         -----
-        x,y are not used here, but the calls are setup to take them
+        x,y, data, are not used here, but the calls are setup to take them
         for all imexam options. Is there a better way to do the calls in general?
         Once the new plotting window is open all plots will be directed towards it
         The old window cannot be used again.
@@ -340,11 +340,11 @@ class Imexamine(object):
             outer=inner+width
             
             apertures=photutils.CircularAperture((x,y),radius)
-            rawflux_table = photutils.aperture_photometry(self._data,apertures,subpixels=1, method="center")
+            rawflux_table = photutils.aperture_photometry(data,apertures,subpixels=1, method="center")
             
             if subsky:
                 annulus_apertures=photutils.CircularAnnulus((x,y),r_in=inner, r_out=outer)
-                bkgflux_table=photutils.aperture_photometry(self._data,annulus_apertures)
+                bkgflux_table=photutils.aperture_photometry(data,annulus_apertures)
 
                 #to calculate the mean local background, divide the circular annulus aperture sums
                 #by the area fo teh circular annuls. The bkg sum with the circular aperture is then
@@ -633,7 +633,7 @@ class Imexamine(object):
             rapert = int(router) + 1
             for rad in range(1, rapert, 1):
                 aper_flux, annulus_sky, skysub_flux = self._aperture_phot(
-                    centerx, centery, radsize=rad, sky_inner=inner, skywidth=width, method="exact")
+                    centerx, centery, data, radsize=rad, sky_inner=inner, skywidth=width, method="exact")
                 radius.append(rad)
                 if self.curve_of_growth_pars["background"][0]:
                     if inner < router:
@@ -653,7 +653,7 @@ class Imexamine(object):
             plt.show(block=False)
             time.sleep(self.sleep_time)
 
-    def _aperture_phot(self, x, y, radsize=1, sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
+    def _aperture_phot(self, x, y, data, radsize=1, sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
         """Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed
 
         Parameters
@@ -684,11 +684,11 @@ class Imexamine(object):
 
 
             apertures=photutils.CircularAperture((x,y),radsize)
-            rawflux_table = photutils.aperture_photometry(self._data,apertures,subpixels=1, method="center")
+            rawflux_table = photutils.aperture_photometry(data,apertures,subpixels=1, method="center")
 
             outer=sky_inner + skywidth
             annulus_apertures=photutils.CircularAnnulus((x,y),r_in=sky_inner, r_out=outer)
-            bkgflux_table=photutils.aperture_photometry(self._data,annulus_apertures)
+            bkgflux_table=photutils.aperture_photometry(data,annulus_apertures)
 
             #to calculate the mean local background, divide the circular annulus aperture sums
             #by the area fo the circular annuls. The bkg sum with the circular aperture is then

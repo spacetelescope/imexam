@@ -209,15 +209,6 @@ class ginga_general(object):
     def __del__(self):
         if self._close_on_del:
             self.close()
-
-    def _imexam(self,canvas,keyname):
-        """start imexam in ginga window"""
-        if keyname == 'i':
-            self.ginga_view.fitsimage.onscreen_message("imexam",delay=1.0)
-            
-            fi = self.window.canvas.fitsimage
-            data_x, data_y = fi.get_last_data_xy()
-            print("key {0:s} pressed at data {1} {2}".format(keyname,data_x,data_y))
                    
 
     def _set_frameinfo(self, frame, fname=None, hdu=None, data=None, 
@@ -594,7 +585,7 @@ class ginga_general(object):
 
         # get our data array
         data = self.get_data()
-        
+        self.logger.debug("x,y,data dim: %f %f %i"%(data_x, data_y, data.ndim))
         self.logger.debug("exam=%s" % str(self.exam))
         # call the imexam function directly
         if self.exam != None:
