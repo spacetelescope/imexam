@@ -292,7 +292,7 @@ class ds9(object):
                 # this is the best way to get the information if the user changes
                 # the loaded file using the gui
                 header_cards = fits.Header.fromstring(self.get_header(), sep='\n')
-                mef_file = self._check_filetype(filename)
+                mef_file = util.check_filetype(filename)
                 if mef_file:
                     try:
                         extver = int(header_cards['EXTVER'])
@@ -333,25 +333,6 @@ class ds9(object):
 
         else:
             warnings.warn("No frame loaded in viewer")
-
-    def _check_filetype(self, filename=None):
-        """check the file to see if the file is a multi-extension fits file"""
-        if not filename:
-            raise ValueError("No filename provided")
-        else:
-            try:
-                mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
-            except KeyError:
-                mef_file = False
-
-            # check to see if the fits file lies
-            if mef_file:
-                try:
-                    nextend = fits.getval(filename, ext=0, keyword='NEXTEND')
-                except KeyError:
-                    mef_file = False
-
-            return mef_file
 
     def valid_data_in_viewer(self):
         """return bool if valid file or array is loaded into the viewer"""
@@ -1049,21 +1030,10 @@ class ds9(object):
         if fname:
             # see if the image is MEF or Simple
             fname = os.path.abspath(fname)
-            try:
-                # strip the extensions for now
-                shortname = fname.split("[")[0]
-
-                mef_file = self._check_filetype(shortname)
-                if not mef_file or '[' in fname:
-                    cstring = ('file fits {0:s}'.format(fname))
-                elif extver and not extname:
-                    cstring = ('file fits {0:s}[{1:d}]'.format(fname, extver))
-                elif extver and extname:
-                    cstring = ('file fits {0:s}[{1:s},{2:d}]'.format(fname, extname, extver))
-            except IOError as e:
-                print("Exception: {0}".format(e))
-                raise IOError
-
+            
+            # strip the extensions for now
+            shortname = fname.split("[")[0]
+            cstring = util.verify_filename(shortname,extver,extname)
             self.set(cstring)
             self._set_frameinfo()
             self._viewer[frame]['user_array']=None #make sure any previous reference is reset

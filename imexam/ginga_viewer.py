@@ -675,13 +675,15 @@ class ginga_general(object):
         if fname:
             # see if the image is MEF or Simple
             fname = os.path.abspath(fname)
+            short=True
             try:
-                #mef_file = self._check_filetype(shortname)
+                mef=util.check_filetype(fname) 
+                if not mef: 
+                    extver=0
+                cstring=util.verify_filename(fname,getshort=short)
                 image = AstroImage()
-                with fits.open(fname) as filedata:
-                    if extver >= len(filedata):
-                        raise ValueError("extver (%d) > number of HDUs (%d)" % (
-                            extver, len(filedata)))
+
+                with fits.open(cstring) as filedata:
                     hdu = filedata[extver]
                     image.load_hdu(hdu)
                     

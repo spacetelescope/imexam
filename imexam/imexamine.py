@@ -20,7 +20,6 @@ import inspect
 from IPython.display import Image
 import StringIO
 
-
 try:
     import photutils
     photutils_installed = True

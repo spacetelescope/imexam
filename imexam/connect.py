@@ -87,13 +87,12 @@ class Connect(object):
             
             #alter the exam.imexam_option_funcs{} here through the viewer code if you want to
             #change key+function associations
-            #self.exam.imexam_option_funcs
             #self.window._reassign_keys(imexam_dict)
         
         elif 'ginga_qt' in self._viewer:
             self.window=ginga_qt(exam=self.exam,
                                  close_on_del=quit_window, logger=logging)
-            
+            self._event_driven_exam=True #viewer will track imexam with callbacks            
 
         self.logfile = 'imexam_log.txt'
         self.log=None #points to the package logger
@@ -130,28 +129,26 @@ class Connect(object):
 
     def imexam(self):
         """run imexamine with user interaction. At a minimum it requires a copy of the data array"""
-        if not self._event_driven_exam:
-            if self.valid_data_in_viewer():
+        if self.valid_data_in_viewer():
+            if not self._event_driven_exam:
                 self._run_imexam()
             else:
-                warnings.warn("No valid image loaded in viewer")
+                self._run_event_imexam()
         else:
-            self._run_event_imexam()
+            warnings.warn("No valid image loaded in viewer")
             
             
     def _run_event_imexam(self):
         """ let the viewer run an event driven imexam 
-        
-        
-        pass the key binding dictionary in for it to attach to?
-        
+                
+        pass the key binding dictionary in for it to attach to?       
         
         """        
         if not self._event_driven_exam:
             warnings.warn("Event driven imexam not implemented for viewer")
            
         else:
-            self._run_imexam() #for now
+            self._run_event_imexam() #for now
             
            
     def get_data_filename(self):
@@ -170,13 +167,27 @@ class Connect(object):
         """Return a dictionary which has information about all frames loaded with data"""
         return self.window.get_viewer_info()
 
+    def _run_event_imexam(self):
+        """ access event driven imexam for viewers in which it's implemented
+        
+        This basically means that imexam functions are available either all the time
+        with the press of a key, or the loop starts and ends with a key press event
+        capture instead of a commanded loop function
+        
+        """
+        if self._event_driven_exam:
+            self.exam.print_options()
+        else:
+            warnings.warn("Event driven imexam not implemented for this viewer")
+            
+        
     def _run_imexam(self):
         """start imexam analysis loop for non event driven viewers
 
         Notes
         -----
         The data displayed in the current frame is grabbed .The catch is that the user can change the data
-        that is displayed using the gui menus, so during the imexam loop the display needs to be
+        that is displayed using the gui menus in DS9, so during the imexam loop the display needs to be
         checked after each key stroke.
 
         This function will track the user changing the frame number using the gui display
@@ -243,6 +254,9 @@ class Connect(object):
             cstring = "\nCurrent slice {0:s}".format(self.get_frame_info()['naxis'],)
             logging.info(cstring)
             print(cstring)
+
+
+"""Implement the following functions in your viewer class"""
 
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset"""
@@ -402,6 +416,8 @@ class Connect(object):
     def zoomtofit(self):
         """zoom the image to fit the display"""
         self.window.zoomtofit()
+
+""" These are imexam parameters that the user can change for plotting  """
 
     # seems easiest to return the parameter dictionaries here, then the user can catch it, edit it
     # and reset the pars with self.set in the exam link or directly into the imexamine object.

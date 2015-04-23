@@ -68,17 +68,17 @@ class my_clean(clean):
 # build xpans so that we can start up the name server
 # if users dont have it installed on their machine
 
-from setuptools.command.build_ext import build_ext
-class build_ext_with_configure(build_ext):
-
-    def build_extensions(self):
-        import subprocess
-        subprocess.call(["make","-f","Makefile","clean"],
-                cwd=XPALIB_DIR)
-        subprocess.call(["sh", "./configure"],cwd=XPALIB_DIR)
-        subprocess.call(["make", "-f", "Makefile"],cwd=XPALIB_DIR)
-        build_ext.build_extensions(self)
-        print("building with configure")
+#from setuptools.command.build_ext import build_ext
+#class build_ext_with_configure(build_ext):
+#
+#    def build_extensions(self):
+#        import subprocess
+#        subprocess.call(["make","-f","Makefile","clean"],
+#                cwd=XPALIB_DIR)
+#        subprocess.call(["sh", "./configure"],cwd=XPALIB_DIR)
+#        subprocess.call(["make", "-f", "Makefile"],cwd=XPALIB_DIR)
+#       build_ext.build_extensions(self)
+#        print("building with configure")
 
 
 xpalib_files = """acl.c
@@ -124,7 +124,6 @@ setup(
     d2to1=True,
     use_2to3=False,
     zip_safe=False,
-    cmdclass={'build_ext':build_ext_with_configure,'clean':my_clean},
     ext_modules=[xpa_module],
 )
 
