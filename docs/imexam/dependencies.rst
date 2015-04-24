@@ -7,7 +7,7 @@ Software Dependencies
 *   matplotlib (for plotting)
 *   DS9 (for image display) 
 
-astropy >= 0.3
+astropy >= 1.0
 
 python >= 2.7
 Python 2.6 and 3.2 are not currently supported

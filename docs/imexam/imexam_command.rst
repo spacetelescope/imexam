@@ -1,7 +1,7 @@
 ===================
 The imexam() method
 =================== 
-This is the main method which allows live interaction with the image display. 
+This is the main method which allows live interaction with the image display when you are using the DS9 program for viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out the exam. 
 
 
 **imexam** (): 
