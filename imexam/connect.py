@@ -19,9 +19,8 @@ try:
     have_ginga = True
 except ImportError:
     have_ginga = False
-    
-    
-        
+
+
 from .imexamine import Imexamine
 
 __all__ = ["Connect"]
@@ -61,72 +60,80 @@ class Connect(object):
 
     """
 
-    def __init__(self, target=None, path=None, viewer="ds9", wait_time=10, quit_window=True):
+    def __init__(self, target=None, path=None, viewer="ds9",
+                 wait_time=10, quit_window=True):
 
-        _possible_viewers = ["ds9"]  # better dynamic way so people can add their own viewers?
+        # better dynamic way so people can add their own viewers?
+        _possible_viewers = ["ds9"]
 
-        self._viewer=viewer.lower()
-        
+        self._viewer = viewer.lower()
+
         if have_ginga:
             _possible_viewers.append('ginga_mp')
             _possible_viewers.append('ginga_qt')
-            
+
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
             raise NotImplementedError
 
-        self.exam = Imexamine()  # init sets empty data array until we can load or check viewer
+        # init sets empty data array until we can load or check viewer
+        self.exam = Imexamine()
 
         if 'ds9' in self._viewer:
             self.window = ds9(
                 target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
-            self._event_driven_exam=False #use the imexam loop 
-                
+            self._event_driven_exam = False  # use the imexam loop
+
         elif 'ginga_mp' in self._viewer:
             self.window = ginga_mp(exam=self.exam,
                                    close_on_del=quit_window, logger=logging)
-            #self.window.view.add_callback('key-press',self.window._imexam)
-            #rotate canvas in before this can be used
-            #self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
-            self._event_driven_exam=True #the viewer will track imexam with callbacks
-            
-            #alter the exam.imexam_option_funcs{} here through the viewer code if you want to
-            #change key+function associations
-            #self.window._reassign_keys(imexam_dict)
-        
+            # self.window.view.add_callback('key-press',self.window._imexam)
+            # rotate canvas in before this can be used
+            # self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
+            # the viewer will track imexam with callbacks
+            self._event_driven_exam = True
+
+            # alter the exam.imexam_option_funcs{} here through the viewer code if you want to
+            # change key+function associations
+            # self.window._reassign_keys(imexam_dict)
+
         elif 'ginga_qt' in self._viewer:
-            self.window=ginga_qt(exam=self.exam,
-                                 close_on_del=quit_window, logger=logging)
-            self._event_driven_exam=True #viewer will track imexam with callbacks            
+            self.window = ginga_qt(exam=self.exam,
+                                   close_on_del=quit_window, logger=logging)
+            # viewer will track imexam with callbacks
+            self._event_driven_exam = True
 
         self.logfile = 'imexam_log.txt'
-        self.log=None #points to the package logger
+        self.log = None  # points to the package logger
         self._current_slice = None
         self._current_frame = None
 
-     
     def ginga_test(self, canvas, keyname):
         """ how to get key information from the ginga window
-        
+
         see also example5_mpl.py in the ginga source example directories
         """
-        
+
         if keyname == 'd':
             #self.window.view.fitsimage.onscreen_message("pressed d",delay=1.0)
- 
+
             fi = canvas.fitsimage
             data_x, data_y = fi.get_last_data_xy()
-            print("key {0:s} pressed at data {1} {2}".format(keyname,data_x,data_y))
+            print(
+                "key {0:s} pressed at data {1} {2}".format(
+                    keyname,
+                    data_x,
+                    data_y))
 
-        #image=fi.get_image() #this attaches to the model
-        #data=image.get_data() #this gets the actual data from the model
-        
+        # image=fi.get_image() #this attaches to the model
+        # data=image.get_data() #this gets the actual data from the model
+
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
         """turn on and off imexam logging to the a file"""
         if filename:
             self.logfile = filename
 
-        self.log=set_logging(self.logfile, on, level)
+        self.log = set_logging(self.logfile, on, level)
 
     def close(self):
         """ close the window and end connection"""
@@ -141,20 +148,18 @@ class Connect(object):
                 self._run_imexam()
         else:
             warnings.warn("No valid image loaded in viewer")
-            
-            
+
     def _run_event_imexam(self):
-        """ let the viewer run an event driven imexam 
-                
-        pass the key binding dictionary in for it to attach to?       
-        
-        """        
+        """ let the viewer run an event driven imexam
+
+        pass the key binding dictionary in for it to attach to?
+
+        """
         if not self._event_driven_exam:
             warnings.warn("Event driven imexam not implemented for viewer")
         else:
             self.exam.print_options()
-            
-           
+
     def get_data_filename(self):
         """return the filename for the data in the current window"""
         return self.window.get_filename()
@@ -169,8 +174,8 @@ class Connect(object):
 
     def get_viewer_info(self):
         """Return a dictionary which has information about all frames loaded with data"""
-        return self.window.get_viewer_info()            
-        
+        return self.window.get_viewer_info()
+
     def _run_imexam(self):
         """start imexam analysis loop for non event driven viewers
 
@@ -184,11 +189,11 @@ class Connect(object):
         for  images and update the data array.
 
         TODO
-        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented, 
+        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented,
         the problem comes with  printing the coordinates and visual comparison with what's displayed
         in the gui. The gui display seems to round up integer pixels at some zoom factors. Verify this to some level
         by looking at the pixel returned and using the pixel table window in DS9 to look at surrounding values.
-        imexamine() returns the value at the integer pixel location. 
+        imexamine() returns the value at the integer pixel location.
 
         """
 
@@ -221,33 +226,41 @@ class Connect(object):
                     if 'q' in current_key:
                         current_key = None
                     else:
-                        self.exam.do_option(x-1, y-1, current_key) #ds9 returns 1 based array
+                        self.exam.do_option(
+                            x -
+                            1,
+                            y -
+                            1,
+                            current_key)  # ds9 returns 1 based array
             except KeyError:
-                print("Invalid key, use\n: {0}".format(self.exam.print_options()))
+                print(
+                    "Invalid key, use\n: {0}".format(
+                        self.exam.print_options()))
 
     def _check_frame(self):
         """check if the user switched frames"""
-        frame=self.frame()
+        frame = self.frame()
         if self._current_frame != frame:  # the user has changed window frames
             self.exam.set_data(self.window.get_data())
             self._current_frame = frame
-            cstring = "\nCurrent image {0:s}".format(self.get_frame_info()['filename'],)
+            cstring = "\nCurrent image {0:s}".format(
+                self.get_frame_info()['filename'],)
             logging.info(cstring)
             print(cstring)
 
     def _check_slice(self):
         """ check if the user switched slice images """
-        this_slice=self.window.get_slice_info()
+        this_slice = self.window.get_slice_info()
         if self._current_slice != this_slice:
             self.exam.set_data(self.window.get_data())
             self._current_slice = this_slice
-            cstring = "\nCurrent slice {0:s}".format(self.get_frame_info()['naxis'],)
+            cstring = "\nCurrent slice {0:s}".format(
+                self.get_frame_info()['naxis'],)
             logging.info(cstring)
             print(cstring)
 
-
     """Implement the following functions in your viewer class"""
-    
+
     def readcursor(self):
         """returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset"""
         return self.window.readcursor()
@@ -410,7 +423,8 @@ class Connect(object):
     """ These are imexam parameters that the user can change for plotting  """
 
     # seems easiest to return the parameter dictionaries here, then the user can catch it, edit it
-    # and reset the pars with self.set in the exam link or directly into the imexamine object.
+    # and reset the pars with self.set in the exam link or directly into the
+    # imexamine object.
 
     def aimexam(self):
         """show current parameters for aperture photometry"""
@@ -464,6 +478,7 @@ class Connect(object):
             self.exam.get_plot_name()  # show the current default
         else:
             if os.access(filename, os.F_OK):
-                warnings.warn("File with that name already exists:{0s}".format(filename))
+                warnings.warn(
+                    "File with that name already exists:{0s}".format(filename))
             else:
                 self.exam.set_plot_name(filename)

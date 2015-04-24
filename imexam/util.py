@@ -12,7 +12,12 @@ from astropy import log
 from . import xpa
 from xpa import XpaException
 
-__all__ = ["find_ds9", "list_active_ds9", "display_help", "list_ds9_ids", "find_xpans"]
+__all__ = [
+    "find_ds9",
+    "list_active_ds9",
+    "display_help",
+    "list_ds9_ids",
+    "find_xpans"]
 
 
 def find_ds9():
@@ -56,7 +61,8 @@ def list_active_ds9():
         except XpaException:
             print("No active sessions registered")
     else:
-        print("XPA nameserver not installed or not on PATH, function unavailable")
+        print(
+            "XPA nameserver not installed or not on PATH, function unavailable")
 
 
 def list_ds9_ids():
@@ -98,16 +104,21 @@ def set_logging(filename=None, on=True, level=logging.DEBUG):
         if not filename:
             warnings.warn("No log filename specified")
             raise ValueError
-            
+
         root = logging.getLogger(__name__)
-        logging.basicConfig(filename=filename, level=level, format='\n%(funcName)s \n%(message)s',)
+        logging.basicConfig(
+            filename=filename,
+            level=level,
+            format='\n%(funcName)s \n%(message)s',
+        )
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         stdout_handler.setLevel(logging.INFO)
         formatter = logging.Formatter('\n%(funcName)s \n%(message)s')
         stdout_handler.setFormatter(formatter)
 
         root.addHandler(stdout_handler)
-        root.addHandler(logging.NullHandler())  # to prevent warning in unhandled contexts
+        # to prevent warning in unhandled contexts
+        root.addHandler(logging.NullHandler())
 
         print("Saving imexam commands to {0:s}".format(filename))
         logging.disable(level)  # log above
@@ -115,6 +126,7 @@ def set_logging(filename=None, on=True, level=logging.DEBUG):
 
     if not on:
         logging.disable(logging.CRITICAL)  # basically turns off logging
+
 
 def check_filetype(filename=None):
     """check the file to see if it is a multi-extension fits file
@@ -138,12 +150,12 @@ def check_filetype(filename=None):
         return mef_file
 
 
-def verify_filename(fname="",extver=1,extname=None,getshort=False):
+def verify_filename(fname="", extver=1, extname=None, getshort=False):
     """
     Verify the filename exists and check to see if the
     user has given extension, extension name or some combination
     """
-    
+
     if fname:
         # see if the image is MEF or Simple
         fname = os.path.abspath(fname)
@@ -159,7 +171,11 @@ def verify_filename(fname="",extver=1,extname=None,getshort=False):
             elif extver and not extname:
                 cstring = ('file fits {0:s}[{1:d}]'.format(fname, extver))
             elif extver and extname:
-                cstring = ('file fits {0:s}[{1:s},{2:d}]'.format(fname, extname, extver))
+                cstring = (
+                    'file fits {0:s}[{1:s},{2:d}]'.format(
+                        fname,
+                        extname,
+                        extver))
         except IOError as e:
             print("Exception: {0}".format(e))
             raise IOError
@@ -167,4 +183,3 @@ def verify_filename(fname="",extver=1,extname=None,getshort=False):
         return cstring
     else:
         print("No filename provided")
-

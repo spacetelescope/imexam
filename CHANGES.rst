@@ -1,7 +1,14 @@
+
+
 version 0.4dev (unreleased)
 ---------------------------
 
 - Ginga is added as an optional viewer
+
+- Ginga viewer with matplotlib backend fully flushed out,
+this uses an event driven examination which is activated by key-press
+
+- general bug fixes
 
 
 version 0.3.dev (unreleased)

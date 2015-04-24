@@ -10,7 +10,8 @@ For default key and mouse shortcuts in a Ginga window, see:
 
 from __future__ import print_function, division, absolute_import
 
-import sys, os
+import sys
+import os
 import traceback
 import time
 import warnings
@@ -29,16 +30,16 @@ from ginga.qtw.QtHelp import QtGui
 
 try:
     import aplpy
-    have_aplpy=True
+    have_aplpy = True
 except:
-    have_aplpy=False
+    have_aplpy = False
 
 import matplotlib
 from matplotlib import pyplot as plt
 # module variables
 _matplotlib_cmaps_added = False
 
-__all__ = ['ginga_mp','ginga_qt' ]
+__all__ = ['ginga_mp', 'ginga_qt']
 
 
 class ginga_general(object):
@@ -46,7 +47,7 @@ class ginga_general(object):
     """ A class which controls all interactions between the user and the
     ginga window
 
-        The ginga_mp() contructor creates a new window. 
+        The ginga_mp() contructor creates a new window.
 
         Parameters
         ----------
@@ -69,7 +70,7 @@ class ginga_general(object):
         -----
         """
         global _matplotlib_cmaps_added
-        
+
         self.exam = exam
         self._close_on_del = close_on_del
         # dictionary where each key is a frame number, and the values are a
@@ -89,7 +90,7 @@ class ginga_general(object):
 
         # ginga objects need a logger, create a null one if we are not
         # handed one in the constructor
-        if logger == None:
+        if logger is None:
             logger = log.get_logger(null=True)
         self.logger = logger
         self._saved_logger = logger
@@ -97,7 +98,9 @@ class ginga_general(object):
 
         # Establish settings (preferences) for ginga viewers
         basedir = paths.ginga_home
-        self.prefs = Settings.Preferences(basefolder=basedir, logger=self.logger)
+        self.prefs = Settings.Preferences(
+            basefolder=basedir,
+            logger=self.logger)
 
         # general preferences shared with other ginga viewers
         settings = self.prefs.createCategory('general')
@@ -109,13 +112,15 @@ class ginga_general(object):
         # add matplotlib colormaps to ginga's own set if user has this
         # preference set
         if settings.get('useMatplotlibColormaps', False) and \
-               (not _matplotlib_cmaps_added):
+                (not _matplotlib_cmaps_added):
             # Add matplotlib color maps if matplotlib is installed
             try:
                 cmap.add_matplotlib_cmaps()
                 _matplotlib_cmaps_added = True
             except Exception as e:
-                print("Failed to load matplotlib colormaps: {0}".format(str(e)))
+                print(
+                    "Failed to load matplotlib colormaps: {0}".format(
+                        str(e)))
 
         # bindings preferences shared with other ginga viewers
         bind_prefs = self.prefs.createCategory('bindings')
@@ -170,20 +175,19 @@ class ginga_general(object):
         wd, ht = o1.get_dimensions()
 
         # yellow text on a black filled rectangle
-        o2 = Compound(Rect(x1-xsp, y1-ht-ysp, x1+wd+xsp, y1+ht+ysp,
+        o2 = Compound(Rect(x1 - xsp, y1 - ht - ysp, x1 + wd + xsp, y1 + ht + ysp,
                            color='black',
                            fill=True, fillcolor='black', coord='canvas'),
-                           o1, coord='canvas')
-                           
+                      o1, coord='canvas')
+
         # use canvas, not data coordinates
-        
+
         canvas.add(o2, tag='indicator')
         # -- end black magic ------
 
     def _create_viewer(self, bind_prefs, viewer_prefs):
         """Create backend-specific viewer."""
         raise Exception("Subclass should override this method!")
-    
 
     def _capture(self):
         """
@@ -191,7 +195,7 @@ class ginga_general(object):
         processing by the bindings layer of Ginga.
         """
         self.ginga_view.onscreen_message("Entering imexam mode",
-                                   delay=1.0)
+                                         delay=1.0)
         # insert the canvas
         self.ginga_view.add(self.canvas, tag='mycanvas')
         self._draw_indicator()
@@ -202,11 +206,11 @@ class ginga_general(object):
         Remove our canvas so that we no longer intercept events.
         """
         self.ginga_view.onscreen_message("Leaving imexam mode",
-                                   delay=1.0)
+                                         delay=1.0)
         self._capturing = False
         self.canvas.deleteObjectByTag('indicator')
-        
-        # retract the canvas 
+
+        # retract the canvas
         self.ginga_view.deleteObjectByTag('mycanvas')
 
     def __str__(self):
@@ -215,9 +219,8 @@ class ginga_general(object):
     def __del__(self):
         if self._close_on_del:
             self.close()
-                   
 
-    def _set_frameinfo(self, frame, fname=None, hdu=None, data=None, 
+    def _set_frameinfo(self, frame, fname=None, hdu=None, data=None,
                        image=None):
         """Set the name and extension information for the data displayed in
         frame n and gather header information.
@@ -231,7 +234,7 @@ class ginga_general(object):
             if frame not in self._viewer.keys():
                 self._viewer[frame] = dict()
 
-            if not data.any():
+            if data is None or not data.any():
                 try:
                     data = self._viewer[frame]['user_array']
                 except KeyError:
@@ -241,46 +244,14 @@ class ginga_general(object):
             extname = None  # name of extension
             filename = None  # filename of image
             numaxis = 2  # number of image planes, this is NAXIS
-            naxis = (0)  # tuple of each image plane, defaulted to 1 image plane
-            iscube = False  # data has more than 2 dimensions and loads in cube/slice frame
+            # tuple of each image plane, defaulted to 1 image plane
+            naxis = (0)
+            # data has more than 2 dimensions and loads in cube/slice frame
+            iscube = False
             mef_file = False  # used to check misleading headers in fits files
 
             if hdu:
                 pass
-                ## naxis.reverse()  # for astropy.fits row-major ordering
-                ## naxis = map(int, naxis)
-                ## naxis = [axis - 1 if axis > 0 else 0 for axis in naxis]  # zero index fits
-                ## naxis = tuple(naxis)
-
-                ## # set the extension from the header information returned from DS9
-                ## # this is the best way to get the information if the user changes
-                ## # the loaded file using the gui
-                ## header_cards = fits.Header.fromstring(self.get_header(), sep='\n')
-                ## mef_file = self._check_filetype(filename)
-                ## if mef_file:
-                ##     try:
-                ##         extver = int(header_cards['EXTVER'])
-                ##     except KeyError:
-                ##         extver = 1  # fits doesn't require extver if there is only 1 extension
-
-                ##     try:
-                ##         extname = str(header_cards['EXTNAME'])
-                ##     except KeyError:
-                ##         extname = None
-
-                ## try:
-                ##     numaxis = int(header_cards['NAXIS'])
-                ## except KeyError:
-                ##     raise KeyError("Problem getting NAXIS from header")
-
-                ## if not iscube:
-                ##     if numaxis > 2:
-                ##         iscube = True
-                ##         naxis = list()
-                ##         # assume the first axis in each extension is displayed
-                ##         for axis in range(numaxis, 2, -1):
-                ##             naxis.append(0)
-                ##         naxis = tuple(naxis)
 
             # update the viewer dictionary, if the user changes what's displayed in a frame this should update correctly
             # this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through
@@ -291,7 +262,7 @@ class ginga_general(object):
                                    'extname': extname,
                                    'naxis': naxis,
                                    'numaxis': numaxis,
-                                   'iscube':  iscube,
+                                   'iscube': iscube,
                                    'user_array': data,
                                    'image': image,
                                    'hdu': hdu,
@@ -330,7 +301,7 @@ class ginga_general(object):
                     valid = True
                 elif self._viewer[frame]['image'].any():
                     valid = True
-            except AttributeError, ValueError:
+            except AttributeError as ValueError:
                 valid = False
                 print("error in array")
 
@@ -355,7 +326,7 @@ class ginga_general(object):
         plt.close(self.figure)
 
     def readcursor(self):
-        """returns image coordinate postion and key pressed, 
+        """returns image coordinate postion and key pressed,
 
         Notes
         -----
@@ -366,7 +337,7 @@ class ginga_general(object):
 
         with self._cv:
             self._kv = ()
-            
+
         # wait for a key press
         # NOTE: the viewer now calls the functions directly from the
         # dispatch table, and only returns on the quit key here
@@ -384,7 +355,7 @@ class ginga_general(object):
                     break
 
         # ginga is returning 0 based indexes
-        return x+1, y+1, k
+        return x + 1, y + 1, k
 
     def _define_cmaps(self):
         """setup the default color maps which are available"""
@@ -392,8 +363,9 @@ class ginga_general(object):
         # get ginga color maps
         self._cmap_colors = cmap.get_names()
 
-    def cmap(self, color=None, load=None, invert=False, save=False, filename='colormap.ds9'):
-        """ Set the color map table to something else, using a defined list of options  
+    def cmap(self, color=None, load=None, invert=False, save=False,
+             filename='colormap.ds9'):
+        """ Set the color map table to something else, using a defined list of options
 
 
         Parameters
@@ -409,7 +381,7 @@ class ginga_general(object):
             invert the colormap
 
         save: bool, optional
-            save the current colormap as a file   
+            save the current colormap as a file
 
         filename: string, optional
             the name of the file to save the colormap to
@@ -434,7 +406,6 @@ class ginga_general(object):
         if save:
             warnings.warn("Colormap saving not supported")
 
-
     def frame(self, n=None):
         """convenience function to change or report frames
 
@@ -443,7 +414,7 @@ class ginga_general(object):
         ----------
         n: int, string, optional
             The frame number to open or change to. If the number specified doesn't exist, a new frame will be opened
-            If nothing is specified, then the current frame number will be returned. 
+            If nothing is specified, then the current frame number will be returned.
 
         Examples
         --------
@@ -456,8 +427,7 @@ class ginga_general(object):
         """
         frame = self._current_frame
         n_str = str(n)
-        frames = self._viewer.keys()
-        frames.sort()
+        frames = sorted(self._viewer.keys())
 
         if not n is None:
             if n_str == "delete":
@@ -468,26 +438,26 @@ class ginga_general(object):
                         n = frames[0]
                     else:
                         n = None
-                        
+
             elif n_str == "new":
                 n = frames[-1]
                 n += 1
                 self._set_frameinfo(n)
-                
+
             elif n_str == "last":
                 n = frames[-1]
 
             elif n_str == "first":
                 n = frames[0]
-                
+
             else:
                 n = int(n)
                 if not n in frames:
                     print("%d is not a created frame." % (n))
-                        
+
             self._current_frame = n
             image = self._viewer[frame]['image']
-            if image != None:
+            if image is not None:
                 self.ginga_view.set_image(image)
             return n
 
@@ -528,7 +498,6 @@ class ginga_general(object):
             elif self._viewer[frame]['image'] != None:
                 return self._viewer[frame]['image'].get_data()
 
-
     def get_header(self):
         """return the current fits header as a string or None if there's a problem"""
 
@@ -552,7 +521,7 @@ class ginga_general(object):
             self._capture()
             return True
         return False
-        
+
     def _key_press_imexam(self, canvas, keyname):
         """
         This callback function is called when a key is pressed in the
@@ -567,23 +536,23 @@ class ginga_general(object):
             # temporarily switch to non-imexam mode
             self._release()
             return True
-        
+
         elif keyname == 'backslash':
             # exchange normal logger for the stdout debug logger
             if self.logger != self._debug_logger:
                 self.logger = self._debug_logger
                 self.ginga_view.onscreen_message("Debug logging on",
-                                           delay=1.0)
+                                                 delay=1.0)
             else:
                 self.logger = self._saved_logger
                 self.ginga_view.onscreen_message("Debug logging off",
-                                           delay=1.0)
+                                                 delay=1.0)
             return True
-            
+
         elif keyname == 'q':
             # exit imexam mode
             self._release()
-        
+
             with self._cv:
                 # this will be picked up by the caller in readcursor()
                 self._kv = (keyname, data_x, data_y)
@@ -591,17 +560,21 @@ class ginga_general(object):
 
         # get our data array
         data = self.get_data()
-        self.logger.debug("x,y,data dim: %f %f %i"%(data_x, data_y, data.ndim))
+        self.logger.debug(
+            "x,y,data dim: %f %f %i" %
+            (data_x, data_y, data.ndim))
         self.logger.debug("exam=%s" % str(self.exam))
         # call the imexam function directly
-        if self.exam != None:
+        if self.exam is not None:
             try:
                 method = self.exam.imexam_option_funcs[keyname][0]
             except KeyError:
-                self.logger.debug("no method defined in the option_funcs dictionary")
+                self.logger.debug(
+                    "no method defined in the option_funcs dictionary")
                 return False
-            
-            self.logger.debug("calling examine function key={0}".format(keyname))
+
+            self.logger.debug(
+                "calling examine function key={0}".format(keyname))
             try:
                 method(data_x, data_y, data)
             except Exception as e:
@@ -638,18 +611,18 @@ class ginga_general(object):
         if fname:
             # see if the image is MEF or Simple
             fname = os.path.abspath(fname)
-            short=True
+            short = True
             try:
-                mef=util.check_filetype(fname) 
-                if not mef: 
-                    extver=0
-                cstring=util.verify_filename(fname,getshort=short)
+                mef = util.check_filetype(fname)
+                if not mef:
+                    extver = 0
+                cstring = util.verify_filename(fname, getshort=short)
                 image = AstroImage()
 
                 with fits.open(cstring) as filedata:
                     hdu = filedata[extver]
                     image.load_hdu(hdu)
-                    
+
             except Exception as e:
                 self.logger.error("Exception opening file: {0}".format(e))
                 raise IOError(str(e))
@@ -677,7 +650,7 @@ class ginga_general(object):
         """
         # ginga deals in 0-based coords
         x, y = x - 1, y - 1
-        
+
         self.ginga_view.set_pan(x, y)
 
     def panto_wcs(self, x, y, system='fk5'):
@@ -692,7 +665,7 @@ class ginga_general(object):
         y: string
             The y location to move to
         system: string
-            The reference system that x and y were specified in, they should be understood by DS9        
+            The reference system that x and y were specified in, they should be understood by DS9
 
         """
         # this should be replaced by querying our own copy of the wcs
@@ -739,7 +712,7 @@ class ginga_general(object):
             flipy = _flipy
         if swapxy is None:
             swapxy = _swapxy
-            
+
         self.ginga_view.transform(flipx, flipy, swapxy)
 
     def save_png(self, filename=None):
@@ -766,7 +739,7 @@ class ginga_general(object):
         ----------
 
         scale: string
-            The scale for ds9 to use, these are set strings of 
+            The scale for ds9 to use, these are set strings of
             [linear|log|pow|sqrt|squared|asinh|sinh|histequ]
 
         Notes
@@ -826,24 +799,25 @@ class ginga_general(object):
 
         try:
             self.ginga_view.zoom_to(zoomlevel)
-            
+
         except Exception as e:
             print("problem with zoom: %s" % str(e))
 
 
 class ginga_mp(ginga_general):
+
     """
     A ginga-based viewer that uses a matplotlib widget.
 
     This kind of viewer is less performant speed-wise than if we
     choose a particular widget back end, but the advantage is that
     it works so long as the user has a working matplotlib.
-    
+
     This implementation has the benefit of adding image overlays
     """
 
     def _create_viewer(self, bind_prefs, viewer_prefs):
-        
+
         # Ginga imports for matplotlib backend
         from ginga.mplw.ImageViewCanvasMpl import ImageViewCanvas
         from ginga.mplw.ImageViewCanvasTypesMpl import DrawingCanvas
@@ -868,30 +842,30 @@ class ginga_mp(ginga_general):
         # create a canvas that we insert when doing imexam mode
         canvas = DrawingCanvas()
         self.canvas = canvas
-        
 
 
 class ginga_qt(ginga_general):
+
     """
     a ginga-based viewer that uses QT for display.
-    
+
     Faster or nicer than the MPL view implementation?
     """
-    
+
     def _create_viewer(self, bind_prefs, viewer_prefs, x=512, y=512):
-        #Ginga imports for QT backend
-        #matplotlib.use('Qt4Agg') #when QT implemented
+        # Ginga imports for QT backend
+        # matplotlib.use('Qt4Agg') #when QT implemented
         from ginga.qtw.QtHelp import QtGui, QtCore
         from ginga.qtw.ImageViewQt import ImageViewZoom
-        
+
         app = QtGui.QApplication([])
         app.connect(app, QtCore.SIGNAL('lastWindowClosed()'),
                     app, QtCore.SLOT('quit()'))
-        
-        self.figure=FitsViewer(self.logger)
-        self.figure.resize(x,y)
+
+        self.figure = FitsViewer(self.logger)
+        self.figure.resize(x, y)
         self.figure.show()
-        
+
         app.setActiveWindow(self.figure)
         self.figure.raise_()
         self.figure.activateWindow()
@@ -918,9 +892,9 @@ class FitsViewer(QtGui.QMainWindow):
         self.figure.set_bg(0.2, 0.2, 0.2)
         self.figure.ui_setActive(True)
 
-        w=self.figure.get_widget()
-        w.resize(512,512)
-        
+        w = self.figure.get_widget()
+        w.resize(512, 512)
+
         vbox = QtGui.QVBoxLayout()
         vbox.setContentsMargins(QtCore.QMargins(2, 2, 2, 2))
         vbox.setSpacing(1)
@@ -947,7 +921,6 @@ class FitsViewer(QtGui.QMainWindow):
         vw = QtGui.QWidget()
         self.setCentralWidget(vw)
         vw.setLayout(vbox)
-
 
     def load_fits(self, fname=""):
         image = AstroImage(logger=self.logger)

@@ -24,22 +24,22 @@ report_stat_pars = {"function": ["report_stat", ],
                     }
 
 curve_of_growth_pars = {"function": ["curve_of_growth", ],
-                       "title": ["Curve of growth", "Title of the plot"],
-                       "xlabel": ["radius", "The string for the xaxis label"],
-                       "ylabel": ["Flux", "The string for the yaxis label"],
-                       "center": [True, "Solve for center using 2d Gaussian? [bool]"],
-                       "background": [True, "Fit and subtract background? [bool]"],
-                       "buffer": [25., "Background inner radius in pixels,from center of star"],
-                       "width": [5., "Background annulus width in pixels"],
-                       "magzero": [25., "magnitude zero point"],
-                       "rplot": [8., "Plotting radius in pixels"],
-                       "pointmode": [True, "plot points instead of lines? [bool]"],
-                       "marker": ["o", "The marker character to use, matplotlib style"],
-                       "logx": [False, "log scale x-axis?"],
-                       "logy": [False, "log scale y-axis?"],
-                       "minflux": [0., "only measure flux above this value"],
-                       "getdata": [True, "return the plotted data values"]
-                       }
+                        "title": ["Curve of growth", "Title of the plot"],
+                        "xlabel": ["radius", "The string for the xaxis label"],
+                        "ylabel": ["Flux", "The string for the yaxis label"],
+                        "center": [True, "Solve for center using 2d Gaussian? [bool]"],
+                        "background": [True, "Fit and subtract background? [bool]"],
+                        "buffer": [25., "Background inner radius in pixels,from center of star"],
+                        "width": [5., "Background annulus width in pixels"],
+                        "magzero": [25., "magnitude zero point"],
+                        "rplot": [8., "Plotting radius in pixels"],
+                        "pointmode": [True, "plot points instead of lines? [bool]"],
+                        "marker": ["o", "The marker character to use, matplotlib style"],
+                        "logx": [False, "log scale x-axis?"],
+                        "logy": [False, "log scale y-axis?"],
+                        "minflux": [0., "only measure flux above this value"],
+                        "getdata": [True, "return the plotted data values"]
+                        }
 
 surface_pars = {"function": ["surface", ],
                 "title": [None, "Title of the plot"],
