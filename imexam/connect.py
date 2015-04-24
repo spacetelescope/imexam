@@ -8,6 +8,8 @@ import warnings
 import logging
 import subprocess
 import os
+
+
 from .util import set_logging
 from . import xpa
 from .ds9_viewer import ds9
@@ -17,6 +19,9 @@ try:
     have_ginga = True
 except ImportError:
     have_ginga = False
+    
+    
+        
 from .imexamine import Imexamine
 
 __all__ = ["Connect"]

@@ -27,6 +27,12 @@ from ginga import cmap
 from ginga.util import paths
 from ginga.qtw.QtHelp import QtGui
 
+try:
+    import aplpy
+    have_aplpy=True
+except:
+    have_aplpy=False
+
 import matplotlib
 from matplotlib import pyplot as plt
 # module variables
@@ -225,7 +231,7 @@ class ginga_general(object):
             if frame not in self._viewer.keys():
                 self._viewer[frame] = dict()
 
-            if not data:
+            if not data.any():
                 try:
                     data = self._viewer[frame]['user_array']
                 except KeyError:
