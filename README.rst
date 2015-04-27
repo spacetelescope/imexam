@@ -10,7 +10,7 @@ To install using pip:
 
 ::
 
-    pip install --pre imexam
+    pip install imexam
     
     
 Launching multiple DS9 windows
@@ -52,7 +52,7 @@ Starting a new connection with no target specified will open a new DS9 window us
     a=imexam.connect()
 
 
-Starting a connection to a Ginga widget, using the Matplotlib backend:
+Starting a connection to a Ginga widget, using the Matplotlib backend for viewing:
 
 ::
 
