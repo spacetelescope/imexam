@@ -1,13 +1,17 @@
 Example 1
 =========
 
-Basic Usage
+Basic Usage 
 -----------
 
 First you need to import the package
 ::
 
     import imexam
+
+
+Usage with D9 (the current default viewer)
+------------------------------------------
 
 Start up a DS9 window (by default), a new DS9 window will be opened
 ::
@@ -32,6 +36,20 @@ If you haven't given your windows unique names, then you must use the ip:port ad
 
     viewer=imexam.connect('82a7e75f:57222')
 
+
+
+Usage with Ginga viewer
+-----------------------
+
+Start up a ginga window using the matplotlib backend
+::
+
+    viewer=imexam.connect(viewer='ginga_mp')
+
+
+
+All commands after the viewer is opened are the same
+----------------------------------------------------
 
 Load a fits image into the window
 ::

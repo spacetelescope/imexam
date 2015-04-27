@@ -71,8 +71,6 @@ For all the examples below I will use the following session::
 
 
 
-
-
 Circular Apterture Photometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -469,12 +467,24 @@ During a single viewer.imexam() session, you can choose to send your plots to mu
     radii:[1 2 3 4 5 6 7 8]
     flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.7076232315, 1568629.6771239617, 1813434.3810552177, 1935335.7549474821, 2049080.846300941]
 
+This is what the workspace could look like with DS9 as the viewer:
 
 .. image:: multiple_plots.png
     :height: 650
     :width: 800
-    :alt: multiple plots in imexam
+    :alt: multiple plots in DS9 with imexam
 
+
+
+This is what the workspace might look like with Ginga as the viewer, the plots are all
+identical, just the viewer of the image changes:
+
+
+.. image:: multiple_ginga_plots.png
+    :height: 550
+    :width: 950
+    :alt: multiple plots in Ginga with imexam
+    
 
 As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:
 
