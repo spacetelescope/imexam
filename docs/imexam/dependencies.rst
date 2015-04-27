@@ -19,3 +19,13 @@ photutils > 0.0.dev
 
 scipy.optimize.curve_fit
 
+
+Ginga
+    This must be installed in order to use the Ginga displays instead of DS9. Using ginga has the advantage that the imexam() loop is now event driven. Issuing the command:
+    
+        viewer.imexam()
+        
+        
+Will print out the available examination command keys. The user can then press the "i" key while the mouse is in the graphics window, all subsequent key-presses will be grabbed without blocking your terminal command line. If you wish to turn of the imexam keys you can press either the "i" key a second time or the "q" key. A notification message will appear on screent that imexam mode has either started or stopped.
+
+

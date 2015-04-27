@@ -15,7 +15,6 @@ from . import xpa
 from .ds9_viewer import ds9
 try:
     from .ginga_viewer import ginga_mp
-    from .ginga_viewer import ginga_qt
     have_ginga = True
 except ImportError:
     have_ginga = False
@@ -70,7 +69,6 @@ class Connect(object):
 
         if have_ginga:
             _possible_viewers.append('ginga_mp')
-            _possible_viewers.append('ginga_qt')
 
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
@@ -97,11 +95,6 @@ class Connect(object):
             # change key+function associations
             # self.window._reassign_keys(imexam_dict)
 
-        elif 'ginga_qt' in self._viewer:
-            self.window = ginga_qt(exam=self.exam,
-                                   close_on_del=quit_window, logger=logging)
-            # viewer will track imexam with callbacks
-            self._event_driven_exam = True
 
         self.logfile = 'imexam_log.txt'
         self.log = None  # points to the package logger

@@ -64,9 +64,10 @@ class my_clean(clean):
         print("cleaning")
 
 
-# uncomment this section if you want to build the full XPA
+# uncomment the section below if you want to build the full XPA
 # build xpans so that we can start up the name server
-# if users dont have it installed on their machine
+# if users dont have it installed on their machine. You also
+# need to add the cmdsetup line to the setup function at the bottom
 
 #from setuptools.command.build_ext import build_ext
 #class build_ext_with_configure(build_ext):

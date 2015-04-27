@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.ds9_viewer &mdash; imexam v0.3.dev</title>
+    <title>imexam.ds9_viewer &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -25,9 +25,11 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../../index.html" />
+    <link rel="top" title="imexam v0.5" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -54,7 +56,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">imexam v0.3.dev</a>
+	<a href="../../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
@@ -72,18 +74,18 @@
   <h1>Source code for imexam.ds9_viewer</h1><div class="highlight"><pre>
 <span class="c"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
 
-<span class="sd">&quot;&quot;&quot;This class supports communication with DS9 through the XPA </span>
+<span class="sd">&quot;&quot;&quot;This class supports communication with DS9 through the XPA</span>
 
 
-<span class="sd">Some code in this class was adapted from pysao, which can be found at https://github.com/leejjoon/pysao. </span>
-<span class="sd">Specifically this package used the existing Cython implementation to the XPA  and extended the calls to </span>
+<span class="sd">Some code in this class was adapted from pysao, which can be found at https://github.com/leejjoon/pysao.</span>
+<span class="sd">Specifically this package used the existing Cython implementation to the XPA  and extended the calls to</span>
 <span class="sd">the other available XPA executables so that more functionality is added. The same information is available</span>
-<span class="sd">here: http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen </span>
+<span class="sd">here: http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen</span>
 
-<span class="sd">Using Cython will allow for broader development of the code and produce faster runtimes for large datasets </span>
-<span class="sd">with repeated calls to the display manager. </span>
+<span class="sd">Using Cython will allow for broader development of the code and produce faster runtimes for large datasets</span>
+<span class="sd">with repeated calls to the display manager.</span>
 
-<span class="sd">XPA is licensed under LGPL, help can be found here: http://hea-www.cfa.harvard.edu/saord/xpa/help.html </span>
+<span class="sd">XPA is licensed under LGPL, help can be found here: http://hea-www.cfa.harvard.edu/saord/xpa/help.html</span>
 <span class="sd">The current XPA can be downloaded from here: http://hea-www.harvard.edu/saord/xpa/</span>
 
 <span class="sd">DS9 also supports the SAMP protocol, but that has not been fully implemented in this package. http://ds9.si.edu/doc/ref/samp.html</span>
@@ -104,12 +106,6 @@
 <span class="kn">from</span> <span class="nn">imexam.xpa</span> <span class="kn">import</span> <span class="n">XpaException</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">astropy</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s">&quot;astropy is required&quot;</span><span class="p">)</span>
-
 <span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
 
 
@@ -130,7 +126,7 @@
     <span class="sd">&quot;&quot;&quot; A class which controls all interactions between the user and the ds9 window</span>
 
 <span class="sd">        The ds9() contructor takes a ds9 target as its main argument. If none is given,</span>
-<span class="sd">        then a new window will be opened. </span>
+<span class="sd">        then a new window will be opened.</span>
 
 <span class="sd">        DS9&#39;s xpa access points are documented in the reference manual, but the can also</span>
 <span class="sd">        be returned to the user with a call to xpaset.</span>
@@ -188,7 +184,7 @@
 <span class="sd">            If available, the EXTNAME of the MEF extension that is loaded, taken from the current data header</span>
 
 <span class="sd">        _extver: int</span>
-<span class="sd">            If available, the EXTVER of the MEF extension that is loaded, taken from the current data header       </span>
+<span class="sd">            If available, the EXTVER of the MEF extension that is loaded, taken from the current data header</span>
 
 <span class="sd">        _ds9_process: pointer</span>
 <span class="sd">            Points to the ds9 process id on the system, returned by Popen, whenever this module starts DS9</span>
@@ -219,14 +215,15 @@
     <span class="n">_tmp_dir</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
     <span class="n">_process_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">quit_ds9_on_del</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">quit_ds9_on_del</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        I think this is a quirk in the XPA communication. The xpans, and XPA prefer to have all connections</span>
 <span class="sd">        be of the same type. DS9 defaults to creating an INET connection. In some cases, if no IP address can be</span>
-<span class="sd">        found for the computer, the startup can hang. In these cases, a local connection is preferred, which </span>
+<span class="sd">        found for the computer, the startup can hang. In these cases, a local connection is preferred, which</span>
 <span class="sd">        uses a unix filename for the socket.</span>
 
 <span class="sd">        The problem arises that if the user already has DS9 windows running, that were started by default, the nameserver</span>
@@ -246,10 +243,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="c"># default starting socket type to local in order get around user xpa installation issues</span>
+
+        <span class="c"># default starting socket type to local in order get around user xpa</span>
+        <span class="c"># installation issues</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span> <span class="o">=</span> <span class="s">&quot;local&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># only used for DS9 windows started from this module</span>
+        <span class="c"># only used for DS9 windows started from this module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -262,7 +262,7 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="p">:</span>
             <span class="c"># Check to see if the user has chosen a preference first</span>
-            <span class="k">if</span> <span class="s">&#39;XPA_METHOD&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s">&#39;XPA_METHOD&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;XPA_METHOD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="s">&#39;inet&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
@@ -273,7 +273,8 @@
             <span class="k">elif</span> <span class="s">&#39;local&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_unix_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_unixonly_ds9</span><span class="p">()</span>
 
-            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;XPA_METHOD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span>  <span class="c"># tells xpa where to find sockets</span>
+            <span class="c"># tells xpa where to find sockets</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;XPA_METHOD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># just register with the target the user provided</span>
@@ -296,7 +297,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stop_process</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_set_frameinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the name and extension information for the data displayed in the current frame </span>
+        <span class="sd">&quot;&quot;&quot;Set the name and extension information for the data displayed in the current frame</span>
 <span class="sd">        and gather header information</span>
 
 
@@ -306,7 +307,7 @@
 <span class="sd">        started the DS9 process.</span>
 
 <span class="sd">        The only consistant way to return which cube and slice that is displayed is with the call</span>
-<span class="sd">        to &quot;file&quot; which has the full plane=x:y information, but only when looking at something </span>
+<span class="sd">        to &quot;file&quot; which has the full plane=x:y information, but only when looking at something</span>
 <span class="sd">        other than the first extension for each plane. In this case, you have to look at the header</span>
 <span class="sd">        information to see it&#39;s a cube image, and assume the first image plane is displayed.</span>
 
@@ -318,7 +319,7 @@
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="n">frame</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">frame</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
             <span class="k">try</span><span class="p">:</span>
@@ -330,8 +331,10 @@
             <span class="n">extname</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># name of extension</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># filename of image</span>
             <span class="n">numaxis</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c"># number of image planes, this is NAXIS</span>
-            <span class="n">naxis</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c"># tuple of each image plane, defaulted to 1 image plane</span>
-            <span class="n">iscube</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># data has more than 2 dimensions and loads in cube/slice frame</span>
+            <span class="c"># tuple of each image plane, defaulted to 1 image plane</span>
+            <span class="n">naxis</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c"># data has more than 2 dimensions and loads in cube/slice frame</span>
+            <span class="n">iscube</span> <span class="o">=</span> <span class="bp">False</span>
             <span class="n">mef_file</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># used to check misleading headers in fits files</span>
 
             <span class="n">load_header</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># not used for in memory arrays</span>
@@ -353,14 +356,18 @@
                 <span class="k">if</span> <span class="s">&quot;plane&quot;</span> <span class="ow">in</span> <span class="n">filename_string</span><span class="p">:</span>
                     <span class="n">iscube</span> <span class="o">=</span> <span class="bp">True</span>
                     <span class="k">if</span> <span class="s">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">filename_string</span><span class="p">:</span>
-                        <span class="n">naxis</span> <span class="o">=</span> <span class="n">filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
+                        <span class="n">naxis</span> <span class="o">=</span> <span class="n">filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span>
+                            <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">naxis</span> <span class="o">=</span> <span class="n">filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                        <span class="n">naxis</span> <span class="o">=</span> <span class="n">filename_string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)[</span>
+                            <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">naxis</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">naxis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">)</span>
                     <span class="n">naxis</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>  <span class="c"># for astropy.fits row-major ordering</span>
                     <span class="n">naxis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">naxis</span><span class="p">)</span>
-                    <span class="n">naxis</span> <span class="o">=</span> <span class="p">[</span><span class="n">axis</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">axis</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">naxis</span><span class="p">]</span>  <span class="c"># zero index fits</span>
+                    <span class="n">naxis</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">axis</span> <span class="o">-</span>
+                        <span class="mi">1</span> <span class="k">if</span> <span class="n">axis</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">naxis</span><span class="p">]</span>  <span class="c"># zero index fits</span>
                     <span class="n">naxis</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">naxis</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Problem parsing filename&quot;</span><span class="p">)</span>
@@ -369,13 +376,17 @@
                 <span class="c"># set the extension from the header information returned from DS9</span>
                 <span class="c"># this is the best way to get the information if the user changes</span>
                 <span class="c"># the loaded file using the gui</span>
-                <span class="n">header_cards</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_header</span><span class="p">(),</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-                <span class="n">mef_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filetype</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="n">header_cards</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_header</span><span class="p">(),</span>
+                    <span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+                <span class="n">mef_file</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">check_filetype</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">mef_file</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">extver</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;EXTVER&#39;</span><span class="p">])</span>
                     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                        <span class="n">extver</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># fits doesn&#39;t require extver if there is only 1 extension</span>
+                        <span class="c"># fits doesn&#39;t require extver if there is only 1</span>
+                        <span class="c"># extension</span>
+                        <span class="n">extver</span> <span class="o">=</span> <span class="mi">1</span>
 
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">extname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">header_cards</span><span class="p">[</span><span class="s">&#39;EXTNAME&#39;</span><span class="p">])</span>
@@ -405,44 +416,30 @@
                                    <span class="s">&#39;extname&#39;</span><span class="p">:</span> <span class="n">extname</span><span class="p">,</span>
                                    <span class="s">&#39;naxis&#39;</span><span class="p">:</span> <span class="n">naxis</span><span class="p">,</span>
                                    <span class="s">&#39;numaxis&#39;</span><span class="p">:</span> <span class="n">numaxis</span><span class="p">,</span>
-                                   <span class="s">&#39;iscube&#39;</span><span class="p">:</span>  <span class="n">iscube</span><span class="p">,</span>
+                                   <span class="s">&#39;iscube&#39;</span><span class="p">:</span> <span class="n">iscube</span><span class="p">,</span>
                                    <span class="s">&#39;user_array&#39;</span><span class="p">:</span> <span class="n">user_array</span><span class="p">,</span>
                                    <span class="s">&#39;mef&#39;</span><span class="p">:</span> <span class="n">mef_file</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">_check_filetype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;check the file to see if the file is a multi-extension fits file&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;No filename provided&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">mef_file</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">getval</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="s">&#39;EXTEND&#39;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="n">mef_file</span> <span class="o">=</span> <span class="bp">False</span>
-
-            <span class="c"># check to see if the fits file lies</span>
-            <span class="k">if</span> <span class="n">mef_file</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">nextend</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">getval</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="s">&#39;NEXTEND&#39;</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="n">mef_file</span> <span class="o">=</span> <span class="bp">False</span>
-
-            <span class="k">return</span> <span class="n">mef_file</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No frame loaded in viewer&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ds9.valid_data_in_viewer"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.valid_data_in_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">valid_data_in_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return bool if valid file or array is loaded into the viewer&quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]:</span>
-            <span class="k">return</span> <span class="bp">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-                    <span class="n">valid</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;error in array&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
 
-            <span class="k">return</span> <span class="n">valid</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;filename&#39;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">True</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                        <span class="k">return</span> <span class="bp">True</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;error in array&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">False</span>
 </div>
 <div class="viewcode-block" id="ds9.get_filename"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the filename currently on display</span>
@@ -452,7 +449,8 @@
 <span class="sd">        connect to a ds9 window with no file loaded and then ask for the data file name after loading one through</span>
 <span class="sd">        the ds9 menu options. This will poll the private filename and then try and set one if it&#39;s empty.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># see if the user has loaded a file by hand or changed frames in the gui</span>
+        <span class="c"># see if the user has loaded a file by hand or changed frames in the</span>
+        <span class="c"># gui</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
@@ -465,7 +463,17 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()]</span>
 </div>
 <div class="viewcode-block" id="ds9.get_viewer_info"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_viewer_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_viewer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a dictionary of information about all frames which are loaded with data&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary of information about all frames which are loaded with data</span>
+
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Consider adding a loop to verify that all the frames still exist and the user</span>
+<span class="sd">        has not deleted any through the gui.</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span>
 </div>
     <span class="nd">@classmethod</span>
@@ -492,7 +500,8 @@
         <span class="sd">&quot;&quot;&quot;stop the ds9 window process nicely, only if this package started it&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>  <span class="c"># none means not yet terminated</span>
+                <span class="c"># none means not yet terminated</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;exit&quot;</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_list</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_process_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="p">)</span>
@@ -507,11 +516,14 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quit_ds9_on_del</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;You need to manually delete tmp. dir ({0:s})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">))</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s">&quot;You need to manually delete tmp. dir ({0:s})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">))</span>
             <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop_process</span><span class="p">()</span>
-        <span class="c"># add a wait for the process to terminate before trying to delete the tree</span>
+        <span class="c"># add a wait for the process to terminate before trying to delete the</span>
+        <span class="c"># tree</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -542,7 +554,8 @@
 
         <span class="c"># this is the title of the window, without a nameserver connection</span>
         <span class="c"># is there a way to get the inet x:x address?</span>
-        <span class="n">xpaname</span> <span class="o">=</span> <span class="s">&quot;imexam&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>  <span class="c"># that should be unique enough, something better?</span>
+        <span class="c"># that should be unique enough, something better?</span>
+        <span class="n">xpaname</span> <span class="o">=</span> <span class="s">&quot;imexam&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span><span class="p">,</span>
                        <span class="s">&quot;-xpa&quot;</span><span class="p">,</span> <span class="s">&quot;inet&quot;</span><span class="p">,</span>
@@ -565,7 +578,7 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        When the xpa method in libxpa parses given template as an unix socket, it checks if the template string starts with tmpdir (from env[&quot;XPA_TMPDIR&quot;] </span>
+<span class="sd">        When the xpa method in libxpa parses given template as an unix socket, it checks if the template string starts with tmpdir (from env[&quot;XPA_TMPDIR&quot;]</span>
 <span class="sd">        or default to /tmp/.xpa). This can make having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address</span>
 <span class="sd">        you should be fine</span>
 
@@ -576,19 +589,25 @@
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
         <span class="n">wait_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span> <span class="o">=</span> <span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s">&quot;xpa_&quot;</span> <span class="o">+</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;USER&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">),</span> <span class="nb">dir</span><span class="o">=</span><span class="s">&quot;/tmp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span> <span class="o">=</span> <span class="n">mkdtemp</span><span class="p">(</span>
+            <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;xpa_&quot;</span> <span class="o">+</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&quot;USER&quot;</span><span class="p">,</span>
+                <span class="s">&quot;&quot;</span><span class="p">),</span>
+            <span class="nb">dir</span><span class="o">=</span><span class="s">&quot;/tmp&quot;</span><span class="p">)</span>
 
         <span class="c"># this is the first directory the servers looks for on the path</span>
         <span class="n">env</span><span class="p">[</span><span class="s">&quot;XPA_TMPDIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span>
 
         <span class="n">iraf_unix</span> <span class="o">=</span> <span class="s">&quot;{0:s}/.IMT&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">)</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>  <span class="c"># that should be unique enough, something better?</span>
+        <span class="c"># that should be unique enough, something better?</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c"># unix only flag disables the fifos and inet connections</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span><span class="p">,</span>
                        <span class="s">&quot;-xpa&quot;</span><span class="p">,</span> <span class="s">&quot;local&quot;</span><span class="p">,</span>
                        <span class="s">&quot;-unix_only&quot;</span><span class="p">,</span> <span class="s">&quot;-title&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span>
-                       <span class="s">&quot;-unix&quot;</span><span class="p">,</span>  <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">iraf_unix</span><span class="p">],</span>
+                       <span class="s">&quot;-unix&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">iraf_unix</span><span class="p">],</span>
                       <span class="n">shell</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
 
             <span class="c"># wait until ds9 starts and the .IMT socket exists</span>
@@ -631,7 +650,7 @@
         <span class="k">return</span> <span class="n">xpaname</span><span class="p">,</span> <span class="n">iraf_unix</span>
 
 <div class="viewcode-block" id="ds9.set_iraf_display"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.set_iraf_display">[docs]</a>    <span class="k">def</span> <span class="nf">set_iraf_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance. </span>
+        <span class="sd">&quot;&quot;&quot; Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -682,18 +701,18 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        This function is linked with the Cython implementation</span>
-<span class="sd">        get(param)        </span>
+<span class="sd">        get(param)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_ds9_process</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpa</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ds9.readcursor"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.readcursor">[docs]</a>    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed, </span>
+        <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed,</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        XPA returns strings of the form:  u a  257.5 239 \n </span>
+<span class="sd">        XPA returns strings of the form:  u a  257.5 239 \n</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -734,8 +753,8 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        blink_syntax=</span>
-<span class="sd">            Syntax: </span>
-<span class="sd">            blink </span>
+<span class="sd">            Syntax:</span>
+<span class="sd">            blink</span>
 <span class="sd">            [true|false]</span>
 <span class="sd">            [interval &lt;value&gt;]</span>
 
@@ -758,29 +777,39 @@
         <span class="sd">&quot;&quot;&quot;setup the default color maps which are available&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_syntax</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">        Syntax: </span>
+<span class="s">        Syntax:</span>
 <span class="s">        cmap [&lt;colormap&gt;]</span>
 <span class="s">            [file]</span>
-<span class="s">            [load &lt;filename&gt;] </span>
-<span class="s">            [save &lt;filename&gt;] </span>
-<span class="s">            [invert true|false] </span>
-<span class="s">            [value &lt;constrast&gt; &lt;bias&gt;] </span>
+<span class="s">            [load &lt;filename&gt;]</span>
+<span class="s">            [save &lt;filename&gt;]</span>
+<span class="s">            [invert true|false]</span>
+<span class="s">            [value &lt;constrast&gt; &lt;bias&gt;]</span>
 <span class="s">            [tag [load|save] &lt;filename&gt;]</span>
 <span class="s">            [tag delete]</span>
 <span class="s">            [match]</span>
 <span class="s">            [lock [true|false]]</span>
 <span class="s">            [open|close]</span>
 
-<span class="s">         Example: </span>
-<span class="s">            &gt;obj.cmap(map=&quot;Heat&quot;) </span>
-<span class="s">            &gt;obj.cmap(invert=True) </span>
+<span class="s">         Example:</span>
+<span class="s">            &gt;obj.cmap(map=&quot;Heat&quot;)</span>
+<span class="s">            &gt;obj.cmap(invert=True)</span>
 <span class="s">         &quot;&quot;&quot;</span>
 
         <span class="c"># is there a list I can pull automatically from ds9?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;heat&quot;</span><span class="p">,</span> <span class="s">&quot;grey&quot;</span><span class="p">,</span> <span class="s">&quot;cool&quot;</span><span class="p">,</span> <span class="s">&quot;aips0&quot;</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;bb&quot;</span><span class="p">,</span> <span class="s">&quot;he&quot;</span><span class="p">,</span> <span class="s">&quot;i8&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s">&quot;heat&quot;</span><span class="p">,</span>
+            <span class="s">&quot;grey&quot;</span><span class="p">,</span>
+            <span class="s">&quot;cool&quot;</span><span class="p">,</span>
+            <span class="s">&quot;aips0&quot;</span><span class="p">,</span>
+            <span class="s">&quot;a&quot;</span><span class="p">,</span>
+            <span class="s">&quot;b&quot;</span><span class="p">,</span>
+            <span class="s">&quot;bb&quot;</span><span class="p">,</span>
+            <span class="s">&quot;he&quot;</span><span class="p">,</span>
+            <span class="s">&quot;i8&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ds9.cmap"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.cmap">[docs]</a>    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;colormap.ds9&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set the color map table to something else, using a defined list of options  </span>
+<div class="viewcode-block" id="ds9.cmap"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.cmap">[docs]</a>    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">filename</span><span class="o">=</span><span class="s">&#39;colormap.ds9&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set the color map table to something else, using a defined list of options</span>
 
 
 <span class="sd">        Parameters</span>
@@ -796,7 +825,7 @@
 <span class="sd">            invert the colormap</span>
 
 <span class="sd">        save: bool, optional</span>
-<span class="sd">            save the current colormap as a file   </span>
+<span class="sd">            save the current colormap as a file</span>
 
 <span class="sd">        filename: string, optional</span>
 <span class="sd">            the name of the file to save the colormap to</span>
@@ -867,7 +896,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No filename provided for contours&quot;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ds9.crosshair"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.crosshair">[docs]</a>    <span class="k">def</span> <span class="nf">crosshair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">coordsys</span><span class="o">=</span><span class="s">&quot;physical&quot;</span><span class="p">,</span> <span class="n">skyframe</span><span class="o">=</span><span class="s">&quot;wcs&quot;</span><span class="p">,</span> <span class="n">skyformat</span><span class="o">=</span><span class="s">&quot;fk5&quot;</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ds9.crosshair"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.crosshair">[docs]</a>    <span class="k">def</span> <span class="nf">crosshair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">coordsys</span><span class="o">=</span><span class="s">&quot;physical&quot;</span><span class="p">,</span>
+                  <span class="n">skyframe</span><span class="o">=</span><span class="s">&quot;wcs&quot;</span><span class="p">,</span> <span class="n">skyformat</span><span class="o">=</span><span class="s">&quot;fk5&quot;</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Control the position of the crosshair in the current frame, crosshair mode is turned on automatically</span>
 
 <span class="sd">        Parameters</span>
@@ -912,10 +942,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        x: int </span>
+<span class="sd">        x: int</span>
 <span class="sd">            pixel location  x coordinate to move to</span>
 
-<span class="sd">        y: int </span>
+<span class="sd">        y: int</span>
 <span class="sd">            pixel location  y coordinate to move to</span>
 
 <span class="sd">        x and y are converted to strings for the call</span>
@@ -924,7 +954,8 @@
         <span class="k">if</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">y</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;cursor {0:s} {1:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;You need to supply both an x and y location for the cursor&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s">&quot;You need to supply both an x and y location for the cursor&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ds9.disp_header"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.disp_header">[docs]</a>    <span class="k">def</span> <span class="nf">disp_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Display the header of the current image to a DS9 window&quot;&quot;&quot;</span>
@@ -943,8 +974,8 @@
 <span class="sd">        ----------</span>
 <span class="sd">        n: int, string, optional</span>
 <span class="sd">            The frame number to open or change to. If the number specified doesn&#39;t exist, a new frame will be opened</span>
-<span class="sd">            If nothing is specified, then the current frame number will be returned. The value of n is converted to </span>
-<span class="sd">            a string before passing to the XPA             </span>
+<span class="sd">            If nothing is specified, then the current frame number will be returned. The value of n is converted to</span>
+<span class="sd">            a string before passing to the XPA</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -957,19 +988,29 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;frame&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c"># xpa returns &#39;\n&#39; for no frame</span>
 
-        <span class="k">if</span> <span class="n">n</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s">&quot;delete&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;frame {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s">&quot;delete&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">frame</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;frame {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;frame 1&quot;</span><span class="p">)</span>
+                        <span class="c"># the user can delete frame 1, but ds9 defaults to 1,</span>
+                        <span class="c"># so set it</span>
+                        <span class="k">return</span> <span class="s">&#39;1&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">XpaException</span><span class="p">(</span>
+                        <span class="s">&quot;XPA Exception getting frame: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="bp">None</span>  <span class="c"># the user can delete frame 1</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">XpaException</span><span class="p">(</span><span class="s">&quot;XPA Exception getting frame: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;frame 1&quot;</span><span class="p">)</span>
+                <span class="c"># the user can delete frame 1, but ds9 defaults to 1, so set it</span>
+                <span class="k">return</span> <span class="s">&#39;1&#39;</span>
 </div>
 <div class="viewcode-block" id="ds9.iscube"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.iscube">[docs]</a>    <span class="k">def</span> <span class="nf">iscube</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return information on whether a cube image is displayed in the current frame&quot;&quot;&quot;</span>
@@ -1004,7 +1045,8 @@
 
         <span class="c"># make sure the filename and extension info are correct for the current</span>
         <span class="c"># frame in DS9, users can change this in the gui</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span> <span class="c">#users can change frame and slice before calling this, best to check</span>
+        <span class="c"># users can change frame and slice before calling this, best to check</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
 
@@ -1087,43 +1129,33 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        To tell ds9 to open a file whose name or path includes spaces, </span>
+<span class="sd">        To tell ds9 to open a file whose name or path includes spaces,</span>
 <span class="sd">        surround the path with &quot;{...}&quot;, e.g.</span>
 
-<span class="sd">        % xpaset -p ds9 file &quot;{foo bar/my image.fits}&quot;  </span>
+<span class="sd">        % xpaset -p ds9 file &quot;{foo bar/my image.fits}&quot;</span>
 
 <span class="sd">        This is assuming that the image loads into the current or next new frame, watch the internal</span>
-<span class="sd">        file and ext values because the user can switch frames through DS9 app itself      </span>
+<span class="sd">        file and ext values because the user can switch frames through DS9 app itself</span>
 
 <span class="sd">        XPA needs to have the absolute path to the filename so that if the DS9 window was started</span>
-<span class="sd">        in another directory it can still find the file to load. arg. </span>
+<span class="sd">        in another directory it can still find the file to load. arg.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
-        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>    
+
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">frame</span><span class="p">:</span>
             <span class="n">frame</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># load into first frame</span>
 
         <span class="k">if</span> <span class="n">fname</span><span class="p">:</span>
             <span class="c"># see if the image is MEF or Simple</span>
             <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c"># strip the extensions for now</span>
-                <span class="n">shortname</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-                <span class="n">mef_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_filetype</span><span class="p">(</span><span class="n">shortname</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">mef_file</span> <span class="ow">or</span> <span class="s">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">fname</span><span class="p">:</span>
-                    <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;file fits {0:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">extver</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extname</span><span class="p">:</span>
-                    <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;file fits {0:s}[{1:d}]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">extver</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">extver</span> <span class="ow">and</span> <span class="n">extname</span><span class="p">:</span>
-                    <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;file fits {0:s}[{1:s},{2:d}]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">extname</span><span class="p">,</span> <span class="n">extver</span><span class="p">))</span>
-            <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Exception: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-                <span class="k">raise</span> <span class="ne">IOError</span>
-
+            <span class="c"># strip the extensions for now</span>
+            <span class="n">shortname</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">verify_filename</span><span class="p">(</span><span class="n">shortname</span><span class="p">,</span> <span class="n">extver</span><span class="p">,</span> <span class="n">extname</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">None</span> <span class="c">#make sure any previous reference is reset</span>
+            <span class="c"># make sure any previous reference is reset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s">&#39;user_array&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;No filename provided&quot;</span><span class="p">)</span>
 </div>
@@ -1194,12 +1226,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;file multiframe {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="ds9.mark_region_from_array"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.mark_region_from_array">[docs]</a>    <span class="k">def</span> <span class="nf">mark_region_from_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s">&quot;image&quot;</span><span class="p">,</span> <span class="n">textoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<div class="viewcode-block" id="ds9.mark_region_from_array"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.mark_region_from_array">[docs]</a>    <span class="k">def</span> <span class="nf">mark_region_from_array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s">&quot;image&quot;</span><span class="p">,</span> <span class="n">textoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;mark ds9 regions regions  given an input list of tuples, a convienence function, you can also use set_region</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        input_points: a tuple, or list of tuples, or a string: (x,y,comment), </span>
+<span class="sd">        input_points: a tuple, or list of tuples, or a string: (x,y,comment),</span>
 
 
 <span class="sd">        ptype: string</span>
@@ -1228,16 +1261,20 @@
 
         <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">input_points</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&quot;circle&quot;</span><span class="p">:</span>
-                <span class="n">pline</span> <span class="o">=</span> <span class="n">rtype</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">X</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">Y</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+                <span class="n">pline</span> <span class="o">=</span> <span class="n">rtype</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> \
+                    <span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">X</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">Y</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
                 <span class="k">print</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
 
-            <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">COMMENT</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">pline</span> <span class="o">=</span> <span class="s">&quot;text &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">X</span><span class="p">])</span> <span class="o">+</span> <span class="n">textoff</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> \
-                    <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">Y</span><span class="p">])</span> <span class="o">+</span> <span class="n">textoff</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &#39;&quot;</span> <span class="o">+</span> \
-                    <span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">COMMENT</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;&#39; #font=times&quot;</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">COMMENT</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">pline</span> <span class="o">=</span> <span class="s">&quot;text &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">X</span><span class="p">])</span> <span class="o">+</span> <span class="n">textoff</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> \
+                        <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">Y</span><span class="p">])</span> <span class="o">+</span> <span class="n">textoff</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &#39;&quot;</span> <span class="o">+</span> \
+                        <span class="nb">str</span><span class="p">(</span><span class="n">location</span><span class="p">[</span><span class="n">COMMENT</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;&#39; #font=times&quot;</span>
+                    <span class="k">print</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">pass</span>
 </div>
 <div class="viewcode-block" id="ds9.make_region"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.make_region">[docs]</a>    <span class="k">def</span> <span class="nf">make_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">textoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</span>
@@ -1299,17 +1336,20 @@
         <span class="n">out</span> <span class="o">=</span> <span class="n">infile</span> <span class="o">+</span> <span class="s">&quot;.reg&quot;</span>
         <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">pline</span> <span class="o">=</span> <span class="s">&quot;image; &quot;</span> <span class="o">+</span> <span class="n">point</span> <span class="o">+</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="n">pline</span> <span class="o">=</span> <span class="s">&quot;image; &quot;</span> <span class="o">+</span> <span class="n">point</span> <span class="o">+</span> \
+                <span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="n">pline</span> <span class="o">=</span> <span class="s">&quot;image;text(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> \
-                    <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;{ &quot;</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; })# font=</span><span class="se">\&quot;</span><span class="s">time 12 bold</span><span class="se">\&quot;\n</span><span class="s">&quot;</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span> <span class="o">+</span> \
+                    <span class="s">&quot;{ &quot;</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; })# font=</span><span class="se">\&quot;</span><span class="s">time 12 bold</span><span class="se">\&quot;\n</span><span class="s">&quot;</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pline</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;output reg file saved to: {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="ds9.match"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordsys</span><span class="o">=</span><span class="s">&quot;wcs&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fslice</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">bin</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">crosshair</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ds9.match"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordsys</span><span class="o">=</span><span class="s">&quot;wcs&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fslice</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+              <span class="n">scale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">bin</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">crosshair</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;match all other frames to the current frame</span>
 
 
@@ -1326,7 +1366,7 @@
 <span class="sd">            Set the current image display area, using the set coordsys</span>
 
 <span class="sd">        fslice: bool, optional</span>
-<span class="sd">            Match current slice in all frames  </span>
+<span class="sd">            Match current slice in all frames</span>
 
 <span class="sd">        scale: bool, optional</span>
 <span class="sd">            Match to the current scale for all frames</span>
@@ -1341,7 +1381,7 @@
 <span class="sd">            Match to the current smoothing for all frames</span>
 
 <span class="sd">        crosshair: bool, optional</span>
-<span class="sd">            Match the crosshair in all frames, using the current coordsys   </span>
+<span class="sd">            Match the crosshair in all frames, using the current coordsys</span>
 
 
 <span class="sd">        Notes</span>
@@ -1413,7 +1453,7 @@
 <span class="sd">        y: string</span>
 <span class="sd">            The y location to move to</span>
 <span class="sd">        system: string</span>
-<span class="sd">            The reference system that x and y were specified in, they should be understood by DS9        </span>
+<span class="sd">            The reference system that x and y were specified in, they should be understood by DS9</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;pan to {0:s} {1:s} wcs </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">system</span><span class="p">))</span>
@@ -1428,8 +1468,8 @@
 <span class="sd">            Rotate the current frame {value} degrees</span>
 <span class="sd">            If value is 0, then the current rotation is printed</span>
 
-<span class="sd">        to: bool </span>
-<span class="sd">            Rotate the current frame to the specified value </span>
+<span class="sd">        to: bool</span>
+<span class="sd">            Rotate the current frame to the specified value</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -1457,7 +1497,7 @@
 <span class="sd">            If no filename is provided then it will try and save the regions to the name of the</span>
 <span class="sd">            file in the current display with _regions.txt appended</span>
 
-<span class="sd">            If a file of that name already exists on disk it will no attempt to overwrite it </span>
+<span class="sd">            If a file of that name already exists on disk it will no attempt to overwrite it</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;regions save&quot;</span><span class="p">)</span>
@@ -1471,7 +1511,8 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">region_file</span><span class="p">:</span>
                 <span class="n">region_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;File already exists: {0} try again&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s">&quot;File already exists: {0} try again&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="ds9.save_rgb"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.save_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">save_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;save an rgbimage frame as an MEF fits file</span>
@@ -1495,7 +1536,7 @@
 <span class="sd">        ----------</span>
 
 <span class="sd">        scale: string</span>
-<span class="sd">            The scale for ds9 to use, these are set strings of </span>
+<span class="sd">            The scale for ds9 to use, these are set strings of</span>
 <span class="sd">            [linear|log|pow|sqrt|squared|asinh|sinh|histequ]</span>
 
 <span class="sd">        Notes</span>
@@ -1504,14 +1545,14 @@
 <span class="sd">        it just doesn&#39;t do anything, this is true for all the xpa calls</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">_help</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;Syntax: </span>
+        <span class="n">_help</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;Syntax:</span>
 <span class="s">           scales available: [linear|log|pow|sqrt|squared|asinh|sinh|histequ]</span>
-<span class="s">           </span>
-<span class="s">          [log exp &lt;value&gt;] </span>
-<span class="s">          [datasec yes|no] </span>
-<span class="s">          [limits &lt;minvalue&gt; &lt;maxvalue&gt;] </span>
-<span class="s">          [mode minmax|&lt;value&gt;|zscale|zmax] </span>
-<span class="s">          [scope local|global] </span>
+
+<span class="s">          [log exp &lt;value&gt;]</span>
+<span class="s">          [datasec yes|no]</span>
+<span class="s">          [limits &lt;minvalue&gt; &lt;maxvalue&gt;]</span>
+<span class="s">          [mode minmax|&lt;value&gt;|zscale|zmax]</span>
+<span class="s">          [scope local|global]</span>
 <span class="s">          [match]</span>
 <span class="s">          [lock [yes|no]]</span>
 <span class="s">          [open|close]</span>
@@ -1523,7 +1564,6 @@
         <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">mode_scale</span><span class="p">:</span>
             <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;scale mode </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">scale</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">XpaException</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;{0:s} not valid&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cstring</span><span class="p">))</span>
@@ -1567,7 +1607,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;pixeltable close&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ds9.snapsave"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.snapsave">[docs]</a>    <span class="k">def</span> <span class="nf">snapsave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create a snap shot of the current window and save in specified format. </span>
+        <span class="sd">&quot;&quot;&quot;create a snap shot of the current window and save in specified format.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1676,7 +1716,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;zoom </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">par</span><span class="p">)))</span>
         <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;XPA problem with zoom (probably your zoom window is already closed)&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span>
+                <span class="s">&quot;XPA problem with zoom (probably your zoom window is already closed)&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ds9.show_commands"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.show_commands">[docs]</a>    <span class="k">def</span> <span class="nf">show_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;print the available XPA commands&quot;&quot;&quot;</span>
@@ -1705,7 +1746,7 @@
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 27 Apr 2015. <br/>
   </p>
 </footer>
   </body>

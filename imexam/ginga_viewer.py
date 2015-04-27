@@ -39,7 +39,7 @@ from matplotlib import pyplot as plt
 # module variables
 _matplotlib_cmaps_added = False
 
-__all__ = ['ginga_mp', 'ginga_qt']
+__all__ = ['ginga_mp']
 
 
 class ginga_general(object):
@@ -47,8 +47,8 @@ class ginga_general(object):
     """ A class which controls all interactions between the user and the
     ginga window
 
-        The ginga_mp() contructor creates a new window.
-
+        The ginga_mp() contructor creates a new window with the matplotlib backend
+        
         Parameters
         ----------
         close_on_del : boolean, optional
@@ -68,6 +68,9 @@ class ginga_general(object):
 
         Notes
         -----
+        Ginga viewers all need a logger, if none is provided it will create one
+        
+        
         """
         global _matplotlib_cmaps_added
 
@@ -268,25 +271,6 @@ class ginga_general(object):
                                    'hdu': hdu,
                                    'mef': mef_file}
 
-    def _check_filetype(self, filename=None):
-        """check the file to see if the file is a multi-extension fits file"""
-        if not filename:
-            raise ValueError("No filename provided")
-        else:
-            try:
-                mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
-            except KeyError:
-                mef_file = False
-
-            # check to see if the fits file lies
-            if mef_file:
-                try:
-                    nextend = fits.getval(filename, ext=0, keyword='NEXTEND')
-                except KeyError:
-                    mef_file = False
-
-            return mef_file
-
     def valid_data_in_viewer(self):
         """return bool if valid file or array is loaded into the viewer"""
         frame = self.frame()
@@ -482,9 +466,6 @@ class ginga_general(object):
 
     def get_data(self):
         """ return a numpy array of the data displayed in the current frame
-
-        Notes
-        -----
         """
 
         frame = self.frame()
@@ -742,8 +723,6 @@ class ginga_general(object):
             The scale for ds9 to use, these are set strings of
             [linear|log|pow|sqrt|squared|asinh|sinh|histequ]
 
-        Notes
-        -----
         """
 
         # setting the autocut method?
@@ -768,6 +747,10 @@ class ginga_general(object):
         img: numpy array
             The array containing data, it will be forced to numpy.array()
 
+        Examples
+        --------
+        view(np.random.rand(100,100))
+        
         """
 
         frame = self.frame()
@@ -809,7 +792,7 @@ class ginga_mp(ginga_general):
     """
     A ginga-based viewer that uses a matplotlib widget.
 
-    This kind of viewer is less performant speed-wise than if we
+    This kind of viewer has slower performance than if we
     choose a particular widget back end, but the advantage is that
     it works so long as the user has a working matplotlib.
 
@@ -843,103 +826,4 @@ class ginga_mp(ginga_general):
         canvas = DrawingCanvas()
         self.canvas = canvas
 
-
-class ginga_qt(ginga_general):
-
-    """
-    a ginga-based viewer that uses QT for display.
-
-    Faster or nicer than the MPL view implementation?
-    """
-
-    def _create_viewer(self, bind_prefs, viewer_prefs, x=512, y=512):
-        # Ginga imports for QT backend
-        # matplotlib.use('Qt4Agg') #when QT implemented
-        from ginga.qtw.QtHelp import QtGui, QtCore
-        from ginga.qtw.ImageViewQt import ImageViewZoom
-
-        app = QtGui.QApplication([])
-        app.connect(app, QtCore.SIGNAL('lastWindowClosed()'),
-                    app, QtCore.SLOT('quit()'))
-
-        self.figure = FitsViewer(self.logger)
-        self.figure.resize(x, y)
-        self.figure.show()
-
-        app.setActiveWindow(self.figure)
-        self.figure.raise_()
-        self.figure.activateWindow()
-
-        self.view = self.figure
-
-        app.exec_()
-
-
-class FitsViewer(QtGui.QMainWindow):
-
-    def __init__(self, logger):
-        super(FitsViewer, self).__init__()
-        self.logger = logger
-
-        from ginga.qtw.QtHelp import QtGui, QtCore
-        from ginga.qtw.ImageViewQt import ImageViewZoom
-
-        self.figure = ImageViewZoom(self.logger, render='widget')
-        self.figure.enable_autocuts('on')
-        self.figure.set_autocut_params('zscale')
-        self.figure.enable_autozoom('on')
-        self.figure.set_callback('drag-drop', self.drop_file)
-        self.figure.set_bg(0.2, 0.2, 0.2)
-        self.figure.ui_setActive(True)
-
-        w = self.figure.get_widget()
-        w.resize(512, 512)
-
-        vbox = QtGui.QVBoxLayout()
-        vbox.setContentsMargins(QtCore.QMargins(2, 2, 2, 2))
-        vbox.setSpacing(1)
-        vbox.addWidget(w, stretch=1)
-
-        hbox = QtGui.QHBoxLayout()
-        hbox.setContentsMargins(QtCore.QMargins(4, 2, 4, 2))
-
-        wopen = QtGui.QPushButton("Open File")
-        wopen.clicked.connect(self.open_fits)
-        wquit = QtGui.QPushButton("Quit")
-        self.connect(wquit,
-                     QtCore.SIGNAL("clicked()"),
-                     self, QtCore.SLOT("close()"))
-
-        hbox.addStretch(1)
-        for w in (wopen, wquit):
-            hbox.addWidget(w, stretch=0)
-
-        hw = QtGui.QWidget()
-        hw.setLayout(hbox)
-        vbox.addWidget(hw, stretch=0)
-
-        vw = QtGui.QWidget()
-        self.setCentralWidget(vw)
-        vw.setLayout(vbox)
-
-    def load_fits(self, fname=""):
-        image = AstroImage(logger=self.logger)
-        image.load_file(fname)
-        self.figure.set_image(image)
-        self.setWindowTitle(fname)
-
-    def open_fits(self):
-        res = QtGui.QFileDialog.getOpenFileName(self, "Open FITS file",
-                                                ".", "FITS files (*.fits)")
-        if isinstance(res, tuple):
-            fileName = res[0].encode('ascii')
-        else:
-            fileName = str(res)
-        self.load_fits(fileName)
-
-    def drop_file(self, fitsimage, paths):
-        fileName = paths[0]
-        self.load_fits(fileName)
-
-    def get_bindings(self):
-        self.figure.get_bindings()
+ 

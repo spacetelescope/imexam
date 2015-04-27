@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Connect &mdash; imexam v0.3.dev</title>
+    <title>Connect &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,8 +25,10 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -53,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       
@@ -72,7 +74,7 @@
 <dl class="class">
 <dt id="imexam.connect.Connect">
 <em class="property">class </em><tt class="descclassname">imexam.connect.</tt><tt class="descname">Connect</tt><big>(</big><em>target=None</em>, <em>path=None</em>, <em>viewer='ds9'</em>, <em>wait_time=10</em>, <em>quit_window=True</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
 <p>Connect to a display device to look at and examine images that are displayed within</p>
 <p>The control features below are a basic set that should be available in all display tools.
 The class for the display tool should override them and add it&#8217;s own extra features.</p>
@@ -80,7 +82,7 @@ The class for the display tool should override them and add it&#8217;s own extra
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target: string, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target: string, optional</strong></p>
 <blockquote>
 <div><p>the viewer target name or id (default is to start a new instance of a DS9 window)</p>
 </div></blockquote>
@@ -88,11 +90,11 @@ The class for the display tool should override them and add it&#8217;s own extra
 <blockquote>
 <div><p>absolute path to the viewers executable</p>
 </div></blockquote>
-<p><strong>viewer: string, optional</strong> :</p>
+<p><strong>viewer: string, optional</strong></p>
 <blockquote>
-<div><p>The name of the image view you want to use, currently only DS9 is supported</p>
+<div><p>The name of the image viewer you want to use, currently only DS9 is supported</p>
 </div></blockquote>
-<p><strong>wait_time: int, optional</strong> :</p>
+<p><strong>wait_time: int, optional</strong></p>
 <blockquote class="last">
 <div><p>The time to wait for a connection to be eastablished before quitting</p>
 </div></blockquote>
@@ -682,7 +684,7 @@ x, y in image coord</p>
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 27 Apr 2015. <br/>
   </p>
 </footer>
   </body>

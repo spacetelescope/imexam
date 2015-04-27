@@ -1,0 +1,27 @@
+
+
+ginga_mp
+============================
+
+.. currentmodule:: imexam.ginga_viewer
+
+.. autoclass:: ginga_mp
+   :show-inheritance:
+
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   

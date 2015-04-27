@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam() User Methods &mdash; imexam v0.3.dev</title>
+    <title>imexam() User Methods &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,11 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="Convenience functions for XPA commands" href="xpa_commands.html" />
     <link rel="prev" title="The imexam() method" href="imexam_command.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -67,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -87,15 +89,15 @@
 <p>These are methods particular to the imexam package which are meant to aid users in their image analysis. They are called from the main object you created with imexam.connect().</p>
 <dl class="docutils">
 <dt><strong>close</strong> ():</dt>
-<dd><p class="first">close the DS9 window and end the connection.</p>
+<dd><p class="first">close the image viewing window and end the connection.</p>
 <div class="last highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd>
 <dt><strong>view</strong> (img, header=None, frame=None, asFits=False):</dt>
-<dd><p class="first">Load an image array into a DS9 frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
+<dd><p class="first">Load an image array into the image viewing frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
 A basic header is created and sent to DS9. You can look at this header with disp_header() but get_header() will return an error because it
-looks for a filename, and no file was loaded, just the array.</p>
+looks for a filename, and no file was loaded, just the array. No header is sent to the Ginga widget.</p>
 <div class="last highlight-python"><div class="highlight"><pre>image_array=fits.getdata(&#39;image.fits&#39;)
 viewer.view(image_array)
 
@@ -119,7 +121,7 @@ Out[2]: (67.333333, 80.0, &#39;&lt;1&gt;&#39;)
 </div>
 </dd>
 <dt><strong>make_region</strong> (infile,doLabels=False):</dt>
-<dd><p class="first">Make an input reg file which contains rows with  &#8220;x,y,comment&#8221; into a region file that the viewer recognizes.</p>
+<dd><p class="first">Make an input reg file which contains rows with  &#8220;x,y,comment&#8221; into a region file that the DS9 viewer recognizes.</p>
 <dl class="docutils">
 <dt>infile: str</dt>
 <dd>input filename</dd>
@@ -130,7 +132,7 @@ Out[2]: (67.333333, 80.0, &#39;&lt;1&gt;&#39;)
 <dt>textoff: int</dt>
 <dd>offset in pixels for labels</dd>
 <dt>rtype: str</dt>
-<dd>region type, one of the acceptable ds9 regions</dd>
+<dd>region type, one of the acceptable DS9 regions</dd>
 <dt>size: int</dt>
 <dd>size of the region type</dd>
 </dl>
@@ -160,7 +162,7 @@ image;text(310.0,310.0{ comment 3 })# font=&quot;time 12 bold&quot;
 <dl class="docutils">
 <dt><strong>mark_region_from_array</strong> (input_points,rtype=&#8221;circle&#8221;,ptype=&#8221;image&#8221;,textoff=10,size=5):</dt>
 <dd><p class="first">mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified</p>
-<p>input_points: a tuple, or list of tuples, or a string: (x,y,comment),</p>
+<p>input_points: a tuple, or list of tuples, or a string which contain: (x,y,comment),</p>
 <dl class="docutils">
 <dt>ptype: string</dt>
 <dd>the reference system for the point locations, image|physical|fk5</dd>
@@ -204,7 +206,7 @@ Saving imexam commands to imexam_log.txt
 </div></blockquote>
 <dl class="docutils">
 <dt><strong>set_region</strong> (region_string):</dt>
-<dd>Use this to send the viewer a formatted region string it&#8217;s expecting</dd>
+<dd>Use this to send the DS9 viewer a formatted region string it&#8217;s expecting</dd>
 </dl>
 <p>For example, in DS9:</p>
 <div class="highlight-python"><div class="highlight"><pre>viewer.set_region(&quot;text 110.0 110.0 &#39;1&#39; #font=times&quot;)
@@ -303,7 +305,7 @@ In [2]: imexam.display_help()
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 27 Apr 2015. <br/>
   </p>
 </footer>
   </body>

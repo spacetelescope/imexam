@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ds9 &mdash; imexam v0.3.dev</title>
+    <title>ds9 &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,8 +25,10 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -53,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       
@@ -72,7 +74,7 @@
 <dl class="class">
 <dt id="imexam.ds9_viewer.ds9">
 <em class="property">class </em><tt class="descclassname">imexam.ds9_viewer.</tt><tt class="descname">ds9</tt><big>(</big><em>target=None</em>, <em>path=None</em>, <em>wait_time=5</em>, <em>quit_ds9_on_del=True</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
 <p>A class which controls all interactions between the user and the ds9 window</p>
 <p>The ds9() contructor takes a ds9 target as its main argument. If none is given,
 then a new window will be opened.</p>
@@ -83,7 +85,7 @@ be returned to the user with a call to xpaset.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target: string, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target: string, optional</strong></p>
 <blockquote>
 <div><p>the ds9 target name or id (default is to start a new instance)</p>
 </div></blockquote>
@@ -106,8 +108,8 @@ be returned to the user with a call to xpaset.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="17%" />
-<col width="83%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>wait_time: float</td>
@@ -135,8 +137,7 @@ be returned to the user with a call to xpaset.</p>
 <td>The name of the image that&#8217;s currently loaded into DS9</td>
 </tr>
 <tr class="row-odd"><td>_ext: int</td>
-<td>Extension of the current image that is loaded. If one extension of an MEF file is loaded this will be 1
-regarless of the extension that was specified (because DS9 and the XPA now see it as a single image and header)</td>
+<td>Extension of the current image that is loaded. If one extension of an MEF file is loaded this will be 1 regarless of the extension that was specified (because DS9 and the XPA now see it as a single image and header)</td>
 </tr>
 <tr class="row-even"><td>_extname: string</td>
 <td>If available, the EXTNAME of the MEF extension that is loaded, taken from the current data header</td>
@@ -164,7 +165,7 @@ regarless of the extension that was specified (because DS9 and the XPA now see i
 <p class="rubric">Notes</p>
 <p>I think this is a quirk in the XPA communication. The xpans, and XPA prefer to have all connections
 be of the same type. DS9 defaults to creating an INET connection. In some cases, if no IP address can be
-found for the computer, the startup can hang. In these cases, a local connection is preferred, which 
+found for the computer, the startup can hang. In these cases, a local connection is preferred, which
 uses a unix filename for the socket.</p>
 <p>The problem arises that if the user already has DS9 windows running, that were started by default, the nameserver
 is only listening for the default socket type (inet) and not local. There are also cases where the machine
@@ -182,7 +183,7 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <td>align wcs</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.blink" title="imexam.ds9_viewer.ds9.blink"><tt class="xref py py-obj docutils literal"><span class="pre">blink</span></tt></a>([blink,&nbsp;interval])</td>
-<td>Blink frames   :Parameters:      <strong>blink: bool, optional</strong> :           Set to True to start blinking the frames which are open               <strong>interval: int</strong> :           Set interval equal to the length of pause for blinking  ..</td>
+<td>Blink frames</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.clear_contour" title="imexam.ds9_viewer.ds9.clear_contour"><tt class="xref py py-obj docutils literal"><span class="pre">clear_contour</span></tt></a>()</td>
 <td>clear contours from the screen</td>
@@ -215,7 +216,7 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <td>convenience function to change or report frames</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get" title="imexam.ds9_viewer.ds9.get"><tt class="xref py py-obj docutils literal"><span class="pre">get</span></tt></a>(param)</td>
-<td>XPA get method to ds9 instance which returns received string   :Parameters:      <strong>param</strong> : parameter string (eg.</td>
+<td>XPA get method to ds9 instance which returns received string</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_data" title="imexam.ds9_viewer.ds9.get_data"><tt class="xref py py-obj docutils literal"><span class="pre">get_data</span></tt></a>()</td>
 <td>return a numpy array of the data displayed in the current frame</td>
@@ -293,10 +294,10 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <td>save an rgbimage frame as an MEF fits file</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.scale" title="imexam.ds9_viewer.ds9.scale"><tt class="xref py py-obj docutils literal"><span class="pre">scale</span></tt></a>([scale])</td>
-<td>The default zscale is the most widely used option   :Parameters:      <strong>scale: string</strong> :           The scale for ds9 to use, these are set strings of          [linear|log|pow|sqrt|squared|asinh|sinh|histequ]  ..</td>
+<td>The default zscale is the most widely used option</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set" title="imexam.ds9_viewer.ds9.set"><tt class="xref py py-obj docutils literal"><span class="pre">set</span></tt></a>(param[,&nbsp;buf])</td>
-<td>XPA set method to ds9 instance   ..</td>
+<td>XPA set method to ds9 instance</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set_iraf_display" title="imexam.ds9_viewer.ds9.set_iraf_display"><tt class="xref py py-obj docutils literal"><span class="pre">set_iraf_display</span></tt></a>()</td>
 <td>Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance.</td>
@@ -339,7 +340,7 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool</strong></p>
 <blockquote class="last">
 <div><p>Align the images using the WCS in their headers</p>
 </div></blockquote>
@@ -357,11 +358,11 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>blink: bool, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>blink: bool, optional</strong></p>
 <blockquote>
 <div><p>Set to True to start blinking the frames which are open</p>
 </div></blockquote>
-<p><strong>interval: int</strong> :</p>
+<p><strong>interval: int</strong></p>
 <blockquote class="last">
 <div><p>Set interval equal to the length of pause for blinking</p>
 </div></blockquote>
@@ -372,8 +373,8 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <p class="rubric">Notes</p>
 <dl class="docutils">
 <dt>blink_syntax=</dt>
-<dd>Syntax: 
-blink 
+<dd>Syntax:
+blink
 [true|false]
 [interval &lt;value&gt;]</dd>
 </dl>
@@ -399,24 +400,24 @@ blink
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>color: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>color: string</strong></p>
 <blockquote>
 <div><p>color must be set to one of the available DS9 color map names</p>
 </div></blockquote>
-<p><strong>load: string, optional</strong> :</p>
+<p><strong>load: string, optional</strong></p>
 <blockquote>
 <div><p>set to the filename which is a valid colormap lookup table
 valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p>
 </div></blockquote>
-<p><strong>invert: bool, optional</strong> :</p>
+<p><strong>invert: bool, optional</strong></p>
 <blockquote>
 <div><p>invert the colormap</p>
 </div></blockquote>
-<p><strong>save: bool, optional</strong> :</p>
+<p><strong>save: bool, optional</strong></p>
 <blockquote>
 <div><p>save the current colormap as a file</p>
 </div></blockquote>
-<p><strong>filename: string, optional</strong> :</p>
+<p><strong>filename: string, optional</strong></p>
 <blockquote class="last">
 <div><p>the name of the file to save the colormap to</p>
 </div></blockquote>
@@ -434,7 +435,7 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool</strong></p>
 <blockquote class="last">
 <div><p>Set to True to turn on the colorbar, False to turn it off</p>
 </div></blockquote>
@@ -452,11 +453,11 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool</strong></p>
 <blockquote>
 <div><p>Set to true to turn on contours</p>
 </div></blockquote>
-<p><strong>construct: bool, optional</strong> :</p>
+<p><strong>construct: bool, optional</strong></p>
 <blockquote class="last">
 <div><p>Will open the contour dialog box which has more options</p>
 </div></blockquote>
@@ -474,7 +475,7 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong></p>
 <blockquote class="last">
 <div><p>The name of the file with the contour level defined</p>
 </div></blockquote>
@@ -492,31 +493,31 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: string or int</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: string or int</strong></p>
 <blockquote>
 <div><p>The value of x is converted to a string for the call to XPA, use a value here appropriate for the skyformat you choose</p>
 </div></blockquote>
-<p><strong>y: string or int</strong> :</p>
+<p><strong>y: string or int</strong></p>
 <blockquote>
 <div><p>The value of y is converted to a string for the call to XPA, use a value here appropriate for the skyformat you choose</p>
 </div></blockquote>
-<p><strong>coordsys: string, optional</strong> :</p>
+<p><strong>coordsys: string, optional</strong></p>
 <blockquote>
 <div><p>The coordinate system your x and y are defined in</p>
 </div></blockquote>
-<p><strong>skyframe: string, optional</strong> :</p>
+<p><strong>skyframe: string, optional</strong></p>
 <blockquote>
 <div><p>If skyframe has &#8220;wcs&#8221; in it then skyformat is also sent to the XPA</p>
 </div></blockquote>
-<p><strong>skyformat: string, optional</strong> :</p>
+<p><strong>skyformat: string, optional</strong></p>
 <blockquote>
 <div><p>Used with skyframe, specifies the format of the coordinate which were given in x and y</p>
 </div></blockquote>
-<p><strong>match: bool, optional</strong> :</p>
+<p><strong>match: bool, optional</strong></p>
 <blockquote>
 <div><p>If set to True, then the wcs is matched for the frames</p>
 </div></blockquote>
-<p><strong>lock: bool, optional</strong> :</p>
+<p><strong>lock: bool, optional</strong></p>
 <blockquote class="last">
 <div><p>If set to True, then the frame is locked in wcs</p>
 </div></blockquote>
@@ -534,15 +535,15 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: int</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: int</strong></p>
 <blockquote>
 <div><p>pixel location  x coordinate to move to</p>
 </div></blockquote>
-<p><strong>y: int</strong> :</p>
+<p><strong>y: int</strong></p>
 <blockquote>
 <div><p>pixel location  y coordinate to move to</p>
 </div></blockquote>
-<p class="last"><strong>x and y are converted to strings for the call</strong> :</p>
+<p class="last"><strong>x and y are converted to strings for the call</strong></p>
 </td>
 </tr>
 </tbody>
@@ -563,10 +564,10 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n: int, string, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n: int, string, optional</strong></p>
 <blockquote class="last">
 <div><p>The frame number to open or change to. If the number specified doesn&#8217;t exist, a new frame will be opened
-If nothing is specified, then the current frame number will be returned. The value of n is converted to 
+If nothing is specified, then the current frame number will be returned. The value of n is converted to
 a string before passing to the XPA</p>
 </div></blockquote>
 </td>
@@ -639,6 +640,9 @@ the ds9 menu options. This will poll the private filename and then try and set o
 <dt id="imexam.ds9_viewer.ds9.get_viewer_info">
 <tt class="descname">get_viewer_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_viewer_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_viewer_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary of information about all frames which are loaded with data</p>
+<p class="rubric">Notes</p>
+<p>Consider adding a loop to verify that all the frames still exist and the user
+has not deleted any through the gui.</p>
 </dd></dl>
 
 <dl class="method">
@@ -649,11 +653,11 @@ the ds9 menu options. This will poll the private filename and then try and set o
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>on: bool, optional</strong></p>
 <blockquote>
 <div><p>Will turn the grid overlay on in the current frame</p>
 </div></blockquote>
-<p><strong>param: bool, optional</strong> :</p>
+<p><strong>param: bool, optional</strong></p>
 <blockquote class="last">
 <div><p>Will open the parameter dialog in DS9</p>
 </div></blockquote>
@@ -683,16 +687,16 @@ the ds9 menu options. This will poll the private filename and then try and set o
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname: string, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname: string, optional</strong></p>
 <blockquote>
 <div><p>The name of the file to be loaded. You can specify the full extension in the name, such as
 filename_flt.fits[sci,1] or filename_flt.fits[1]</p>
 </div></blockquote>
-<p><strong>extver: int, optional</strong> :</p>
+<p><strong>extver: int, optional</strong></p>
 <blockquote>
 <div><p>The extension to load (EXTVER in the header)</p>
 </div></blockquote>
-<p><strong>extname: string, optional</strong> :</p>
+<p><strong>extname: string, optional</strong></p>
 <blockquote class="last">
 <div><p>The name (EXTNAME in the header) of the image to load</p>
 </div></blockquote>
@@ -701,7 +705,7 @@ filename_flt.fits[sci,1] or filename_flt.fits[1]</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>To tell ds9 to open a file whose name or path includes spaces, 
+<p>To tell ds9 to open a file whose name or path includes spaces,
 surround the path with &#8220;{...}&#8221;, e.g.</p>
 <p>% xpaset -p ds9 file &#8220;{foo bar/my image.fits}&#8221;</p>
 <p>This is assuming that the image loads into the current or next new frame, watch the internal
@@ -730,7 +734,7 @@ in another directory it can still find the file to load. arg.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong></p>
 <blockquote class="last">
 <div><p>The file containing the DS9 style region description</p>
 </div></blockquote>
@@ -748,23 +752,23 @@ in another directory it can still find the file to load. arg.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>red: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>red: string</strong></p>
 <blockquote>
 <div><p>The name of the fits file which will be loaded into the red channel</p>
 </div></blockquote>
-<p><strong>green: string</strong> :</p>
+<p><strong>green: string</strong></p>
 <blockquote>
 <div><p>The name of the fits file which will be loaded into the green channel</p>
 </div></blockquote>
-<p><strong>blue: string</strong> :</p>
+<p><strong>blue: string</strong></p>
 <blockquote>
 <div><p>The name of the fits file which will be loaded into the blue channel</p>
 </div></blockquote>
-<p><strong>scale: bool</strong> :</p>
+<p><strong>scale: bool</strong></p>
 <blockquote>
 <div><p>If True, then each image will be scale with zscale() after loading</p>
 </div></blockquote>
-<p><strong>lockwcs: bool</strong> :</p>
+<p><strong>lockwcs: bool</strong></p>
 <blockquote class="last">
 <div><p>If True, then the image positions will be locked to each other using the WCS
 information in their headers</p>
@@ -783,23 +787,23 @@ information in their headers</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>infile: str</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>infile: str</strong></p>
 <blockquote>
 <div><p>input filename</p>
 </div></blockquote>
-<p><strong>labels: bool</strong> :</p>
+<p><strong>labels: bool</strong></p>
 <blockquote>
 <div><p>add labels to the regions</p>
 </div></blockquote>
-<p><strong>header: int</strong> :</p>
+<p><strong>header: int</strong></p>
 <blockquote>
 <div><p>number of header lines in text file to skip</p>
 </div></blockquote>
-<p><strong>textoff: int</strong> :</p>
+<p><strong>textoff: int</strong></p>
 <blockquote>
 <div><p>offset in pixels for labels</p>
 </div></blockquote>
-<p><strong>size: int</strong> :</p>
+<p><strong>size: int</strong></p>
 <blockquote class="last">
 <div><p>size of the region type</p>
 </div></blockquote>
@@ -819,16 +823,16 @@ information in their headers</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>input_points: a tuple, or list of tuples, or a string: (x,y,comment),</strong> :</p>
-<p><strong>ptype: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>input_points: a tuple, or list of tuples, or a string: (x,y,comment),</strong></p>
+<p><strong>ptype: string</strong></p>
 <blockquote>
 <div><p>the reference system for the point locations, image|physical|fk5</p>
 </div></blockquote>
-<p><strong>size: int</strong> :</p>
+<p><strong>size: int</strong></p>
 <blockquote>
 <div><p>the size of the region marker</p>
 </div></blockquote>
-<p><strong>textoff: string</strong> :</p>
+<p><strong>textoff: string</strong></p>
 <blockquote class="last">
 <div><p>the offset for the comment text, if comment is empty it will not show</p>
 </div></blockquote>
@@ -848,39 +852,39 @@ information in their headers</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>coordsys: string, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>coordsys: string, optional</strong></p>
 <blockquote>
 <div><p>The coordinate system to use</p>
 </div></blockquote>
-<p><strong>frame: bool, optional</strong> :</p>
+<p><strong>frame: bool, optional</strong></p>
 <blockquote>
 <div><p>Match all other frames to the current frame, using the set coordsys</p>
 </div></blockquote>
-<p><strong>crop: bool, optional</strong> :</p>
+<p><strong>crop: bool, optional</strong></p>
 <blockquote>
 <div><p>Set the current image display area, using the set coordsys</p>
 </div></blockquote>
-<p><strong>fslice: bool, optional</strong> :</p>
+<p><strong>fslice: bool, optional</strong></p>
 <blockquote>
 <div><p>Match current slice in all frames</p>
 </div></blockquote>
-<p><strong>scale: bool, optional</strong> :</p>
+<p><strong>scale: bool, optional</strong></p>
 <blockquote>
 <div><p>Match to the current scale for all frames</p>
 </div></blockquote>
-<p><strong>bin: bool, optional</strong> :</p>
+<p><strong>bin: bool, optional</strong></p>
 <blockquote>
 <div><p>Match to the current binning for all frames</p>
 </div></blockquote>
-<p><strong>colorbar: bool, optional</strong> :</p>
+<p><strong>colorbar: bool, optional</strong></p>
 <blockquote>
 <div><p>Match to the current colorbar for all frames</p>
 </div></blockquote>
-<p><strong>smooth: bool, optional</strong> :</p>
+<p><strong>smooth: bool, optional</strong></p>
 <blockquote>
 <div><p>Match to the current smoothing for all frames</p>
 </div></blockquote>
-<p><strong>crosshair: bool, optional</strong> :</p>
+<p><strong>crosshair: bool, optional</strong></p>
 <blockquote class="last">
 <div><p>Match the crosshair in all frames, using the current coordsys</p>
 </div></blockquote>
@@ -901,7 +905,7 @@ so set frame=False and something else in addition to your choice if you don&#821
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>color: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>color: string</strong></p>
 <blockquote class="last">
 <div><p>The color to use for NAN pixels</p>
 </div></blockquote>
@@ -919,11 +923,11 @@ so set frame=False and something else in addition to your choice if you don&#821
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: float</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: float</strong></p>
 <blockquote>
 <div><p>X location in physical coords to pan to</p>
 </div></blockquote>
-<p><strong>y: float</strong> :</p>
+<p><strong>y: float</strong></p>
 <blockquote class="last">
 <div><p>Y location in physical coords to pan to</p>
 </div></blockquote>
@@ -941,15 +945,15 @@ so set frame=False and something else in addition to your choice if you don&#821
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: string</strong></p>
 <blockquote>
 <div><p>The x location to move to, specified using the given system</p>
 </div></blockquote>
-<p><strong>y: string</strong> :</p>
+<p><strong>y: string</strong></p>
 <blockquote>
 <div><p>The y location to move to</p>
 </div></blockquote>
-<p><strong>system: string</strong> :</p>
+<p><strong>system: string</strong></p>
 <blockquote class="last">
 <div><p>The reference system that x and y were specified in, they should be understood by DS9</p>
 </div></blockquote>
@@ -975,12 +979,12 @@ so set frame=False and something else in addition to your choice if you don&#821
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>value: float [degrees]</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>value: float [degrees]</strong></p>
 <blockquote>
 <div><p>Rotate the current frame {value} degrees
 If value is 0, then the current rotation is printed</p>
 </div></blockquote>
-<p><strong>to: bool</strong> :</p>
+<p><strong>to: bool</strong></p>
 <blockquote class="last">
 <div><p>Rotate the current frame to the specified value</p>
 </div></blockquote>
@@ -1006,7 +1010,7 @@ If value is 0, then the current rotation is printed</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong></p>
 <blockquote class="last">
 <div><p>The nameof th file to which the regions displayed in the current window are saved
 If no filename is provided then it will try and save the regions to the name of the
@@ -1027,7 +1031,7 @@ file in the current display with _regions.txt appended</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong></p>
 <blockquote class="last">
 <div><p>The name of the output fits image</p>
 </div></blockquote>
@@ -1045,9 +1049,9 @@ file in the current display with _regions.txt appended</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>scale: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>scale: string</strong></p>
 <blockquote class="last">
-<div><p>The scale for ds9 to use, these are set strings of 
+<div><p>The scale for ds9 to use, these are set strings of
 [linear|log|pow|sqrt|squared|asinh|sinh|histequ]</p>
 </div></blockquote>
 </td>
@@ -1087,7 +1091,7 @@ buf : aux data string (sometime string needed to be ended with CR)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>region_string: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>region_string: string</strong></p>
 <blockquote class="last">
 <div><p>Should take the form of a region string that DS9 is expecting</p>
 </div></blockquote>
@@ -1120,7 +1124,7 @@ set_region(&#8220;line 0 400 3 400 #color=red&#8221;)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>close: bool, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>close: bool, optional</strong></p>
 <blockquote class="last">
 <div><p>If set to True, then the pixel table dialog window is closed</p>
 </div></blockquote>
@@ -1138,18 +1142,18 @@ set_region(&#8220;line 0 400 3 400 #color=red&#8221;)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: str, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: str, optional</strong></p>
 <blockquote>
 <div><p>filename of output image, the extension in the filename can also be used to specify the format
 If no filename is specified, then the filename will be constructed from the name of the
 currently displayed image with _snap.jpg appended.</p>
 </div></blockquote>
-<p><strong>format: str, optional</strong> :</p>
+<p><strong>format: str, optional</strong></p>
 <blockquote>
 <div><p>available formats are fits, eps, gif, tiff, jpeg, png
 If no format is specified the filename extension is used</p>
 </div></blockquote>
-<p><strong>resolution: int, optional</strong> :</p>
+<p><strong>resolution: int, optional</strong></p>
 <blockquote class="last">
 <div><p>1 to 100, for jpeg images</p>
 </div></blockquote>
@@ -1173,7 +1177,7 @@ If no format is specified the filename extension is used</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>img: numpy array</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>img: numpy array</strong></p>
 <blockquote class="last">
 <div><p>The array containing data, it will be forced to numpy.array()</p>
 </div></blockquote>
@@ -1191,7 +1195,7 @@ If no format is specified the filename extension is used</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>par: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>par: string</strong></p>
 <blockquote class="last">
 <div><p>it can be a number (ranging 0 to 8 effectively), and successive calls continue zooming in the same direction
 it can be two numbers &#8216;4 2&#8217;, which specify zoom on different axis
@@ -1240,7 +1244,7 @@ it can be &#8216;close&#8217; to close the dialog box (only valid if the box is 
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 27 Apr 2015. <br/>
   </p>
 </footer>
   </body>
