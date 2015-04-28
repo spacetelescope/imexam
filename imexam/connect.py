@@ -84,7 +84,7 @@ class Connect(object):
 
         elif 'ginga_mp' in self._viewer:
             self.window = ginga_mp(exam=self.exam,
-                                   close_on_del=quit_window, logger=logging)
+                                   close_on_del=quit_window)
             # self.window.view.add_callback('key-press',self.window._imexam)
             # rotate canvas in before this can be used
             # self.window.canvas.add_callback('key-press',self.start_imexam_ginga)

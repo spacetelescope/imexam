@@ -26,8 +26,9 @@ from ginga.misc import log, Settings
 from ginga.AstroImage import AstroImage
 from ginga import cmap
 from ginga.util import paths
-from ginga.qtw.QtHelp import QtGui
+#from ginga.qtw.QtHelp import QtGui
 
+# ?
 try:
     import aplpy
     have_aplpy = True
@@ -48,7 +49,7 @@ class ginga_general(object):
     ginga window
 
         The ginga_mp() contructor creates a new window with the matplotlib backend
-        
+
         Parameters
         ----------
         close_on_del : boolean, optional
@@ -69,8 +70,8 @@ class ginga_general(object):
         Notes
         -----
         Ginga viewers all need a logger, if none is provided it will create one
-        
-        
+
+
         """
         global _matplotlib_cmaps_added
 
@@ -598,7 +599,7 @@ class ginga_general(object):
                 if not mef:
                     extver = 0
                 cstring = util.verify_filename(fname, getshort=short)
-                image = AstroImage()
+                image = AstroImage(logger=self.logger)
 
                 with fits.open(cstring) as filedata:
                     hdu = filedata[extver]
@@ -750,7 +751,7 @@ class ginga_general(object):
         Examples
         --------
         view(np.random.rand(100,100))
-        
+
         """
 
         frame = self.frame()
@@ -825,5 +826,3 @@ class ginga_mp(ginga_general):
         # create a canvas that we insert when doing imexam mode
         canvas = DrawingCanvas()
         self.canvas = canvas
-
- 
