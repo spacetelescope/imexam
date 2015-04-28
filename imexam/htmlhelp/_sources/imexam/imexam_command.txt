@@ -388,15 +388,15 @@ The new binding will be added to the dictionary of imexamine functions as long a
 The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new 
 instantiations of imexam.connect() will not have the new function unless the user specifically registers them.
 
-Here's all the code for a function which makes a cutout around the clicked pixel location and saves it to a file::
+Here's all the code for a function which makes a cutout around the clicked pixel location and saves it to a fits file::
 
 
-    def cutout(self,x,y):
+    def cutout(self,x,y,data):
         """Cut out an image from under the mouse and save it as a fits file"""
         import tempfile
         from astropy.io import fits
         size=20 #pixels
-        cutout=self._data[y-size:y+size,x-size:x+size]
+        cutout=data[y-size:y+size,x-size:x+size]
         prefix="cutout_{0}_{1}_".format(int(x),int(y))
         fname=tempfile.mktemp(prefix=prefix,suffix=".fits",dir="./")
         hdu=fits.PrimaryHDU(cutout)

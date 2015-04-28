@@ -387,13 +387,13 @@ flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.718984
 The new binding will be added to the dictionary of imexamine functions as long as the key is unique.
 The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new
 instantiations of imexam.connect() will not have the new function unless the user specifically registers them.</p>
-<p>Here&#8217;s all the code for a function which makes a cutout around the clicked pixel location and saves it to a file:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">cutout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+<p>Here&#8217;s all the code for a function which makes a cutout around the clicked pixel location and saves it to a fits file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">cutout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Cut out an image from under the mouse and save it as a fits file&quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">tempfile</span>
     <span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
     <span class="n">size</span><span class="o">=</span><span class="mi">20</span> <span class="c">#pixels</span>
-    <span class="n">cutout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">size</span><span class="p">,</span><span class="n">x</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">size</span><span class="p">]</span>
+    <span class="n">cutout</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">size</span><span class="p">,</span><span class="n">x</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">size</span><span class="p">]</span>
     <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;cutout_{0}_{1}_&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
     <span class="n">fname</span><span class="o">=</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mktemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span><span class="n">suffix</span><span class="o">=</span><span class="s">&quot;.fits&quot;</span><span class="p">,</span><span class="nb">dir</span><span class="o">=</span><span class="s">&quot;./&quot;</span><span class="p">)</span>
     <span class="n">hdu</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">cutout</span><span class="p">)</span>
@@ -495,7 +495,7 @@ identical, just the viewer of the image changes:</p>
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 27 Apr 2015. <br/>
+    Last built 28 Apr 2015. <br/>
   </p>
 </footer>
   </body>
