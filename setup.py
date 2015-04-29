@@ -36,6 +36,10 @@ scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
            if os.path.basename(fname) != 'README.rst']
 
 
+
+XPALIB_DIR = "cextern/xpa-2.1.15"
+CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
+
 # check if cython is available.
 try:
     from Cython.Build import cythonize
@@ -44,10 +48,6 @@ try:
 except ImportError:
     print("Unable to load Cython")
     raise ImportError
-
-
-XPALIB_DIR = "cextern/xpa-2.1.15"
-CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
 
 from distutils.command.clean import clean
