@@ -28,13 +28,6 @@ from ginga import cmap
 from ginga.util import paths
 #from ginga.qtw.QtHelp import QtGui
 
-# ?
-try:
-    import aplpy
-    have_aplpy = True
-except:
-    have_aplpy = False
-
 import matplotlib
 from matplotlib import pyplot as plt
 # module variables
