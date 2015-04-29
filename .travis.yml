@@ -32,23 +32,15 @@ before_install:
 
     # Install conda
     - source continuous-integration/travis/install_conda_$TRAVIS_OS_NAME.sh
-
+    
     # Install graphviz
     - source continuous-integration/travis/install_graphviz_$TRAVIS_OS_NAME.sh
-
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
-
-   - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
-   - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
-
 
 install:
     - conda create --yes -n test python=$PYTHON_VERSION
     - source activate test
     - conda install --yes pip "pytest<2.6" sphinx cython numpy libatlas-dev liblapack-dev gfortran
     - conda install --yes pip texlive-latex-extra dvipng python-matplotlib
-    - pip install coveralls pytest-cov
     # We cannot install the developer version of setuptools using pip because
     # pip tries to remove the previous version of setuptools before the
     # installation is complete, which causes issues. Instead, we just install
@@ -64,6 +56,4 @@ before_script:
 script:
    - python setup.py $SETUP_CMD
 
-after_success:
-    - coveralls
     
