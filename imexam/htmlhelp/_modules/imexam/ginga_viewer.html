@@ -100,13 +100,7 @@
 <span class="kn">from</span> <span class="nn">ginga.AstroImage</span> <span class="kn">import</span> <span class="n">AstroImage</span>
 <span class="kn">from</span> <span class="nn">ginga</span> <span class="kn">import</span> <span class="n">cmap</span>
 <span class="kn">from</span> <span class="nn">ginga.util</span> <span class="kn">import</span> <span class="n">paths</span>
-<span class="kn">from</span> <span class="nn">ginga.qtw.QtHelp</span> <span class="kn">import</span> <span class="n">QtGui</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">aplpy</span>
-    <span class="n">have_aplpy</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="n">have_aplpy</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="c">#from ginga.qtw.QtHelp import QtGui</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
@@ -122,7 +116,7 @@
 <span class="sd">    ginga window</span>
 
 <span class="sd">        The ginga_mp() contructor creates a new window with the matplotlib backend</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        close_on_del : boolean, optional</span>
@@ -142,9 +136,9 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        Ginga viewers all need a logger, if not is provided it will create one</span>
-<span class="sd">        </span>
-<span class="sd">        </span>
+<span class="sd">        Ginga viewers all need a logger, if none is provided it will create one</span>
+
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">global</span> <span class="n">_matplotlib_cmaps_added</span>
 
@@ -672,7 +666,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">mef</span><span class="p">:</span>
                     <span class="n">extver</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="n">cstring</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">verify_filename</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">getshort</span><span class="o">=</span><span class="n">short</span><span class="p">)</span>
-                <span class="n">image</span> <span class="o">=</span> <span class="n">AstroImage</span><span class="p">()</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">AstroImage</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
                 <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span> <span class="k">as</span> <span class="n">filedata</span><span class="p">:</span>
                     <span class="n">hdu</span> <span class="o">=</span> <span class="n">filedata</span><span class="p">[</span><span class="n">extver</span><span class="p">]</span>
@@ -824,7 +818,7 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        view(np.random.rand(100,100))</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
@@ -866,7 +860,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A ginga-based viewer that uses a matplotlib widget.</span>
 
-<span class="sd">    This kind of viewer is less performant speed-wise than if we</span>
+<span class="sd">    This kind of viewer has slower performance than if we</span>
 <span class="sd">    choose a particular widget back end, but the advantage is that</span>
 <span class="sd">    it works so long as the user has a working matplotlib.</span>
 
@@ -898,9 +892,7 @@
 
         <span class="c"># create a canvas that we insert when doing imexam mode</span>
         <span class="n">canvas</span> <span class="o">=</span> <span class="n">DrawingCanvas</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span>
-
- </div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span></div>
 </pre></div>
 
           </div>
@@ -920,7 +912,7 @@
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 29 Apr 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>

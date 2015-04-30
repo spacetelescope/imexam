@@ -56,6 +56,8 @@ Users may also add their own imexam keys and associated functions by registering
 
 For all the examples below I will use the following session::
 
+    #This will default to DS9 for the viewer
+
     import imexam
     viewer=imexam.connect()
     viewer.load_fits('iabf01bzq_flt.fits')
@@ -69,6 +71,25 @@ For all the examples below I will use the following session::
     :width: 400
     :alt: Data used for imexam command examples
 
+    
+    
+    
+This will use Ginga for the viewer::
+
+    #Use Ginga for the image viewer
+    
+    import imexam
+    viewer=imexam.connect(viewer='ginga_mp')
+    viewer.load_fits('iabf01bzq_flt.fits')
+    viewer.scale()
+    viewer.panto_image(576,633)
+    viewer.zoom(3)
+    
+
+.. image:: imexam_command_example_ginga.png
+    :height: 400
+    :width: 400
+    :alt: Data used for imexam command examples
 
 
 Circular Apterture Photometry

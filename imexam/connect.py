@@ -101,26 +101,6 @@ class Connect(object):
         self._current_slice = None
         self._current_frame = None
 
-    def ginga_test(self, canvas, keyname):
-        """ how to get key information from the ginga window
-
-        see also example5_mpl.py in the ginga source example directories
-        """
-
-        if keyname == 'd':
-            #self.window.view.fitsimage.onscreen_message("pressed d",delay=1.0)
-
-            fi = canvas.fitsimage
-            data_x, data_y = fi.get_last_data_xy()
-            print(
-                "key {0:s} pressed at data {1} {2}".format(
-                    keyname,
-                    data_x,
-                    data_y))
-
-        # image=fi.get_image() #this attaches to the model
-        # data=image.get_data() #this gets the actual data from the model
-
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
         """turn on and off imexam logging to the a file"""
         if filename:
@@ -152,6 +132,7 @@ class Connect(object):
             warnings.warn("Event driven imexam not implemented for viewer")
         else:
             self.exam.print_options()
+            print("\nPress the i key in the graphics window for access to imexam keys, i or q again to exit\n")
 
     def get_data_filename(self):
         """return the filename for the data in the current window"""

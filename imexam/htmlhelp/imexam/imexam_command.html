@@ -136,7 +136,9 @@ mimexam(): return dict of current parameters for area statistics
 <p>The imexam key dictionary is stored inside the user object as  &lt;object_name&gt;.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it&#8217;s associated value is a tuple which contains the name of the function to call and a description of what that function does. &#8220;q&#8221; is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which map to your own</p>
 <p>Users may also add their own imexam keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.</p>
 <p>For all the examples below I will use the following session:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#This will default to DS9 for the viewer</span>
+
+<span class="kn">import</span> <span class="nn">imexam</span>
 <span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;iabf01bzq_flt.fits&#39;</span><span class="p">)</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
@@ -145,6 +147,18 @@ mimexam(): return dict of current parameters for area statistics
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/imexam_command_example.png"><img alt="Data used for imexam command examples" src="../_images/imexam_command_example.png" style="width: 400px; height: 400px;" /></a>
+<p>This will use Ginga for the viewer:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#Use Ginga for the image viewer</span>
+
+<span class="kn">import</span> <span class="nn">imexam</span>
+<span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;iabf01bzq_flt.fits&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">panto_image</span><span class="p">(</span><span class="mi">576</span><span class="p">,</span><span class="mi">633</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/imexam_command_example_ginga.png"><img alt="Data used for imexam command examples" src="../_images/imexam_command_example_ginga.png" style="width: 400px; height: 400px;" /></a>
 <div class="section" id="circular-apterture-photometry">
 <h2>Circular Apterture Photometry<a class="headerlink" href="#circular-apterture-photometry" title="Permalink to this headline">¶</a></h2>
 <p>Aperture photometry is performed when you press the &#8220;a&#8221; key. It is implemented using the <tt class="xref py py-obj docutils literal"><span class="pre">photutils</span></tt> python package, an affiliated package of astropy that is still in development.</p>
@@ -495,7 +509,7 @@ identical, just the viewer of the image changes:</p>
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 29 Apr 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>

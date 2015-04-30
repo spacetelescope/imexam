@@ -89,7 +89,6 @@
 <span class="kn">from</span> <span class="nn">.ds9_viewer</span> <span class="kn">import</span> <span class="n">ds9</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.ginga_viewer</span> <span class="kn">import</span> <span class="n">ginga_mp</span>
-    <span class="kn">from</span> <span class="nn">.ginga_viewer</span> <span class="kn">import</span> <span class="n">ginga_qt</span>
     <span class="n">have_ginga</span> <span class="o">=</span> <span class="bp">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">have_ginga</span> <span class="o">=</span> <span class="bp">False</span>
@@ -144,7 +143,6 @@
 
         <span class="k">if</span> <span class="n">have_ginga</span><span class="p">:</span>
             <span class="n">_possible_viewers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
-            <span class="n">_possible_viewers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;ginga_qt&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_possible_viewers</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;**Unsupported viewer**</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
@@ -160,7 +158,7 @@
 
         <span class="k">elif</span> <span class="s">&#39;ginga_mp&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">ginga_mp</span><span class="p">(</span><span class="n">exam</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="p">,</span>
-                                   <span class="n">close_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="p">)</span>
+                                   <span class="n">close_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">)</span>
             <span class="c"># self.window.view.add_callback(&#39;key-press&#39;,self.window._imexam)</span>
             <span class="c"># rotate canvas in before this can be used</span>
             <span class="c"># self.window.canvas.add_callback(&#39;key-press&#39;,self.start_imexam_ginga)</span>
@@ -171,36 +169,11 @@
             <span class="c"># change key+function associations</span>
             <span class="c"># self.window._reassign_keys(imexam_dict)</span>
 
-        <span class="k">elif</span> <span class="s">&#39;ginga_qt&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">ginga_qt</span><span class="p">(</span><span class="n">exam</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="p">,</span>
-                                   <span class="n">close_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="p">)</span>
-            <span class="c"># viewer will track imexam with callbacks</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span> <span class="o">=</span> <span class="bp">True</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="s">&#39;imexam_log.txt&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># points to the package logger</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="k">def</span> <span class="nf">ginga_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">keyname</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; how to get key information from the ginga window</span>
-
-<span class="sd">        see also example5_mpl.py in the ginga source example directories</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">keyname</span> <span class="o">==</span> <span class="s">&#39;d&#39;</span><span class="p">:</span>
-            <span class="c">#self.window.view.fitsimage.onscreen_message(&quot;pressed d&quot;,delay=1.0)</span>
-
-            <span class="n">fi</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">fitsimage</span>
-            <span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">get_last_data_xy</span><span class="p">()</span>
-            <span class="k">print</span><span class="p">(</span>
-                <span class="s">&quot;key {0:s} pressed at data {1} {2}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">keyname</span><span class="p">,</span>
-                    <span class="n">data_x</span><span class="p">,</span>
-                    <span class="n">data_y</span><span class="p">))</span>
-
-        <span class="c"># image=fi.get_image() #this attaches to the model</span>
-        <span class="c"># data=image.get_data() #this gets the actual data from the model</span>
 
 <div class="viewcode-block" id="Connect.setlog"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.setlog">[docs]</a>    <span class="k">def</span> <span class="nf">setlog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;turn on and off imexam logging to the a file&quot;&quot;&quot;</span>
@@ -233,6 +206,7 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Event driven imexam not implemented for viewer&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Press the i key in the graphics window for access to imexam keys, i or q again to exit</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Connect.get_data_filename"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_data_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the filename for the data in the current window&quot;&quot;&quot;</span>
@@ -575,7 +549,7 @@
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 29 Apr 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>
