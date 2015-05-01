@@ -91,12 +91,12 @@ install:
     - source activate test
     
     # CORE DEPENDENCIES
-    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION pytest pip Cython
+    - $CONDA_INSTALL numpy=$NUMPY_VERSION pytest pip Cython
     - $PIP_INSTALL pytest-xdist
 
     # ASTROPY
     - $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy
-    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy
+    - $CONDA_INSTALL numpy=$NUMPY_VERSION astropy
 
     # OPTIONAL DEPENDENCIES
     # Here you can add any dependencies your package may have. You can use
