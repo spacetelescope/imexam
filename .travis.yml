@@ -20,7 +20,7 @@ env:
         - SETUPTOOLS_VERSION=stable        
         - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
-        - CONDA_INSTALL='conda create -c astropy-ci-extras --yes'
+        - CONDA_INSTALL='conda install -c astropy-ci-extras --yes'
         - PIP_INSTALL='pip install'  
         - INSTALL_OPTIONAL=true
         - SETUP_CMD='test'
@@ -91,24 +91,24 @@ install:
     - source activate test
     
     # CORE DEPENDENCIES
-    - $CONDA_INSTALL numpy=$NUMPY_VERSION pytest pip Cython
+    - $CONDA_INSTALL -n test  numpy=$NUMPY_VERSION pytest pip Cython
     - $PIP_INSTALL pytest-xdist
 
     # ASTROPY
     - $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy
-    - $CONDA_INSTALL numpy=$NUMPY_VERSION astropy
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy
 
     # OPTIONAL DEPENDENCIES
     # Here you can add any dependencies your package may have. You can use
     # conda for packages available through conda, or pip for any other
     # packages. You should leave the `numpy=$NUMPY_VERSION` in the `conda`
     # install since this ensures Numpy does not get automatically upgraded.
-    - $CONDA_INSTALL numpy=$NUMPY_VERSION scipy matplotlib
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION scipy matplotlib
 
 
     # DOCUMENTATION DEPENDENCIES
     # build_sphinx needs sphinx and matplotlib (for plot_directive).
-    - if [[ $SETUP_CMD == build_sphinx* ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION Sphinx matplotlib; fi
+    - if [[ $SETUP_CMD == build_sphinx* ]]; then $CONDA_INSTALL -n test numpy=$NUMPY_VERSION Sphinx matplotlib; fi
 
 
 script:
