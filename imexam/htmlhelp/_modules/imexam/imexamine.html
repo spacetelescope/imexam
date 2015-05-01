@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.imexamine &mdash; imexam v0.3.dev</title>
+    <title>imexam.imexamine &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -25,9 +25,11 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../../index.html" />
+    <link rel="top" title="imexam v0.5" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -54,7 +56,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">imexam v0.3.dev</a>
+	<a href="../../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
@@ -79,18 +81,25 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="c"># turn on interactive mode for plotting</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 
+<span class="c"># enable display plot in iPython notebook</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">StringIO</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">photutils</span>
     <span class="n">photutils_installed</span> <span class="o">=</span> <span class="bp">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;photutils not installed, photometry functionality in imexam() not available&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span>
+        <span class="s">&quot;photutils not installed, photometry functionality in imexam() not available&quot;</span><span class="p">)</span>
     <span class="n">photutils_installed</span> <span class="o">=</span> <span class="bp">False</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">math_helper</span>
@@ -109,10 +118,33 @@
 <span class="sd">        region_size is the default radius or side of the square for stat info</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># The user can modify this dictionary to add or change options,</span>
-        <span class="c"># the first item in the tuple is the associated function</span>
-        <span class="c"># the second item in the tuple is the description of what the function</span>
-        <span class="c"># does when that key is pressed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_option_funcs</span><span class="p">()</span>  <span class="c"># define the dictionary of keys and functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c"># the data array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datafile</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>  <span class="c"># the file from which the data came</span>
+        <span class="c"># read from imexam_defpars which contains dicts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_define_default_pars</span><span class="p">()</span>
+        <span class="c"># default plot name saved with &quot;s&quot; key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_name</span> <span class="o">=</span> <span class="s">&quot;imexam_plot.pdf&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span> <span class="o">=</span> <span class="mf">1e-6</span>    <span class="c"># for plotting convenience</span>
+        <span class="c"># let users have multiple plot windows, the list stores their names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="c"># this contains the name of the current plotting window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span> <span class="o">=</span> <span class="s">&quot;imexam&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_option_funcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Define the dictionary which maps imexam option keys to their functions</span>
+
+
+<span class="sd">         Notes</span>
+<span class="sd">         -----</span>
+<span class="sd">         The user can modify this dictionary to add or change options,</span>
+<span class="sd">         the first item in the tuple is the associated function</span>
+<span class="sd">         the second item in the tuple is the description of what the function</span>
+<span class="sd">         does when that key is pressed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aper_phot</span><span class="p">,</span> <span class="s">&#39;aperture sum, with radius region_size &#39;</span><span class="p">),</span>
                                     <span class="s">&#39;j&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line_fit</span><span class="p">,</span> <span class="s">&#39;1D [gaussian|moffat] line fit &#39;</span><span class="p">),</span>
                                     <span class="s">&#39;k&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_fit</span><span class="p">,</span> <span class="s">&#39;1D [gaussian|moffat] column fit&#39;</span><span class="p">),</span>
@@ -129,17 +161,6 @@
                                     <span class="s">&#39;w&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_plot</span><span class="p">,</span> <span class="s">&#39;display a surface plot around the cursor location&#39;</span><span class="p">),</span>
                                     <span class="s">&#39;2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_plot_window</span><span class="p">,</span> <span class="s">&#39;make the next plot in a new window&#39;</span><span class="p">),</span>
                                     <span class="p">}</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c"># the data array</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_datafile</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>  <span class="c"># the file from which the data came</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_define_default_pars</span><span class="p">()</span>  <span class="c"># read from imexam_defpars which contains dicts</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">plot_name</span> <span class="o">=</span> <span class="s">&quot;imexam_plot.pdf&quot;</span>  <span class="c"># default plot name saved with &quot;s&quot; key</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span> <span class="o">=</span> <span class="mf">1e-6</span>    <span class="c"># for plotting convenience</span>
-        <span class="c"># let users have multiple plot windows, the list stores their names</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span> <span class="o">=</span> <span class="s">&quot;imexam&quot;</span>  <span class="c"># this contains the name of the current plotting window</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Imexamine.print_options"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.print_options">[docs]</a>    <span class="k">def</span> <span class="nf">print_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;print the imexam options to screen&quot;&quot;&quot;</span>
@@ -165,12 +186,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;pressed: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Imexamine.get_options"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.get_options">[docs]</a>    <span class="k">def</span> <span class="nf">get_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the imexam options as a key list&quot;&quot;&quot;</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">keys</span>
 </div>
 <div class="viewcode-block" id="Imexamine.option_descrip"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.option_descrip">[docs]</a>    <span class="k">def</span> <span class="nf">option_descrip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -254,13 +274,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_define_local_pars</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Imexamine.new_plot_window"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.new_plot_window">[docs]</a>    <span class="k">def</span> <span class="nf">new_plot_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.new_plot_window"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.new_plot_window">[docs]</a>    <span class="k">def</span> <span class="nf">new_plot_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;make the next plot in a new plot window</span>
 
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        x,y are not used here, but the calls are setup to take them</span>
+<span class="sd">        x,y, data, are not used here, but the calls are setup to take them</span>
 <span class="sd">        for all imexam options. Is there a better way to do the calls in general?</span>
 <span class="sd">        Once the new plotting window is open all plots will be directed towards it</span>
 <span class="sd">        The old window cannot be used again.</span>
@@ -271,19 +291,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;Plots now directed towards {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="Imexamine.plot_line"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_line">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.plot_line"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_line">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;line plot of data at point x&quot;&quot;&quot;</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;{0:s}  line={1:d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="s">&quot;{0:s}  line={1:d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;xlabel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;ylabel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;xmax&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">xmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;xmax&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;xmin&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">xmax</span><span class="p">)</span>
@@ -294,26 +318,31 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s">&quot;log&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;pointmode&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;marker&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">[</span><span class="s">&quot;marker&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:])</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.plot_column"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_column">[docs]</a>    <span class="k">def</span> <span class="nf">plot_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.plot_column"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_column">[docs]</a>    <span class="k">def</span> <span class="nf">plot_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;column plot of data at point y&quot;&quot;&quot;</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;{0:s}  column={1:d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="s">&quot;{0:s}  column={1:d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;xlabel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;ylabel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;xmax&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">xmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">])</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;xmax&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;xmin&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">xmax</span><span class="p">)</span>
@@ -324,20 +353,21 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;logy&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s">&quot;log&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;pointmode&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;marker&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">[</span><span class="s">&quot;marker&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">])</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.show_xy_coords"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.show_xy_coords">[docs]</a>    <span class="k">def</span> <span class="nf">show_xy_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.show_xy_coords"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.show_xy_coords">[docs]</a>    <span class="k">def</span> <span class="nf">show_xy_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;print the x,y,value to the screen&quot;&quot;&quot;</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="s">&quot;{0} {1}  {2}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[(</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">)])</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="s">&quot;{0} {1}  {2}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">[(</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">)])</span>
         <span class="k">print</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.report_stat"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.report_stat">[docs]</a>    <span class="k">def</span> <span class="nf">report_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.report_stat"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.report_stat">[docs]</a>    <span class="k">def</span> <span class="nf">report_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;report the median of values in a box with side region_size&quot;&quot;&quot;</span>
         <span class="n">region_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_stat_pars</span><span class="p">[</span><span class="s">&quot;region_size&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">resolve</span> <span class="o">=</span> <span class="bp">True</span>
@@ -353,11 +383,11 @@
             <span class="n">ymin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">dist</span><span class="p">)</span>
             <span class="n">ymax</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">dist</span><span class="p">)</span>
             <span class="n">pstr</span> <span class="o">=</span> <span class="s">&quot;[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">func_name</span><span class="p">,</span> <span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">])))</span>
+                <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">func_name</span><span class="p">,</span> <span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">])))</span>
             <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.save_figure"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.save_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.save_figure"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.save_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;save the figure that&#39;s currently displayed&quot;&quot;&quot;</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
@@ -366,21 +396,22 @@
         <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.aper_phot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.aper_phot">[docs]</a>    <span class="k">def</span> <span class="nf">aper_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.aper_phot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.aper_phot">[docs]</a>    <span class="k">def</span> <span class="nf">aper_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform aperture photometry, uses photutils functions, photutils must be available</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c"># no centering</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c"># no centering</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Install photutil to enable&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Install photutils to enable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c"># no centering</span>
-            <span class="n">amp</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c"># no centering</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;center&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
                 <span class="n">center</span> <span class="o">=</span> <span class="bp">True</span>
                 <span class="n">delta</span> <span class="o">=</span> <span class="mi">10</span>
-                <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+                <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
                 <span class="k">if</span> <span class="mi">5</span> <span class="o">&gt;</span> <span class="n">popt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c"># an error occurred in centering</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">amp</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">popt</span>
 
@@ -388,29 +419,41 @@
             <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;width&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">inner</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;skyrad&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">subsky</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;subsky&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">outer</span><span class="o">=</span><span class="n">inner</span><span class="o">+</span><span class="n">width</span>
-            
-            <span class="n">apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">radius</span><span class="p">)</span>
-            <span class="n">rawflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">apertures</span><span class="p">,</span><span class="n">subpixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">)</span>
-            
-            <span class="k">if</span> <span class="n">subsky</span><span class="p">:</span>
-                <span class="n">annulus_apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAnnulus</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">r_in</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span> <span class="n">r_out</span><span class="o">=</span><span class="n">outer</span><span class="p">)</span>
-                <span class="n">bkgflux_table</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">annulus_apertures</span><span class="p">)</span>
 
-                <span class="c">#to calculate the mean local background, divide the circular annulus aperture sums</span>
-                <span class="c">#by the area fo teh circular annuls. The bkg sum with the circular aperture is then</span>
-                <span class="c">#then mean local background tims the circular apreture area.</span>
+            <span class="n">outer</span> <span class="o">=</span> <span class="n">inner</span> <span class="o">+</span> <span class="n">width</span>
+
+            <span class="n">apertures</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radius</span><span class="p">)</span>
+            <span class="n">rawflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">apertures</span><span class="p">,</span>
+                <span class="n">subpixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">subsky</span><span class="p">:</span>
+                <span class="n">annulus_apertures</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">CircularAnnulus</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">r_in</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span> <span class="n">r_out</span><span class="o">=</span><span class="n">outer</span><span class="p">)</span>
+                <span class="n">bkgflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span>
+                    <span class="n">data</span><span class="p">,</span>
+                    <span class="n">annulus_apertures</span><span class="p">)</span>
+
+                <span class="c"># to calculate the mean local background, divide the circular annulus aperture sums</span>
+                <span class="c"># by the area fo teh circular annuls. The bkg sum with the circular aperture is then</span>
+                <span class="c"># then mean local background tims the circular apreture area.</span>
                 <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
                 <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">annulus_apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
 
-                <span class="n">bkg_sum</span><span class="o">=</span><span class="nb">float</span><span class="p">((</span><span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">aperture_area</span><span class="o">/</span><span class="n">annulus_area</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">bkg_sum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span> <span class="o">*</span>
+                     <span class="n">aperture_area</span> <span class="o">/</span>
+                     <span class="n">annulus_area</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="n">total_flux</span> <span class="o">=</span> <span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">bkg_sum</span>
-                <span class="n">sky_per_pix</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">annulus_area</span><span class="p">)</span>
-                
+                <span class="n">sky_per_pix</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span> <span class="o">/</span>
+                    <span class="n">annulus_area</span><span class="p">)</span>
+
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">total_flux</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            
-            
+                <span class="n">total_flux</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
             <span class="c"># compute the magnitude of the sky corrected flux</span>
             <span class="n">magzero</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s">&quot;zmag&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">mag</span> <span class="o">=</span> <span class="n">magzero</span> <span class="o">-</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">total_flux</span><span class="p">))</span>
@@ -428,7 +471,7 @@
             <span class="k">print</span><span class="p">(</span><span class="n">pheader</span> <span class="o">+</span> <span class="n">pstr</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pheader</span> <span class="o">+</span> <span class="n">pstr</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.line_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.line_fit">[docs]</a>    <span class="k">def</span> <span class="nf">line_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.line_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.line_fit">[docs]</a>    <span class="k">def</span> <span class="nf">line_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;compute the 1d  fit to the line of data using the specified form</span>
 
 
@@ -450,37 +493,45 @@
 <span class="sd">        If centering is True in the parameter set, then the center is fit with a 2d gaussian</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="p">:</span>
             <span class="n">form</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">math_helper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s">&quot;func&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s">&quot;rplot&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s">&quot;center&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+            <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">popt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c"># an error occurred in centering</span>
                 <span class="n">centerx</span> <span class="o">=</span> <span class="n">x</span>
                 <span class="n">centery</span> <span class="o">=</span> <span class="n">y</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">amp</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">popt</span>
 
-        <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">chunk</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">delta</span><span class="p">]</span>
 
-        <span class="c"># use x location as the first estimate for the mean, use 20 pixel distance to guess center</span>
-        <span class="n">argmap</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="n">amp</span><span class="p">,</span> <span class="s">&#39;mu&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+        <span class="c"># use x location as the first estimate for the mean, use 20 pixel</span>
+        <span class="c"># distance to guess center</span>
+        <span class="n">argmap</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="n">amp</span><span class="p">,</span> <span class="s">&#39;mu&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">form</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>  <span class="c"># get rid of &quot;self&quot;</span>
 
         <span class="n">xline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
-        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">xline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="p">[</span><span class="n">argmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
+            <span class="n">form</span><span class="p">,</span> <span class="n">xline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="p">[</span>
+                <span class="n">argmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
         <span class="c"># do these so that it fits the real pixel range of the data</span>
         <span class="n">fitx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xline</span><span class="p">),</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">subsample</span><span class="p">)</span>
         <span class="n">fity</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">fitx</span><span class="p">,</span> <span class="o">*</span><span class="n">popt</span><span class="p">)</span>
 
         <span class="c"># calculate the std about the mean</span>
         <span class="c"># make a plot</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s">&quot;xlabel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -510,16 +561,25 @@
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;{0:s}  mean = {1:s}, fwhm= {2:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">fitmean</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">fwhm</span><span class="p">)))</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fitx</span> <span class="o">+</span> <span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">,</span> <span class="n">fity</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; fit&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">fitx</span> <span class="o">+</span>
+            <span class="n">x</span> <span class="o">-</span>
+            <span class="n">delta</span><span class="p">,</span>
+            <span class="n">fity</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
+                <span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span>
+            <span class="s">&quot; fit&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
         <span class="n">pstr</span> <span class="o">=</span> <span class="s">&quot;({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">fitmean</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.column_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.column_fit">[docs]</a>    <span class="k">def</span> <span class="nf">column_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.column_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.column_fit">[docs]</a>    <span class="k">def</span> <span class="nf">column_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;compute the 1d  fit to the column of data</span>
 
 <span class="sd">        Parameters</span>
@@ -539,29 +599,36 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="p">:</span>
             <span class="n">form</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">math_helper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s">&quot;func&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_fit_pars</span><span class="p">[</span><span class="s">&quot;rplot&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_fit_pars</span><span class="p">[</span><span class="s">&quot;center&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+            <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">popt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c"># an error occurred in centering</span>
                 <span class="n">centerx</span> <span class="o">=</span> <span class="n">x</span>
                 <span class="n">centery</span> <span class="o">=</span> <span class="n">y</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">amp</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">popt</span>
 
-        <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">]</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">]</span>
         <span class="n">chunk</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">delta</span><span class="p">]</span>
 
-        <span class="c"># use y location as the first estimate for the mean, use 20 pixel distance to guess center</span>
-        <span class="n">argmap</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="n">amp</span><span class="p">,</span> <span class="s">&#39;mu&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+        <span class="c"># use y location as the first estimate for the mean, use 20 pixel</span>
+        <span class="c"># distance to guess center</span>
+        <span class="n">argmap</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="n">amp</span><span class="p">,</span> <span class="s">&#39;mu&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">form</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>  <span class="c"># get rid of &quot;self&quot;</span>
 
         <span class="n">yline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
-        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">yline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="p">[</span><span class="n">argmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
+            <span class="n">form</span><span class="p">,</span> <span class="n">yline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="p">[</span>
+                <span class="n">argmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
 
         <span class="c"># do these so that it fits the real pixel range of the data</span>
         <span class="n">fitx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">yline</span><span class="p">),</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">subsample</span><span class="p">)</span>
@@ -569,8 +636,9 @@
 
         <span class="c"># calculate the std about the mean</span>
         <span class="c"># make a plot</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_fit_pars</span><span class="p">[</span><span class="s">&quot;xlabel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -598,16 +666,25 @@
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;{0:s}  mean = {1:s}, fwhm= {2:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">column_fit_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">fitmean</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">fwhm</span><span class="p">)))</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fitx</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">,</span> <span class="n">fity</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; fit&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">fitx</span> <span class="o">+</span>
+            <span class="n">y</span> <span class="o">-</span>
+            <span class="n">delta</span><span class="p">,</span>
+            <span class="n">fity</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
+                <span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span>
+            <span class="s">&quot; fit&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
         <span class="n">pstr</span> <span class="o">=</span> <span class="s">&quot;({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">fitmean</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.gauss_center"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.gauss_center">[docs]</a>    <span class="k">def</span> <span class="nf">gauss_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.gauss_center"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.gauss_center">[docs]</a>    <span class="k">def</span> <span class="nf">gauss_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the 2d gaussian fit center</span>
 
 <span class="sd">        Parameters</span>
@@ -616,20 +693,29 @@
 <span class="sd">            The range of data values to use around the x,y location for calculating the center</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">chunk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">delta</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">delta</span><span class="p">]</span>  <span class="c"># flipped from xpa</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span>
+            <span class="n">y</span> <span class="o">-</span>
+            <span class="n">delta</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span>
+            <span class="n">delta</span><span class="p">,</span>
+            <span class="n">x</span> <span class="o">-</span>
+            <span class="n">delta</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span>
+            <span class="n">delta</span><span class="p">]</span>  <span class="c"># flipped from xpa</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">amp</span><span class="p">,</span> <span class="n">ycenter</span><span class="p">,</span> <span class="n">xcenter</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">math_helper</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+            <span class="n">amp</span><span class="p">,</span> <span class="n">ycenter</span><span class="p">,</span> <span class="n">xcenter</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">math_helper</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span>
+                <span class="n">chunk</span><span class="p">)</span>
             <span class="n">pstr</span> <span class="o">=</span> <span class="s">&quot;xc={0:4f}</span><span class="se">\t</span><span class="s">yc={1:4f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">xcenter</span> <span class="o">+</span> <span class="n">x</span> <span class="o">-</span> <span class="n">delta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">ycenter</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="n">delta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
             <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">amp</span><span class="p">,</span> <span class="p">(</span><span class="n">xcenter</span> <span class="o">+</span> <span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">),</span> <span class="p">(</span><span class="n">ycenter</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">),</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span>
+            <span class="k">return</span> <span class="n">amp</span><span class="p">,</span> <span class="p">(</span><span class="n">xcenter</span> <span class="o">+</span> <span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">),</span> <span class="p">(</span><span class="n">ycenter</span> <span class="o">+</span>
+                                                <span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">),</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Warning: {0:s}, returning zeros for fit&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
             <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.curve_of_growth_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.curve_of_growth_plot">[docs]</a>    <span class="k">def</span> <span class="nf">curve_of_growth_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;display the radial profile plot for the star with background subtraction at each radii</span>
+<div class="viewcode-block" id="Imexamine.curve_of_growth_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.curve_of_growth_plot">[docs]</a>    <span class="k">def</span> <span class="nf">curve_of_growth_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        display the radial profile plot for the star</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
@@ -642,11 +728,12 @@
             <span class="c"># center using a 2d gaussian</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">[</span><span class="s">&quot;center&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
                 <span class="c"># pull out a small chunk</span>
-                <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+                <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">popt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c"># an error occurred in centering</span>
                     <span class="n">centerx</span> <span class="o">=</span> <span class="n">x</span>
                     <span class="n">centery</span> <span class="o">=</span> <span class="n">y</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s">&quot;Problem fitting center, using original coordinates&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">amp</span><span class="p">,</span> <span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">popt</span>
             <span class="k">else</span><span class="p">:</span>
@@ -661,8 +748,9 @@
             <span class="n">router</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">[</span><span class="s">&quot;rplot&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">getdata</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">[</span><span class="s">&quot;getdata&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
             <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
             <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -674,11 +762,12 @@
             <span class="n">rapert</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">router</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="k">for</span> <span class="n">rad</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rapert</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">aper_flux</span><span class="p">,</span> <span class="n">annulus_sky</span><span class="p">,</span> <span class="n">skysub_flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aperture_phot</span><span class="p">(</span>
-                    <span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">sky_inner</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span> <span class="n">skywidth</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;exact&quot;</span><span class="p">)</span>
+                    <span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">sky_inner</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span> <span class="n">skywidth</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;exact&quot;</span><span class="p">)</span>
                 <span class="n">radius</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">[</span><span class="s">&quot;background&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">inner</span> <span class="o">&lt;</span> <span class="n">router</span><span class="p">:</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Your sky annulus is inside your photometry radius rplot&quot;</span><span class="p">)</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                            <span class="s">&quot;Your sky annulus is inside your photometry radius rplot&quot;</span><span class="p">)</span>
                     <span class="n">flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skysub_flux</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aper_flux</span><span class="p">)</span>
@@ -691,9 +780,11 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
 </div>
-    <span class="k">def</span> <span class="nf">_aperture_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sky_inner</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">skywidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;subpixel&quot;</span><span class="p">,</span> <span class="n">subpixels</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_aperture_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="n">sky_inner</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">skywidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;subpixel&quot;</span><span class="p">,</span> <span class="n">subpixels</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed</span>
 
 <span class="sd">        Parameters</span>
@@ -722,29 +813,41 @@
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Install photutils to enable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
 
-            <span class="n">apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">radsize</span><span class="p">)</span>
-            <span class="n">rawflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">apertures</span><span class="p">,</span><span class="n">subpixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">)</span>
+            <span class="n">apertures</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radsize</span><span class="p">)</span>
+            <span class="n">rawflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">apertures</span><span class="p">,</span>
+                <span class="n">subpixels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">)</span>
 
-            <span class="n">outer</span><span class="o">=</span><span class="n">sky_inner</span> <span class="o">+</span> <span class="n">skywidth</span>
-            <span class="n">annulus_apertures</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">CircularAnnulus</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="n">r_in</span><span class="o">=</span><span class="n">sky_inner</span><span class="p">,</span> <span class="n">r_out</span><span class="o">=</span><span class="n">outer</span><span class="p">)</span>
-            <span class="n">bkgflux_table</span><span class="o">=</span><span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="n">annulus_apertures</span><span class="p">)</span>
+            <span class="n">outer</span> <span class="o">=</span> <span class="n">sky_inner</span> <span class="o">+</span> <span class="n">skywidth</span>
+            <span class="n">annulus_apertures</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">CircularAnnulus</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">r_in</span><span class="o">=</span><span class="n">sky_inner</span><span class="p">,</span> <span class="n">r_out</span><span class="o">=</span><span class="n">outer</span><span class="p">)</span>
+            <span class="n">bkgflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">annulus_apertures</span><span class="p">)</span>
 
-            <span class="c">#to calculate the mean local background, divide the circular annulus aperture sums</span>
-            <span class="c">#by the area fo the circular annuls. The bkg sum with the circular aperture is then</span>
-            <span class="c">#then mean local background tims the circular apreture area.</span>
+            <span class="c"># to calculate the mean local background, divide the circular annulus aperture sums</span>
+            <span class="c"># by the area fo the circular annuls. The bkg sum with the circular aperture is then</span>
+            <span class="c"># then mean local background tims the circular apreture area.</span>
             <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
             <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">annulus_apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
 
-            <span class="n">bkg_sum</span><span class="o">=</span><span class="p">(</span><span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">aperture_area</span><span class="o">/</span><span class="n">annulus_area</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">bkg_sum</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">bkgflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">]</span> <span class="o">*</span>
+                <span class="n">aperture_area</span> <span class="o">/</span>
+                <span class="n">annulus_area</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">skysub_flux</span> <span class="o">=</span> <span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">bkg_sum</span>
- 
-            <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">bkg_sum</span><span class="p">,</span> <span class="n">skysub_flux</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Imexamine.histogram_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.histogram_plot">[docs]</a>    <span class="k">def</span> <span class="nf">histogram_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">rawflux_table</span><span class="p">[</span><span class="s">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">bkg_sum</span><span class="p">,</span> <span class="n">skysub_flux</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Imexamine.histogram_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.histogram_plot">[docs]</a>    <span class="k">def</span> <span class="nf">histogram_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;plot a histogram of the pixel values in a region around the specified location&quot;&quot;&quot;</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -757,45 +860,47 @@
         <span class="n">deltax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;ncolumns&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
         <span class="n">deltay</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;nlines&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">deltax</span><span class="p">]</span>
+        <span class="n">data_cut</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">deltax</span><span class="p">]</span>
 
         <span class="c"># mask data for min and max intensity specified</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;z1&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">mini</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;z1&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">mini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">mini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_cut</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;z2&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">maxi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;z2&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">maxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">maxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_cut</span><span class="p">)</span>
 
-        <span class="c"># ltb=np.array(len(data)*[True],bool)</span>
-        <span class="c"># gtb=np.array(len(data)*[True],bool)</span>
+        <span class="c"># ltb=np.array(len(data_cut)*[True],bool)</span>
+        <span class="c"># gtb=np.array(len(data_cut)*[True],bool)</span>
 
-        <span class="n">lt</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">maxi</span><span class="p">)</span>
-        <span class="n">gt</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">mini</span><span class="p">)</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_cut</span> <span class="o">&lt;</span> <span class="n">maxi</span><span class="p">)</span>
+        <span class="n">gt</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_cut</span> <span class="o">&gt;</span> <span class="n">mini</span><span class="p">)</span>
 
         <span class="n">total_mask</span> <span class="o">=</span> <span class="n">lt</span> <span class="o">*</span> <span class="n">gt</span>
-        <span class="n">flat_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">total_mask</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">flat_data</span> <span class="o">=</span> <span class="n">data_cut</span><span class="p">[</span><span class="n">total_mask</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">maxi</span><span class="p">:</span>
-            <span class="n">maxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">maxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_cut</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">mini</span><span class="p">:</span>
-            <span class="n">mini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">mini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_cut</span><span class="p">)</span>
         <span class="n">num_bins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s">&quot;nbins&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
             <span class="n">flat_data</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">],</span> <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s">&#39;green&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;hist with {0} bins&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_bins</span><span class="p">))</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.contour_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.contour_plot">[docs]</a>    <span class="k">def</span> <span class="nf">contour_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.contour_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.contour_plot">[docs]</a>    <span class="k">def</span> <span class="nf">contour_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;plot contours in a region around the specified location&quot;&quot;&quot;</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -804,7 +909,7 @@
 
         <span class="n">deltax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s">&quot;ncolumns&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
         <span class="n">deltay</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s">&quot;nlines&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">deltax</span><span class="p">]</span>
+        <span class="n">data_cut</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">deltax</span><span class="p">]</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">&#39;xtick.direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;out&#39;</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">&#39;ytick.direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;out&#39;</span>
@@ -814,14 +919,22 @@
 
         <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">deltax</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
                            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">deltay</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>  <span class="c"># check this</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ncont</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">75</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
-        <span class="n">C</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ncont</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s">&#39;black&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">lsty</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">data_cut</span><span class="p">,</span> <span class="n">ncont</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">75</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span>
+            <span class="n">Y</span><span class="p">,</span>
+            <span class="n">data_cut</span><span class="p">,</span>
+            <span class="n">ncont</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">colors</span><span class="o">=</span><span class="s">&#39;black&#39;</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="n">lsty</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s">&quot;label&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%5.3f</span><span class="s">&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Imexamine.surface_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.surface_plot">[docs]</a>    <span class="k">def</span> <span class="nf">surface_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.surface_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.surface_plot">[docs]</a>    <span class="k">def</span> <span class="nf">surface_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;plot a surface around the specified location</span>
 
 <span class="sd">                       &quot;ncolumns&quot;:[21,&quot;Number of columns&quot;],</span>
@@ -835,8 +948,9 @@
         <span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
         <span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">LinearLocator</span><span class="p">,</span> <span class="n">FormatStrFormatter</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s">&#39;3d&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
@@ -853,7 +967,7 @@
         <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
-        <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">deltax</span><span class="p">]</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">deltax</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;floor&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">zmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;floor&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -878,14 +992,33 @@
         <span class="k">if</span> <span class="n">fancy</span><span class="p">:</span>
             <span class="n">xmin</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span>
             <span class="n">ymax</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">deltay</span>
-            <span class="n">cset</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">zdir</span><span class="o">=</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">zmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">cset</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">zdir</span><span class="o">=</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">cset</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">zdir</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">ymax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">cset</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+                <span class="n">X</span><span class="p">,</span>
+                <span class="n">Y</span><span class="p">,</span>
+                <span class="n">Z</span><span class="p">,</span>
+                <span class="n">zdir</span><span class="o">=</span><span class="s">&#39;z&#39;</span><span class="p">,</span>
+                <span class="n">offset</span><span class="o">=</span><span class="n">zmax</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">cset</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+                <span class="n">X</span><span class="p">,</span>
+                <span class="n">Y</span><span class="p">,</span>
+                <span class="n">Z</span><span class="p">,</span>
+                <span class="n">zdir</span><span class="o">=</span><span class="s">&#39;x&#39;</span><span class="p">,</span>
+                <span class="n">offset</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">cset</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+                <span class="n">X</span><span class="p">,</span>
+                <span class="n">Y</span><span class="p">,</span>
+                <span class="n">Z</span><span class="p">,</span>
+                <span class="n">zdir</span><span class="o">=</span><span class="s">&#39;y&#39;</span><span class="p">,</span>
+                <span class="n">offset</span><span class="o">=</span><span class="n">ymax</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;azim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">view_init</span><span class="p">(</span><span class="n">elev</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">azim</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s">&quot;azim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Imexamine.register"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_funcs</span><span class="p">):</span>
@@ -903,7 +1036,7 @@
 <span class="sd">        imexam_option_funcs = {&#39;a&#39;: (self.aper_phot, &#39;aperture sum, with radius region_size &#39;) -&gt;tuple example</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">user_funcs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="nb">dict</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_funcs</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="nb">dict</span><span class="p">())):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Your input needs to be a dictionary&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">user_funcs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -926,6 +1059,17 @@
     <span class="k">def</span> <span class="nf">_add_user_function</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">types</span>
         <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">cls</span><span class="p">))</span>
+
+    <span class="c"># Some boilderplate to display matplotlib plots in notebook</span>
+    <span class="c"># If QT GUI could interact nicely with --pylab=inline we wouldn&#39;t need this</span>
+
+    <span class="k">def</span> <span class="nf">showplt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">StringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()),</span>
+                    <span class="n">format</span><span class="o">=</span><span class="s">&#39;png&#39;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">img</span>
 
 <div class="viewcode-block" id="Imexamine.set_aperphot_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_aperphot_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_aperphot_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;the user may supply a dictionary of par settings&quot;&quot;&quot;</span>
@@ -1006,7 +1150,7 @@
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 01 May 2015. <br/>
   </p>
 </footer>
   </body>

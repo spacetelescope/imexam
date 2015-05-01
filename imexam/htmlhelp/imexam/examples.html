@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example 1 &mdash; imexam v0.3.dev</title>
+    <title>Example 1 &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,11 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="Software Dependencies" href="dependencies.html" />
     <link rel="prev" title="Capabilities in Development" href="development.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -67,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -90,6 +92,9 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="usage-with-d9-the-current-default-viewer">
+<h2>Usage with D9 (the current default viewer)<a class="headerlink" href="#usage-with-d9-the-current-default-viewer" title="Permalink to this headline">¶</a></h2>
 <p>Start up a DS9 window (by default), a new DS9 window will be opened</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
@@ -107,6 +112,16 @@ DS9 ds9 gs 82a7e75f:57222 sosey
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;82a7e75f:57222&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="usage-with-ginga-viewer">
+<h2>Usage with Ginga viewer<a class="headerlink" href="#usage-with-ginga-viewer" title="Permalink to this headline">¶</a></h2>
+<p>Start up a ginga window using the matplotlib backend</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="all-commands-after-the-viewer-is-opened-are-the-same">
+<h2>All commands after the viewer is opened are the same<a class="headerlink" href="#all-commands-after-the-viewer-is-opened-are-the-same" title="Permalink to this headline">¶</a></h2>
 <p>Load a fits image into the window</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;test.fits&#39;</span><span class="p">)</span>
 </pre></div>
@@ -681,6 +696,38 @@ Out[28]: (3, 13)
 </div>
 </div>
 </div>
+<div class="section" id="example-5">
+<h1>Example 5<a class="headerlink" href="#example-5" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="use-the-imexamine-library-standalone-to-create-plots-without-viewing">
+<h2>Use the imexamine library standalone to create plots without viewing<a class="headerlink" href="#use-the-imexamine-library-standalone-to-create-plots-without-viewing" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s possible to use the imexamine library of plotting functions without loading an image into the viewer. All of the functions take 3 inputs: the x, y, and data array. In order to access the function, first create an imexamine object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
+<span class="kn">from</span> <span class="nn">imexam</span> <span class="kn">import</span> <span class="n">imexamine</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="c">#create a random array thats 100x100 pixels</span>
+<span class="n">plots</span><span class="o">=</span><span class="n">imexamine</span><span class="o">.</span><span class="n">Imexamine</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>These are the functions you now have access to:</p>
+<p>plots.aper_phot                 plots.contour_plot              plots.histogram_plot            plots.plot_line                 plots.set_colplot_pars          plots.set_surface_pars
+plots.aperphot_def_pars         plots.curve_of_growth_def_pars  plots.imexam_option_funcs       plots.plot_name                 plots.set_column_fit_pars       plots.show_xy_coords
+plots.aperphot_pars             plots.curve_of_growth_pars      plots.line_fit                  plots.print_options             plots.set_contour_pars          plots.showplt
+plots.colplot_def_pars          plots.curve_of_growth_plot      plots.line_fit_def_pars         plots.register                  plots.set_data                  plots.sleep_time
+plots.colplot_pars              plots.do_option                 plots.line_fit_pars             plots.report_stat               plots.set_histogram_pars        plots.surface_def_pars
+plots.column_fit                plots.gauss_center              plots.lineplot_def_pars         plots.report_stat_def_pars      plots.set_line_fit_pars         plots.surface_pars
+plots.column_fit_def_pars       plots.get_options               plots.lineplot_pars             plots.report_stat_pars          plots.set_lineplot_pars         plots.surface_plot
+plots.column_fit_pars           plots.get_plot_name             plots.new_plot_window           plots.reset_defpars             plots.set_option_funcs          plots.unlearn_all
+plots.contour_def_pars          plots.histogram_def_pars        plots.option_descrip            plots.save_figure               plots.set_plot_name
+plots.contour_pars              plots.histogram_pars            plots.plot_column               plots.set_aperphot_pars         plots.set_radial_pars</p>
+<p>To create a plot:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plots</span><span class="o">.</span><span class="n">plot_line</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>produces the following plot:</p>
+<a class="reference internal image-reference" href="../_images/imexamine_library_lineplot.png"><img alt="line plot generated without viewing" src="../_images/imexamine_library_lineplot.png" style="width: 400px; height: 400px;" /></a>
+</div>
+</div>
 
 
           </div>
@@ -691,6 +738,9 @@ Out[28]: (3, 13)
 <ul>
 <li><a class="reference internal" href="#">Example 1</a><ul>
 <li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#usage-with-d9-the-current-default-viewer">Usage with D9 (the current default viewer)</a></li>
+<li><a class="reference internal" href="#usage-with-ginga-viewer">Usage with Ginga viewer</a></li>
+<li><a class="reference internal" href="#all-commands-after-the-viewer-is-opened-are-the-same">All commands after the viewer is opened are the same</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#example-2">Example 2</a><ul>
@@ -710,6 +760,10 @@ Out[28]: (3, 13)
 <li><a class="reference internal" href="#load-and-examine-an-image-cube">Load and examine an image CUBE</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#example-5">Example 5</a><ul>
+<li><a class="reference internal" href="#use-the-imexamine-library-standalone-to-create-plots-without-viewing">Use the imexamine library standalone to create plots without viewing</a></li>
+</ul>
+</li>
 </ul>
 
 
@@ -725,7 +779,7 @@ Out[28]: (3, 13)
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>

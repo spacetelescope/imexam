@@ -2,4 +2,6 @@
 Capabilities in Development
 ***************************
 
-* Getting inital parameters working better for Moffat fits
+* replacing the utility fitters with astropy.modeling
+* making apertures other than Circular available in the aperture photometry routine
+* possible inclusion of the Ginga QT backend framework for display

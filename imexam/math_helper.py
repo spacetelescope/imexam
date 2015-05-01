@@ -23,12 +23,12 @@
 
             were the units are adjusted by the pixel scale factor.
 
-            In  addition  to  the  four  size  measurements  there  are  several 
+            In  addition  to  the  four  size  measurements  there  are  several
             additional quantities which are determined.  Other quantities  which
             are  computed  are the relative magnitude, ellipticity, and position
             angle.  The magnitude of an individual measurement is obtained  from
-            the   maximum   flux   attained   in   the   enclosed  flux  profile 
-            computation.   Though  the  normalization  and  background  may   be 
+            the   maximum   flux   attained   in   the   enclosed  flux  profile
+            computation.   Though  the  normalization  and  background  may   be
             adjusted  interactively later, the magnitude is not changed from the
             initial determination.  The relative magnitude of an object is  then
             computed as
@@ -42,7 +42,7 @@
             The  ellipticity  and positional angle of an object are derived from
             the second central intensity weighted moments.  The moments are:
 
-    
+
                     Mxx = sum { (I - B) * x * x } / sum { I - B }
                     Myy = sum { (I - B) * y * y } / sum { I - B }
                     Mxy = sum { (I - B) * x * y } / sum { I - B }
@@ -50,7 +50,7 @@
             where x and y are the distances from the object  center,  I  is  the
             pixel  intensity and B is the background intensity.  The sum is over
             the same  subpixels  used  in  the  enclosed  flux  evaluation  with
-            intensities   above   an   isophote  which  is  slightly  above  the 
+            intensities   above   an   isophote  which  is  slightly  above  the
             background.  The ellipticity and position angles  are  derived  from
             the moments by the equations:
 
@@ -131,7 +131,7 @@ def gfwhm(sigma):
 
     Returns
     -------
-    The value of the FWHM for the gaussian 
+    The value of the FWHM for the gaussian
 
     """
     return 2. * sigma * np.sqrt(2. * np.log(2.))
@@ -177,7 +177,7 @@ def mfwhm(alpha, beta):
 
 
 def gauss_center(data):
-    """center the data  by fitting a 2d gaussian to the region 
+    """center the data  by fitting a 2d gaussian to the region
 
     Parameters
     ----------
@@ -194,7 +194,9 @@ def gauss_center(data):
 
     xx = np.linspace(0, len(data), len(data))
     yy = np.linspace(0, len(data), len(data))
-    popt, pcov = curve_fit(gaussian2dc, np.meshgrid(xx, yy), data.flatten(), p0=guess2dc)
+    popt, pcov = curve_fit(
+        gaussian2dc, np.meshgrid(
+            xx, yy), data.flatten(), p0=guess2dc)
     return popt
 
 
@@ -209,7 +211,7 @@ def gaussian2dc(point, amp, xo, yo, sigma, offset):
         The mean for x
 
     yo: float
-        The mean for y 
+        The mean for y
 
     Notes
     -----
@@ -219,14 +221,15 @@ def gaussian2dc(point, amp, xo, yo, sigma, offset):
     --------
     http://en.wikipedia.org/wiki/Gaussian_function
     """
-    y,x = point
+    y, x = point
     xo = float(xo)
     yo = float(yo)
 
     a = 1 / (2 * sigma ** 2)
     b = 0
     c = 1 / (2 * sigma ** 2)
-    result = offset + amp * np.exp(-(a * ((x - xo) ** 2) + c * ((y - yo) ** 2)))
+    result = offset + amp * \
+        np.exp(-(a * ((x - xo) ** 2) + c * ((y - yo) ** 2)))
     return result.ravel()
 
 
@@ -245,20 +248,24 @@ def gaussian2de(point, amp, xo, yo, sigmax, sigmay, theta, offset):
         mean for y
 
     Notes
-    -----    
+    -----
     sigmax=sigmay=circular otherwise elliptical
 
     See Also
     --------
     http://en.wikipedia.org/wiki/Gaussian_function
     """
-    y,x = point
+    y, x = point
     xo = float(xo)
     yo = float(yo)
 
-    a = (np.cos(theta) ** 2) / (2 * sigmax ** 2) + (np.sin(theta) ** 2) / (2 * sigmay ** 2)
-    b = -(np.sin(2 * theta)) / (4 * sigmax ** 2) + (np.sin(2 * theta)) / (4 * sigmay ** 2)
-    c = (np.sin(theta) ** 2) / (2 * sigmax ** 2) + (np.cos(theta) ** 2) / (2 * sigmay ** 2)
+    a = (np.cos(theta) ** 2) / (2 * sigmax ** 2) + \
+        (np.sin(theta) ** 2) / (2 * sigmay ** 2)
+    b = -(np.sin(2 * theta)) / (4 * sigmax ** 2) + \
+        (np.sin(2 * theta)) / (4 * sigmay ** 2)
+    c = (np.sin(theta) ** 2) / (2 * sigmax ** 2) + \
+        (np.cos(theta) ** 2) / (2 * sigmay ** 2)
     result = offset + amp * \
-        np.exp(-(a * ((x - xo) ** 2) + 2 * b * (x - xo) * (y - yo) + c * ((y - yo) ** 2)))
+        np.exp(-(a * ((x - xo) ** 2) + 2 * b * (x - xo)
+                 * (y - yo) + c * ((y - yo) ** 2)))
     return result.ravel()

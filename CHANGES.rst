@@ -1,3 +1,20 @@
+version 0.5 (released)
+----------------------
+
+- Ginga viewer with matplotlib backend fully flushed out,
+this uses an event driven examination which is activated by key-press
+
+- general bug fixes
+
+- documentation updates
+
+
+version 0.4dev (unreleased)
+---------------------------
+
+- Ginga is added as an optional viewer
+
+
 version 0.3.dev (unreleased)
 ----------------------------
 - Fixed bug where a user displayed array reference was not getting reset when a fits image was loaded into the frame instead
@@ -19,6 +36,11 @@ version 0.3.dev (unreleased)
   
 - the logging method dropped a reference in one of the last commits, this was fixed and logging the 
   session to a file for reference should be functioning correctly again.
+
+- fixed an internal tracking problem in cases where the user loaded files through the gui and then
+  immediately issued the imexam() command. The viewer information for the object had not been updated in
+  between because it waits for a call to the window before checking - I added this check to the top of 
+  imexam function.
 
 version 0.2.dev (unreleased)
 ----------------------------

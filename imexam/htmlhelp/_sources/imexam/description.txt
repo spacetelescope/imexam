@@ -2,12 +2,13 @@
 Introduction
 ************
 
-imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python and matplotlib. 
+imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python.
 
-It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. The module is designed so that it may accept other display devices in the future, such as Ginga.
+It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using the matplotlib backend is also available for viewing images and arrays. The package is designed so that it may accept other display devices in the future.
 
-.. note:: It is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory. 
+.. note:: For DS9, it is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory. 
 
+In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in the package documentation: http://ginga.readthedocs.org/en/latest/
 
 You can access this help file on your locally installed copy of the package by using the imexam.display_help() call after import. This will display the help in your web browser.
 
@@ -34,6 +35,8 @@ imexam displays plots using matplotlib, if you find that no windows are popping 
     ipython --pylab
     >import imexam
     
+If you install Ginga you will have access to another display tool for your images and data. You can find the source code on GitHub, but you can also install it with pip or conda.
+
 
 =====
 Usage
@@ -77,6 +80,19 @@ In order to return a list of the current DS9 windows that are running, issue the
 ::
 
     imexam.list_active_ds9()
+
+
+If you are using the Ginga widget, the interaction with the imexam code stays the same, you simply specify that you would like to use Ginga in the call to connect:
+
+::
+
+    viewer=imexam.connect(viewer='ginga_mp')
+    
+    
+
+"ginga_mp" tells imexam that you'd like to use the Ginga widget with the matplotlib background. Future support for the Ginga QT widget will be added at a later date.
+
+
 
 In order to turn logging to a file on, issue the command: window.setlog(). The log will be saved to the default filename imexam_session.log in the current directory unless you give it another filename to use.
 Here's an example of how that might work:
@@ -159,3 +175,15 @@ You can also compile and install the XPA software included with imexam by editin
 
 Now you can start an ipython window, import imexam and try starting a new DS9 connection. If this still doesn't solve your
 problem, send email to the developers or open an issue in github.
+
+
+
+
+If you are using Ginga and the plotting window seems to block, check to see if you've specified the QT backend in any of your matplotlib defaults and try turning it off:
+
+::
+
+    matplotlib.use('Qt4Agg')  <-- remove this and see if it helps
+    
+    
+    

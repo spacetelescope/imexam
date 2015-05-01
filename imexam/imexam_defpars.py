@@ -1,6 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-"""These are default parameters for some of the plotting functions in Imexam"""
+"""These are default parameters for some of the plotting functions in Imexam
+Maybe it would be better to put these along with the imexam functions into their own class
+which the connect class can import? Users could edit this file to set their own defaults before
+installation, they could script something that resets the dictionaries themselves, or we could
+create a method to let them set from a json or text file maybe
+
+"""
 
 aperphot_pars = {"function": ["aperphot", ],
                  "center": [True, "Center the object location using a 2d gaussian fit"],
@@ -18,22 +24,22 @@ report_stat_pars = {"function": ["report_stat", ],
                     }
 
 curve_of_growth_pars = {"function": ["curve_of_growth", ],
-                       "title": ["Curve of growth", "Title of the plot"],
-                       "xlabel": ["radius", "The string for the xaxis label"],
-                       "ylabel": ["Flux", "The string for the yaxis label"],
-                       "center": [True, "Solve for center using 2d Gaussian? [bool]"],
-                       "background": [True, "Fit and subtract background? [bool]"],
-                       "buffer": [25., "Background inner radius in pixels,from center of star"],
-                       "width": [5., "Background annulus width in pixels"],
-                       "magzero": [25., "magnitude zero point"],
-                       "rplot": [8., "Plotting radius in pixels"],
-                       "pointmode": [True, "plot points instead of lines? [bool]"],
-                       "marker": ["o", "The marker character to use, matplotlib style"],
-                       "logx": [False, "log scale x-axis?"],
-                       "logy": [False, "log scale y-axis?"],
-                       "minflux": [0., "only measure flux above this value"],
-                       "getdata": [True, "return the plotted data values"]
-                       }
+                        "title": ["Curve of growth", "Title of the plot"],
+                        "xlabel": ["radius", "The string for the xaxis label"],
+                        "ylabel": ["Flux", "The string for the yaxis label"],
+                        "center": [True, "Solve for center using 2d Gaussian? [bool]"],
+                        "background": [True, "Fit and subtract background? [bool]"],
+                        "buffer": [25., "Background inner radius in pixels,from center of star"],
+                        "width": [5., "Background annulus width in pixels"],
+                        "magzero": [25., "magnitude zero point"],
+                        "rplot": [8., "Plotting radius in pixels"],
+                        "pointmode": [True, "plot points instead of lines? [bool]"],
+                        "marker": ["o", "The marker character to use, matplotlib style"],
+                        "logx": [False, "log scale x-axis?"],
+                        "logy": [False, "log scale y-axis?"],
+                        "minflux": [0., "only measure flux above this value"],
+                        "getdata": [True, "return the plotted data values"]
+                        }
 
 surface_pars = {"function": ["surface", ],
                 "title": [None, "Title of the plot"],
@@ -47,7 +53,7 @@ surface_pars = {"function": ["surface", ],
                 "ceiling": [None, "Maximum value to be contoured"],
                 "stride": [1, "step size, higher vals will have less contour"],
                 "cmap": ["jet", "colormap (matplotlib) for display"],
-                "fancy": [False, "This aint your grandpas iraf"],
+                "fancy": [True, "This aint your grandpas iraf"],
                 }
 
 line_fit_pars = {"function": ["line_fit", ],

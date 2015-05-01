@@ -14,6 +14,7 @@ except ImportError:
     raise ImportError("astropy required but not found")
 
 from astropy.io import fits
+import numpy as np
 
 try:
     from .version import version as __version__

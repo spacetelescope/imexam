@@ -1,7 +1,7 @@
 imexam
 ======
 
-imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided using DS9 as your display device and through a python session.
+imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided using DS9 or a Ginga widget as your display device through a python session.
 
 For more information please see the `online documentation <http://imexam.readthedocs.org/en/latest/imexam/index.html>`_
 
@@ -10,7 +10,7 @@ To install using pip:
 
 ::
 
-    pip install --pre imexam
+    pip install imexam
     
     
 Launching multiple DS9 windows
@@ -50,6 +50,13 @@ Starting a new connection with no target specified will open a new DS9 window us
 ::
 
     a=imexam.connect()
+
+
+Starting a connection to a Ginga widget, using the Matplotlib backend for viewing:
+
+::
+
+    a=imexam.connect(viewer='ginga_mp')
 
 
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.

@@ -1,7 +1,7 @@
 ===================
 The imexam() method
 =================== 
-This is the main method which allows live interaction with the image display. 
+This is the main method which allows live interaction with the image display when you are using the DS9 program for viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out the exam. 
 
 
 **imexam** (): 
@@ -49,12 +49,14 @@ This is the main method which allows live interaction with the image display.
 .. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers   
  
         
-The imexam key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can either edit it directly, by accessing each of the values by their keyname, or save a copy of the dictionary ( for example: mydict= object.aimexam(); then reset mydict to values you prefer, and set object.exam.aperphot_pars = mydict)
+The imexam key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which map to your own
 
 Users may also add their own imexam keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.
 
 
 For all the examples below I will use the following session::
+
+    #This will default to DS9 for the viewer
 
     import imexam
     viewer=imexam.connect()
@@ -69,8 +71,25 @@ For all the examples below I will use the following session::
     :width: 400
     :alt: Data used for imexam command examples
 
+    
+    
+    
+This will use Ginga for the viewer::
 
+    #Use Ginga for the image viewer
+    
+    import imexam
+    viewer=imexam.connect(viewer='ginga_mp')
+    viewer.load_fits('iabf01bzq_flt.fits')
+    viewer.scale()
+    viewer.panto_image(576,633)
+    viewer.zoom(3)
+    
 
+.. image:: imexam_command_example_ginga.png
+    :height: 400
+    :width: 400
+    :alt: Data used for imexam command examples
 
 
 Circular Apterture Photometry
@@ -390,15 +409,15 @@ The new binding will be added to the dictionary of imexamine functions as long a
 The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new 
 instantiations of imexam.connect() will not have the new function unless the user specifically registers them.
 
-Here's all the code for a function which makes a cutout around the clicked pixel location and saves it to a file::
+Here's all the code for a function which makes a cutout around the clicked pixel location and saves it to a fits file::
 
 
-    def cutout(self,x,y):
+    def cutout(self,x,y,data):
         """Cut out an image from under the mouse and save it as a fits file"""
         import tempfile
         from astropy.io import fits
         size=20 #pixels
-        cutout=self._data[y-size:y+size,x-size:x+size]
+        cutout=data[y-size:y+size,x-size:x+size]
         prefix="cutout_{0}_{1}_".format(int(x),int(y))
         fname=tempfile.mktemp(prefix=prefix,suffix=".fits",dir="./")
         hdu=fits.PrimaryHDU(cutout)
@@ -469,12 +488,24 @@ During a single viewer.imexam() session, you can choose to send your plots to mu
     radii:[1 2 3 4 5 6 7 8]
     flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.7076232315, 1568629.6771239617, 1813434.3810552177, 1935335.7549474821, 2049080.846300941]
 
+This is what the workspace could look like with DS9 as the viewer:
 
 .. image:: multiple_plots.png
     :height: 650
     :width: 800
-    :alt: multiple plots in imexam
+    :alt: multiple plots in DS9 with imexam
 
+
+
+This is what the workspace might look like with Ginga as the viewer, the plots are all
+identical, just the viewer of the image changes:
+
+
+.. image:: multiple_ginga_plots.png
+    :height: 550
+    :width: 950
+    :alt: multiple plots in Ginga with imexam
+    
 
 As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Imexamine &mdash; imexam v0.3.dev</title>
+    <title>Imexamine &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,8 +25,10 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -53,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       
@@ -72,7 +74,7 @@
 <dl class="class">
 <dt id="imexam.imexamine.Imexamine">
 <em class="property">class </em><tt class="descclassname">imexam.imexamine.</tt><tt class="descname">Imexamine</tt><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
 <p>do imexamine like routines on the current frame</p>
 <p>read the returned cursor key value to decide what to do</p>
 <p>region_size is the default radius or side of the square for stat info</p>
@@ -83,22 +85,22 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.aper_phot" title="imexam.imexamine.Imexamine.aper_phot"><tt class="xref py py-obj docutils literal"><span class="pre">aper_phot</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.aper_phot" title="imexam.imexamine.Imexamine.aper_phot"><tt class="xref py py-obj docutils literal"><span class="pre">aper_phot</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>Perform aperture photometry, uses photutils functions, photutils must be available</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.column_fit" title="imexam.imexamine.Imexamine.column_fit"><tt class="xref py py-obj docutils literal"><span class="pre">column_fit</span></tt></a>(x,&nbsp;y[,&nbsp;form,&nbsp;subsample])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.column_fit" title="imexam.imexamine.Imexamine.column_fit"><tt class="xref py py-obj docutils literal"><span class="pre">column_fit</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;form,&nbsp;subsample,&nbsp;fig])</td>
 <td>compute the 1d  fit to the column of data</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.contour_plot" title="imexam.imexamine.Imexamine.contour_plot"><tt class="xref py py-obj docutils literal"><span class="pre">contour_plot</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.contour_plot" title="imexam.imexamine.Imexamine.contour_plot"><tt class="xref py py-obj docutils literal"><span class="pre">contour_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>plot contours in a region around the specified location</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="imexam.imexamine.Imexamine.curve_of_growth_plot"><tt class="xref py py-obj docutils literal"><span class="pre">curve_of_growth_plot</span></tt></a>(x,&nbsp;y)</td>
-<td>display the radial profile plot for the star with background subtraction at each radii</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="imexam.imexamine.Imexamine.curve_of_growth_plot"><tt class="xref py py-obj docutils literal"><span class="pre">curve_of_growth_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
+<td>display the radial profile plot for the star</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.do_option" title="imexam.imexamine.Imexamine.do_option"><tt class="xref py py-obj docutils literal"><span class="pre">do_option</span></tt></a>(x,&nbsp;y,&nbsp;key)</td>
 <td>run the option</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.gauss_center" title="imexam.imexamine.Imexamine.gauss_center"><tt class="xref py py-obj docutils literal"><span class="pre">gauss_center</span></tt></a>(x,&nbsp;y[,&nbsp;delta])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.gauss_center" title="imexam.imexamine.Imexamine.gauss_center"><tt class="xref py py-obj docutils literal"><span class="pre">gauss_center</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;delta])</td>
 <td>return the 2d gaussian fit center</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.get_options" title="imexam.imexamine.Imexamine.get_options"><tt class="xref py py-obj docutils literal"><span class="pre">get_options</span></tt></a>()</td>
@@ -107,22 +109,22 @@
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.get_plot_name" title="imexam.imexamine.Imexamine.get_plot_name"><tt class="xref py py-obj docutils literal"><span class="pre">get_plot_name</span></tt></a>()</td>
 <td>return the default plot name</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.histogram_plot" title="imexam.imexamine.Imexamine.histogram_plot"><tt class="xref py py-obj docutils literal"><span class="pre">histogram_plot</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.histogram_plot" title="imexam.imexamine.Imexamine.histogram_plot"><tt class="xref py py-obj docutils literal"><span class="pre">histogram_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>plot a histogram of the pixel values in a region around the specified location</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.line_fit" title="imexam.imexamine.Imexamine.line_fit"><tt class="xref py py-obj docutils literal"><span class="pre">line_fit</span></tt></a>(x,&nbsp;y[,&nbsp;form,&nbsp;subsample])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.line_fit" title="imexam.imexamine.Imexamine.line_fit"><tt class="xref py py-obj docutils literal"><span class="pre">line_fit</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;form,&nbsp;subsample,&nbsp;fig])</td>
 <td>compute the 1d  fit to the line of data using the specified form</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.new_plot_window" title="imexam.imexamine.Imexamine.new_plot_window"><tt class="xref py py-obj docutils literal"><span class="pre">new_plot_window</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.new_plot_window" title="imexam.imexamine.Imexamine.new_plot_window"><tt class="xref py py-obj docutils literal"><span class="pre">new_plot_window</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>make the next plot in a new plot window</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.option_descrip" title="imexam.imexamine.Imexamine.option_descrip"><tt class="xref py py-obj docutils literal"><span class="pre">option_descrip</span></tt></a>(key[,&nbsp;field])</td>
 <td>return the looked up dictionary of options</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_column" title="imexam.imexamine.Imexamine.plot_column"><tt class="xref py py-obj docutils literal"><span class="pre">plot_column</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_column" title="imexam.imexamine.Imexamine.plot_column"><tt class="xref py py-obj docutils literal"><span class="pre">plot_column</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>column plot of data at point y</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_line" title="imexam.imexamine.Imexamine.plot_line"><tt class="xref py py-obj docutils literal"><span class="pre">plot_line</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_line" title="imexam.imexamine.Imexamine.plot_line"><tt class="xref py py-obj docutils literal"><span class="pre">plot_line</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>line plot of data at point x</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.print_options" title="imexam.imexamine.Imexamine.print_options"><tt class="xref py py-obj docutils literal"><span class="pre">print_options</span></tt></a>()</td>
@@ -131,13 +133,13 @@
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.register" title="imexam.imexamine.Imexamine.register"><tt class="xref py py-obj docutils literal"><span class="pre">register</span></tt></a>(user_funcs)</td>
 <td>register a new imexamine function made by the user so that it becomes an option</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.report_stat" title="imexam.imexamine.Imexamine.report_stat"><tt class="xref py py-obj docutils literal"><span class="pre">report_stat</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.report_stat" title="imexam.imexamine.Imexamine.report_stat"><tt class="xref py py-obj docutils literal"><span class="pre">report_stat</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>report the median of values in a box with side region_size</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.reset_defpars" title="imexam.imexamine.Imexamine.reset_defpars"><tt class="xref py py-obj docutils literal"><span class="pre">reset_defpars</span></tt></a>()</td>
 <td>set all pars to their defaults</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.save_figure" title="imexam.imexamine.Imexamine.save_figure"><tt class="xref py py-obj docutils literal"><span class="pre">save_figure</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.save_figure" title="imexam.imexamine.Imexamine.save_figure"><tt class="xref py py-obj docutils literal"><span class="pre">save_figure</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>save the figure that&#8217;s currently displayed</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_aperphot_pars" title="imexam.imexamine.Imexamine.set_aperphot_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_aperphot_pars</span></tt></a>([user_dict])</td>
@@ -173,10 +175,10 @@
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_surface_pars" title="imexam.imexamine.Imexamine.set_surface_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_surface_pars</span></tt></a>()</td>
 <td>set parameters for surface plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.show_xy_coords" title="imexam.imexamine.Imexamine.show_xy_coords"><tt class="xref py py-obj docutils literal"><span class="pre">show_xy_coords</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.show_xy_coords" title="imexam.imexamine.Imexamine.show_xy_coords"><tt class="xref py py-obj docutils literal"><span class="pre">show_xy_coords</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>print the x,y,value to the screen</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.surface_plot" title="imexam.imexamine.Imexamine.surface_plot"><tt class="xref py py-obj docutils literal"><span class="pre">surface_plot</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.surface_plot" title="imexam.imexamine.Imexamine.surface_plot"><tt class="xref py py-obj docutils literal"><span class="pre">surface_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>plot a surface around the specified location</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.unlearn_all" title="imexam.imexamine.Imexamine.unlearn_all"><tt class="xref py py-obj docutils literal"><span class="pre">unlearn_all</span></tt></a>()</td>
@@ -187,24 +189,24 @@
 <p class="rubric">Methods Documentation</p>
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.aper_phot">
-<tt class="descname">aper_phot</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.aper_phot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.aper_phot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">aper_phot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.aper_phot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.aper_phot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform aperture photometry, uses photutils functions, photutils must be available</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.column_fit">
-<tt class="descname">column_fit</tt><big>(</big><em>x</em>, <em>y</em>, <em>form=None</em>, <em>subsample=4</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.column_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.column_fit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">column_fit</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.column_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.column_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>compute the 1d  fit to the column of data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form: string</strong></p>
 <blockquote>
 <div><p>This is the functional form specified  line fit parameters
 Currently gaussian or moffat</p>
 </div></blockquote>
-<p><strong>subsample: int</strong> :</p>
+<p><strong>subsample: int</strong></p>
 <blockquote class="last">
 <div><p>used to draw the fitted gaussian</p>
 </div></blockquote>
@@ -220,14 +222,14 @@ if centering is True, then the center is fit with a 2d gaussian</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.contour_plot">
-<tt class="descname">contour_plot</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.contour_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.contour_plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">contour_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.contour_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.contour_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot contours in a region around the specified location</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.curve_of_growth_plot">
-<tt class="descname">curve_of_growth_plot</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.curve_of_growth_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>display the radial profile plot for the star with background subtraction at each radii</p>
+<tt class="descname">curve_of_growth_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.curve_of_growth_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>display the radial profile plot for the star</p>
 </dd></dl>
 
 <dl class="method">
@@ -238,15 +240,15 @@ if centering is True, then the center is fit with a 2d gaussian</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: int</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: int</strong></p>
 <blockquote>
 <div><p>The x location of the cursor or data point</p>
 </div></blockquote>
-<p><strong>y: int</strong> :</p>
+<p><strong>y: int</strong></p>
 <blockquote>
 <div><p>The y location of the cursor or data point</p>
 </div></blockquote>
-<p><strong>key: string</strong> :</p>
+<p><strong>key: string</strong></p>
 <blockquote class="last">
 <div><p>The key which was pressed</p>
 </div></blockquote>
@@ -258,13 +260,13 @@ if centering is True, then the center is fit with a 2d gaussian</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.gauss_center">
-<tt class="descname">gauss_center</tt><big>(</big><em>x</em>, <em>y</em>, <em>delta=10</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.gauss_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.gauss_center" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">gauss_center</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>delta=10</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.gauss_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.gauss_center" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the 2d gaussian fit center</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>delta: int</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>delta: int</strong></p>
 <blockquote class="last">
 <div><p>The range of data values to use around the x,y location for calculating the center</p>
 </div></blockquote>
@@ -288,24 +290,24 @@ if centering is True, then the center is fit with a 2d gaussian</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.histogram_plot">
-<tt class="descname">histogram_plot</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.histogram_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.histogram_plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">histogram_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.histogram_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.histogram_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot a histogram of the pixel values in a region around the specified location</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.line_fit">
-<tt class="descname">line_fit</tt><big>(</big><em>x</em>, <em>y</em>, <em>form=None</em>, <em>subsample=4</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.line_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.line_fit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">line_fit</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.line_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.line_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>compute the 1d  fit to the line of data using the specified form</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form: string</strong></p>
 <blockquote>
 <div><p>This is the functional form specified  line fit parameters
 Currently gaussian or moffat</p>
 </div></blockquote>
-<p><strong>subsample: int</strong> :</p>
+<p><strong>subsample: int</strong></p>
 <blockquote class="last">
 <div><p>used to draw the fitted function on a finer scale than the data
 delta is the range of data values to use around the x,y location
@@ -322,10 +324,10 @@ form is the functional form to use</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.new_plot_window">
-<tt class="descname">new_plot_window</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.new_plot_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.new_plot_window" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">new_plot_window</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.new_plot_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.new_plot_window" title="Permalink to this definition">¶</a></dt>
 <dd><p>make the next plot in a new plot window</p>
 <p class="rubric">Notes</p>
-<p>x,y are not used here, but the calls are setup to take them
+<p>x,y, data, are not used here, but the calls are setup to take them
 for all imexam options. Is there a better way to do the calls in general?
 Once the new plotting window is open all plots will be directed towards it
 The old window cannot be used again.</p>
@@ -339,11 +341,11 @@ The old window cannot be used again.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>key: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>key: string</strong></p>
 <blockquote>
 <div><p>The key which was pressed, it relates to the function to call</p>
 </div></blockquote>
-<p><strong>field: int</strong> :</p>
+<p><strong>field: int</strong></p>
 <blockquote class="last">
 <div><p>This tells where in the option dictionary the function name can be found</p>
 </div></blockquote>
@@ -355,13 +357,13 @@ The old window cannot be used again.</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.plot_column">
-<tt class="descname">plot_column</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_column" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot_column</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_column" title="Permalink to this definition">¶</a></dt>
 <dd><p>column plot of data at point y</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.plot_line">
-<tt class="descname">plot_line</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_line" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot_line</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>line plot of data at point x</p>
 </dd></dl>
 
@@ -379,7 +381,7 @@ The old window cannot be used again.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>user_funcs: dict</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>user_funcs: dict</strong></p>
 <blockquote class="last">
 <div><p>Contains a dictionary where each key is the binding for the (function,description) tuple</p>
 </div></blockquote>
@@ -395,7 +397,7 @@ imexam_option_funcs = {&#8216;a&#8217;: (self.aper_phot, &#8216;aperture sum, wi
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.report_stat">
-<tt class="descname">report_stat</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.report_stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.report_stat" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">report_stat</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.report_stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.report_stat" title="Permalink to this definition">¶</a></dt>
 <dd><p>report the median of values in a box with side region_size</p>
 </dd></dl>
 
@@ -407,7 +409,7 @@ imexam_option_funcs = {&#8216;a&#8217;: (self.aper_phot, &#8216;aperture sum, wi
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.save_figure">
-<tt class="descname">save_figure</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.save_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.save_figure" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">save_figure</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.save_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.save_figure" title="Permalink to this definition">¶</a></dt>
 <dd><p>save the figure that&#8217;s currently displayed</p>
 </dd></dl>
 
@@ -467,7 +469,7 @@ imexam_option_funcs = {&#8216;a&#8217;: (self.aper_phot, &#8216;aperture sum, wi
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename: string</strong></p>
 <blockquote class="last">
 <div><p>The name which is used to save the current plotting window to a file
 The extension on the name decides which file type is used</p>
@@ -492,13 +494,13 @@ The extension on the name decides which file type is used</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.show_xy_coords">
-<tt class="descname">show_xy_coords</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.show_xy_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.show_xy_coords" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">show_xy_coords</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.show_xy_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.show_xy_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>print the x,y,value to the screen</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.surface_plot">
-<tt class="descname">surface_plot</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.surface_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.surface_plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">surface_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.surface_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.surface_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot a surface around the specified location</p>
 <p>&#8220;ncolumns&#8221;:[21,&#8221;Number of columns&#8221;],
 &#8220;nlines&#8221;:[21,&#8221;Number of lines&#8221;],
@@ -542,7 +544,7 @@ The extension on the name decides which file type is used</p>
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 01 May 2015. <br/>
   </p>
 </footer>
   </body>

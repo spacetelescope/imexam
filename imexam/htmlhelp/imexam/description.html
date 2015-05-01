@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &mdash; imexam v0.3.dev</title>
+    <title>Introduction &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,11 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="The imexam() method" href="imexam_command.html" />
     <link rel="prev" title="Comparison with the IRAF verison of imexamine" href="comparison_iraf.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -67,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -84,12 +86,13 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python and matplotlib.</p>
-<p>It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. The module is designed so that it may accept other display devices in the future, such as Ginga.</p>
+<p>imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python.</p>
+<p>It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using the matplotlib backend is also available for viewing images and arrays. The package is designed so that it may accept other display devices in the future.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">It is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File-&gt;Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory.</p>
+<p class="last">For DS9, it is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File-&gt;Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory.</p>
 </div>
+<p>In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in the package documentation: <a class="reference external" href="http://ginga.readthedocs.org/en/latest/">http://ginga.readthedocs.org/en/latest/</a></p>
 <p>You can access this help file on your locally installed copy of the package by using the imexam.display_help() call after import. This will display the help in your web browser.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -109,6 +112,7 @@
 &gt;import imexam
 </pre></div>
 </div>
+<p>If you install Ginga you will have access to another display tool for your images and data. You can find the source code on GitHub, but you can also install it with pip or conda.</p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -138,6 +142,11 @@ Where target is the name of the ds9 window that is already running, path is the 
 <div class="highlight-python"><div class="highlight"><pre><span class="n">imexam</span><span class="o">.</span><span class="n">list_active_ds9</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>If you are using the Ginga widget, the interaction with the imexam code stays the same, you simply specify that you would like to use Ginga in the call to connect:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>&#8220;ginga_mp&#8221; tells imexam that you&#8217;d like to use the Ginga widget with the matplotlib background. Future support for the Ginga QT widget will be added at a later date.</p>
 <p>In order to turn logging to a file on, issue the command: window.setlog(). The log will be saved to the default filename imexam_session.log in the current directory unless you give it another filename to use.
 Here&#8217;s an example of how that might work:</p>
 <div class="highlight-python"><div class="highlight"><pre>import imexam
@@ -205,6 +214,10 @@ You can also compile and install the XPA software included with imexam by editin
 </div></blockquote>
 <p>Now you can start an ipython window, import imexam and try starting a new DS9 connection. If this still doesn&#8217;t solve your
 problem, send email to the developers or open an issue in github.</p>
+<p>If you are using Ginga and the plotting window seems to block, check to see if you&#8217;ve specified the QT backend in any of your matplotlib defaults and try turning it off:</p>
+<div class="highlight-python"><div class="highlight"><pre>matplotlib.use(&#39;Qt4Agg&#39;)  &lt;-- remove this and see if it helps
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -236,7 +249,7 @@ problem, send email to the developers or open an issue in github.</p>
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>

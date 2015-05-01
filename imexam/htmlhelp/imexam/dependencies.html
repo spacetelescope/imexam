@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Software Dependencies &mdash; imexam v0.3.dev</title>
+    <title>Software Dependencies &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,11 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="IRAF imexamine capabilities" href="iraf_imexam.html" />
     <link rel="prev" title="Example 1" href="examples.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -67,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -90,14 +92,23 @@
 <li>matplotlib (for plotting)</li>
 <li>DS9 (for image display)</li>
 </ul>
-<p>astropy &gt;= 0.3</p>
-<p>python &gt;= 2.7</p>
+<p>astropy &gt;= 1.0</p>
+<p>python &gt;= 2.7
+Python 2.6 and 3.2 are not currently supported</p>
 <p>numpy &gt;= 1.6.0</p>
 <dl class="docutils">
-<dt>photutils &gt; 0.0.dev</dt>
+<dt>photutils &gt; 0.2dev</dt>
 <dd>This must be installed to enable the photometry options for imexam() but it is not required</dd>
 </dl>
 <p>scipy.optimize.curve_fit</p>
+<dl class="docutils">
+<dt>Ginga</dt>
+<dd><p class="first">This must be installed in order to use the Ginga displays instead of DS9. Using ginga has the advantage that the imexam() loop is now event driven. Issuing the command:</p>
+<blockquote class="last">
+<div>viewer.imexam()</div></blockquote>
+</dd>
+</dl>
+<p>Will print out the available examination command keys. The user can then press the &#8220;i&#8221; key while the mouse is in the graphics window, all subsequent key-presses will be grabbed without blocking your terminal command line. If you wish to turn of the imexam keys you can press either the &#8220;i&#8221; key a second time or the &#8220;q&#8221; key. A notification message will appear on screent that imexam mode has either started or stopped.</p>
 </div>
 
 
@@ -123,7 +134,7 @@
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>

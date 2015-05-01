@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example 1 &mdash; imexam v0.3.dev</title>
+    <title>Example 1 &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,8 +25,10 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -53,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       
@@ -75,6 +77,9 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="usage-with-d9-the-current-default-viewer">
+<h2>Usage with D9 (the current default viewer)<a class="headerlink" href="#usage-with-d9-the-current-default-viewer" title="Permalink to this headline">¶</a></h2>
 <p>Start up a DS9 window (by default), a new DS9 window will be opened</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
@@ -92,6 +97,16 @@ DS9 ds9 gs 82a7e75f:57222 sosey
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;82a7e75f:57222&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="usage-with-ginga-viewer">
+<h2>Usage with Ginga viewer<a class="headerlink" href="#usage-with-ginga-viewer" title="Permalink to this headline">¶</a></h2>
+<p>Start up a ginga window using the matplotlib backend</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="all-commands-after-the-viewer-is-opened-are-the-same">
+<h2>All commands after the viewer is opened are the same<a class="headerlink" href="#all-commands-after-the-viewer-is-opened-are-the-same" title="Permalink to this headline">¶</a></h2>
 <p>Load a fits image into the window</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;test.fits&#39;</span><span class="p">)</span>
 </pre></div>
@@ -149,6 +164,9 @@ DS9 ds9 gs 82a7e75f:57222 sosey
 <ul>
 <li><a class="reference internal" href="#">Example 1</a><ul>
 <li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#usage-with-d9-the-current-default-viewer">Usage with D9 (the current default viewer)</a></li>
+<li><a class="reference internal" href="#usage-with-ginga-viewer">Usage with Ginga viewer</a></li>
+<li><a class="reference internal" href="#all-commands-after-the-viewer-is-opened-are-the-same">All commands after the viewer is opened are the same</a></li>
 </ul>
 </li>
 </ul>
@@ -166,7 +184,7 @@ DS9 ds9 gs 82a7e75f:57222 sosey
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>

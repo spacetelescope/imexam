@@ -7,18 +7,25 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
+# turn on interactive mode for plotting
+plt.ion()
+
 from scipy.optimize import curve_fit
 import time
 import logging
 from copy import deepcopy
 import inspect
 
+# enable display plot in iPython notebook
+from IPython.display import Image
+import StringIO
 
 try:
     import photutils
     photutils_installed = True
 except ImportError:
-    print("photutils not installed, photometry functionality in imexam() not available")
+    print(
+        "photutils not installed, photometry functionality in imexam() not available")
     photutils_installed = False
 
 from . import math_helper
@@ -37,10 +44,33 @@ class Imexamine(object):
         region_size is the default radius or side of the square for stat info
         """
 
-        # The user can modify this dictionary to add or change options,
-        # the first item in the tuple is the associated function
-        # the second item in the tuple is the description of what the function
-        # does when that key is pressed
+        self.set_option_funcs()  # define the dictionary of keys and functions
+        self._data = np.zeros(0)  # the data array
+        self._datafile = ""  # the file from which the data came
+        # read from imexam_defpars which contains dicts
+        self._define_default_pars()
+        # default plot name saved with "s" key
+        self.plot_name = "imexam_plot.pdf"
+        self.sleep_time = 1e-6    # for plotting convenience
+        # let users have multiple plot windows, the list stores their names
+        self._plot_windows = list()
+        # this contains the name of the current plotting window
+        self._figure_name = "imexam"
+
+        self._plot_windows.append(self._figure_name)
+
+    def set_option_funcs(self):
+        """Define the dictionary which maps imexam option keys to their functions
+
+
+         Notes
+         -----
+         The user can modify this dictionary to add or change options,
+         the first item in the tuple is the associated function
+         the second item in the tuple is the description of what the function
+         does when that key is pressed
+        """
+
         self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
                                     'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
                                     'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
@@ -57,17 +87,6 @@ class Imexamine(object):
                                     'w': (self.surface_plot, 'display a surface plot around the cursor location'),
                                     '2': (self.new_plot_window, 'make the next plot in a new window'),
                                     }
-
-        self._data = np.zeros(0)  # the data array
-        self._datafile = ""  # the file from which the data came
-        self._define_default_pars()  # read from imexam_defpars which contains dicts
-        self.plot_name = "imexam_plot.pdf"  # default plot name saved with "s" key
-        self.sleep_time = 1e-6    # for plotting convenience
-        # let users have multiple plot windows, the list stores their names
-        self._plot_windows = list()
-        self._figure_name = "imexam"  # this contains the name of the current plotting window
-
-        self._plot_windows.append(self._figure_name)
 
     def print_options(self):
         """print the imexam options to screen"""
@@ -93,12 +112,11 @@ class Imexamine(object):
 
         """
         print("pressed: {0}".format(key))
-        self.imexam_option_funcs[key][0](x, y)
+        self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
         """return the imexam options as a key list"""
-        keys = self.imexam_option_funcs.keys()
-        keys.sort()
+        keys = sorted(self.imexam_option_funcs.keys())
         return keys
 
     def option_descrip(self, key, field=1):
@@ -182,13 +200,13 @@ class Imexamine(object):
         """
         self._define_local_pars()
 
-    def new_plot_window(self, x, y):
+    def new_plot_window(self, x, y, data):
         """make the next plot in a new plot window
 
 
         Notes
         -----
-        x,y are not used here, but the calls are setup to take them
+        x,y, data, are not used here, but the calls are setup to take them
         for all imexam options. Is there a better way to do the calls in general?
         Once the new plotting window is open all plots will be directed towards it
         The old window cannot be used again.
@@ -199,19 +217,23 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         print("Plots now directed towards {0:s}".format(self._figure_name))
 
-    def plot_line(self, x, y):
+    def plot_line(self, x, y, data, fig=None):
         """line plot of data at point x"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig is None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title("{0:s}  line={1:d}".format(self.lineplot_pars["title"][0], int(y + 1)))
+        ax.set_title(
+            "{0:s}  line={1:d}".format(
+                self.lineplot_pars["title"][0], int(
+                    y + 1)))
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
         if not self.lineplot_pars["xmax"][0]:
-            xmax = len(self._data[y, :])
+            xmax = len(data[y, :])
         else:
             xmax = self.lineplot_pars["xmax"][0]
         ax.set_xlim(self.lineplot_pars["xmin"][0], xmax)
@@ -222,26 +244,31 @@ class Imexamine(object):
             ax.set_yscale("log")
 
         if self.lineplot_pars["pointmode"][0]:
-            ax.plot(self._data[y, :], self.lineplot_pars["marker"][0])
+            ax.plot(data[y, :], self.lineplot_pars["marker"][0])
         else:
-            ax.plot(self._data[y, :])
+            ax.plot(data[y, :])
 
         plt.draw()
+        plt.show(block=False)
         time.sleep(self.sleep_time)
 
-    def plot_column(self, x, y):
+    def plot_column(self, x, y, data, fig=None):
         """column plot of data at point y"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig is None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title("{0:s}  column={1:d}".format(self.colplot_pars["title"][0], int(x + 1)))
+        ax.set_title(
+            "{0:s}  column={1:d}".format(
+                self.colplot_pars["title"][0], int(
+                    x + 1)))
         ax.set_xlabel(self.colplot_pars["xlabel"][0])
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
         if not self.colplot_pars["xmax"][0]:
-            xmax = len(self._data[:, x])
+            xmax = len(data[:, x])
         else:
             xmax = self.colplot_pars["xmax"][0]
         ax.set_xlim(self.colplot_pars["xmin"][0], xmax)
@@ -252,20 +279,21 @@ class Imexamine(object):
         if self.colplot_pars["logy"][0]:
             ax.set_yscale("log")
         if self.colplot_pars["pointmode"][0]:
-            ax.plot(self._data[:, x], self.colplot_pars["marker"][0])
+            ax.plot(data[:, x], self.colplot_pars["marker"][0])
         else:
-            ax.plot(self._data[:, x])
+            ax.plot(data[:, x])
 
         plt.draw()
+        plt.show(block=False)
         time.sleep(self.sleep_time)
 
-    def show_xy_coords(self, x, y):
+    def show_xy_coords(self, x, y, data):
         """print the x,y,value to the screen"""
-        info = "{0} {1}  {2}".format(x + 1, y + 1, self._data[(y), (x)])
+        info = "{0} {1}  {2}".format(x + 1, y + 1, data[(y), (x)])
         print(info)
         logging.info(info)
 
-    def report_stat(self, x, y):
+    def report_stat(self, x, y, data):
         """report the median of values in a box with side region_size"""
         region_size = self.report_stat_pars["region_size"][0]
         resolve = True
@@ -281,11 +309,11 @@ class Imexamine(object):
             ymin = int(y - dist)
             ymax = int(y + dist)
             pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(
-                xmin, xmax, ymin, ymax, stat.func_name, (stat(self._data[ymin:ymax, xmin:xmax])))
+                xmin, xmax, ymin, ymax, stat.func_name, (stat(data[ymin:ymax, xmin:xmax])))
             print(pstr)
             logging.info(pstr)
 
-    def save_figure(self, x, y):
+    def save_figure(self, x, y, data):
         """save the figure that's currently displayed"""
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
@@ -294,21 +322,22 @@ class Imexamine(object):
         print(pstr)
         logging.info(pstr)
 
-    def aper_phot(self, x, y):
+    def aper_phot(self, x, y, data):
         """Perform aperture photometry, uses photutils functions, photutils must be available
 
         """
+        sigma = 0.  # no centering
+        amp = 0.  # no centering
         if not photutils_installed:
-            print("Install photutil to enable")
+            print("Install photutils to enable")
         else:
-            sigma = 0.  # no centering
-            amp = 0.  # no centering
             if self.aperphot_pars["center"][0]:
                 center = True
                 delta = 10
-                popt = self.gauss_center(x, y, delta)
+                popt = self.gauss_center(x, y, data, delta=delta)
                 if 5 > popt.count(0) > 1:  # an error occurred in centering
-                    warnings.warn("Problem fitting center, using original coordinates")
+                    warnings.warn(
+                        "Problem fitting center, using original coordinates")
                 else:
                     amp, x, y, sigma, offset = popt
 
@@ -316,29 +345,41 @@ class Imexamine(object):
             width = int(self.aperphot_pars["width"][0])
             inner = int(self.aperphot_pars["skyrad"][0])
             subsky = bool(self.aperphot_pars["subsky"][0])
-            outer=inner+width
-            
-            apertures=photutils.CircularAperture((x,y),radius)
-            rawflux_table = photutils.aperture_photometry(self._data,apertures,subpixels=1, method="center")
-            
-            if subsky:
-                annulus_apertures=photutils.CircularAnnulus((x,y),r_in=inner, r_out=outer)
-                bkgflux_table=photutils.aperture_photometry(self._data,annulus_apertures)
 
-                #to calculate the mean local background, divide the circular annulus aperture sums
-                #by the area fo teh circular annuls. The bkg sum with the circular aperture is then
-                #then mean local background tims the circular apreture area.
+            outer = inner + width
+
+            apertures = photutils.CircularAperture((x, y), radius)
+            rawflux_table = photutils.aperture_photometry(
+                data,
+                apertures,
+                subpixels=1,
+                method="center")
+
+            if subsky:
+                annulus_apertures = photutils.CircularAnnulus(
+                    (x, y), r_in=inner, r_out=outer)
+                bkgflux_table = photutils.aperture_photometry(
+                    data,
+                    annulus_apertures)
+
+                # to calculate the mean local background, divide the circular annulus aperture sums
+                # by the area fo teh circular annuls. The bkg sum with the circular aperture is then
+                # then mean local background tims the circular apreture area.
                 aperture_area = apertures.area()
                 annulus_area = annulus_apertures.area()
 
-                bkg_sum=float((bkgflux_table['aperture_sum'] * aperture_area/annulus_area)[0])
+                bkg_sum = float(
+                    (bkgflux_table['aperture_sum'] *
+                     aperture_area /
+                     annulus_area)[0])
                 total_flux = rawflux_table['aperture_sum'][0] - bkg_sum
-                sky_per_pix=float(bkgflux_table['aperture_sum']/annulus_area)
-                
+                sky_per_pix = float(
+                    bkgflux_table['aperture_sum'] /
+                    annulus_area)
+
             else:
-                total_flux=float(rawflux_table['aperture_sum'][0])
-            
-            
+                total_flux = float(rawflux_table['aperture_sum'][0])
+
             # compute the magnitude of the sky corrected flux
             magzero = float(self.aperphot_pars["zmag"][0])
             mag = magzero - 2.5 * (np.log10(total_flux))
@@ -356,7 +397,7 @@ class Imexamine(object):
             print(pheader + pstr)
             logging.info(pheader + pstr)
 
-    def line_fit(self, x, y, form=None, subsample=4):
+    def line_fit(self, x, y, data, form=None, subsample=4, fig=None):
         """compute the 1d  fit to the line of data using the specified form
 
 
@@ -378,37 +419,45 @@ class Imexamine(object):
         If centering is True in the parameter set, then the center is fit with a 2d gaussian
 
         """
+        amp = 0
+        sigma = 0
         if not form:
             form = getattr(math_helper, self.line_fit_pars["func"][0])
 
         delta = self.line_fit_pars["rplot"][0]
 
         if self.line_fit_pars["center"][0]:
-            popt = self.gauss_center(x, y, delta)
+            popt = self.gauss_center(x, y, data, delta=delta)
             if popt.count(0) > 1:  # an error occurred in centering
                 centerx = x
                 centery = y
-                warnings.warn("Problem fitting center, using original coordinates")
+                warnings.warn(
+                    "Problem fitting center, using original coordinates")
             else:
                 amp, x, y, sigma, offset = popt
 
-        line = self._data[y, :]
+        line = data[y, :]
         chunk = line[x - delta:x + delta]
 
-        # use x location as the first estimate for the mean, use 20 pixel distance to guess center
-        argmap = {'a': amp, 'mu': len(chunk)/2, 'sigma': sigma, 'b':0}
+        # use x location as the first estimate for the mean, use 20 pixel
+        # distance to guess center
+        argmap = {'a': amp, 'mu': len(chunk) / 2, 'sigma': sigma, 'b': 0}
         args = inspect.getargspec(form)[0][1:]  # get rid of "self"
 
         xline = np.arange(len(chunk))
-        popt, pcov = curve_fit(form, xline, chunk, [argmap.get(arg, 1) for arg in args])
+        popt, pcov = curve_fit(
+            form, xline, chunk, [
+                argmap.get(
+                    arg, 1) for arg in args])
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(xline), step=1. / subsample)
         fity = form(fitx, *popt)
 
         # calculate the std about the mean
         # make a plot
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig is None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_xlabel(self.line_fit_pars["xlabel"][0])
@@ -438,16 +487,25 @@ class Imexamine(object):
 
         ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
             self.line_fit_pars["title"][0], str(fitmean), str(fwhm)))
-        ax.plot(fitx + x - delta, fity, c='r', label=str(form.__name__) + " fit")
+        ax.plot(
+            fitx +
+            x -
+            delta,
+            fity,
+            c='r',
+            label=str(
+                form.__name__) +
+            " fit")
         plt.legend()
         plt.draw()
+        plt.show(block=False)
         time.sleep(self.sleep_time)
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
         print(pstr)
         logging.info(pstr)
 
-    def column_fit(self, x, y, form=None, subsample=4):
+    def column_fit(self, x, y, data, form=None, subsample=4, fig=None):
         """compute the 1d  fit to the column of data
 
         Parameters
@@ -467,29 +525,36 @@ class Imexamine(object):
 
         """
 
+        sigma = 0
+        amp = 0
         if not form:
             form = getattr(math_helper, self.line_fit_pars["func"][0])
 
         delta = self.column_fit_pars["rplot"][0]
 
         if self.column_fit_pars["center"][0]:
-            popt = self.gauss_center(x, y, delta)
+            popt = self.gauss_center(x, y, data, delta=delta)
             if popt.count(0) > 1:  # an error occurred in centering
                 centerx = x
                 centery = y
-                warnings.warn("Problem fitting center, using original coordinates")
+                warnings.warn(
+                    "Problem fitting center, using original coordinates")
             else:
                 amp, x, y, sigma, offset = popt
 
-        line = self._data[:, x]
+        line = data[:, x]
         chunk = line[y - delta:y + delta]
 
-        # use y location as the first estimate for the mean, use 20 pixel distance to guess center
-        argmap = {'a': amp, 'mu': len(chunk)/2, 'sigma': sigma, 'b':0}
+        # use y location as the first estimate for the mean, use 20 pixel
+        # distance to guess center
+        argmap = {'a': amp, 'mu': len(chunk) / 2, 'sigma': sigma, 'b': 0}
         args = inspect.getargspec(form)[0][1:]  # get rid of "self"
 
         yline = np.arange(len(chunk))
-        popt, pcov = curve_fit(form, yline, chunk, [argmap.get(arg, 1) for arg in args])
+        popt, pcov = curve_fit(
+            form, yline, chunk, [
+                argmap.get(
+                    arg, 1) for arg in args])
 
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(yline), step=1. / subsample)
@@ -497,8 +562,9 @@ class Imexamine(object):
 
         # calculate the std about the mean
         # make a plot
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig is None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_xlabel(self.column_fit_pars["xlabel"][0])
@@ -526,16 +592,25 @@ class Imexamine(object):
 
         ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
             self.column_fit_pars["title"][0], str(fitmean), str(fwhm)))
-        ax.plot(fitx + y - delta, fity, c='r', label=str(form.__name__) + " fit")
+        ax.plot(
+            fitx +
+            y -
+            delta,
+            fity,
+            c='r',
+            label=str(
+                form.__name__) +
+            " fit")
         plt.legend()
         plt.draw()
+        plt.show(block=False)
         time.sleep(self.sleep_time)
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
         print(pstr)
         logging.info(pstr)
 
-    def gauss_center(self, x, y, delta=10):
+    def gauss_center(self, x, y, data, delta=10):
         """return the 2d gaussian fit center
 
         Parameters
@@ -544,20 +619,29 @@ class Imexamine(object):
             The range of data values to use around the x,y location for calculating the center
 
         """
-        chunk = self._data[y - delta:y + delta, x - delta:x + delta]  # flipped from xpa
+        chunk = data[
+            y -
+            delta:y +
+            delta,
+            x -
+            delta:x +
+            delta]  # flipped from xpa
         try:
-            amp, ycenter, xcenter, sigma, offset = math_helper.gauss_center(chunk)
+            amp, ycenter, xcenter, sigma, offset = math_helper.gauss_center(
+                chunk)
             pstr = "xc={0:4f}\tyc={1:4f}".format(
                 (xcenter + x - delta + 1), (ycenter + y - delta + 1))
             print(pstr)
             logging.info(pstr)
-            return amp, (xcenter + x - delta), (ycenter + y - delta), sigma, offset
+            return amp, (xcenter + x - delta), (ycenter +
+                                                y - delta), sigma, offset
         except (RuntimeError, UserWarning) as e:
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def curve_of_growth_plot(self, x, y):
-        """display the radial profile plot for the star with background subtraction at each radii
+    def curve_of_growth_plot(self, x, y, data, fig=None):
+        """
+        display the radial profile plot for the star
 
         """
         if not photutils_installed:
@@ -570,11 +654,12 @@ class Imexamine(object):
             # center using a 2d gaussian
             if self.curve_of_growth_pars["center"][0]:
                 # pull out a small chunk
-                popt = self.gauss_center(x, y, delta)
+                popt = self.gauss_center(x, y, data, delta=delta)
                 if popt.count(0) > 1:  # an error occurred in centering
                     centerx = x
                     centery = y
-                    warnings.warn("Problem fitting center, using original coordinates")
+                    warnings.warn(
+                        "Problem fitting center, using original coordinates")
                 else:
                     amp, centerx, centery, sigma, offset = popt
             else:
@@ -589,8 +674,9 @@ class Imexamine(object):
             router = self.curve_of_growth_pars["rplot"][0]
             getdata = bool(self.curve_of_growth_pars["getdata"][0])
 
-            fig = plt.figure(self._figure_name)
-            plt.clf()
+            if fig is None:
+                fig = plt.figure(self._figure_name)
+            fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
             title = self.curve_of_growth_pars["title"][0]
@@ -602,11 +688,12 @@ class Imexamine(object):
             rapert = int(router) + 1
             for rad in range(1, rapert, 1):
                 aper_flux, annulus_sky, skysub_flux = self._aperture_phot(
-                    centerx, centery, radsize=rad, sky_inner=inner, skywidth=width, method="exact")
+                    centerx, centery, data, radsize=rad, sky_inner=inner, skywidth=width, method="exact")
                 radius.append(rad)
                 if self.curve_of_growth_pars["background"][0]:
                     if inner < router:
-                        warnings.warn("Your sky annulus is inside your photometry radius rplot")
+                        warnings.warn(
+                            "Your sky annulus is inside your photometry radius rplot")
                     flux.append(skysub_flux)
                 else:
                     flux.append(aper_flux)
@@ -619,9 +706,11 @@ class Imexamine(object):
             ax.plot(radius, flux, 'o')
             ax.set_title(title)
             plt.draw()
+            plt.show(block=False)
             time.sleep(self.sleep_time)
 
-    def _aperture_phot(self, x, y, radsize=1, sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
+    def _aperture_phot(self, x, y, data, radsize=1,
+                       sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
         """Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed
 
         Parameters
@@ -650,29 +739,41 @@ class Imexamine(object):
             print("Install photutils to enable")
         else:
 
-            apertures=photutils.CircularAperture((x,y),radsize)
-            rawflux_table = photutils.aperture_photometry(self._data,apertures,subpixels=1, method="center")
+            apertures = photutils.CircularAperture((x, y), radsize)
+            rawflux_table = photutils.aperture_photometry(
+                data,
+                apertures,
+                subpixels=1,
+                method="center")
 
-            outer=sky_inner + skywidth
-            annulus_apertures=photutils.CircularAnnulus((x,y),r_in=sky_inner, r_out=outer)
-            bkgflux_table=photutils.aperture_photometry(self._data,annulus_apertures)
+            outer = sky_inner + skywidth
+            annulus_apertures = photutils.CircularAnnulus(
+                (x, y), r_in=sky_inner, r_out=outer)
+            bkgflux_table = photutils.aperture_photometry(
+                data,
+                annulus_apertures)
 
-            #to calculate the mean local background, divide the circular annulus aperture sums
-            #by the area fo the circular annuls. The bkg sum with the circular aperture is then
-            #then mean local background tims the circular apreture area.
+            # to calculate the mean local background, divide the circular annulus aperture sums
+            # by the area fo the circular annuls. The bkg sum with the circular aperture is then
+            # then mean local background tims the circular apreture area.
             aperture_area = apertures.area()
             annulus_area = annulus_apertures.area()
 
-            bkg_sum=(bkgflux_table['aperture_sum'] * aperture_area/annulus_area)[0]
+            bkg_sum = (
+                bkgflux_table['aperture_sum'] *
+                aperture_area /
+                annulus_area)[0]
             skysub_flux = rawflux_table['aperture_sum'][0] - bkg_sum
- 
-            return (float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
-    def histogram_plot(self, x, y):
+            return (
+                float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
+
+    def histogram_plot(self, x, y, data, fig=None):
         """plot a histogram of the pixel values in a region around the specified location"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig is None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_title(self.histogram_pars["title"][0])
@@ -685,45 +786,47 @@ class Imexamine(object):
         deltax = np.ceil(self.histogram_pars["ncolumns"][0] / 2.)
         deltay = np.ceil(self.histogram_pars["nlines"][0] / 2.)
 
-        data = self._data[y - deltay:y + deltay, x - deltax:x + deltax]
+        data_cut = data[y - deltay:y + deltay, x - deltax:x + deltax]
 
         # mask data for min and max intensity specified
         if self.histogram_pars["z1"][0]:
             mini = float(self.histogram_pars["z1"][0])
         else:
-            mini = np.min(data)
+            mini = np.min(data_cut)
 
         if self.histogram_pars["z2"][0]:
             maxi = float(self.histogram_pars["z2"][0])
         else:
-            maxi = np.max(data)
+            maxi = np.max(data_cut)
 
-        # ltb=np.array(len(data)*[True],bool)
-        # gtb=np.array(len(data)*[True],bool)
+        # ltb=np.array(len(data_cut)*[True],bool)
+        # gtb=np.array(len(data_cut)*[True],bool)
 
-        lt = (data < maxi)
-        gt = (data > mini)
+        lt = (data_cut < maxi)
+        gt = (data_cut > mini)
 
         total_mask = lt * gt
-        flat_data = data[total_mask].flatten()
+        flat_data = data_cut[total_mask].flatten()
 
         if not maxi:
-            maxi = np.max(data)
+            maxi = np.max(data_cut)
         if not mini:
-            mini = np.min(data)
+            mini = np.min(data_cut)
         num_bins = int(self.histogram_pars["nbins"][0])
 
         n, bins, patches = plt.hist(
             flat_data, num_bins, range=[mini, maxi], normed=False, facecolor='green', alpha=0.5, histtype='bar')
         print("hist with {0} bins".format(num_bins))
         plt.draw()
+        plt.show(block=False)
         time.sleep(self.sleep_time)
 
-    def contour_plot(self, x, y):
+    def contour_plot(self, x, y, data, fig=None):
         """plot contours in a region around the specified location"""
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig is None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_title(self.contour_pars["title"][0])
@@ -732,7 +835,7 @@ class Imexamine(object):
 
         deltax = np.ceil(self.contour_pars["ncolumns"][0] / 2.)
         deltay = np.ceil(self.contour_pars["nlines"][0] / 2.)
-        data = self._data[y - deltay:y + deltay, x - deltax:x + deltax]
+        data_cut = data[y - deltay:y + deltay, x - deltax:x + deltax]
 
         plt.rcParams['xtick.direction'] = 'out'
         plt.rcParams['ytick.direction'] = 'out'
@@ -742,14 +845,22 @@ class Imexamine(object):
 
         X, Y = np.meshgrid(np.arange(0, deltax, 0.5) + x - deltax / 2.,
                            np.arange(0, deltay, 0.5) + y - deltay / 2.)  # check this
-        plt.contourf(X, Y, data, ncont, alpha=.75, cmap=colormap)
-        C = plt.contour(X, Y, data, ncont, linewidth=.5, colors='black', linestyle=lsty)
+        plt.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
+        C = plt.contour(
+            X,
+            Y,
+            data_cut,
+            ncont,
+            linewidth=.5,
+            colors='black',
+            linestyle=lsty)
         if self.contour_pars["label"][0]:
             plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
         plt.draw()
+        plt.show(block=False)
         time.sleep(self.sleep_time)
 
-    def surface_plot(self, x, y):
+    def surface_plot(self, x, y, data, fig=None):
         """plot a surface around the specified location
 
                        "ncolumns":[21,"Number of columns"],
@@ -763,8 +874,9 @@ class Imexamine(object):
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-        fig = plt.figure(self._figure_name)
-        plt.clf()
+        if fig is None:
+            fig = plt.figure(self._figure_name)
+        fig.clf()
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
         if self.surface_pars["title"][0]:
@@ -781,7 +893,7 @@ class Imexamine(object):
         Y = np.arange(y - deltay, y + deltay, 1)
 
         X, Y = np.meshgrid(X, Y)
-        Z = self._data[y - deltay:y + deltay, x - deltax:x + deltax]
+        Z = data[y - deltay:y + deltay, x - deltax:x + deltax]
         if self.surface_pars["floor"][0]:
             zmin = float(self.surface_pars["floor"][0])
         else:
@@ -806,14 +918,33 @@ class Imexamine(object):
         if fancy:
             xmin = x - deltax
             ymax = y + deltay
-            cset = ax.contour(X, Y, Z, zdir='z', offset=zmax, cmap=self.surface_pars["cmap"][0])
-            cset = ax.contour(X, Y, Z, zdir='x', offset=xmin, cmap=self.surface_pars["cmap"][0])
-            cset = ax.contour(X, Y, Z, zdir='y', offset=ymax, cmap=self.surface_pars["cmap"][0])
+            cset = ax.contour(
+                X,
+                Y,
+                Z,
+                zdir='z',
+                offset=zmax,
+                cmap=self.surface_pars["cmap"][0])
+            cset = ax.contour(
+                X,
+                Y,
+                Z,
+                zdir='x',
+                offset=xmin,
+                cmap=self.surface_pars["cmap"][0])
+            cset = ax.contour(
+                X,
+                Y,
+                Z,
+                zdir='y',
+                offset=ymax,
+                cmap=self.surface_pars["cmap"][0])
 
         fig.colorbar(surf, shrink=0.5, aspect=5)
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
         plt.draw()
+        plt.show(block=False)
         time.sleep(self.sleep_time)
 
     def register(self, user_funcs):
@@ -831,7 +962,7 @@ class Imexamine(object):
         imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size ') ->tuple example
 
         """
-        if type(user_funcs) != type(dict()):
+        if not isinstance(user_funcs, type(dict())):
             warnings.warn("Your input needs to be a dictionary")
 
         for key in user_funcs.keys():
@@ -854,6 +985,17 @@ class Imexamine(object):
     def _add_user_function(cls, func):
         import types
         return setattr(cls, func.__name__, types.MethodType(func, None, cls))
+
+    # Some boilderplate to display matplotlib plots in notebook
+    # If QT GUI could interact nicely with --pylab=inline we wouldn't need this
+
+    def showplt(self):
+        buf = StringIO.StringIO()
+        plt.savefig(buf, bbox_inches=0)
+        img = Image(data=bytes(buf.getvalue()),
+                    format='png', embed=True)
+        buf.close()
+        return img
 
     def set_aperphot_pars(self, user_dict=None):
         """the user may supply a dictionary of par settings"""

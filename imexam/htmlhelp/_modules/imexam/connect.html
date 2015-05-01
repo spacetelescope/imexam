@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.connect &mdash; imexam v0.3.dev</title>
+    <title>imexam.connect &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -25,9 +25,11 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../../index.html" />
+    <link rel="top" title="imexam v0.5" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -54,7 +56,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">imexam v0.3.dev</a>
+	<a href="../../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
@@ -80,9 +82,18 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
+
+
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">set_logging</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">xpa</span>
 <span class="kn">from</span> <span class="nn">.ds9_viewer</span> <span class="kn">import</span> <span class="n">ds9</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.ginga_viewer</span> <span class="kn">import</span> <span class="n">ginga_mp</span>
+    <span class="n">have_ginga</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">have_ginga</span> <span class="o">=</span> <span class="bp">False</span>
+
+
 <span class="kn">from</span> <span class="nn">.imexamine</span> <span class="kn">import</span> <span class="n">Imexamine</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Connect&quot;</span><span class="p">]</span>
@@ -106,7 +117,7 @@
 <span class="sd">        absolute path to the viewers executable</span>
 
 <span class="sd">    viewer: string, optional</span>
-<span class="sd">        The name of the image view you want to use, currently only DS9 is supported</span>
+<span class="sd">        The name of the image viewer you want to use, currently only DS9 is supported</span>
 
 <span class="sd">    wait_time: int, optional</span>
 <span class="sd">        The time to wait for a connection to be eastablished before quitting</span>
@@ -122,20 +133,45 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">viewer</span><span class="o">=</span><span class="s">&quot;ds9&quot;</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">quit_window</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">viewer</span><span class="o">=</span><span class="s">&quot;ds9&quot;</span><span class="p">,</span>
+                 <span class="n">wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">quit_window</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
 
-        <span class="n">_possible_viewers</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ds9&quot;</span><span class="p">]</span>  <span class="c"># better dynamic way so people can add their own viewers?</span>
-        <span class="k">if</span> <span class="n">viewer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_possible_viewers</span><span class="p">:</span>
+        <span class="c"># better dynamic way so people can add their own viewers?</span>
+        <span class="n">_possible_viewers</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ds9&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">have_ginga</span><span class="p">:</span>
+            <span class="n">_possible_viewers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_possible_viewers</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;**Unsupported viewer**</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-        <span class="k">if</span> <span class="s">&#39;ds9&#39;</span> <span class="ow">in</span> <span class="n">viewer</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="c"># init sets empty data array until we can load or check viewer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span> <span class="o">=</span> <span class="n">Imexamine</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="s">&#39;ds9&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">ds9</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="n">wait_time</span><span class="p">,</span> <span class="n">quit_ds9_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># use the imexam loop</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span> <span class="o">=</span> <span class="n">Imexamine</span><span class="p">()</span>  <span class="c"># init sets empty data array until we can load or check viewer</span>
+        <span class="k">elif</span> <span class="s">&#39;ginga_mp&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">ginga_mp</span><span class="p">(</span><span class="n">exam</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="p">,</span>
+                                   <span class="n">close_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">)</span>
+            <span class="c"># self.window.view.add_callback(&#39;key-press&#39;,self.window._imexam)</span>
+            <span class="c"># rotate canvas in before this can be used</span>
+            <span class="c"># self.window.canvas.add_callback(&#39;key-press&#39;,self.start_imexam_ginga)</span>
+            <span class="c"># the viewer will track imexam with callbacks</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span> <span class="o">=</span> <span class="bp">True</span>
+
+            <span class="c"># alter the exam.imexam_option_funcs{} here through the viewer code if you want to</span>
+            <span class="c"># change key+function associations</span>
+            <span class="c"># self.window._reassign_keys(imexam_dict)</span>
+
+
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="s">&#39;imexam_log.txt&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">=</span><span class="bp">None</span> <span class="c">#points to the package logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># points to the package logger</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -144,7 +180,7 @@
         <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">filename</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">=</span><span class="n">set_logging</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="n">on</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">set_logging</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="n">on</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Connect.close"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; close the window and end connection&quot;&quot;&quot;</span>
@@ -152,12 +188,26 @@
 </div>
 <div class="viewcode-block" id="Connect.imexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.imexam">[docs]</a>    <span class="k">def</span> <span class="nf">imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;run imexamine with user interaction. At a minimum it requires a copy of the data array&quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_data_in_viewer</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_run_imexam</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_event_imexam</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_imexam</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No valid image loaded in viewer&quot;</span><span class="p">)</span>
 </div>
+    <span class="k">def</span> <span class="nf">_run_event_imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; let the viewer run an event driven imexam</span>
+
+<span class="sd">        pass the key binding dictionary in for it to attach to?</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Event driven imexam not implemented for viewer&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Press the i key in the graphics window for access to imexam keys, i or q again to exit</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="Connect.get_data_filename"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_data_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the filename for the data in the current window&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span>
@@ -175,23 +225,23 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_viewer_info</span><span class="p">()</span>
 </div>
     <span class="k">def</span> <span class="nf">_run_imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;start imexam analysis loop</span>
+        <span class="sd">&quot;&quot;&quot;start imexam analysis loop for non event driven viewers</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        The data displayed in the current frame is grabbed .The catch is that the user can change the data</span>
-<span class="sd">        that is displayed using the gui menus, so during the imexam loop the display needs to be</span>
+<span class="sd">        that is displayed using the gui menus in DS9, so during the imexam loop the display needs to be</span>
 <span class="sd">        checked after each key stroke.</span>
 
 <span class="sd">        This function will track the user changing the frame number using the gui display</span>
 <span class="sd">        for  images and update the data array.</span>
 
 <span class="sd">        TODO</span>
-<span class="sd">        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented, </span>
+<span class="sd">        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented,</span>
 <span class="sd">        the problem comes with  printing the coordinates and visual comparison with what&#39;s displayed</span>
 <span class="sd">        in the gui. The gui display seems to round up integer pixels at some zoom factors. Verify this to some level</span>
 <span class="sd">        by looking at the pixel returned and using the pixel table window in DS9 to look at surrounding values.</span>
-<span class="sd">        imexamine() returns the value at the integer pixel location. </span>
+<span class="sd">        imexamine() returns the value at the integer pixel location.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -224,29 +274,40 @@
                     <span class="k">if</span> <span class="s">&#39;q&#39;</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
                         <span class="n">current_key</span> <span class="o">=</span> <span class="bp">None</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">current_key</span><span class="p">)</span> <span class="c">#ds9 returns 1 based array</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span>
+                            <span class="n">x</span> <span class="o">-</span>
+                            <span class="mi">1</span><span class="p">,</span>
+                            <span class="n">y</span> <span class="o">-</span>
+                            <span class="mi">1</span><span class="p">,</span>
+                            <span class="n">current_key</span><span class="p">)</span>  <span class="c"># ds9 returns 1 based array</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Invalid key, use</span><span class="se">\n</span><span class="s">: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()))</span>
+                <span class="k">print</span><span class="p">(</span>
+                    <span class="s">&quot;Invalid key, use</span><span class="se">\n</span><span class="s">: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()))</span>
 
     <span class="k">def</span> <span class="nf">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;check if the user switched frames&quot;&quot;&quot;</span>
-        <span class="n">frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">!=</span> <span class="n">frame</span><span class="p">:</span>  <span class="c"># the user has changed window frames</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="n">frame</span>
-            <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Current image {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()[</span><span class="s">&#39;filename&#39;</span><span class="p">],)</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Current image {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()[</span><span class="s">&#39;filename&#39;</span><span class="p">],)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; check if the user switched slice images &quot;&quot;&quot;</span>
-        <span class="n">this_slice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
+        <span class="n">this_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">!=</span> <span class="n">this_slice</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="n">this_slice</span>
-            <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Current slice {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()[</span><span class="s">&#39;naxis&#39;</span><span class="p">],)</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Current slice {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()[</span><span class="s">&#39;naxis&#39;</span><span class="p">],)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;Implement the following functions in your viewer class&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Connect.readcursor"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.readcursor">[docs]</a>    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset&quot;&quot;&quot;</span>
@@ -406,10 +467,13 @@
 <div class="viewcode-block" id="Connect.zoomtofit"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.zoomtofit">[docs]</a>    <span class="k">def</span> <span class="nf">zoomtofit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;zoom the image to fit the display&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">zoomtofit</span><span class="p">()</span>
+</div>
+    <span class="sd">&quot;&quot;&quot; These are imexam parameters that the user can change for plotting  &quot;&quot;&quot;</span>
 
     <span class="c"># seems easiest to return the parameter dictionaries here, then the user can catch it, edit it</span>
-    <span class="c"># and reset the pars with self.set in the exam link or directly into the imexamine object.</span>
-</div>
+    <span class="c"># and reset the pars with self.set in the exam link or directly into the</span>
+    <span class="c"># imexamine object.</span>
+
 <div class="viewcode-block" id="Connect.aimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.aimexam">[docs]</a>    <span class="k">def</span> <span class="nf">aimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;show current parameters for aperture photometry&quot;&quot;&quot;</span>
         <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">)</span>
@@ -462,7 +526,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">get_plot_name</span><span class="p">()</span>  <span class="c"># show the current default</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">F_OK</span><span class="p">):</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;File with that name already exists:{0s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s">&quot;File with that name already exists:{0s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_plot_name</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div></div>
 </pre></div>
@@ -484,7 +549,7 @@
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 01 May 2015. <br/>
   </p>
 </footer>
   </body>

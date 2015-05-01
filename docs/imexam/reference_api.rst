@@ -4,3 +4,5 @@
    :no-inheritance-diagram:
 .. automodapi:: imexam.ds9_viewer
    :no-inheritance-diagram:
+.. automodapi:: imexam.ginga_viewer
+   :no-inheritance-diagram:

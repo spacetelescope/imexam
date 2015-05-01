@@ -12,6 +12,15 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, Extension
 
+import ah_bootstrap
+from setuptools import setup
+
+
+from astropy_helpers.setup_helpers import (
+    register_commands, adjust_compiler, get_debug_option, get_package_info)
+from astropy_helpers.git_helpers import get_git_devstr
+from astropy_helpers.version_helpers import generate_version_py
+
 
 # Get some values from the setup.cfg
 from distutils import config
@@ -21,33 +30,51 @@ metadata = dict(conf.items('metadata'))
 
 PACKAGENAME = metadata.get('package_name', 'packagename')
 DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
-LONG_DESCRIPTION=metadata.get('long_description','A package to help perform image examination through a viewing tool')
+LONG_DESCRIPTION = metadata.get('long_description','A package to help perform command-line image examination through a viewing tool')
 AUTHOR = metadata.get('author', '')
 AUTHOR_EMAIL = metadata.get('author_email', '')
 LICENSE = metadata.get('license', 'unknown')
+URL = metadata.get('url', 'http://astropy.org')
 VERSION = metadata.get('version','')
 
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
 
+if not RELEASE:
+    VERSION += get_git_devstr(False)
+
+
+# Populate the dict of setup command overrides; this should be done before
+# invoking any other functionality from distutils since it can potentially
+# modify distutils' behavior.
+cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
+
+# Adjust the compiler in case the default on this platform is to use a
+# broken one.
+adjust_compiler(PACKAGENAME)
+
+# Freeze build information in version.py
+generate_version_py(PACKAGENAME, VERSION, RELEASE,
+                    get_debug_option(PACKAGENAME))
 
 # Treat everything in scripts except README.rst as a script to be installed
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
            if os.path.basename(fname) != 'README.rst']
 
 
+
+XPALIB_DIR = "cextern/xpa-2.1.15"
+CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
+
 # check if cython is available.
 try:
     from Cython.Build import cythonize
     cythonize("wrappers/xpa.pyx")
     CYTHON_SOURCE = "wrappers/xpa.c"
+    have_cython=True
 except ImportError:
     print("Unable to load Cython")
-    raise ImportError
-
-
-XPALIB_DIR = "cextern/xpa-2.1.15"
-CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
+    have_cython=False
 
 
 from distutils.command.clean import clean
@@ -64,12 +91,13 @@ class my_clean(clean):
         print("cleaning")
 
 
-# uncomment this section if you want to build the full XPA
+# uncomment the section below if you want to build the full XPA
 # build xpans so that we can start up the name server
-# if users dont have it installed on their machine
+# if users don't have it installed on their machine. You also
+# need to add the cmdsetup line to the setup function at the bottom
 
 #from setuptools.command.build_ext import build_ext
-# class build_ext_with_configure(build_ext):
+#class build_ext_with_configure(build_ext):
 #
 #    def build_extensions(self):
 #        import subprocess
@@ -77,7 +105,7 @@ class my_clean(clean):
 #                cwd=XPALIB_DIR)
 #        subprocess.call(["sh", "./configure"],cwd=XPALIB_DIR)
 #        subprocess.call(["make", "-f", "Makefile"],cwd=XPALIB_DIR)
-#        build_ext.build_extensions(self)
+#       build_ext.build_extensions(self)
 #        print("building with configure")
 
 

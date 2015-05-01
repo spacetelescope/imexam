@@ -1,59 +1,110 @@
-# We set the language to c because python isn't supported on the MacOS X nodes
-# on Travis. However, the language ends up being irrelevant anyway, since we
-# install Python ourselves using conda.
-
-language: c
+language: python
 
 os: 
-    - osx
     - linux
+
+
+python:
+
+    - 2.7
+    - 3.3
+    - 3.4
 
 env:
     global:
-        # Set defaults to avoid repeating in most cases
-      - SETUPTOOLS_VERSION=stable        
-      
-    matrix:
-        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
-        - PYTHON_VERSION=3.3 SETUP_CMD='egg_info'
-        - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
+        # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
+        - SETUPTOOLS_VERSION=stable        
+        - NUMPY_VERSION=1.9
+        - ASTROPY_VERSION=stable
+        - CONDA_INSTALL='conda install -c astropy-ci-extras --yes'
+        - PIP_INSTALL='pip install'  
+        - INSTALL_OPTIONAL=true
+        - SETUP_CMD='test'
+    
 
 matrix:
     include:
-        - os: linux
-          env: PYTHON_VERSION=2.7 SETUPTOOLS_VERSION=dev
-
-
+    
+        #CHECK SPHINX DOC WARNINGS
+        - python: 2.7
+          env: SETUP_CMD='build_sphinx -w'
+        - python: 3.4
+          env: SETUP_CMD='build_sphinx -w'
+          
+        #CHECK ASTROPY
+        - python: 2.7
+          env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
+        - python: 3.3
+          env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w's
+        
+        #CHECK NUMPY
+        - python: 2.7
+        - python: 3.3
+        - python: 3.4
+        - python: 2.7
+          env: NUMPY_VERSION=1.8 
+        - python: 2.7 
+          env: NUMPY_VERSION=1.7 
+        - python: 2.7
+          env: NUMPY_VERSION=1.6 
+        
+        #CHECK WITHOUT OPTIONAL DEPENDENCIES
+        - python: 2.7
+          env: INSTALL_OPTIONAL=false
+        - python: 3.4
+          env: INSTALL_OPTIONAL=false
+            
+    
+        
 before_install:
 
-    # Use utf8 encoding. Should be default, but this is insurance against
-    # future changes
+    # USE UTF8 ENCODING. SHOULD BE DEFAULT, BUT THIS IS INSURANCE AGAINST
+    # FUTURE CHANGES
     - export PYTHONIOENCODING=UTF8
-
-    # Install conda
-    - source continuous-integration/travis/install_conda_$TRAVIS_OS_NAME.sh
+    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    - chmod +x miniconda.sh
+    - ./miniconda.sh -b
+    - export PATH=/home/travis/miniconda/bin:$PATH
+    - conda update --yes conda
     
-    # Install graphviz
-    - source continuous-integration/travis/install_graphviz_$TRAVIS_OS_NAME.sh
+    #UPDATE APT-GET LISTINGS
+    - sudo apt-get update
+   
+    #DOCUMENTAITON DEPENDENCIES
+    - if [[ $SETUP+CMD == build_sphinx* ]]; then sudo apt-get install graphviz texlive-latex-extra  python-matplotlib dvipng; fi
+    
+    #CHECK INTERACTIVE MATPLOTLIB BACKENDS
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    
+
 
 install:
-    - conda create --yes -n test python=$PYTHON_VERSION
+    - conda create -c astropy-ci-extras --yes -n test python=$TRAVIS_PYTHON_VERSION
     - source activate test
-    - conda install --yes pip "pytest<2.6" sphinx cython numpy libatlas-dev liblapack-dev gfortran
-    - conda install --yes pip texlive-latex-extra dvipng python-matplotlib
-    # We cannot install the developer version of setuptools using pip because
-    # pip tries to remove the previous version of setuptools before the
-    # installation is complete, which causes issues. Instead, we just install
-    # setuptools manually.
-    - if [[ $SETUPTOOLS_VERSION == dev ]]; then conda install --yes mercurial mock; fi
-    - if [[ $SETUPTOOLS_VERSION == dev ]]; then hg clone https://bitbucket.org/pypa/setuptools; cd setuptools; python setup.py install; cd ..; fi
+    
+    # CORE DEPENDENCIES
+    - $CONDA_INSTALL -n test  numpy=$NUMPY_VERSION pytest pip Cython jinja2 
+    - $PIP_INSTALL pytest-xdist
+    - $PIP_INSTALL astropy_helpers
 
-before_script:
-    # Some of the tests use git commands that require a user to be configured
-    - git config --global user.name "A U Thor"
-    - git config --global user.email "author@example.com"
+    # ASTROPY
+    - $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy 
+
+
+    # OPTIONAL DEPENDENCIES
+    # Here you can add any dependencies your package may have. You can use
+    # conda for packages available through conda, or pip for any other
+    # packages. You should leave the `numpy=$NUMPY_VERSION` in the `conda`
+    # install since this ensures Numpy does not get automatically upgraded.
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION scipy matplotlib
+
+    # DOCUMENTATION DEPENDENCIES
+    # build_sphinx needs sphinx and matplotlib (for plot_directive).
+    - if [[ $SETUP_CMD == build_sphinx* ]]; then $CONDA_INSTALL -n test numpy=$NUMPY_VERSION Sphinx matplotlib; fi
+
 
 script:
-   - python setup.py $SETUP_CMD
+   - python setup.py install
 
-    

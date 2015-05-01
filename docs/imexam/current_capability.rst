@@ -6,16 +6,16 @@ These are methods particular to the imexam package which are meant to aid users 
 
 
 **close** ():
-    close the DS9 window and end the connection.
+    close the image viewing window and end the connection.
             
     ::
     
         viewer.close()
 
 **view** (img, header=None, frame=None, asFits=False): 
-    Load an image array into a DS9 frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
+    Load an image array into the image viewing frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
     A basic header is created and sent to DS9. You can look at this header with disp_header() but get_header() will return an error because it 
-    looks for a filename, and no file was loaded, just the array.
+    looks for a filename, and no file was loaded, just the array. No header is sent to the Ginga widget.
 
     ::
                
@@ -44,7 +44,7 @@ These are methods particular to the imexam package which are meant to aid users 
         
 
 **make_region** (infile,doLabels=False): 
-    Make an input reg file which contains rows with  "x,y,comment" into a region file that the viewer recognizes.
+    Make an input reg file which contains rows with  "x,y,comment" into a region file that the DS9 viewer recognizes.
 
     infile: str
         input filename
@@ -59,7 +59,7 @@ These are methods particular to the imexam package which are meant to aid users 
         offset in pixels for labels
 
     rtype: str
-        region type, one of the acceptable ds9 regions
+        region type, one of the acceptable DS9 regions
 
     size: int
         size of the region type
@@ -98,7 +98,7 @@ Now let's load the region file into our image:
 **mark_region_from_array** (input_points,rtype="circle",ptype="image",textoff=10,size=5):
     mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified
 
-    input_points: a tuple, or list of tuples, or a string: (x,y,comment), 
+    input_points: a tuple, or list of tuples, or a string which contain: (x,y,comment), 
 
 
     ptype: string
@@ -161,7 +161,7 @@ You can see there are some leftovers from a previous logging session to the same
         
 
 **set_region** (region_string):
-    Use this to send the viewer a formatted region string it's expecting
+    Use this to send the DS9 viewer a formatted region string it's expecting
     
 For example, in DS9::
 

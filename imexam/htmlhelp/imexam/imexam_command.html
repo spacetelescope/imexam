@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The imexam() method &mdash; imexam v0.3.dev</title>
+    <title>The imexam() method &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,11 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.3.dev" href="../index.html" />
+    <link rel="top" title="imexam v0.5" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="imexam() User Methods" href="current_capability.html" />
     <link rel="prev" title="Introduction" href="description.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
 
   </head>
   <body>
@@ -67,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.3.dev</a>
+	<a href="../index.html">imexam v0.5</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -84,7 +86,7 @@
             
   <div class="section" id="the-imexam-method">
 <h1>The imexam() method<a class="headerlink" href="#the-imexam-method" title="Permalink to this headline">¶</a></h1>
-<p>This is the main method which allows live interaction with the image display.</p>
+<p>This is the main method which allows live interaction with the image display when you are using the DS9 program for viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the &#8220;i&#8221; key. Either the &#8220;i&#8221; or &#8220;q&#8221; key can be used to quit out the exam.</p>
 <dl class="docutils">
 <dt><strong>imexam</strong> ():</dt>
 <dd>access realtime imexamine functions through the keyboard and mouse</dd>
@@ -131,10 +133,12 @@ mimexam(): return dict of current parameters for area statistics
 <p class="first admonition-title">Note</p>
 <p class="last">Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: <a class="reference external" href="http://matplotlib.org/api/markers_api.html#module-matplotlib.markers">http://matplotlib.org/api/markers_api.html#module-matplotlib.markers</a></p>
 </div>
-<p>The imexam key dictionary is stored inside the user object as  &lt;object_name&gt;.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it&#8217;s associated value is a tuple which contains the name of the function to call and a description of what that function does. &#8220;q&#8221; is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can either edit it directly, by accessing each of the values by their keyname, or save a copy of the dictionary ( for example: mydict= object.aimexam(); then reset mydict to values you prefer, and set object.exam.aperphot_pars = mydict)</p>
+<p>The imexam key dictionary is stored inside the user object as  &lt;object_name&gt;.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it&#8217;s associated value is a tuple which contains the name of the function to call and a description of what that function does. &#8220;q&#8221; is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which map to your own</p>
 <p>Users may also add their own imexam keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.</p>
 <p>For all the examples below I will use the following session:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#This will default to DS9 for the viewer</span>
+
+<span class="kn">import</span> <span class="nn">imexam</span>
 <span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;iabf01bzq_flt.fits&#39;</span><span class="p">)</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
@@ -143,6 +147,18 @@ mimexam(): return dict of current parameters for area statistics
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/imexam_command_example.png"><img alt="Data used for imexam command examples" src="../_images/imexam_command_example.png" style="width: 400px; height: 400px;" /></a>
+<p>This will use Ginga for the viewer:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#Use Ginga for the image viewer</span>
+
+<span class="kn">import</span> <span class="nn">imexam</span>
+<span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;iabf01bzq_flt.fits&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">panto_image</span><span class="p">(</span><span class="mi">576</span><span class="p">,</span><span class="mi">633</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/imexam_command_example_ginga.png"><img alt="Data used for imexam command examples" src="../_images/imexam_command_example_ginga.png" style="width: 400px; height: 400px;" /></a>
 <div class="section" id="circular-apterture-photometry">
 <h2>Circular Apterture Photometry<a class="headerlink" href="#circular-apterture-photometry" title="Permalink to this headline">¶</a></h2>
 <p>Aperture photometry is performed when you press the &#8220;a&#8221; key. It is implemented using the <tt class="xref py py-obj docutils literal"><span class="pre">photutils</span></tt> python package, an affiliated package of astropy that is still in development.</p>
@@ -385,13 +401,13 @@ flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.718984
 The new binding will be added to the dictionary of imexamine functions as long as the key is unique.
 The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new
 instantiations of imexam.connect() will not have the new function unless the user specifically registers them.</p>
-<p>Here&#8217;s all the code for a function which makes a cutout around the clicked pixel location and saves it to a file:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">cutout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+<p>Here&#8217;s all the code for a function which makes a cutout around the clicked pixel location and saves it to a fits file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">cutout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Cut out an image from under the mouse and save it as a fits file&quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">tempfile</span>
     <span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
     <span class="n">size</span><span class="o">=</span><span class="mi">20</span> <span class="c">#pixels</span>
-    <span class="n">cutout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">size</span><span class="p">,</span><span class="n">x</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">size</span><span class="p">]</span>
+    <span class="n">cutout</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">size</span><span class="p">,</span><span class="n">x</span><span class="o">-</span><span class="n">size</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">size</span><span class="p">]</span>
     <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;cutout_{0}_{1}_&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
     <span class="n">fname</span><span class="o">=</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mktemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span><span class="n">suffix</span><span class="o">=</span><span class="s">&quot;.fits&quot;</span><span class="p">,</span><span class="nb">dir</span><span class="o">=</span><span class="s">&quot;./&quot;</span><span class="p">)</span>
     <span class="n">hdu</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">cutout</span><span class="p">)</span>
@@ -447,7 +463,11 @@ radii:[1 2 3 4 5 6 7 8]
 flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.7076232315, 1568629.6771239617, 1813434.3810552177, 1935335.7549474821, 2049080.846300941]
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/multiple_plots.png"><img alt="multiple plots in imexam" src="../_images/multiple_plots.png" style="width: 800px; height: 650px;" /></a>
+<p>This is what the workspace could look like with DS9 as the viewer:</p>
+<a class="reference internal image-reference" href="../_images/multiple_plots.png"><img alt="multiple plots in DS9 with imexam" src="../_images/multiple_plots.png" style="width: 800px; height: 650px;" /></a>
+<p>This is what the workspace might look like with Ginga as the viewer, the plots are all
+identical, just the viewer of the image changes:</p>
+<a class="reference internal image-reference" href="../_images/multiple_ginga_plots.png"><img alt="multiple plots in Ginga with imexam" src="../_images/multiple_ginga_plots.png" style="width: 950px; height: 550px;" /></a>
 <p>As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:</p>
 <a class="reference internal image-reference" href="../_images/contour_zoom.png"><img alt="contour zoom plot" src="../_images/contour_zoom.png" style="width: 800px; height: 600px;" /></a>
 </div>
@@ -489,7 +509,7 @@ flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.707623
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 09 Feb 2015. <br/>
+    Last built 30 Apr 2015. <br/>
   </p>
 </footer>
   </body>

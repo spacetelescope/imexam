@@ -6,12 +6,18 @@ import os
 import sys
 import logging
 import warnings
+from astropy.io import fits
 
 from astropy import log
 from . import xpa
 from xpa import XpaException
 
-__all__ = ["find_ds9", "list_active_ds9", "display_help", "list_ds9_ids", "find_xpans"]
+__all__ = [
+    "find_ds9",
+    "list_active_ds9",
+    "display_help",
+    "list_ds9_ids",
+    "find_xpans"]
 
 
 def find_ds9():
@@ -55,7 +61,8 @@ def list_active_ds9():
         except XpaException:
             print("No active sessions registered")
     else:
-        print("XPA nameserver not installed or not on PATH, function unavailable")
+        print(
+            "XPA nameserver not installed or not on PATH, function unavailable")
 
 
 def list_ds9_ids():
@@ -97,16 +104,21 @@ def set_logging(filename=None, on=True, level=logging.DEBUG):
         if not filename:
             warnings.warn("No log filename specified")
             raise ValueError
-            
+
         root = logging.getLogger(__name__)
-        logging.basicConfig(filename=filename, level=level, format='\n%(funcName)s \n%(message)s',)
+        logging.basicConfig(
+            filename=filename,
+            level=level,
+            format='\n%(funcName)s \n%(message)s',
+        )
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         stdout_handler.setLevel(logging.INFO)
         formatter = logging.Formatter('\n%(funcName)s \n%(message)s')
         stdout_handler.setFormatter(formatter)
 
         root.addHandler(stdout_handler)
-        root.addHandler(logging.NullHandler())  # to prevent warning in unhandled contexts
+        # to prevent warning in unhandled contexts
+        root.addHandler(logging.NullHandler())
 
         print("Saving imexam commands to {0:s}".format(filename))
         logging.disable(level)  # log above
@@ -114,3 +126,60 @@ def set_logging(filename=None, on=True, level=logging.DEBUG):
 
     if not on:
         logging.disable(logging.CRITICAL)  # basically turns off logging
+
+
+def check_filetype(filename=None):
+    """check the file to see if it is a multi-extension fits file
+    or a simple fits image where the data and header are together
+    """
+    if not filename:
+        raise ValueError("No filename provided")
+    else:
+        try:
+            mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
+        except KeyError:
+            mef_file = False
+
+        # check to see if the fits file lies
+        if mef_file:
+            try:
+                nextend = fits.getval(filename, ext=0, keyword='NEXTEND')
+            except KeyError:
+                mef_file = False
+
+        return mef_file
+
+
+def verify_filename(fname="", extver=1, extname=None, getshort=False):
+    """
+    Verify the filename exists and check to see if the
+    user has given extension, extension name or some combination
+    """
+
+    if fname:
+        # see if the image is MEF or Simple
+        fname = os.path.abspath(fname)
+        try:
+            # strip the extensions for now
+            shortname = fname.split("[")[0]
+            if getshort:
+                return shortname
+
+            mef_file = check_filetype(shortname)
+            if not mef_file or '[' in fname:
+                cstring = ('file fits {0:s}'.format(fname))
+            elif extver and not extname:
+                cstring = ('file fits {0:s}[{1:d}]'.format(fname, extver))
+            elif extver and extname:
+                cstring = (
+                    'file fits {0:s}[{1:s},{2:d}]'.format(
+                        fname,
+                        extname,
+                        extver))
+        except IOError as e:
+            print("Exception: {0}".format(e))
+            raise IOError
+
+        return cstring
+    else:
+        print("No filename provided")

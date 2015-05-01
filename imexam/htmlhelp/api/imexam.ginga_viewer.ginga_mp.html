@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Updates to the package &mdash; imexam v0.5</title>
+    <title>ginga_mp &mdash; imexam v0.5</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -69,11 +69,21 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="updates-to-the-package">
-<h1>Updates to the package<a class="headerlink" href="#updates-to-the-package" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>Flushed out support for the Ginga widget, using the matplotlib backend, as an alternate image viewer to DS9</li>
-</ul>
+  <div class="section" id="ginga-mp">
+<h1>ginga_mp<a class="headerlink" href="#ginga-mp" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="imexam.ginga_viewer.ginga_mp">
+<em class="property">class </em><tt class="descclassname">imexam.ginga_viewer.</tt><tt class="descname">ginga_mp</tt><big>(</big><em>exam=None</em>, <em>close_on_del=True</em>, <em>logger=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ginga_viewer.html#ginga_mp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ginga_viewer.ginga_mp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">imexam.ginga_viewer.ginga_general</span></tt></p>
+<p>A ginga-based viewer that uses a matplotlib widget.</p>
+<p>This kind of viewer has slower performance than if we
+choose a particular widget back end, but the advantage is that
+it works so long as the user has a working matplotlib.</p>
+<p>This implementation has the benefit of adding image overlays</p>
+<p class="rubric">Notes</p>
+<p>Ginga viewers all need a logger, if none is provided it will create one</p>
+</dd></dl>
+
 </div>
 
 
@@ -83,7 +93,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#">Updates to the package</a></li>
+<li><a class="reference internal" href="#">ginga_mp</a></li>
 </ul>
 
 
@@ -93,13 +103,13 @@
     </div>
 <footer class="footer">
   <p class="pull-right">
-    <a href="../_sources/imexam/updates.txt"
+    <a href="../_sources/api/imexam.ginga_viewer.ginga_mp.txt"
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2015, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 30 Apr 2015. <br/>
+    Last built 01 May 2015. <br/>
   </p>
 </footer>
   </body>
