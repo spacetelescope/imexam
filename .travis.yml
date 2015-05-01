@@ -90,10 +90,11 @@ install:
     # CORE DEPENDENCIES
     - $CONDA_INSTALL -n test  numpy=$NUMPY_VERSION pytest pip Cython jinja2 
     - $PIP_INSTALL pytest-xdist
+    - $PIP_INSTALL astropy_helpers
 
     # ASTROPY
     - $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy
-    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy astropy_helpers
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy 
 
     # OPTIONAL DEPENDENCIES
     # Here you can add any dependencies your package may have. You can use
