@@ -113,4 +113,3 @@ install:
 
 script:
    - python setup.py $SETUP_CMD
-   - python -c "import imexam"
