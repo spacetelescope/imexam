@@ -1,5 +1,6 @@
 astropy_helpers
-astropy
-numpy>=1.5.0
+astropy>=1.0
+numpy>=1.6.0
 matplotlib
 Cython
+scipy
