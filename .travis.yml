@@ -9,7 +9,7 @@ os:
 
 
 python:
-    - 2.6
+
     - 2.7
     - 3.3
     - 3.4
@@ -38,21 +38,23 @@ matrix:
           
         #CHECK ASTROPY
         - python: 2.7
-          env: ASTROPY_VERSION=development
+          env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
         - python: 3.3
-          env: ASTROPY_VERSION=development 
+          env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w's
         
         #CHECK NUMPY
-        - python: 2.6
         - python: 2.7
+          env: SETUP_CMD='test'
         - python: 3.3
+          env: SETUP_CMD='test'
         - python: 3.4
+          env: SETUP_CMD='test'
         - python: 2.7
-          env: NUMPY_VERSION=1.8
+          env: NUMPY_VERSION=1.8 SETUP_CMD='test'
+        - python: 2.7 
+          env: NUMPY_VERSION=1.7 SETUP_CMD='test'
         - python: 2.7
-          env: NUMPY_VERSION=1.7
-        - python: 2.7
-          env: NUMPY_VERSION=1.6
+          env: NUMPY_VERSION=1.6 SETUP_CMD='test'
         
         #CHECK WITHOUT OPTIONAL DEPENDENCIES
         - python: 2.7
@@ -86,9 +88,28 @@ before_install:
 
 
 install:
-    - $CONDA_INSTALL -n test python=$PYTHON_VERSION
+    - conda create -c astropy-ci-extras --yes -n test python=$TRAVIS_PYTHON_VERSION
     - source activate test
-    - conda install --yes pip "pytest<2.6" sphinx cython numpy libatlas-dev liblapack-dev
+    
+    # CORE DEPENDENCIES
+    - if [[ $SETUP_CMD != egg_info ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION pytest pip Cython jinja2; fi
+    - if [[ $SETUP_CMD != egg_info ]]; then $PIP_INSTALL pytest-xdist; fi
+
+    # ASTROPY
+    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == development ]]; then $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy; fi
+    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == stable ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION astropy; fi
+
+    # OPTIONAL DEPENDENCIES
+    # Here you can add any dependencies your package may have. You can use
+    # conda for packages available through conda, or pip for any other
+    # packages. You should leave the `numpy=$NUMPY_VERSION` in the `conda`
+    # install since this ensures Numpy does not get automatically upgraded.
+    - if [[ $SETUP_CMD != egg_info ]] && $INSTALL_OPTIONAL; then $CONDA_INSTALL numpy=$NUMPY_VERSION scipy scikit-image matplotlib; fi
+
+
+    # DOCUMENTATION DEPENDENCIES
+    # build_sphinx needs sphinx and matplotlib (for plot_directive).
+    - if [[ $SETUP_CMD == build_sphinx* ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION Sphinx matplotlib; fi
 
 
 script:
