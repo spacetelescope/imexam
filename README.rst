@@ -5,12 +5,19 @@ imexam is meant as a replacement for the IRAF imexamine task. You should be able
 
 For more information please see the `online documentation <http://imexam.readthedocs.org/en/latest/imexam/index.html>`_
 
+You can also display the docs locally after install, import imexam and then issue the following command to display the help docs in your local browser: 
+
+::
+
+    imexam.display_help()
 
 To install using pip:
 
 ::
 
     pip install imexam
+    
+    pip install --upgrade imexam #if you already have an older version installed
     
     
 Launching multiple DS9 windows
