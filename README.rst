@@ -1,7 +1,16 @@
 imexam
 ======
 
-imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided using DS9 or a Ginga widget as your display device through a python session.
+.. image:: https://travis-ci.org/spacetelescope/imexam.svg?branch=master
+    :target: https://travis-ci.org/spacetelescope/imexam
+
+.. image:: https://readthedocs.org/projects/imexam/badge/?version=latest
+    :target: https://readthedocs.org/projects/imexam/?badge=latest
+    :alt: Documentation Status
+                
+                
+imexam is an `AstroPy`_ affiliated package  meant for quick image analysis, much like the IRAF imexamine task. 
+Image display is currently supported with either DS9 or a Ginga widget from a python session.
 
 For more information please see the `online documentation <http://imexam.readthedocs.org/en/latest/imexam/index.html>`_
 
@@ -68,3 +77,11 @@ Starting a connection to a Ginga widget, using the Matplotlib backend for viewin
 
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.
 
+
+License
+-------
+
+imexam is licensed under a 3-clause BSD style license (see the
+``licenses/LICENSE.rst`` file).
+
+.. _AstroPy: http://www.astropy.org/
