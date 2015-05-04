@@ -3,5 +3,6 @@ numpy
 matplotlib
 Cython
 scipy
+ginga
 IPython #rtd complains it's not in standard install
 -e git+http://github.com/astropy/astropy.git#egg=astropy
