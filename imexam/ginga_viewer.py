@@ -796,26 +796,12 @@ class ginga_mp(ginga_general):
     def _create_viewer(self, bind_prefs, viewer_prefs):
 
         # Ginga imports for matplotlib backend
-        from ginga.mplw.ImageViewCanvasMpl import ImageViewCanvas
-        from ginga.mplw.ImageViewCanvasTypesMpl import DrawingCanvas
+        from ginga.mplw import ipg
 
-        # create a regular matplotlib figure
-        fig = plt.figure()
-        self.figure = fig
+        self.ginga_view = ipg.get_viewer()
+        self.figure = self.ginga_view.figure
 
-        # create bindings class from users bindings preferences
-        bclass = ImageViewCanvas.bindingsClass
-        bd = bclass(self.logger, settings=bind_prefs)
-
-        # create a ginga object, initialize some defaults and
-        # tell it about the figure
-        view = ImageViewCanvas(self.logger, settings=viewer_prefs,
-                               bindings=bd)
-        view.set_figure(fig)
-        self.ginga_view = view
-
-        fig.show()
+        self.figure.show()
 
         # create a canvas that we insert when doing imexam mode
-        canvas = DrawingCanvas()
-        self.canvas = canvas
+        self.canvas = self.ginga_view.add_canvas()
