@@ -1,6 +1,18 @@
 language: python
 
-os: 
+# Setting sudo to false opts in to Travis-CI container-based builds.
+sudo: false
+
+# The apt packages below are needed for sphinx builds, which can no longer
+# be installed with sudo apt-get.
+addons:
+    apt:
+        packages:
+            - graphviz
+            - texlive-latex-extra
+            - dvipng
+
+os:
     - linux
 
 
@@ -13,84 +25,82 @@ python:
 env:
     global:
         # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
-        - SETUPTOOLS_VERSION=stable        
+        - SETUPTOOLS_VERSION=stable
         - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
         - CONDA_INSTALL='conda install -c astropy-ci-extras --yes'
-        - PIP_INSTALL='pip install'  
+        - PIP_INSTALL='pip install'
         - INSTALL_OPTIONAL=true
         - SETUP_CMD='test'
-    
+
 
 matrix:
     include:
-    
+
         #CHECK SPHINX DOC WARNINGS
         - python: 2.7
           env: SETUP_CMD='build_sphinx -w'
         - python: 3.4
           env: SETUP_CMD='build_sphinx -w'
-          
+
         #CHECK ASTROPY
         - python: 2.7
           env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
         - python: 3.3
           env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w's
-        
+
         #CHECK NUMPY
         - python: 2.7
         - python: 3.3
         - python: 3.4
         - python: 2.7
-          env: NUMPY_VERSION=1.8 
-        - python: 2.7 
-          env: NUMPY_VERSION=1.7 
+          env: NUMPY_VERSION=1.8
         - python: 2.7
-          env: NUMPY_VERSION=1.6 
-        
+          env: NUMPY_VERSION=1.7
+        - python: 2.7
+          env: NUMPY_VERSION=1.6
+
         #CHECK WITHOUT OPTIONAL DEPENDENCIES
         - python: 2.7
           env: INSTALL_OPTIONAL=false
         - python: 3.4
           env: INSTALL_OPTIONAL=false
-            
-    
-        
+
+
+
 before_install:
 
     # USE UTF8 ENCODING. SHOULD BE DEFAULT, BUT THIS IS INSURANCE AGAINST
     # FUTURE CHANGES
     - export PYTHONIOENCODING=UTF8
-    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-    - chmod +x miniconda.sh
-    - ./miniconda.sh -b
-    - export PATH=/home/travis/miniconda/bin:$PATH
-    - conda update --yes conda
-    
-    #UPDATE APT-GET LISTINGS
-    - sudo apt-get update
-   
-    #DOCUMENTAITON DEPENDENCIES
-    - if [[ $SETUP+CMD == build_sphinx* ]]; then sudo apt-get install graphviz texlive-latex-extra  python-matplotlib dvipng; fi
-    
+
+    # http://conda.pydata.org/docs/travis.html#the-travis-yml-file
+    - wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+
     #CHECK INTERACTIVE MATPLOTLIB BACKENDS
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-    
+
 
 
 install:
     - conda create -c astropy-ci-extras --yes -n test python=$TRAVIS_PYTHON_VERSION
     - source activate test
-    
+
     # CORE DEPENDENCIES
-    - $CONDA_INSTALL -n test  numpy=$NUMPY_VERSION pytest pip Cython jinja2 
+    - $CONDA_INSTALL -n test  numpy=$NUMPY_VERSION pytest pip Cython jinja2
     - $PIP_INSTALL pytest-xdist
     - $PIP_INSTALL astropy_helpers
 
     # ASTROPY
     - $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy
-    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy 
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy
 
 
     # OPTIONAL DEPENDENCIES
