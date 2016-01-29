@@ -18,7 +18,7 @@ import inspect
 
 # enable display plot in iPython notebook
 from IPython.display import Image
-import StringIO
+from io import StringIO
 
 try:
     import photutils
