@@ -95,7 +95,6 @@ class Connect(object):
             # change key+function associations
             # self.window._reassign_keys(imexam_dict)
 
-
         self.logfile = 'imexam_log.txt'
         self.log = None  # points to the package logger
         self._current_slice = None
@@ -132,7 +131,8 @@ class Connect(object):
             warnings.warn("Event driven imexam not implemented for viewer")
         else:
             self.exam.print_options()
-            print("\nPress the i key in the graphics window for access to imexam keys, i or q again to exit\n")
+            print(
+                "\nPress the i key in the graphics window for access to imexam keys, i or q again to exit\n")
 
     def get_data_filename(self):
         """return the filename for the data in the current window"""

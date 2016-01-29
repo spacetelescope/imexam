@@ -2,6 +2,7 @@
 
 from imexam.xpa import xpa
 
+
 class XPA(xpa):
 
     def __init__(self, template):
@@ -15,6 +16,6 @@ class XPA(xpa):
     def set(self, param="", buf=None):
         xpa.set(self, param.encode("ascii"), buf)
 
-    #return a list of access point id's
+    # return a list of access point id's
     def nslookup(self):
-       return xpa.nslookup()
+        return xpa.nslookup()

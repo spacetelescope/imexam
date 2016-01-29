@@ -12,27 +12,21 @@ addons:
             - texlive-latex-extra
             - dvipng
 
-os:
-    - linux
-
-
 python:
-
-    - 3.5
-    - 3.4
-    - 3.3
     - 2.7
+    - 3.3
+    - 3.4
+    - 3.5
 
 env:
     global:
-        # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
-        - SETUPTOOLS_VERSION=stable
-        - NUMPY_VERSION=1.9
+        # The following versions are the 'default' for tests, unless
+        # overidden underneath. They are defined here in order to save having
+        # to repeat them for all configurations.
+        - NUMPY_VERSION=1.10
         - ASTROPY_VERSION=stable
-        - CONDA_INSTALL='conda install -c astropy-ci-extras --yes'
-        - PIP_INSTALL='pip install'
-        - INSTALL_OPTIONAL=true
-        - SETUP_CMD='test'
+        - CONDA_DEPENDENCIES='Cython scipy scikit-image matplotlib'
+        - PIP_DEPENDENCIES=''
 
    matrix:
         
@@ -46,11 +40,9 @@ env:
 matrix:
     include:
 
-        # Do a coverage test in Python 2. This requires the latest
-        # developments version of Astropy, which fixes some issues
-        # with coverage testing in affiliated packages
+        # Do a test in Python 2 with the latest astropy
         - python: 2.7
-          env: ASTROPY_VERSION=development SETUP_CMD='test --coverage'
+          env: ASTROPY_VERSION=development SETUP_CMD='test'
 
 
         #CHECK SPHINX DOC WARNINGS
@@ -66,7 +58,23 @@ matrix:
         - python: 3.3
           env: SETUP_CMD='test' NUMPY_VERSION=1.9
 
-        #CHECK NUMPY
+        # Try Astropy development and LTS versions
+        - python: 3.5
+          env: ASTROPY_VERSION=development SETUP_CMD='test'
+        - python: 2.7
+          env: ASTROPY_VERSION=lts SETUP_CMD='test'
+        - python: 3.5
+          env: ASTROPY_VERSION=lts SETUP_CMD='test'
+
+        # Try with optional dependencies disabled
+        - python: 2.7
+          env: SETUP_CMD='test'
+               CONDA_DEPENDENCIES='Cython'
+        - python: 3.5
+          env: SETUP_CMD='test'
+               CONDA_DEPENDENCIES='Cython'
+
+        # Try older numpy versions
         - python: 2.7
           env: NUMPY_VERSION=1.9 SETUP_CMD='test'
         - python: 2.7
@@ -76,13 +84,6 @@ matrix:
         - python: 2.7
           env: NUMPY_VERSION=1.6 SETUP_CMD='test'
 
-        #CHECK WITHOUT OPTIONAL DEPENDENCIES
-        - python: 2.7
-          env: SETUP_CMD='test' CONDA_DEPENDENCIES='Cython'
-        - python: 3.5
-          env: SETUP_CMD='test' CONDA_DEPENDENCIES='Cython'
-
-
 
 
 install:
@@ -90,18 +91,10 @@ install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
 
-
-    # Make sure that the interactive matplotlib backends work
+    # Make sure that interactive matplotlib backends work
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
 
 
-    # ASTROPY
-    - $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy
-    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy
-
-
-
 script:
    - python setup.py $SETUP_CMD
-
