@@ -28,7 +28,7 @@ env:
         - CONDA_DEPENDENCIES='Cython scipy scikit-image matplotlib'
         - PIP_DEPENDENCIES=''
 
-   matrix:
+    matrix:
         
         # Make sure that egg_info works without dependencies
         - SETUP_CMD='egg_info'
