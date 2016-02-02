@@ -1,3 +1,19 @@
+version 0.5.3dev (unreleased)
+-----------------------------
+- show with blocking deprecatedin matplotlib, changed the calls to pause
+- added a radial profil plot under the r key, the curve of growth plot was moved to g
+
+
+version 0.5.2 (released)
+------------------------
+ - windows build change 
+ 
+
+version 0.5.1 (released)
+-----------------------
+ - version upgraded needed for the release on pypi so it would accept the upload
+
+
 version 0.5 (released)
 ----------------------
 

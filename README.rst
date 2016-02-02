@@ -29,6 +29,23 @@ To install using pip:
     pip install --upgrade imexam #if you already have an older version installed
     
     
+If you recieve a message like this on your Mac OSX Lion + machine when imexam.imexam() runs:
+
+::
+
+    2016-02-01 11:16:11.453 python[84657:2506524] ApplePersistenceIgnoreState: Existing state will not be touched. 
+    
+
+Try turning off the resume state:
+
+::
+    
+    defaults write org.python.python ApplePersistenceIgnoreState NO
+    
+
+
+    
+    
 Launching multiple DS9 windows
 ------------------------------
 

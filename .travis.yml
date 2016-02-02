@@ -14,7 +14,6 @@ addons:
 
 python:
     - 2.7
-    - 3.3
     - 3.4
     - 3.5
 
@@ -23,7 +22,7 @@ env:
         # The following versions are the 'default' for tests, unless
         # overidden underneath. They are defined here in order to save having
         # to repeat them for all configurations.
-        - NUMPY_VERSION=1.10
+        - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='Cython scipy scikit-image matplotlib'
         - PIP_DEPENDENCIES=''
@@ -38,6 +37,7 @@ env:
 
 
 matrix:
+
     include:
 
         # Do a test in Python 2 with the latest astropy
@@ -48,15 +48,9 @@ matrix:
         #CHECK SPHINX DOC WARNINGS
         - python: 2.7
           env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
-        - python: 3.4
+        - python: 3.5
           env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
 
-        # Python 3.3 doesn't have numpy 1.10 in conda, revoke this commit
-        # once it's available int he astropy-ci-extras channel
-        - python: 3.3
-          env: SETUP_CMD='egg_info'
-        - python: 3.3
-          env: SETUP_CMD='test' NUMPY_VERSION=1.9
 
         # Try Astropy development and LTS versions
         - python: 3.5
@@ -97,4 +91,4 @@ install:
 
 
 script:
-   - python setup.py $SETUP_CMD
+    - python setup.py $SETUP_CMD
