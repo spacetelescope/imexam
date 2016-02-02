@@ -432,9 +432,14 @@ class Connect(object):
         """show the current parameters for statistical regions"""
         return(self.exam.report_stat_pars)
 
-    def rimexam(self):
+    def gimexam(self):
         """show current parameters for curve of growth plots"""
         return(self.exam.curve_of_growth_pars)
+
+    def rimexam(self):
+        """show current parameters for curve of growth plots"""
+        return(self.exam.radial_profile_pars)
+
 
     def wimexam(self):
         """show current parameters for surface plots"""
