@@ -568,7 +568,7 @@ class ds9(object):
         if len(file_list) > 0:
             xpaname = os.path.join(self._tmpd_name, file_list[0])
         else:
-            shutil.rmtree(self._tmpd_name)
+            shutil.rmtree(self._tmpd_name, ignore_errors=True)
             raise ValueError("Problem starting ds9 local socket connection")
 
         env["XPA_TMPDIR"] = "/tmp/xpa"  # for all local connections
