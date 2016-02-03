@@ -528,6 +528,7 @@ class ds9(object):
         iraf_unix = "{0:s}/.IMT".format(self._tmpd_name)
         # that should be unique enough, something better?
         title = str(time.time())
+        file_list = []
         try:
             # unix only flag disables the fifos and inet connections
             p = Popen([self._ds9_path,
