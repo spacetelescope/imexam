@@ -493,11 +493,17 @@ class ds9(object):
             return xpaname
 
         except Exception as e:  # refine error class
-            warnings.warn("Opening  ds9 failed")
+            warnings.warn("Opening ds9 failed")
             print("Exception: {}".format(repr(e)))
             from signal import SIGTERM
-            os.kill(p.pid, SIGTERM)
-            raise Exception
+            try:
+                pidtokill = p.pid
+            except NameError:
+                # in case p failed at the initialization level
+                pidtokill = None
+            if pidtokill is not None:
+                os.kill(pidtokill, SIGTERM)
+            raise e
 
     def _run_unixonly_ds9(self):
         """ start new ds9 window and connect to object using a unix socket
