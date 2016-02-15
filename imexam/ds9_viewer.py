@@ -504,12 +504,12 @@ class ds9(object):
 
         Notes
         -----
-        When the xpa method in libxpa parses given template as an unix socket, it checks if the template string starts with tmpdir (from env["XPA_TMPDIR"]
+        When the xpa method in libxpa parses a given template as a unix socket, it checks if the template string starts with tmpdir (from env["XPA_TMPDIR"]
         or default to /tmp/.xpa). This can make having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address
         you should be fine
 
         For unix only, we run ds9 with XPA_TMPDIR set to temporary directory whose prefix start with /tmp/xpa
-        (eg, /tmp/xpa_sf23f), them set os.environ["XPA_TMPDIR"] (which affect xpa set and/or get command from python) to /tmp/xpa.
+        (eg, /tmp/xpa_sf23f), them set os.environ["XPA_TMPDIR"] (which affects xpa set and/or get command from python) to /tmp/xpa.
 
         """
         env = os.environ
