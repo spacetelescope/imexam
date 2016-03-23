@@ -297,8 +297,9 @@ class Imexamine(object):
         """report the median of values in a box with side region_size"""
         region_size = self.report_stat_pars["region_size"][0]
         resolve = True
+        name=self.report_stat_pars["stat"][0]
         try:
-            stat = getattr(np, self.report_stat_pars["stat"][0])
+            stat = getattr(np, name)
         except AttributeError:
             warnings.warn("Invalid stat specified")
             resolve = False
@@ -309,7 +310,7 @@ class Imexamine(object):
             ymin = int(y - dist)
             ymax = int(y + dist)
             pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(
-                xmin, xmax, ymin, ymax, stat.func_name, (stat(data[ymin:ymax, xmin:xmax])))
+                xmin, xmax, ymin, ymax,name, (stat(data[ymin:ymax, xmin:xmax])))
             print(pstr)
             logging.info(pstr)
 
@@ -447,7 +448,7 @@ class Imexamine(object):
         xline = np.arange(len(chunk))
         popt, pcov = curve_fit(
             form, xline, chunk, [argmap.get(arg, 1) for arg in args])
-            
+
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(xline), step=1. / subsample)
         fity = form(fitx, *popt)
@@ -501,12 +502,12 @@ class Imexamine(object):
             plt.pause(0.001)
         else:
             return (fitx+x-delta,fity,popt)
-            
+
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
         print(pstr)
         logging.info(pstr)
-        
+
 
     def column_fit(self, x, y, data, form=None, subsample=4, fig=None):
         """compute the 1d  fit to the column of data
@@ -644,9 +645,9 @@ class Imexamine(object):
     def radial_profile_plot(self, x, y, data, form=None, fig=None):
         """
         Display the radial profile plot (intensity vs radius) for the object
-        
+
         Background may be subtracted and centering can be done with a 2dgauss fit
- 
+
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -656,13 +657,13 @@ class Imexamine(object):
             sigma = 0
             if not form:
                 form = getattr(math_helper, self.radial_profile_pars["fittype"][0])
-            
+
             getdata = bool(self.radial_profile_pars["getdata"][0])
             subtract_background=bool(self.radial_profile_pars["background"][0])
-            
-            #cut the data down to size 
+
+            #cut the data down to size
             datasize=int(self.radial_profile_pars["rplot"][0])-1
-            
+
 
             delta = 10  # chunk size to find center
             subpixels = 10  # for line fit later
@@ -683,10 +684,10 @@ class Imexamine(object):
                 centerx = x
             icenterx = int(centerx)
             icentery = int(centery)
-            
+
             #just grab the data box we want from the image
-            data_chunk=data[icentery-datasize:icentery+datasize,icenterx-datasize:icenterx+datasize] 
-            
+            data_chunk=data[icentery-datasize:icentery+datasize,icenterx-datasize:icenterx+datasize]
+
             y,x = np.indices((data_chunk.shape))
             r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
             r = r.astype(np.int)
@@ -698,12 +699,12 @@ class Imexamine(object):
             if subtract_background:
                 inner = self.radial_profile_pars["skyrad"][0]
                 width = self.radial_profile_pars["width"][0]
-                
+
                 annulus_apertures = photutils.CircularAnnulus(
                         (centerx, centery), r_in=inner, r_out=inner+width)
                 bkgflux_table = photutils.aperture_photometry(data,
                     annulus_apertures)
-                
+
                 # to calculate the mean local background, divide the circular annulus aperture sums
                 # by the area fo the circular annulus. The bkg sum with the circular aperture is then
                 # then mean local background tims the circular apreture area.
@@ -712,7 +713,7 @@ class Imexamine(object):
                 tbin -= np.bincount(r.ravel()) * sky_per_pix
                 if getdata:
                     print("Sky per pixel: {0} using(rad={1}->{2})".format(sky_per_pix,inner,inner+width))
-           
+
             if fig is None:
                 fig = plt.figure(self._figure_name)
             fig.clf()
@@ -727,15 +728,15 @@ class Imexamine(object):
                     int(centerx + 1), int(centery + 1), nr, tbin)
                 print(info)
                 logging.info(info)
-                
-            #finish the plot    
+
+            #finish the plot
             if bool(self.radial_profile_pars["pointmode"][0]):
                 ax.plot(nr, tbin, self.radial_profile_pars["marker"][0])
             else:
                 ax.plot(nr,tbin)
             ax.set_title(title)
             ax.set_ylim(0,)
-            
+
             #over plot a gaussian fit to the data
             if bool(self.radial_profile_pars["fitplot"][0]):
                 print("Fit overlay not yet implemented")
@@ -747,6 +748,9 @@ class Imexamine(object):
     def curve_of_growth_plot(self, x, y, data, fig=None):
         """
         display the curve of growth plot for the object
+
+        photometry from photutil
+
 
         """
         if not photutils_installed:
@@ -1109,7 +1113,7 @@ class Imexamine(object):
         """ set parameters for radial profile plots"""
 
         self.radial_profile_pars = imexam_defpars.radial_profile_pars
-                
+
 
     def set_curve_pars(self):
         """set parameters for curve of growth plots"""

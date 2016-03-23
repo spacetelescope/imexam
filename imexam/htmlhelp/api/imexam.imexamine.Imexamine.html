@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Imexamine &mdash; imexam v0.5</title>
+    <title>Imexamine &mdash; imexam v0.5.3dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,13 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5" href="../index.html" />
-<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
 
   </head>
-  <body>
+  <body role="document">
 <div class="topbar">
   <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
   <ul>
@@ -55,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.5</a>
+	<a href="../index.html">imexam v0.5.3dev</a>
 	 &raquo;
       </li>
       
@@ -67,14 +67,14 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="imexamine">
 <h1>Imexamine<a class="headerlink" href="#imexamine" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="imexam.imexamine.Imexamine">
-<em class="property">class </em><tt class="descclassname">imexam.imexamine.</tt><tt class="descname">Imexamine</tt><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<em class="property">class </em><code class="descclassname">imexam.imexamine.</code><code class="descname">Imexamine</code><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>do imexamine like routines on the current frame</p>
 <p>read the returned cursor key value to decide what to do</p>
 <p>region_size is the default radius or side of the square for stat info</p>
@@ -85,103 +85,115 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.aper_phot" title="imexam.imexamine.Imexamine.aper_phot"><tt class="xref py py-obj docutils literal"><span class="pre">aper_phot</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.aper_phot" title="imexam.imexamine.Imexamine.aper_phot"><code class="xref py py-obj docutils literal"><span class="pre">aper_phot</span></code></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>Perform aperture photometry, uses photutils functions, photutils must be available</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.column_fit" title="imexam.imexamine.Imexamine.column_fit"><tt class="xref py py-obj docutils literal"><span class="pre">column_fit</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;form,&nbsp;subsample,&nbsp;fig])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.column_fit" title="imexam.imexamine.Imexamine.column_fit"><code class="xref py py-obj docutils literal"><span class="pre">column_fit</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;form,&nbsp;subsample,&nbsp;fig])</td>
 <td>compute the 1d  fit to the column of data</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.contour_plot" title="imexam.imexamine.Imexamine.contour_plot"><tt class="xref py py-obj docutils literal"><span class="pre">contour_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.contour_plot" title="imexam.imexamine.Imexamine.contour_plot"><code class="xref py py-obj docutils literal"><span class="pre">contour_plot</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>plot contours in a region around the specified location</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="imexam.imexamine.Imexamine.curve_of_growth_plot"><tt class="xref py py-obj docutils literal"><span class="pre">curve_of_growth_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
-<td>display the radial profile plot for the star</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="imexam.imexamine.Imexamine.curve_of_growth_plot"><code class="xref py py-obj docutils literal"><span class="pre">curve_of_growth_plot</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
+<td>display the curve of growth plot for the object</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.do_option" title="imexam.imexamine.Imexamine.do_option"><tt class="xref py py-obj docutils literal"><span class="pre">do_option</span></tt></a>(x,&nbsp;y,&nbsp;key)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.do_option" title="imexam.imexamine.Imexamine.do_option"><code class="xref py py-obj docutils literal"><span class="pre">do_option</span></code></a>(x,&nbsp;y,&nbsp;key)</td>
 <td>run the option</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.gauss_center" title="imexam.imexamine.Imexamine.gauss_center"><tt class="xref py py-obj docutils literal"><span class="pre">gauss_center</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;delta])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.gauss_center" title="imexam.imexamine.Imexamine.gauss_center"><code class="xref py py-obj docutils literal"><span class="pre">gauss_center</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;delta])</td>
 <td>return the 2d gaussian fit center</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.get_options" title="imexam.imexamine.Imexamine.get_options"><tt class="xref py py-obj docutils literal"><span class="pre">get_options</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.get_options" title="imexam.imexamine.Imexamine.get_options"><code class="xref py py-obj docutils literal"><span class="pre">get_options</span></code></a>()</td>
 <td>return the imexam options as a key list</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.get_plot_name" title="imexam.imexamine.Imexamine.get_plot_name"><tt class="xref py py-obj docutils literal"><span class="pre">get_plot_name</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.get_plot_name" title="imexam.imexamine.Imexamine.get_plot_name"><code class="xref py py-obj docutils literal"><span class="pre">get_plot_name</span></code></a>()</td>
 <td>return the default plot name</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.histogram_plot" title="imexam.imexamine.Imexamine.histogram_plot"><tt class="xref py py-obj docutils literal"><span class="pre">histogram_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.histogram_plot" title="imexam.imexamine.Imexamine.histogram_plot"><code class="xref py py-obj docutils literal"><span class="pre">histogram_plot</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>plot a histogram of the pixel values in a region around the specified location</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.line_fit" title="imexam.imexamine.Imexamine.line_fit"><tt class="xref py py-obj docutils literal"><span class="pre">line_fit</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;form,&nbsp;subsample,&nbsp;fig])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.line_fit" title="imexam.imexamine.Imexamine.line_fit"><code class="xref py py-obj docutils literal"><span class="pre">line_fit</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;form,&nbsp;subsample,&nbsp;fig,&nbsp;...])</td>
 <td>compute the 1d  fit to the line of data using the specified form</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.new_plot_window" title="imexam.imexamine.Imexamine.new_plot_window"><tt class="xref py py-obj docutils literal"><span class="pre">new_plot_window</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.new_plot_window" title="imexam.imexamine.Imexamine.new_plot_window"><code class="xref py py-obj docutils literal"><span class="pre">new_plot_window</span></code></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>make the next plot in a new plot window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.option_descrip" title="imexam.imexamine.Imexamine.option_descrip"><tt class="xref py py-obj docutils literal"><span class="pre">option_descrip</span></tt></a>(key[,&nbsp;field])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.option_descrip" title="imexam.imexamine.Imexamine.option_descrip"><code class="xref py py-obj docutils literal"><span class="pre">option_descrip</span></code></a>(key[,&nbsp;field])</td>
 <td>return the looked up dictionary of options</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_column" title="imexam.imexamine.Imexamine.plot_column"><tt class="xref py py-obj docutils literal"><span class="pre">plot_column</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_column" title="imexam.imexamine.Imexamine.plot_column"><code class="xref py py-obj docutils literal"><span class="pre">plot_column</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>column plot of data at point y</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_line" title="imexam.imexamine.Imexamine.plot_line"><tt class="xref py py-obj docutils literal"><span class="pre">plot_line</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.plot_line" title="imexam.imexamine.Imexamine.plot_line"><code class="xref py py-obj docutils literal"><span class="pre">plot_line</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>line plot of data at point x</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.print_options" title="imexam.imexamine.Imexamine.print_options"><tt class="xref py py-obj docutils literal"><span class="pre">print_options</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.print_options" title="imexam.imexamine.Imexamine.print_options"><code class="xref py py-obj docutils literal"><span class="pre">print_options</span></code></a>()</td>
 <td>print the imexam options to screen</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.register" title="imexam.imexamine.Imexamine.register"><tt class="xref py py-obj docutils literal"><span class="pre">register</span></tt></a>(user_funcs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.radial_profile_plot" title="imexam.imexamine.Imexamine.radial_profile_plot"><code class="xref py py-obj docutils literal"><span class="pre">radial_profile_plot</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;form,&nbsp;fig])</td>
+<td>Display the radial profile plot (intensity vs radius) for the object</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.register" title="imexam.imexamine.Imexamine.register"><code class="xref py py-obj docutils literal"><span class="pre">register</span></code></a>(user_funcs)</td>
 <td>register a new imexamine function made by the user so that it becomes an option</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.report_stat" title="imexam.imexamine.Imexamine.report_stat"><tt class="xref py py-obj docutils literal"><span class="pre">report_stat</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.report_stat" title="imexam.imexamine.Imexamine.report_stat"><code class="xref py py-obj docutils literal"><span class="pre">report_stat</span></code></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>report the median of values in a box with side region_size</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.reset_defpars" title="imexam.imexamine.Imexamine.reset_defpars"><tt class="xref py py-obj docutils literal"><span class="pre">reset_defpars</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.reset_defpars" title="imexam.imexamine.Imexamine.reset_defpars"><code class="xref py py-obj docutils literal"><span class="pre">reset_defpars</span></code></a>()</td>
 <td>set all pars to their defaults</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.save_figure" title="imexam.imexamine.Imexamine.save_figure"><tt class="xref py py-obj docutils literal"><span class="pre">save_figure</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.save_figure" title="imexam.imexamine.Imexamine.save_figure"><code class="xref py py-obj docutils literal"><span class="pre">save_figure</span></code></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>save the figure that&#8217;s currently displayed</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_aperphot_pars" title="imexam.imexamine.Imexamine.set_aperphot_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_aperphot_pars</span></tt></a>([user_dict])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_aperphot_pars" title="imexam.imexamine.Imexamine.set_aperphot_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_aperphot_pars</span></code></a>([user_dict])</td>
 <td>the user may supply a dictionary of par settings</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_colplot_pars" title="imexam.imexamine.Imexamine.set_colplot_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_colplot_pars</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_colplot_pars" title="imexam.imexamine.Imexamine.set_colplot_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_colplot_pars</span></code></a>()</td>
 <td>set parameters for column plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_column_fit_pars" title="imexam.imexamine.Imexamine.set_column_fit_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_column_fit_pars</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_column_fit_pars" title="imexam.imexamine.Imexamine.set_column_fit_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_column_fit_pars</span></code></a>()</td>
 <td>set parameters for 1D line fit plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_contour_pars" title="imexam.imexamine.Imexamine.set_contour_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_contour_pars</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_contour_pars" title="imexam.imexamine.Imexamine.set_contour_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_contour_pars</span></code></a>()</td>
 <td>set parameters for histogram plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_data" title="imexam.imexamine.Imexamine.set_data"><tt class="xref py py-obj docutils literal"><span class="pre">set_data</span></tt></a>([data,&nbsp;dtype])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_curve_pars" title="imexam.imexamine.Imexamine.set_curve_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_curve_pars</span></code></a>()</td>
+<td>set parameters for curve of growth plots</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_data" title="imexam.imexamine.Imexamine.set_data"><code class="xref py py-obj docutils literal"><span class="pre">set_data</span></code></a>([data,&nbsp;dtype])</td>
 <td>initialize the data that imexamine uses</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_histogram_pars" title="imexam.imexamine.Imexamine.set_histogram_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_histogram_pars</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_histogram_pars" title="imexam.imexamine.Imexamine.set_histogram_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_histogram_pars</span></code></a>()</td>
 <td>set parameters for histogram plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_line_fit_pars" title="imexam.imexamine.Imexamine.set_line_fit_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_line_fit_pars</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_line_fit_pars" title="imexam.imexamine.Imexamine.set_line_fit_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_line_fit_pars</span></code></a>()</td>
 <td>set parameters for 1D line fit plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_lineplot_pars" title="imexam.imexamine.Imexamine.set_lineplot_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_lineplot_pars</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_lineplot_pars" title="imexam.imexamine.Imexamine.set_lineplot_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_lineplot_pars</span></code></a>()</td>
 <td>set parameters for line plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_plot_name" title="imexam.imexamine.Imexamine.set_plot_name"><tt class="xref py py-obj docutils literal"><span class="pre">set_plot_name</span></tt></a>([filename])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_option_funcs" title="imexam.imexamine.Imexamine.set_option_funcs"><code class="xref py py-obj docutils literal"><span class="pre">set_option_funcs</span></code></a>()</td>
+<td>Define the dictionary which maps imexam option keys to their functions</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_plot_name" title="imexam.imexamine.Imexamine.set_plot_name"><code class="xref py py-obj docutils literal"><span class="pre">set_plot_name</span></code></a>([filename])</td>
 <td>set the default plot name for the &#8220;s&#8221; key</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_radial_pars" title="imexam.imexamine.Imexamine.set_radial_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_radial_pars</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_radial_pars" title="imexam.imexamine.Imexamine.set_radial_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_radial_pars</span></code></a>()</td>
 <td>set parameters for radial profile plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_surface_pars" title="imexam.imexamine.Imexamine.set_surface_pars"><tt class="xref py py-obj docutils literal"><span class="pre">set_surface_pars</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.set_surface_pars" title="imexam.imexamine.Imexamine.set_surface_pars"><code class="xref py py-obj docutils literal"><span class="pre">set_surface_pars</span></code></a>()</td>
 <td>set parameters for surface plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.show_xy_coords" title="imexam.imexamine.Imexamine.show_xy_coords"><tt class="xref py py-obj docutils literal"><span class="pre">show_xy_coords</span></tt></a>(x,&nbsp;y,&nbsp;data)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.show_xy_coords" title="imexam.imexamine.Imexamine.show_xy_coords"><code class="xref py py-obj docutils literal"><span class="pre">show_xy_coords</span></code></a>(x,&nbsp;y,&nbsp;data)</td>
 <td>print the x,y,value to the screen</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.surface_plot" title="imexam.imexamine.Imexamine.surface_plot"><tt class="xref py py-obj docutils literal"><span class="pre">surface_plot</span></tt></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.showplt" title="imexam.imexamine.Imexamine.showplt"><code class="xref py py-obj docutils literal"><span class="pre">showplt</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.surface_plot" title="imexam.imexamine.Imexamine.surface_plot"><code class="xref py py-obj docutils literal"><span class="pre">surface_plot</span></code></a>(x,&nbsp;y,&nbsp;data[,&nbsp;fig])</td>
 <td>plot a surface around the specified location</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.unlearn_all" title="imexam.imexamine.Imexamine.unlearn_all"><tt class="xref py py-obj docutils literal"><span class="pre">unlearn_all</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.unlearn_all" title="imexam.imexamine.Imexamine.unlearn_all"><code class="xref py py-obj docutils literal"><span class="pre">unlearn_all</span></code></a>()</td>
 <td>reset the default parameters for all functions</td>
 </tr>
 </tbody>
@@ -189,13 +201,13 @@
 <p class="rubric">Methods Documentation</p>
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.aper_phot">
-<tt class="descname">aper_phot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.aper_phot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.aper_phot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">aper_phot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.aper_phot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.aper_phot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform aperture photometry, uses photutils functions, photutils must be available</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.column_fit">
-<tt class="descname">column_fit</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.column_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.column_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">column_fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.column_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.column_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>compute the 1d  fit to the column of data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -222,19 +234,20 @@ if centering is True, then the center is fit with a 2d gaussian</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.contour_plot">
-<tt class="descname">contour_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.contour_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.contour_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contour_plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.contour_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.contour_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot contours in a region around the specified location</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.curve_of_growth_plot">
-<tt class="descname">curve_of_growth_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.curve_of_growth_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>display the radial profile plot for the star</p>
+<code class="descname">curve_of_growth_plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.curve_of_growth_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.curve_of_growth_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>display the curve of growth plot for the object</p>
+<p>photometry from photutil</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.do_option">
-<tt class="descname">do_option</tt><big>(</big><em>x</em>, <em>y</em>, <em>key</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.do_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.do_option" title="Permalink to this definition">¶</a></dt>
+<code class="descname">do_option</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.do_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.do_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>run the option</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -260,7 +273,7 @@ if centering is True, then the center is fit with a 2d gaussian</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.gauss_center">
-<tt class="descname">gauss_center</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>delta=10</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.gauss_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.gauss_center" title="Permalink to this definition">¶</a></dt>
+<code class="descname">gauss_center</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>delta=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.gauss_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.gauss_center" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the 2d gaussian fit center</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -278,25 +291,25 @@ if centering is True, then the center is fit with a 2d gaussian</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.get_options">
-<tt class="descname">get_options</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.get_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.get_options" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.get_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.get_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the imexam options as a key list</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.get_plot_name">
-<tt class="descname">get_plot_name</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.get_plot_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.get_plot_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_plot_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.get_plot_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.get_plot_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the default plot name</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.histogram_plot">
-<tt class="descname">histogram_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.histogram_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.histogram_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">histogram_plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.histogram_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.histogram_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot a histogram of the pixel values in a region around the specified location</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.line_fit">
-<tt class="descname">line_fit</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.line_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.line_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">line_fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em>, <em>genplot=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.line_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.line_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>compute the 1d  fit to the line of data using the specified form</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -324,7 +337,7 @@ form is the functional form to use</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.new_plot_window">
-<tt class="descname">new_plot_window</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.new_plot_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.new_plot_window" title="Permalink to this definition">¶</a></dt>
+<code class="descname">new_plot_window</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.new_plot_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.new_plot_window" title="Permalink to this definition">¶</a></dt>
 <dd><p>make the next plot in a new plot window</p>
 <p class="rubric">Notes</p>
 <p>x,y, data, are not used here, but the calls are setup to take them
@@ -335,7 +348,7 @@ The old window cannot be used again.</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.option_descrip">
-<tt class="descname">option_descrip</tt><big>(</big><em>key</em>, <em>field=1</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.option_descrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.option_descrip" title="Permalink to this definition">¶</a></dt>
+<code class="descname">option_descrip</code><span class="sig-paren">(</span><em>key</em>, <em>field=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.option_descrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.option_descrip" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the looked up dictionary of options</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -357,25 +370,32 @@ The old window cannot be used again.</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.plot_column">
-<tt class="descname">plot_column</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_column" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_column</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_column" title="Permalink to this definition">¶</a></dt>
 <dd><p>column plot of data at point y</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.plot_line">
-<tt class="descname">plot_line</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_line" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_line</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.plot_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>line plot of data at point x</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.print_options">
-<tt class="descname">print_options</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.print_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.print_options" title="Permalink to this definition">¶</a></dt>
+<code class="descname">print_options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.print_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.print_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>print the imexam options to screen</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="imexam.imexamine.Imexamine.radial_profile_plot">
+<code class="descname">radial_profile_plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>form=None</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.radial_profile_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.radial_profile_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the radial profile plot (intensity vs radius) for the object</p>
+<p>Background may be subtracted and centering can be done with a 2dgauss fit</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="imexam.imexamine.Imexamine.register">
-<tt class="descname">register</tt><big>(</big><em>user_funcs</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.register" title="Permalink to this definition">¶</a></dt>
+<code class="descname">register</code><span class="sig-paren">(</span><em>user_funcs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.register" title="Permalink to this definition">¶</a></dt>
 <dd><p>register a new imexamine function made by the user so that it becomes an option</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -397,73 +417,90 @@ imexam_option_funcs = {&#8216;a&#8217;: (self.aper_phot, &#8216;aperture sum, wi
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.report_stat">
-<tt class="descname">report_stat</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.report_stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.report_stat" title="Permalink to this definition">¶</a></dt>
+<code class="descname">report_stat</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.report_stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.report_stat" title="Permalink to this definition">¶</a></dt>
 <dd><p>report the median of values in a box with side region_size</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.reset_defpars">
-<tt class="descname">reset_defpars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.reset_defpars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.reset_defpars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reset_defpars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.reset_defpars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.reset_defpars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set all pars to their defaults</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.save_figure">
-<tt class="descname">save_figure</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.save_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.save_figure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_figure</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.save_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.save_figure" title="Permalink to this definition">¶</a></dt>
 <dd><p>save the figure that&#8217;s currently displayed</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_aperphot_pars">
-<tt class="descname">set_aperphot_pars</tt><big>(</big><em>user_dict=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_aperphot_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_aperphot_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_aperphot_pars</code><span class="sig-paren">(</span><em>user_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_aperphot_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_aperphot_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>the user may supply a dictionary of par settings</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_colplot_pars">
-<tt class="descname">set_colplot_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_colplot_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_colplot_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_colplot_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_colplot_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_colplot_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for column plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_column_fit_pars">
-<tt class="descname">set_column_fit_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_column_fit_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_column_fit_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_column_fit_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_column_fit_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_column_fit_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for 1D line fit plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_contour_pars">
-<tt class="descname">set_contour_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_contour_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_contour_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_contour_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_contour_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_contour_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for histogram plots</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="imexam.imexamine.Imexamine.set_curve_pars">
+<code class="descname">set_curve_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_curve_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_curve_pars" title="Permalink to this definition">¶</a></dt>
+<dd><p>set parameters for curve of growth plots</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_data">
-<tt class="descname">set_data</tt><big>(</big><em>data=array(</em>, <span class="optional">[</span><span class="optional">]</span><em>dtype=float64)</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_data</code><span class="sig-paren">(</span><em>data=array([]</em>, <em>dtype=float64)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>initialize the data that imexamine uses</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_histogram_pars">
-<tt class="descname">set_histogram_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_histogram_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_histogram_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_histogram_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_histogram_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_histogram_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for histogram plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_line_fit_pars">
-<tt class="descname">set_line_fit_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_line_fit_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_line_fit_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_line_fit_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_line_fit_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_line_fit_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for 1D line fit plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_lineplot_pars">
-<tt class="descname">set_lineplot_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_lineplot_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_lineplot_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_lineplot_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_lineplot_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_lineplot_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for line plots</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="imexam.imexamine.Imexamine.set_option_funcs">
+<code class="descname">set_option_funcs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_option_funcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_option_funcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the dictionary which maps imexam option keys to their functions</p>
+<p class="rubric">Notes</p>
+<p>The user can modify this dictionary to add or change options,
+the first item in the tuple is the associated function
+the second item in the tuple is the description of what the function
+does when that key is pressed</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_plot_name">
-<tt class="descname">set_plot_name</tt><big>(</big><em>filename=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_plot_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_plot_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_plot_name</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_plot_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_plot_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>set the default plot name for the &#8220;s&#8221; key</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -482,25 +519,30 @@ The extension on the name decides which file type is used</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_radial_pars">
-<tt class="descname">set_radial_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_radial_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_radial_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_radial_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_radial_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_radial_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for radial profile plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.set_surface_pars">
-<tt class="descname">set_surface_pars</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_surface_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_surface_pars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_surface_pars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.set_surface_pars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.set_surface_pars" title="Permalink to this definition">¶</a></dt>
 <dd><p>set parameters for surface plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.show_xy_coords">
-<tt class="descname">show_xy_coords</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.show_xy_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.show_xy_coords" title="Permalink to this definition">¶</a></dt>
+<code class="descname">show_xy_coords</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.show_xy_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.show_xy_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>print the x,y,value to the screen</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="imexam.imexamine.Imexamine.showplt">
+<code class="descname">showplt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.showplt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.showplt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="imexam.imexamine.Imexamine.surface_plot">
-<tt class="descname">surface_plot</tt><big>(</big><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.surface_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.surface_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">surface_plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.surface_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.surface_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot a surface around the specified location</p>
 <p>&#8220;ncolumns&#8221;:[21,&#8221;Number of columns&#8221;],
 &#8220;nlines&#8221;:[21,&#8221;Number of lines&#8221;],
@@ -512,7 +554,7 @@ The extension on the name decides which file type is used</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.unlearn_all">
-<tt class="descname">unlearn_all</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.unlearn_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.unlearn_all" title="Permalink to this definition">¶</a></dt>
+<code class="descname">unlearn_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.unlearn_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.unlearn_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>reset the default parameters for all functions</p>
 <p>Haven&#8217;t decided how to reset the parameters for just one function yet</p>
 </dd></dl>
@@ -525,7 +567,7 @@ The extension on the name decides which file type is used</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Imexamine</a></li>
@@ -542,9 +584,9 @@ The extension on the name decides which file type is used</p>
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2015, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 01 May 2015. <br/>
+    &copy; Copyright 2016, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
+    Last built 23 Mar 2016. <br/>
   </p>
 </footer>
   </body>

@@ -1,32 +1,33 @@
 ===================
 The imexam() method
-=================== 
-This is the main method which allows live interaction with the image display when you are using the DS9 program for viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out the exam. 
+===================
+This is the main method which allows live interaction with the image display when you are using the DS9 program for viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out the exam.
 
 
-**imexam** (): 
+**imexam** ():
     access realtime imexamine functions through the keyboard and mouse
 
 **Current recognized keys for use during imexam are** ::
 
-         'a': 'aperture sum, with radius region_size, optional sky subtraction ',
-         'j': '1D  line fit ',
-         'k': '1D  column fit ',
-         'm': 'square region stats, in region_size square, default stat is median',
-         'x': 'return x,y coords of pixel',
-         'y': 'return x,y coords of pixel',
-         'l': 'return line plot',
-         'c': 'return column plot',
-         'r': 'return curve of growth plot',
+         'a': 'aperture sum, with radius region_size, optional sky subtraction '
+         'j': '1D  line fit '
+         'k': '1D  column fit '
+         'm': 'square region stats, in region_size square, default stat is median'
+         'x': 'return x,y coords of pixel'
+         'y': 'return x,y coords of pixel'
+         'l': 'return line plot'
+         'c': 'return column plot'
+         'g': 'return curve of growth plot'
+         'r': 'return the radial profile plot'
          'h': 'return a histogram in the region around the cursor'
          'e': 'return a contour plot in a region around the cursor'
          's': 'save current figure to plotname'
          'b': 'return the gauss fit center of the object'
          'w': 'display a surface plot around the cursor location'
          '2': 'make the next plot in a new window'
-         
+
          aimexam(): return a dict of current parameters for aperture photometery
-         
+
          cimexam(): return dict of current parameters for column plots
 
          eimexam(): return dict of current parameters for contour plots
@@ -39,16 +40,18 @@ This is the main method which allows live interaction with the image display whe
 
          limexam(): return dict of current parameters for  line plots
 
-         rimexam(): return dict of current parameters for curve of growth plots
+         gimexam(): return dict of current parameters for curve of growth plots
+
+         rimexam(): return the dict of current parameters for radial profile plots
 
          wimexam(): return dict of current parameters for surface plots
-    
+
          mimexam(): return dict of current parameters for area statistics
-         
-        
-.. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers   
- 
-        
+
+
+.. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers
+
+
 The imexam key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which map to your own
 
 Users may also add their own imexam keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.
@@ -64,27 +67,27 @@ For all the examples below I will use the following session::
     viewer.scale()
     viewer.panto_image(576,633)
     viewer.zoom(3)
-    
+
 
 .. image:: imexam_command_example.png
     :height: 400
     :width: 400
     :alt: Data used for imexam command examples
 
-    
-    
-    
+
+
+
 This will use Ginga for the viewer::
 
     #Use Ginga for the image viewer
-    
+
     import imexam
     viewer=imexam.connect(viewer='ginga_mp')
     viewer.load_fits('iabf01bzq_flt.fits')
     viewer.scale()
     viewer.panto_image(576,633)
     viewer.zoom(3)
-    
+
 
 .. image:: imexam_command_example_ginga.png
     :height: 400
@@ -108,28 +111,28 @@ These are the default parameters for aperture photometry. They live in a diction
                     "subsky":[True,"Subtract a sky background?"],
                     "skyrad":[15,"Distance to start sky annulus is pixels"],
                     "radius":[5,"Radius of aperture for star flux"],
-                    "zmag":[25.,"zeropoint for the magnitude calculation"],                
+                    "zmag":[25.,"zeropoint for the magnitude calculation"],
                     }
 
 You can change the parameters by editing the dictionary, whose structure is { "parameter": [values, description] }. In order to change the width of the photometry aperture around the object you would do this ::
 
     viewer.exam.aperphot_pars["radius"][0] = 10
-    
+
 It might seem a little odd to non-python users at the moment. What you are doing is updating the value of the first item in that list. I intend on changing this interface to make it a little more seamless to users in the near future.
 
 This is what the return looks like when you do photometry, where I've asked for photometry from the star circled in green above::
 
     viewer.imexam()
-    
+
     Press 'q' to quit
 
     2	make the next plot in a new window
-    a	aperture sum, with radius region_size 
+    a	aperture sum, with radius region_size
     b	return the gauss fit center of the object
     c	return column plot
     e	return a contour plot in a region around the cursor
     h	return a histogram in the region around the cursor
-    j	1D [gaussian|moffat] line fit 
+    j	1D [gaussian|moffat] line fit
     k	1D [gaussian|moffat] column fit
     l	return line plot
     m	square region stats, in [region_size],defayult is median
@@ -151,8 +154,8 @@ xc = xcenter, yc=ycenter; these were found using a 2d gaussian fit centered on t
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you press the "j" or "k" keys, a 1D gaussian profile is fit to the data in either the line or column of the current pointer location. A plot of both the data and the fit + parameters is displayed.
 If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data. ::
-    
-    
+
+
     line_fit_pars={"function":["line_fit",],
                    "func":["gaussian","function for fitting [gaussian|moffat]"],
                    "title":["Fit 1D line plot","Title of the plot"],
@@ -185,9 +188,9 @@ The column fit parameters are similar::
                      "logy":[False,"log scale y-axis?"],
                      "center":[True,"Recenter around the local max"],
                      }
-    
+
 This is the resulting line fit:
-    
+
 .. image:: fit_line.png
     :height: 400
     :width: 600
@@ -222,7 +225,7 @@ The user can map the function to any reasonable numpy function, it's set to nump
 You can change the statistic reported by changing the "stat" parameter::
 
     viewer.exam.report_stat_pars["stat"][0]="max"
-    
+
     [572:577,629:634] amax: 55271.000000
 
 
@@ -234,7 +237,7 @@ Pixel Coordinates and Value
 Hitting the 'x' or 'y' will return the x,y coordinate and pixel value under the mouse pointer.::
 
     576.0 633.66667  55271.0
-  
+
 
 
 Line or Column plots
@@ -252,15 +255,46 @@ Pressing the "l" or "c" keys will display a plot of the points through either th
     :width: 600
     :alt: Line plot
 
+Radial Profile Plot
+^^^^^^^^^^^^^^^^^^^
+
+Pressing the "r" key displays a radial profile plot for the flux around the current pointer location.
+If centering is on, the center is computed close to the star using a 2d gaussian fit.
+
+The available parameters are ::
+
+            radial_profile_pars = {"function": ["radial_profile_plot", ],
+                        "title": ["Radial Profile", "Title of the plot"],
+                        "xlabel": ["Radius", "The string for the xaxis label"],
+                        "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
+                        "fitplot": [False,"Overplot profile fit?"],
+                        "fittype":["gaussian","Profile type to fit (gaussian)"],
+                        "center": [True, "Solve for center using 2d Gaussian? [bool]"],
+                        "background": [True, "Subtract background? [bool]"],
+                        "skyrad": [10., "Background inner radius in pixels, from center of object"],
+                        "width": [5., "Background annulus width in pixels"],
+                        "magzero": [25., "magnitude zero point"],
+                        "rplot": [8., "Plotting radius in pixels"],
+                        "pointmode": [True, "plot points instead of lines? [bool]"],
+                        "marker": ["o", "The marker character to use, matplotlib style"],
+                        "minflux": [0., "only measure flux above this value"],
+                        "getdata": [True, "return the plotted data values"]
+                        }
+
+
+.. image:: radial_profile_plot.png
+    :height: 400
+    :width: 600
+    :alt: Curve of growth  plot around star
 
 
 Curve of Growth plot
 ^^^^^^^^^^^^^^^^^^^^
-Pressing the "r" key displays a curve of growth for the flux around the current pointer location in successively larger radii. 
+Pressing the "r" key displays a curve of growth for the flux around the current pointer location in successively larger radii.
 If centering is on, the center is computed close to the star using a 2d gaussian fit.
 
 The available parameters are ::
-    
+
     curve_of_growth_pars={"function":["curve_of_growth_plot",],
                           "title":["Curve of Growth","Title of the plot"],
                           "xlabel":["radius","The string for the xaxis label"],
@@ -278,14 +312,15 @@ The available parameters are ::
                           "minflux":[0., "only measure flux above this value"],
                           }
 
-.. image:: radial_profile.png
+
+.. image:: curve_of_growth.png
     :height: 400
     :width: 600
     :alt: Curve of growth  plot around star
 
 
 Returned to the screen is the data information from the plot, the (x,y) location of the center, followed by the radius and corresponding flux which was measured::
-    
+
     viewer.exam.curve_of_growth_pars["rplot"][0]=25  #set the default radius larger
 
     xc=577.242311	yc=634.578361
@@ -300,7 +335,7 @@ Histogram Plots
 ^^^^^^^^^^^^^^^
 
 Pressing the "h" key will display a histogram of pixel values around the pixel location under the mouse pointer. ::
-    
+
     histogram_pars={"function":["histogram",],
                     "title":["Histogram","Title of the plot"],
                     "xlabel":["Flux (bin)","The string for the xaxis label"],
@@ -329,7 +364,7 @@ Contour Plots
 ^^^^^^^^^^^^^
 
 Pressing the "e" key will display  a contour plot around the clicked pixel location. ::
-    
+
     contour_pars={"function":["contour",],
                        "title":["Contour plot in region around pixel location","Title of the plot"],
                        "xlabel":["x","The string for the xaxis label"],
@@ -349,13 +384,13 @@ Pressing the "e" key will display  a contour plot around the clicked pixel locat
     :height: 400
     :width: 600
     :alt: contour plot
-    
+
 Here's what it looks like if we change some of the default parameters::
 
     viewer.exam.contour_pars["cmap"][0]="gist_heat"
     viewer.exam.contour_pars["title"][0]="Contours around my favorite star"
     viewer.exam.contour_pars["ncontours"][0]=4
-    viewer.exam.contour_pars["floor"][0]=0 
+    viewer.exam.contour_pars["floor"][0]=0
 
 
 .. image:: contour_plot2.png
@@ -364,14 +399,14 @@ Here's what it looks like if we change some of the default parameters::
     :alt: contour plot
 
 
-.. note:: You can use any of the matplotlib standard cmaps, see here for more information: http://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps 
+.. note:: You can use any of the matplotlib standard cmaps, see here for more information: http://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps
 
 
 Surface Plots
 ^^^^^^^^^^^^^
 
 Pressing the "s" key will display a 3D surface plot of pixel values around the mouse pointer location::
-    
+
     viewer.exam.surface_pars={"function":["surface",],
                        "title":["Surface plot","Title of the plot"],
                        "xlabel":["X","The string for the xaxis label"],
@@ -406,7 +441,7 @@ User Specified Functions
 
 Users may code their own functions and bind them to keys by registering them with the imexam dictionary through the register method.
 The new binding will be added to the dictionary of imexamine functions as long as the key is unique.
-The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new 
+The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new
 instantiations of imexam.connect() will not have the new function unless the user specifically registers them.
 
 Here's all the code for a function which makes a cutout around the clicked pixel location and saves it to a fits file::
@@ -424,12 +459,12 @@ Here's all the code for a function which makes a cutout around the clicked pixel
         hdulist=fits.HDUList([hdu])
         hdulist[0].header['EXTEND']=False
         hdulist.writeto(fname)
-        print("Cutout at ({0},{1}) saved to {2:s}".format(x,y,fname))        
+        print("Cutout at ({0},{1}) saved to {2:s}".format(x,y,fname))
 
-Now, import that into your python session, file, or here I'll just copy paste the definition to the session. This is an important step becuase 
-the function reference is what you are going to send to the registration method. The registration method wants you to supply a dictionary which 
-contains the key you want to assign that function to during the imexam loop, and a tuple with the function name and description::        
-        
+Now, import that into your python session, file, or here I'll just copy paste the definition to the session. This is an important step becuase
+the function reference is what you are going to send to the registration method. The registration method wants you to supply a dictionary which
+contains the key you want to assign that function to during the imexam loop, and a tuple with the function name and description::
+
     my_dict = {'t': (cutout, 'Cut out an image stamp from under the mouse and save it')}
 
     viewer.exam.register(my_dict)
@@ -449,8 +484,8 @@ Okay, I went to the star I like and pressed "t". Let's verify that we got what w
     image=fits.open('cutout_575.0_633.07fdinJ.fits')
     viewer.frame(2)
     viewer.view(image)
-    
-    
+
+
 And the resulting frame view?
 
 .. image:: user_func_2.png
@@ -474,7 +509,7 @@ During a single viewer.imexam() session, you can choose to send your plots to mu
     576.52         634.58         5              1560462.68     9.52           10996.52       5.58
 
     #make a column plot ("c")
-    
+
     #direct to a new window and make a contour plot ("e")
     Plots now directed towards imexam2
 
@@ -505,7 +540,7 @@ identical, just the viewer of the image changes:
     :height: 550
     :width: 950
     :alt: multiple plots in Ginga with imexam
-    
+
 
 As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:
 

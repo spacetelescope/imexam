@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &mdash; imexam v0.5</title>
+    <title>Introduction &mdash; imexam v0.5.3dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,16 +25,16 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5" href="../index.html" />
+    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="The imexam() method" href="imexam_command.html" />
-    <link rel="prev" title="Comparison with the IRAF verison of imexamine" href="comparison_iraf.html" />
-<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+    <link rel="prev" title="Imexam User Documentation" href="index.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
 
   </head>
-  <body>
+  <body role="document">
 <div class="topbar">
   <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
   <ul>
@@ -63,13 +63,13 @@
 	</a>
       </li>
       <li class="right">
-	<a href="comparison_iraf.html" title="Comparison with the IRAF verison of imexamine">
+	<a href="index.html" title="Imexam User Documentation">
 	  &laquo; previous
 	</a>
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.5</a>
+	<a href="../index.html">imexam v0.5.3dev</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -82,7 +82,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
@@ -143,7 +143,7 @@ Where target is the name of the ds9 window that is already running, path is the 
 </pre></div>
 </div>
 <p>If you are using the Ginga widget, the interaction with the imexam code stays the same, you simply specify that you would like to use Ginga in the call to connect:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s">&#39;ginga_mp&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s1">&#39;ginga_mp&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>&#8220;ginga_mp&#8221; tells imexam that you&#8217;d like to use the Ginga widget with the matplotlib background. Future support for the Ginga QT widget will be added at a later date.</p>
@@ -225,7 +225,7 @@ problem, send email to the developers or open an issue in github.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Introduction</a><ul>
@@ -247,9 +247,9 @@ problem, send email to the developers or open an issue in github.</p>
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2015, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 30 Apr 2015. <br/>
+    &copy; Copyright 2016, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
+    Last built 15 Feb 2016. <br/>
   </p>
 </footer>
   </body>

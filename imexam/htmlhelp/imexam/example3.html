@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example 3 &mdash; imexam v0.5</title>
+    <title>Example 3 &mdash; imexam v0.5.3dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,13 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5" href="../index.html" />
-<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
 
   </head>
-  <body>
+  <body role="document">
 <div class="topbar">
   <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
   <ul>
@@ -55,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.5</a>
+	<a href="../index.html">imexam v0.5.3dev</a>
 	 &raquo;
       </li>
       
@@ -67,7 +67,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="example-3">
 <h1>Example 3<a class="headerlink" href="#example-3" title="Permalink to this headline">¶</a></h1>
@@ -263,8 +263,8 @@ Out[91]: (807.57500000000005, 2.4449999999999998, 16)
 </div>
 <p>Let&#8217;s open up a DS9 window (if you haven&#8217;t already) and display your image. This will let us display our source locations and play with them</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s">&#39;iabf01bzq_flt.fits&#39;</span><span class="p">)</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span> <span class="c">#scale to DS9 zscale by default</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s1">&#39;iabf01bzq_flt.fits&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span> <span class="c1">#scale to DS9 zscale by default</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">mark_region_from_array</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -272,7 +272,7 @@ Out[91]: (807.57500000000005, 2.4449999999999998, 16)
 <p>Now we can get rid of some of the stars by hand and save a new file of locations we like. I did this arbitrarily because I decided I didn&#8217;t like stars in this part of space. Click on the regions you don&#8217;t want and delete them from the screen. You can even add more regions of your own choosing.</p>
 <a class="reference internal image-reference" href="../_images/iab_badstars.png"><img alt="subsection of image being examined" src="../_images/iab_badstars.png" style="width: 600px; height: 400px;" /></a>
 <p>Now you can save these new regions to a DS9 style region file, either through DS9 or imexam</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="s">&#39;badstars.reg&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="s1">&#39;badstars.reg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here is what the saved region file looks like, you can choose to import this file into any future DS9 display of the same image using the viewer.load_regions() method. You might also want to parse the file to save just the location and comment information in a separate text file.</p>
@@ -349,7 +349,7 @@ in conjuection with the viewer.readcursor()</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Example 3</a><ul>
@@ -370,9 +370,9 @@ in conjuection with the viewer.readcursor()</p>
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2015, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 30 Apr 2015. <br/>
+    &copy; Copyright 2016, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
+    Last built 15 Feb 2016. <br/>
   </p>
 </footer>
   </body>

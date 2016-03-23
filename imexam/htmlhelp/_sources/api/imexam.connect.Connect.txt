@@ -43,6 +43,7 @@ Connect
       ~Connect.get_frame_info
       ~Connect.get_header
       ~Connect.get_viewer_info
+      ~Connect.gimexam
       ~Connect.grid
       ~Connect.hideme
       ~Connect.himexam
@@ -116,6 +117,7 @@ Connect
    .. automethod:: get_frame_info
    .. automethod:: get_header
    .. automethod:: get_viewer_info
+   .. automethod:: gimexam
    .. automethod:: grid
    .. automethod:: hideme
    .. automethod:: himexam

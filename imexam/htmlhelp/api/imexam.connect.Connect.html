@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Connect &mdash; imexam v0.5</title>
+    <title>Connect &mdash; imexam v0.5.3dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,13 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5" href="../index.html" />
-<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
 
   </head>
-  <body>
+  <body role="document">
 <div class="topbar">
   <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
   <ul>
@@ -55,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.5</a>
+	<a href="../index.html">imexam v0.5.3dev</a>
 	 &raquo;
       </li>
       
@@ -67,14 +67,14 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="connect">
 <h1>Connect<a class="headerlink" href="#connect" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="imexam.connect.Connect">
-<em class="property">class </em><tt class="descclassname">imexam.connect.</tt><tt class="descname">Connect</tt><big>(</big><em>target=None</em>, <em>path=None</em>, <em>viewer='ds9'</em>, <em>wait_time=10</em>, <em>quit_window=True</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<em class="property">class </em><code class="descclassname">imexam.connect.</code><code class="descname">Connect</code><span class="sig-paren">(</span><em>target=None</em>, <em>path=None</em>, <em>viewer='ds9'</em>, <em>wait_time=10</em>, <em>quit_window=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Connect to a display device to look at and examine images that are displayed within</p>
 <p>The control features below are a basic set that should be available in all display tools.
 The class for the display tool should override them and add it&#8217;s own extra features.</p>
@@ -124,181 +124,184 @@ The class for the display tool should override them and add it&#8217;s own extra
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.aimexam" title="imexam.connect.Connect.aimexam"><tt class="xref py py-obj docutils literal"><span class="pre">aimexam</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.aimexam" title="imexam.connect.Connect.aimexam"><code class="xref py py-obj docutils literal"><span class="pre">aimexam</span></code></a>()</td>
 <td>show current parameters for aperture photometry</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.alignwcs" title="imexam.connect.Connect.alignwcs"><tt class="xref py py-obj docutils literal"><span class="pre">alignwcs</span></tt></a>(**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.alignwcs" title="imexam.connect.Connect.alignwcs"><code class="xref py py-obj docutils literal"><span class="pre">alignwcs</span></code></a>(**kwargs)</td>
 <td>align frames with wcs</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.blink" title="imexam.connect.Connect.blink"><tt class="xref py py-obj docutils literal"><span class="pre">blink</span></tt></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.blink" title="imexam.connect.Connect.blink"><code class="xref py py-obj docutils literal"><span class="pre">blink</span></code></a>(**kwargs)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.cimexam" title="imexam.connect.Connect.cimexam"><tt class="xref py py-obj docutils literal"><span class="pre">cimexam</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.cimexam" title="imexam.connect.Connect.cimexam"><code class="xref py py-obj docutils literal"><span class="pre">cimexam</span></code></a>()</td>
 <td>show current parameters for column plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.clear_contour" title="imexam.connect.Connect.clear_contour"><tt class="xref py py-obj docutils literal"><span class="pre">clear_contour</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.clear_contour" title="imexam.connect.Connect.clear_contour"><code class="xref py py-obj docutils literal"><span class="pre">clear_contour</span></code></a>()</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.close" title="imexam.connect.Connect.close"><tt class="xref py py-obj docutils literal"><span class="pre">close</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.close" title="imexam.connect.Connect.close"><code class="xref py py-obj docutils literal"><span class="pre">close</span></code></a>()</td>
 <td>close the window and end connection</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.cmap" title="imexam.connect.Connect.cmap"><tt class="xref py py-obj docutils literal"><span class="pre">cmap</span></tt></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.cmap" title="imexam.connect.Connect.cmap"><code class="xref py py-obj docutils literal"><span class="pre">cmap</span></code></a>(**kwargs)</td>
 <td>Set the color map table to something else, in a defined list of options</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.colorbar" title="imexam.connect.Connect.colorbar"><tt class="xref py py-obj docutils literal"><span class="pre">colorbar</span></tt></a>(**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.colorbar" title="imexam.connect.Connect.colorbar"><code class="xref py py-obj docutils literal"><span class="pre">colorbar</span></code></a>(**kwargs)</td>
 <td>turn the colorbar on the screen on and off</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.contour" title="imexam.connect.Connect.contour"><tt class="xref py py-obj docutils literal"><span class="pre">contour</span></tt></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.contour" title="imexam.connect.Connect.contour"><code class="xref py py-obj docutils literal"><span class="pre">contour</span></code></a>(**kwargs)</td>
 <td>show contours on the window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.contour_load" title="imexam.connect.Connect.contour_load"><tt class="xref py py-obj docutils literal"><span class="pre">contour_load</span></tt></a>(*args)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.contour_load" title="imexam.connect.Connect.contour_load"><code class="xref py py-obj docutils literal"><span class="pre">contour_load</span></code></a>(*args)</td>
 <td>load contours from a file</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.crosshair" title="imexam.connect.Connect.crosshair"><tt class="xref py py-obj docutils literal"><span class="pre">crosshair</span></tt></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.crosshair" title="imexam.connect.Connect.crosshair"><code class="xref py py-obj docutils literal"><span class="pre">crosshair</span></code></a>(**kwargs)</td>
 <td>Control the current position of the crosshair in the current frame, crosshair mode is turned on</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.cursor" title="imexam.connect.Connect.cursor"><tt class="xref py py-obj docutils literal"><span class="pre">cursor</span></tt></a>(**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.cursor" title="imexam.connect.Connect.cursor"><code class="xref py py-obj docutils literal"><span class="pre">cursor</span></code></a>(**kwargs)</td>
 <td>move the cursor in the current frame to the specified image pixel, it will also move selected regions</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.disp_header" title="imexam.connect.Connect.disp_header"><tt class="xref py py-obj docutils literal"><span class="pre">disp_header</span></tt></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.disp_header" title="imexam.connect.Connect.disp_header"><code class="xref py py-obj docutils literal"><span class="pre">disp_header</span></code></a>(**kwargs)</td>
 <td>Display the header of the current image to a window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.eimexam" title="imexam.connect.Connect.eimexam"><tt class="xref py py-obj docutils literal"><span class="pre">eimexam</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.eimexam" title="imexam.connect.Connect.eimexam"><code class="xref py py-obj docutils literal"><span class="pre">eimexam</span></code></a>()</td>
 <td>show current parameters for contour plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.frame" title="imexam.connect.Connect.frame"><tt class="xref py py-obj docutils literal"><span class="pre">frame</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.frame" title="imexam.connect.Connect.frame"><code class="xref py py-obj docutils literal"><span class="pre">frame</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>move to a frame</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.get_data" title="imexam.connect.Connect.get_data"><tt class="xref py py-obj docutils literal"><span class="pre">get_data</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.get_data" title="imexam.connect.Connect.get_data"><code class="xref py py-obj docutils literal"><span class="pre">get_data</span></code></a>()</td>
 <td>return a numpy array of the data in the current window</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.get_data_filename" title="imexam.connect.Connect.get_data_filename"><tt class="xref py py-obj docutils literal"><span class="pre">get_data_filename</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.get_data_filename" title="imexam.connect.Connect.get_data_filename"><code class="xref py py-obj docutils literal"><span class="pre">get_data_filename</span></code></a>()</td>
 <td>return the filename for the data in the current window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.get_frame_info" title="imexam.connect.Connect.get_frame_info"><tt class="xref py py-obj docutils literal"><span class="pre">get_frame_info</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.get_frame_info" title="imexam.connect.Connect.get_frame_info"><code class="xref py py-obj docutils literal"><span class="pre">get_frame_info</span></code></a>()</td>
 <td>return more explicit information about the data displayed in the current frame</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.get_header" title="imexam.connect.Connect.get_header"><tt class="xref py py-obj docutils literal"><span class="pre">get_header</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.get_header" title="imexam.connect.Connect.get_header"><code class="xref py py-obj docutils literal"><span class="pre">get_header</span></code></a>()</td>
 <td>return the current fits header as a string, or None if there&#8217;s a problem</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.get_viewer_info" title="imexam.connect.Connect.get_viewer_info"><tt class="xref py py-obj docutils literal"><span class="pre">get_viewer_info</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.get_viewer_info" title="imexam.connect.Connect.get_viewer_info"><code class="xref py py-obj docutils literal"><span class="pre">get_viewer_info</span></code></a>()</td>
 <td>Return a dictionary which has information about all frames loaded with data</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.grid" title="imexam.connect.Connect.grid"><tt class="xref py py-obj docutils literal"><span class="pre">grid</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>convenience to turn the grid on and off, grid can be flushed with many more options</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.hideme" title="imexam.connect.Connect.hideme"><tt class="xref py py-obj docutils literal"><span class="pre">hideme</span></tt></a>()</td>
-<td>lower the display window</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.himexam" title="imexam.connect.Connect.himexam"><tt class="xref py py-obj docutils literal"><span class="pre">himexam</span></tt></a>()</td>
-<td>show current parameters for histogram plots</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.imexam" title="imexam.connect.Connect.imexam"><tt class="xref py py-obj docutils literal"><span class="pre">imexam</span></tt></a>()</td>
-<td>run imexamine with user interaction. At a minimum it requires a copy of the data array</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.jimexam" title="imexam.connect.Connect.jimexam"><tt class="xref py py-obj docutils literal"><span class="pre">jimexam</span></tt></a>()</td>
-<td>show current parameters for 1D fit line plots</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.kimexam" title="imexam.connect.Connect.kimexam"><tt class="xref py py-obj docutils literal"><span class="pre">kimexam</span></tt></a>()</td>
-<td>show current parameters for 1D fit column plots</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.limexam" title="imexam.connect.Connect.limexam"><tt class="xref py py-obj docutils literal"><span class="pre">limexam</span></tt></a>()</td>
-<td>show current parameters for  line plots</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_fits" title="imexam.connect.Connect.load_fits"><tt class="xref py py-obj docutils literal"><span class="pre">load_fits</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>convenience function to load fits image to current frame</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_cube" title="imexam.connect.Connect.load_mef_as_cube"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_cube</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>Load a Mult-Extension-Fits image one frame as a cube</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_multi" title="imexam.connect.Connect.load_mef_as_multi"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_multi</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>Load a Mult-Extension-Fits image into multiple frames</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_region" title="imexam.connect.Connect.load_region"><tt class="xref py py-obj docutils literal"><span class="pre">load_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>Load regions from a file which uses ds9 standard formatting</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_rgb" title="imexam.connect.Connect.load_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">load_rgb</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>load three images into a frame, each one for a different color</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.make_region" title="imexam.connect.Connect.make_region"><tt class="xref py py-obj docutils literal"><span class="pre">make_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.mark_region_from_array" title="imexam.connect.Connect.mark_region_from_array"><tt class="xref py py-obj docutils literal"><span class="pre">mark_region_from_array</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>mark regions on the viewer with a list of tuples as input</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.match" title="imexam.connect.Connect.match"><tt class="xref py py-obj docutils literal"><span class="pre">match</span></tt></a>(**kwargs)</td>
-<td>match all other frames to the current frame</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.mimexam" title="imexam.connect.Connect.mimexam"><tt class="xref py py-obj docutils literal"><span class="pre">mimexam</span></tt></a>()</td>
-<td>show the current parameters for statistical regions</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.nancolor" title="imexam.connect.Connect.nancolor"><tt class="xref py py-obj docutils literal"><span class="pre">nancolor</span></tt></a>(**kwargs)</td>
-<td>set the not-a-number color, default is red</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.panto_image" title="imexam.connect.Connect.panto_image"><tt class="xref py py-obj docutils literal"><span class="pre">panto_image</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>convenience function to change to x,y images coordinates using ra,dec</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.panto_wcs" title="imexam.connect.Connect.panto_wcs"><tt class="xref py py-obj docutils literal"><span class="pre">panto_wcs</span></tt></a>(*args,&nbsp;**kwargs)</td>
-<td>pan to wcs coordinates in image</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.plotname" title="imexam.connect.Connect.plotname"><tt class="xref py py-obj docutils literal"><span class="pre">plotname</span></tt></a>([filename])</td>
-<td>change or show the default save plotname for imexamine</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.readcursor" title="imexam.connect.Connect.readcursor"><tt class="xref py py-obj docutils literal"><span class="pre">readcursor</span></tt></a>()</td>
-<td>returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.rimexam" title="imexam.connect.Connect.rimexam"><tt class="xref py py-obj docutils literal"><span class="pre">rimexam</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.gimexam" title="imexam.connect.Connect.gimexam"><code class="xref py py-obj docutils literal"><span class="pre">gimexam</span></code></a>()</td>
 <td>show current parameters for curve of growth plots</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.rotate" title="imexam.connect.Connect.rotate"><tt class="xref py py-obj docutils literal"><span class="pre">rotate</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.grid" title="imexam.connect.Connect.grid"><code class="xref py py-obj docutils literal"><span class="pre">grid</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>convenience to turn the grid on and off, grid can be flushed with many more options</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.hideme" title="imexam.connect.Connect.hideme"><code class="xref py py-obj docutils literal"><span class="pre">hideme</span></code></a>()</td>
+<td>lower the display window</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.himexam" title="imexam.connect.Connect.himexam"><code class="xref py py-obj docutils literal"><span class="pre">himexam</span></code></a>()</td>
+<td>show current parameters for histogram plots</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.imexam" title="imexam.connect.Connect.imexam"><code class="xref py py-obj docutils literal"><span class="pre">imexam</span></code></a>()</td>
+<td>run imexamine with user interaction. At a minimum it requires a copy of the data array</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.jimexam" title="imexam.connect.Connect.jimexam"><code class="xref py py-obj docutils literal"><span class="pre">jimexam</span></code></a>()</td>
+<td>show current parameters for 1D fit line plots</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.kimexam" title="imexam.connect.Connect.kimexam"><code class="xref py py-obj docutils literal"><span class="pre">kimexam</span></code></a>()</td>
+<td>show current parameters for 1D fit column plots</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.limexam" title="imexam.connect.Connect.limexam"><code class="xref py py-obj docutils literal"><span class="pre">limexam</span></code></a>()</td>
+<td>show current parameters for  line plots</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_fits" title="imexam.connect.Connect.load_fits"><code class="xref py py-obj docutils literal"><span class="pre">load_fits</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>convenience function to load fits image to current frame</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_cube" title="imexam.connect.Connect.load_mef_as_cube"><code class="xref py py-obj docutils literal"><span class="pre">load_mef_as_cube</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Load a Mult-Extension-Fits image one frame as a cube</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_mef_as_multi" title="imexam.connect.Connect.load_mef_as_multi"><code class="xref py py-obj docutils literal"><span class="pre">load_mef_as_multi</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Load a Mult-Extension-Fits image into multiple frames</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.load_region" title="imexam.connect.Connect.load_region"><code class="xref py py-obj docutils literal"><span class="pre">load_region</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Load regions from a file which uses ds9 standard formatting</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.load_rgb" title="imexam.connect.Connect.load_rgb"><code class="xref py py-obj docutils literal"><span class="pre">load_rgb</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>load three images into a frame, each one for a different color</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.make_region" title="imexam.connect.Connect.make_region"><code class="xref py py-obj docutils literal"><span class="pre">make_region</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.mark_region_from_array" title="imexam.connect.Connect.mark_region_from_array"><code class="xref py py-obj docutils literal"><span class="pre">mark_region_from_array</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>mark regions on the viewer with a list of tuples as input</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.match" title="imexam.connect.Connect.match"><code class="xref py py-obj docutils literal"><span class="pre">match</span></code></a>(**kwargs)</td>
+<td>match all other frames to the current frame</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.mimexam" title="imexam.connect.Connect.mimexam"><code class="xref py py-obj docutils literal"><span class="pre">mimexam</span></code></a>()</td>
+<td>show the current parameters for statistical regions</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.nancolor" title="imexam.connect.Connect.nancolor"><code class="xref py py-obj docutils literal"><span class="pre">nancolor</span></code></a>(**kwargs)</td>
+<td>set the not-a-number color, default is red</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.panto_image" title="imexam.connect.Connect.panto_image"><code class="xref py py-obj docutils literal"><span class="pre">panto_image</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>convenience function to change to x,y images coordinates using ra,dec</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.panto_wcs" title="imexam.connect.Connect.panto_wcs"><code class="xref py py-obj docutils literal"><span class="pre">panto_wcs</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>pan to wcs coordinates in image</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.plotname" title="imexam.connect.Connect.plotname"><code class="xref py py-obj docutils literal"><span class="pre">plotname</span></code></a>([filename])</td>
+<td>change or show the default save plotname for imexamine</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.readcursor" title="imexam.connect.Connect.readcursor"><code class="xref py py-obj docutils literal"><span class="pre">readcursor</span></code></a>()</td>
+<td>returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.rimexam" title="imexam.connect.Connect.rimexam"><code class="xref py py-obj docutils literal"><span class="pre">rimexam</span></code></a>()</td>
+<td>show current parameters for curve of growth plots</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.rotate" title="imexam.connect.Connect.rotate"><code class="xref py py-obj docutils literal"><span class="pre">rotate</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>rotate the current frame (in degrees)</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.save_header" title="imexam.connect.Connect.save_header"><tt class="xref py py-obj docutils literal"><span class="pre">save_header</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.save_header" title="imexam.connect.Connect.save_header"><code class="xref py py-obj docutils literal"><span class="pre">save_header</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>save the header of the current image to a file</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.save_regions" title="imexam.connect.Connect.save_regions"><tt class="xref py py-obj docutils literal"><span class="pre">save_regions</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.save_regions" title="imexam.connect.Connect.save_regions"><code class="xref py py-obj docutils literal"><span class="pre">save_regions</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>save the regions on the current window to a file</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.save_rgb" title="imexam.connect.Connect.save_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">save_rgb</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.save_rgb" title="imexam.connect.Connect.save_rgb"><code class="xref py py-obj docutils literal"><span class="pre">save_rgb</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>save an rgb image frame that is displayed as an MEF fits file</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.scale" title="imexam.connect.Connect.scale"><tt class="xref py py-obj docutils literal"><span class="pre">scale</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.scale" title="imexam.connect.Connect.scale"><code class="xref py py-obj docutils literal"><span class="pre">scale</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>Scale the image on display.The default zscale is the most widely used option</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.set_region" title="imexam.connect.Connect.set_region"><tt class="xref py py-obj docutils literal"><span class="pre">set_region</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.set_region" title="imexam.connect.Connect.set_region"><code class="xref py py-obj docutils literal"><span class="pre">set_region</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>display a region using the specifications in region_string</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.setlog" title="imexam.connect.Connect.setlog"><tt class="xref py py-obj docutils literal"><span class="pre">setlog</span></tt></a>([filename,&nbsp;on,&nbsp;level])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.setlog" title="imexam.connect.Connect.setlog"><code class="xref py py-obj docutils literal"><span class="pre">setlog</span></code></a>([filename,&nbsp;on,&nbsp;level])</td>
 <td>turn on and off imexam logging to the a file</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.show_window_commands" title="imexam.connect.Connect.show_window_commands"><tt class="xref py py-obj docutils literal"><span class="pre">show_window_commands</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.show_window_commands" title="imexam.connect.Connect.show_window_commands"><code class="xref py py-obj docutils literal"><span class="pre">show_window_commands</span></code></a>()</td>
 <td>print the available commands for the selected display application</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.showme" title="imexam.connect.Connect.showme"><tt class="xref py py-obj docutils literal"><span class="pre">showme</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.showme" title="imexam.connect.Connect.showme"><code class="xref py py-obj docutils literal"><span class="pre">showme</span></code></a>()</td>
 <td>raise the display window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.showpix" title="imexam.connect.Connect.showpix"><tt class="xref py py-obj docutils literal"><span class="pre">showpix</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.showpix" title="imexam.connect.Connect.showpix"><code class="xref py py-obj docutils literal"><span class="pre">showpix</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>display the pixel value table, close window when done</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.snapsave" title="imexam.connect.Connect.snapsave"><tt class="xref py py-obj docutils literal"><span class="pre">snapsave</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.snapsave" title="imexam.connect.Connect.snapsave"><code class="xref py py-obj docutils literal"><span class="pre">snapsave</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.unlearn" title="imexam.connect.Connect.unlearn"><tt class="xref py py-obj docutils literal"><span class="pre">unlearn</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.unlearn" title="imexam.connect.Connect.unlearn"><code class="xref py py-obj docutils literal"><span class="pre">unlearn</span></code></a>()</td>
 <td>unlearn all the imexam parameters and reset to default</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.valid_data_in_viewer" title="imexam.connect.Connect.valid_data_in_viewer"><tt class="xref py py-obj docutils literal"><span class="pre">valid_data_in_viewer</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.valid_data_in_viewer" title="imexam.connect.Connect.valid_data_in_viewer"><code class="xref py py-obj docutils literal"><span class="pre">valid_data_in_viewer</span></code></a>()</td>
 <td>return True if a valid file or array is loaded in the current viewing frame</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.view" title="imexam.connect.Connect.view"><tt class="xref py py-obj docutils literal"><span class="pre">view</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.view" title="imexam.connect.Connect.view"><code class="xref py py-obj docutils literal"><span class="pre">view</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>Display numpy image array</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.wimexam" title="imexam.connect.Connect.wimexam"><tt class="xref py py-obj docutils literal"><span class="pre">wimexam</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.wimexam" title="imexam.connect.Connect.wimexam"><code class="xref py py-obj docutils literal"><span class="pre">wimexam</span></code></a>()</td>
 <td>show current parameters for surface plots</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.zoom" title="imexam.connect.Connect.zoom"><tt class="xref py py-obj docutils literal"><span class="pre">zoom</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.zoom" title="imexam.connect.Connect.zoom"><code class="xref py py-obj docutils literal"><span class="pre">zoom</span></code></a>(*args,&nbsp;**kwargs)</td>
 <td>zoom to parameter which can be any recognized string</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.connect.Connect.zoomtofit" title="imexam.connect.Connect.zoomtofit"><tt class="xref py py-obj docutils literal"><span class="pre">zoomtofit</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.connect.Connect.zoomtofit" title="imexam.connect.Connect.zoomtofit"><code class="xref py py-obj docutils literal"><span class="pre">zoomtofit</span></code></a>()</td>
 <td>zoom the image to fit the display</td>
 </tr>
 </tbody>
@@ -306,354 +309,360 @@ The class for the display tool should override them and add it&#8217;s own extra
 <p class="rubric">Methods Documentation</p>
 <dl class="method">
 <dt id="imexam.connect.Connect.aimexam">
-<tt class="descname">aimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.aimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.aimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">aimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.aimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.aimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for aperture photometry</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.alignwcs">
-<tt class="descname">alignwcs</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.alignwcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.alignwcs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">alignwcs</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.alignwcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.alignwcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>align frames with wcs</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.blink">
-<tt class="descname">blink</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.blink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.blink" title="Permalink to this definition">¶</a></dt>
+<code class="descname">blink</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.blink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.blink" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.cimexam">
-<tt class="descname">cimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.cimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.cimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.cimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.cimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for column plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.clear_contour">
-<tt class="descname">clear_contour</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.clear_contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.clear_contour" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clear_contour</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.clear_contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.clear_contour" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.close">
-<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.close" title="Permalink to this definition">¶</a></dt>
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>close the window and end connection</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.cmap">
-<tt class="descname">cmap</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.cmap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cmap</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.cmap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the color map table to something else, in a defined list of options</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.colorbar">
-<tt class="descname">colorbar</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.colorbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.colorbar" title="Permalink to this definition">¶</a></dt>
+<code class="descname">colorbar</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.colorbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.colorbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>turn the colorbar on the screen on and off</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.contour">
-<tt class="descname">contour</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.contour" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contour</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.contour" title="Permalink to this definition">¶</a></dt>
 <dd><p>show contours on the window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.contour_load">
-<tt class="descname">contour_load</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.contour_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.contour_load" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contour_load</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.contour_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.contour_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>load contours from a file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.crosshair">
-<tt class="descname">crosshair</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.crosshair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.crosshair" title="Permalink to this definition">¶</a></dt>
+<code class="descname">crosshair</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.crosshair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.crosshair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Control the current position of the crosshair in the current frame, crosshair mode is turned on</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.cursor">
-<tt class="descname">cursor</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.cursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.cursor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cursor</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.cursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.cursor" title="Permalink to this definition">¶</a></dt>
 <dd><p>move the cursor in the current frame to the specified image pixel, it will also move selected regions</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.disp_header">
-<tt class="descname">disp_header</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.disp_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.disp_header" title="Permalink to this definition">¶</a></dt>
+<code class="descname">disp_header</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.disp_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.disp_header" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the header of the current image to a window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.eimexam">
-<tt class="descname">eimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.eimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.eimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">eimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.eimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.eimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for contour plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.frame">
-<tt class="descname">frame</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.frame" title="Permalink to this definition">¶</a></dt>
+<code class="descname">frame</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>move to a frame</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.get_data">
-<tt class="descname">get_data</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>return a numpy array of the data in the current window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.get_data_filename">
-<tt class="descname">get_data_filename</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_data_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_data_filename" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_data_filename</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_data_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_data_filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the filename for the data in the current window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.get_frame_info">
-<tt class="descname">get_frame_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_frame_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_frame_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_frame_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_frame_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_frame_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>return more explicit information about the data displayed in the current frame</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.get_header">
-<tt class="descname">get_header</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_header" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_header" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the current fits header as a string, or None if there&#8217;s a problem</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.get_viewer_info">
-<tt class="descname">get_viewer_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_viewer_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_viewer_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_viewer_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.get_viewer_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.get_viewer_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary which has information about all frames loaded with data</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="imexam.connect.Connect.gimexam">
+<code class="descname">gimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.gimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.gimexam" title="Permalink to this definition">¶</a></dt>
+<dd><p>show current parameters for curve of growth plots</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="imexam.connect.Connect.grid">
-<tt class="descname">grid</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.grid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">grid</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience to turn the grid on and off, grid can be flushed with many more options</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.hideme">
-<tt class="descname">hideme</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.hideme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.hideme" title="Permalink to this definition">¶</a></dt>
+<code class="descname">hideme</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.hideme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.hideme" title="Permalink to this definition">¶</a></dt>
 <dd><p>lower the display window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.himexam">
-<tt class="descname">himexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.himexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.himexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">himexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.himexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.himexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for histogram plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.imexam">
-<tt class="descname">imexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.imexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.imexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">imexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.imexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.imexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>run imexamine with user interaction. At a minimum it requires a copy of the data array</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.jimexam">
-<tt class="descname">jimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.jimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.jimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">jimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.jimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.jimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for 1D fit line plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.kimexam">
-<tt class="descname">kimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.kimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.kimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">kimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.kimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.kimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for 1D fit column plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.limexam">
-<tt class="descname">limexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.limexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.limexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">limexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.limexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.limexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for  line plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.load_fits">
-<tt class="descname">load_fits</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_fits" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_fits</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_fits" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience function to load fits image to current frame</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.load_mef_as_cube">
-<tt class="descname">load_mef_as_cube</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_mef_as_cube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_mef_as_cube" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_mef_as_cube</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_mef_as_cube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_mef_as_cube" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a Mult-Extension-Fits image one frame as a cube</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.load_mef_as_multi">
-<tt class="descname">load_mef_as_multi</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_mef_as_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_mef_as_multi" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_mef_as_multi</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_mef_as_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_mef_as_multi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a Mult-Extension-Fits image into multiple frames</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.load_region">
-<tt class="descname">load_region</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_region" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_region</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_region" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load regions from a file which uses ds9 standard formatting</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.load_rgb">
-<tt class="descname">load_rgb</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_rgb</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.load_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.load_rgb" title="Permalink to this definition">¶</a></dt>
 <dd><p>load three images into a frame, each one for a different color</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.make_region">
-<tt class="descname">make_region</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.make_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.make_region" title="Permalink to this definition">¶</a></dt>
+<code class="descname">make_region</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.make_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.make_region" title="Permalink to this definition">¶</a></dt>
 <dd><p>make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.mark_region_from_array">
-<tt class="descname">mark_region_from_array</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.mark_region_from_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.mark_region_from_array" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mark_region_from_array</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.mark_region_from_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.mark_region_from_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>mark regions on the viewer with a list of tuples as input</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.match">
-<tt class="descname">match</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.match" title="Permalink to this definition">¶</a></dt>
+<code class="descname">match</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.match" title="Permalink to this definition">¶</a></dt>
 <dd><p>match all other frames to the current frame</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.mimexam">
-<tt class="descname">mimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.mimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.mimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.mimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.mimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show the current parameters for statistical regions</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.nancolor">
-<tt class="descname">nancolor</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.nancolor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.nancolor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">nancolor</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.nancolor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.nancolor" title="Permalink to this definition">¶</a></dt>
 <dd><p>set the not-a-number color, default is red</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.panto_image">
-<tt class="descname">panto_image</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.panto_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.panto_image" title="Permalink to this definition">¶</a></dt>
+<code class="descname">panto_image</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.panto_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.panto_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience function to change to x,y images coordinates using ra,dec
 x, y in image coord</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.panto_wcs">
-<tt class="descname">panto_wcs</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.panto_wcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.panto_wcs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">panto_wcs</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.panto_wcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.panto_wcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>pan to wcs coordinates in image</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.plotname">
-<tt class="descname">plotname</tt><big>(</big><em>filename=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.plotname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.plotname" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotname</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.plotname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.plotname" title="Permalink to this definition">¶</a></dt>
 <dd><p>change or show the default save plotname for imexamine</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.readcursor">
-<tt class="descname">readcursor</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.readcursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.readcursor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readcursor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.readcursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.readcursor" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.rimexam">
-<tt class="descname">rimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.rimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.rimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.rimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.rimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for curve of growth plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.rotate">
-<tt class="descname">rotate</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.rotate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.rotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>rotate the current frame (in degrees)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.save_header">
-<tt class="descname">save_header</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.save_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.save_header" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_header</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.save_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.save_header" title="Permalink to this definition">¶</a></dt>
 <dd><p>save the header of the current image to a file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.save_regions">
-<tt class="descname">save_regions</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.save_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.save_regions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_regions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.save_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.save_regions" title="Permalink to this definition">¶</a></dt>
 <dd><p>save the regions on the current window to a file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.save_rgb">
-<tt class="descname">save_rgb</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.save_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.save_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_rgb</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.save_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.save_rgb" title="Permalink to this definition">¶</a></dt>
 <dd><p>save an rgb image frame that is displayed as an MEF fits file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.scale">
-<tt class="descname">scale</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.scale" title="Permalink to this definition">¶</a></dt>
+<code class="descname">scale</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.scale" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale the image on display.The default zscale is the most widely used option</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.set_region">
-<tt class="descname">set_region</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.set_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.set_region" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_region</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.set_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.set_region" title="Permalink to this definition">¶</a></dt>
 <dd><p>display a region using the specifications in region_string</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.setlog">
-<tt class="descname">setlog</tt><big>(</big><em>filename=None</em>, <em>on=True</em>, <em>level=10</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.setlog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.setlog" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setlog</code><span class="sig-paren">(</span><em>filename=None</em>, <em>on=True</em>, <em>level=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.setlog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.setlog" title="Permalink to this definition">¶</a></dt>
 <dd><p>turn on and off imexam logging to the a file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.show_window_commands">
-<tt class="descname">show_window_commands</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.show_window_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.show_window_commands" title="Permalink to this definition">¶</a></dt>
+<code class="descname">show_window_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.show_window_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.show_window_commands" title="Permalink to this definition">¶</a></dt>
 <dd><p>print the available commands for the selected display application</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.showme">
-<tt class="descname">showme</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.showme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.showme" title="Permalink to this definition">¶</a></dt>
+<code class="descname">showme</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.showme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.showme" title="Permalink to this definition">¶</a></dt>
 <dd><p>raise the display window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.showpix">
-<tt class="descname">showpix</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.showpix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.showpix" title="Permalink to this definition">¶</a></dt>
+<code class="descname">showpix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.showpix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.showpix" title="Permalink to this definition">¶</a></dt>
 <dd><p>display the pixel value table, close window when done</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.snapsave">
-<tt class="descname">snapsave</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.snapsave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.snapsave" title="Permalink to this definition">¶</a></dt>
+<code class="descname">snapsave</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.snapsave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.snapsave" title="Permalink to this definition">¶</a></dt>
 <dd><p>create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.unlearn">
-<tt class="descname">unlearn</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.unlearn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.unlearn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">unlearn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.unlearn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.unlearn" title="Permalink to this definition">¶</a></dt>
 <dd><p>unlearn all the imexam parameters and reset to default</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.valid_data_in_viewer">
-<tt class="descname">valid_data_in_viewer</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.valid_data_in_viewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.valid_data_in_viewer" title="Permalink to this definition">¶</a></dt>
+<code class="descname">valid_data_in_viewer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.valid_data_in_viewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.valid_data_in_viewer" title="Permalink to this definition">¶</a></dt>
 <dd><p>return True if a valid file or array is loaded in the current viewing frame</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.view">
-<tt class="descname">view</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.view" title="Permalink to this definition">¶</a></dt>
+<code class="descname">view</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.view" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display numpy image array</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.wimexam">
-<tt class="descname">wimexam</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.wimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.wimexam" title="Permalink to this definition">¶</a></dt>
+<code class="descname">wimexam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.wimexam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.wimexam" title="Permalink to this definition">¶</a></dt>
 <dd><p>show current parameters for surface plots</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.zoom">
-<tt class="descname">zoom</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.zoom" title="Permalink to this definition">¶</a></dt>
+<code class="descname">zoom</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.zoom" title="Permalink to this definition">¶</a></dt>
 <dd><p>zoom to parameter which can be any recognized string</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.connect.Connect.zoomtofit">
-<tt class="descname">zoomtofit</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/connect.html#Connect.zoomtofit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.zoomtofit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">zoomtofit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/connect.html#Connect.zoomtofit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.connect.Connect.zoomtofit" title="Permalink to this definition">¶</a></dt>
 <dd><p>zoom the image to fit the display</p>
 </dd></dl>
 
@@ -665,7 +674,7 @@ x, y in image coord</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Connect</a></li>
@@ -682,9 +691,9 @@ x, y in image coord</p>
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2015, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 01 May 2015. <br/>
+    &copy; Copyright 2016, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
+    Last built 23 Mar 2016. <br/>
   </p>
 </footer>
   </body>
