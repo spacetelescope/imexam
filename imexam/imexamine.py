@@ -18,7 +18,10 @@ import inspect
 
 # enable display plot in iPython notebook
 from IPython.display import Image
-from io import StringIO
+try:
+    from io import StringIO
+except:
+    from cString import StringIO
 
 try:
     import photutils
