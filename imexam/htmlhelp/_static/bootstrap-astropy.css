@@ -137,7 +137,6 @@ tt {
   font-family: monospace;
 }
 code {
-  color: rgba(0, 0, 0, 0.75);
   padding: 1px 3px;
 }
 pre {
@@ -151,7 +150,6 @@ pre {
   -moz-border-radius: 3px;
   border-radius: 3px;
   white-space: pre;
-  white-space: pre-wrap;
   word-wrap: break-word;
 }
 
@@ -160,7 +158,7 @@ img {
 }
 
 /* format inline code with a rounded box */
-tt {
+tt, code {
     margin: 0 2px;
     padding: 0 5px;
     border: 1px solid #ddd;
@@ -168,8 +166,17 @@ tt {
     border-radius: 3px;
 }
 
+code.xref, a code {
+    margin: 0;
+    padding: 0 1px 0 1px;
+    background-color: none;
+    border: none;
+}
+
 /* all code has same box background color, even in headers */
-h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt, pre, code, tt {
+h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt,
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code,
+pre, code, tt {
   background-color: #f8f8f8;
 }
 

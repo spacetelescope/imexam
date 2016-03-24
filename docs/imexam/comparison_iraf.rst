@@ -10,11 +10,11 @@ The following is a comparison of the outputs, returned values and user options f
 * imexam allows users to register their own analysis functions
 * imexam does not attempt to replicate the colon command interaction, if users wish to change the plot settings they should exit the imexam() method, reset the options and call it again.
 * all of the imexam() functions in imexam can be called by themselves if you supply an x,y coordinate
- 
-How do the numerical results compare with the IRAF version? This is a little harder to judge with cursor centering. 
+
+How do the numerical results compare with the IRAF version? This is a little harder to judge with cursor centering.
 Visual comparison of the resulting plots shows good agreement, as well as some random checks of the photometry and statistical return methods.
 
- 
+
 Statistical returns
 ^^^^^^^^^^^^^^^^^^^
 
@@ -22,9 +22,9 @@ IRAF "m" key:
 
 ::
         --> imexam
-        
+
         #            SECTION     NPIX     MEAN   MEDIAN   STDDEV      MIN      MAX
-        
+
         [584:588,697:701]       25   46533.   51314.   10281.   21215.   56186.
 
 
@@ -35,28 +35,28 @@ imexam "m" key (with cursor location flooring):
     [583:588,695:700] median: 51458.000000
 
 
-imexam only shows one statistic at a time. The same function call may be used to show the results from  *any* valid numpy function, it will return an attribute error for invalid functions. 
+imexam only shows one statistic at a time. The same function call may be used to show the results from  *any* valid numpy function, it will return an attribute error for invalid functions.
 For example, if you edit the defaults dictionary for the "m" key:
 
-:: 
+::
 
     viewer.mimexam()
-    
+
         {'function': ['report_stat'],
          'region_size': [5, 'region size in pixels to use'],
          'stat': ['median',
          'which numpy stat to return [median,min,max...must map to a numpy func]']}
 
     viewer.exam.report_stat_pars["stat"][0] = "max"  <---- will report np.max for the array
-    
+
         [584:589,695:700] amax: 56186.000000
 
-    viewer.exam.report_stat_pars["stat"][0] = "mean"  <---- will report np.mean for the array 
-        
+    viewer.exam.report_stat_pars["stat"][0] = "mean"  <---- will report np.mean for the array
+
         [583:588,694:699] mean: 45412.878906
-    
-    viewer.exam.report_stat_pars["stat"][0]="std" 
-        
+
+    viewer.exam.report_stat_pars["stat"][0]="std"
+
         [583:588,694:699] std: 10706.179688
 
 
@@ -97,39 +97,46 @@ If we set the values to be similar to what IRAF.imexamine used, we can see the n
          'subsky': [True, 'Subtract a sky background?'],
          'width': [5, 'Width of sky annulus in pixels'],
          'zmag': [25.0, 'zeropoint for the magnitude calculation']}
-    
-    
+
+
         viewer.exam.aperphot_pars["radius"][0]=17.5
 
         xc=586.213790	yc=697.501845
         x	y	radius	flux	mag(zpt=25.00)	sky	fwhm
         586.21	697.50	17	2565167.11	8.98	11162.83	6.02
 
- 
- 
-Curve of Growth plot
-^^^^^^^^^^^^^^^^^^^^
 
-This one differs the most from the IRAF result. Instead of showing the fit profile of the star out to the specified radius, I chose to instead plot the curve of growth along the same radius. Users can still look at the fit profile of the star using the 1D gaussian option. The two options seemed to provide similar information in IRAF and the added curve of growth information should extend the usefulness in this python package. By default, imexam prints the data point values to the screen.
+
+Radial Profile Plot
+^^^^^^^^^^^^^^^^^^^
+
+The fit profile of the star out to the specified radius.
+Users can look at the fit profile of the star using the 1D gaussian option.
+By default, imexam prints the data point values to the screen.
 
 .. image:: iraf_radial_plot.png
     :height: 400
     :width: 600
     :alt: IRAF radial plot
-    
-.. image:: radial_profile.png
+
+.. image:: radial_profile_plot.png
     :height: 400
     :width: 600
-    :alt: Curve of growth around star
+    :alt: imexam Radial Profile Plot
 
 imexam prints the plotted data to the screen
 
 ::
 
-    xc=254.175307	yc=238.815292
+        pressed: r
+        xc=655.659205	yc=698.937124
+        Sky per pixel: 0.7021602984249302 using(rad=10.0->15.0)
 
-    radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25] 
-    flux:[30934.408146022368, 114046.22547367863, 177389.39089718129, 202243.23883521429, 213454.31429635832, 219322.32530913973, 223395.73606952291, 226248.48319652156, 228435.17955336376, 230380.36766761239, 232201.61496279205, 234076.75246054522, 236123.10410712915, 238158.7402636983, 240158.23945478137, 241891.71717447872, 243568.62690102594, 245329.38157960901, 247033.98100633049, 248685.62548291287, 250207.19453966396, 251513.40886564567, 252770.43217266718, 253758.53886851895, 254644.90939720051]
+        at (x,y)=655,698
+        radii:[0 1 2 3 4 5 6 7 8 9]
+        flux:[  74.23025852  153.66757441   60.17693806    9.7988813     7.10537578
+            9.08464076    3.1673068     2.92777784    0.26435121    0.18440688]
+
 
 
 
@@ -141,7 +148,7 @@ Note the added availability in this package for labeling the contours
     :height: 400
     :width: 600
     :alt: IRAF contour plot
-    
+
 .. image:: contour_plot.png
     :height: 400
     :width: 600
@@ -155,7 +162,7 @@ Column and Line plots
     :height: 400
     :width: 600
     :alt: IRAF column plot
-    
+
 .. image:: column_plot.png
     :height: 400
     :width: 600
@@ -168,9 +175,9 @@ Keep in mind that python is 0-index and IRAF returns 1-index arrays, so the equi
     :height: 400
     :width: 600
     :alt: IRAF column off by 1 plot
-    
+
 .
-    
+
 
 An added benefit in the python package is that you can zoom in and out of the plots using the window controls, below is a zoomed in area of the column plot as it appears in the window:
 
@@ -187,12 +194,12 @@ Histogram plots
     :height: 400
     :width: 600
     :alt: IRAF histogram plot
-    
+
 .. image:: histogram_plot.png
     :height: 400
     :width: 600
-    :alt: histogram plot    
-    
+    :alt: histogram plot
+
 imexam prints bin information to the screen
 
 ::
@@ -200,7 +207,7 @@ imexam prints bin information to the screen
     100 bins
 
 
-    
+
 1D Gaussian plots
 ^^^^^^^^^^^^^^^^^
 
@@ -239,4 +246,3 @@ The most fancy imexam surface plot is displayed, the user can alter it with the 
     :height: 460
     :width: 650
     :alt: fancy surface plot
-

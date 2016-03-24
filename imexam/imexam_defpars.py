@@ -23,6 +23,24 @@ report_stat_pars = {"function": ["report_stat", ],
                     "region_size": [5, "region size in pixels to use"],
                     }
 
+radial_profile_pars = {"function": ["radial_profile_plot", ],
+                        "title": ["Radial Profile", "Title of the plot"],
+                        "xlabel": ["Radius", "The string for the xaxis label"],
+                        "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
+                        "fitplot": [False,"Overplot profile fit?"],
+                        "fittype":["gaussian","Profile type to fit (gaussian)"],
+                        "center": [True, "Solve for center using 2d Gaussian? [bool]"],
+                        "background": [True, "Subtract background? [bool]"],
+                        "skyrad": [10., "Background inner radius in pixels, from center of object"],
+                        "width": [5., "Background annulus width in pixels"],
+                        "magzero": [25., "magnitude zero point"],
+                        "rplot": [8., "Plotting radius in pixels"],
+                        "pointmode": [True, "plot points instead of lines? [bool]"],
+                        "marker": ["o", "The marker character to use, matplotlib style"],
+                        "minflux": [0., "only measure flux above this value"],
+                        "getdata": [True, "return the plotted data values"]
+                        }
+
 curve_of_growth_pars = {"function": ["curve_of_growth", ],
                         "title": ["Curve of growth", "Title of the plot"],
                         "xlabel": ["radius", "The string for the xaxis label"],
@@ -52,7 +70,7 @@ surface_pars = {"function": ["surface", ],
                 "floor": [None, "Minimum value to be contoured"],
                 "ceiling": [None, "Maximum value to be contoured"],
                 "stride": [1, "step size, higher vals will have less contour"],
-                "cmap": ["jet", "colormap (matplotlib) for display"],
+                "cmap": ["RdBu", "colormap (matplotlib) for display"],
                 "fancy": [True, "This aint your grandpas iraf"],
                 }
 
@@ -98,7 +116,7 @@ contour_pars = {"function": ["contour", ],
                 "ncontours": [8, "Number of contours to be drawn"],
                 "linestyle": ["--", "matplotlib linestyle"],
                 "label": [True, "Label major contours with their values? [bool]"],
-                "cmap": ["jet", "Colormap (matplotlib style) for image"],
+                "cmap": ["RdBu", "Colormap (matplotlib style) for image"],
                 }
 
 

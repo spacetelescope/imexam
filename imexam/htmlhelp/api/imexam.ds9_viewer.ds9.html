@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ds9 &mdash; imexam v0.5</title>
+    <title>ds9 &mdash; imexam v0.5.3dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,13 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5" href="../index.html" />
-<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'>
+    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
 
   </head>
-  <body>
+  <body role="document">
 <div class="topbar">
   <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">astro</span><span id="logotext2">py</span><span id="logotext3">:docs</span></a>
   <ul>
@@ -55,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.5</a>
+	<a href="../index.html">imexam v0.5.3dev</a>
 	 &raquo;
       </li>
       
@@ -67,14 +67,14 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="ds9">
 <h1>ds9<a class="headerlink" href="#ds9" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="imexam.ds9_viewer.ds9">
-<em class="property">class </em><tt class="descclassname">imexam.ds9_viewer.</tt><tt class="descname">ds9</tt><big>(</big><em>target=None</em>, <em>path=None</em>, <em>wait_time=5</em>, <em>quit_ds9_on_del=True</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<em class="property">class </em><code class="descclassname">imexam.ds9_viewer.</code><code class="descname">ds9</code><span class="sig-paren">(</span><em>target=None</em>, <em>path=None</em>, <em>wait_time=5</em>, <em>quit_ds9_on_del=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>A class which controls all interactions between the user and the ds9 window</p>
 <p>The ds9() contructor takes a ds9 target as its main argument. If none is given,
 then a new window will be opened.</p>
@@ -179,154 +179,154 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.alignwcs" title="imexam.ds9_viewer.ds9.alignwcs"><tt class="xref py py-obj docutils literal"><span class="pre">alignwcs</span></tt></a>([on])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.alignwcs" title="imexam.ds9_viewer.ds9.alignwcs"><code class="xref py py-obj docutils literal"><span class="pre">alignwcs</span></code></a>([on])</td>
 <td>align wcs</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.blink" title="imexam.ds9_viewer.ds9.blink"><tt class="xref py py-obj docutils literal"><span class="pre">blink</span></tt></a>([blink,&nbsp;interval])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.blink" title="imexam.ds9_viewer.ds9.blink"><code class="xref py py-obj docutils literal"><span class="pre">blink</span></code></a>([blink,&nbsp;interval])</td>
 <td>Blink frames</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.clear_contour" title="imexam.ds9_viewer.ds9.clear_contour"><tt class="xref py py-obj docutils literal"><span class="pre">clear_contour</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.clear_contour" title="imexam.ds9_viewer.ds9.clear_contour"><code class="xref py py-obj docutils literal"><span class="pre">clear_contour</span></code></a>()</td>
 <td>clear contours from the screen</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.close" title="imexam.ds9_viewer.ds9.close"><tt class="xref py py-obj docutils literal"><span class="pre">close</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.close" title="imexam.ds9_viewer.ds9.close"><code class="xref py py-obj docutils literal"><span class="pre">close</span></code></a>()</td>
 <td>close the window and end connection</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.cmap" title="imexam.ds9_viewer.ds9.cmap"><tt class="xref py py-obj docutils literal"><span class="pre">cmap</span></tt></a>([color,&nbsp;load,&nbsp;invert,&nbsp;save,&nbsp;filename])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.cmap" title="imexam.ds9_viewer.ds9.cmap"><code class="xref py py-obj docutils literal"><span class="pre">cmap</span></code></a>([color,&nbsp;load,&nbsp;invert,&nbsp;save,&nbsp;filename])</td>
 <td>Set the color map table to something else, using a defined list of options</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.colorbar" title="imexam.ds9_viewer.ds9.colorbar"><tt class="xref py py-obj docutils literal"><span class="pre">colorbar</span></tt></a>([on])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.colorbar" title="imexam.ds9_viewer.ds9.colorbar"><code class="xref py py-obj docutils literal"><span class="pre">colorbar</span></code></a>([on])</td>
 <td>turn the colorbar on the bottom of the window on and off</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.contour" title="imexam.ds9_viewer.ds9.contour"><tt class="xref py py-obj docutils literal"><span class="pre">contour</span></tt></a>([on,&nbsp;construct])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.contour" title="imexam.ds9_viewer.ds9.contour"><code class="xref py py-obj docutils literal"><span class="pre">contour</span></code></a>([on,&nbsp;construct])</td>
 <td>show contours on the window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.contour_load" title="imexam.ds9_viewer.ds9.contour_load"><tt class="xref py py-obj docutils literal"><span class="pre">contour_load</span></tt></a>(filename)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.contour_load" title="imexam.ds9_viewer.ds9.contour_load"><code class="xref py py-obj docutils literal"><span class="pre">contour_load</span></code></a>(filename)</td>
 <td>load a contour file into the window</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.crosshair" title="imexam.ds9_viewer.ds9.crosshair"><tt class="xref py py-obj docutils literal"><span class="pre">crosshair</span></tt></a>([x,&nbsp;y,&nbsp;coordsys,&nbsp;skyframe,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.crosshair" title="imexam.ds9_viewer.ds9.crosshair"><code class="xref py py-obj docutils literal"><span class="pre">crosshair</span></code></a>([x,&nbsp;y,&nbsp;coordsys,&nbsp;skyframe,&nbsp;...])</td>
 <td>Control the position of the crosshair in the current frame, crosshair mode is turned on automatically</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.cursor" title="imexam.ds9_viewer.ds9.cursor"><tt class="xref py py-obj docutils literal"><span class="pre">cursor</span></tt></a>([x,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.cursor" title="imexam.ds9_viewer.ds9.cursor"><code class="xref py py-obj docutils literal"><span class="pre">cursor</span></code></a>([x,&nbsp;y])</td>
 <td>move the cursor in the current frame to the specified image pixel; selected regions will also be moved</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.disp_header" title="imexam.ds9_viewer.ds9.disp_header"><tt class="xref py py-obj docutils literal"><span class="pre">disp_header</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.disp_header" title="imexam.ds9_viewer.ds9.disp_header"><code class="xref py py-obj docutils literal"><span class="pre">disp_header</span></code></a>()</td>
 <td>Display the header of the current image to a DS9 window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.frame" title="imexam.ds9_viewer.ds9.frame"><tt class="xref py py-obj docutils literal"><span class="pre">frame</span></tt></a>([n])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.frame" title="imexam.ds9_viewer.ds9.frame"><code class="xref py py-obj docutils literal"><span class="pre">frame</span></code></a>([n])</td>
 <td>convenience function to change or report frames</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get" title="imexam.ds9_viewer.ds9.get"><tt class="xref py py-obj docutils literal"><span class="pre">get</span></tt></a>(param)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get" title="imexam.ds9_viewer.ds9.get"><code class="xref py py-obj docutils literal"><span class="pre">get</span></code></a>(param)</td>
 <td>XPA get method to ds9 instance which returns received string</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_data" title="imexam.ds9_viewer.ds9.get_data"><tt class="xref py py-obj docutils literal"><span class="pre">get_data</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_data" title="imexam.ds9_viewer.ds9.get_data"><code class="xref py py-obj docutils literal"><span class="pre">get_data</span></code></a>()</td>
 <td>return a numpy array of the data displayed in the current frame</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_filename" title="imexam.ds9_viewer.ds9.get_filename"><tt class="xref py py-obj docutils literal"><span class="pre">get_filename</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_filename" title="imexam.ds9_viewer.ds9.get_filename"><code class="xref py py-obj docutils literal"><span class="pre">get_filename</span></code></a>()</td>
 <td>return the filename currently on display</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_frame_info" title="imexam.ds9_viewer.ds9.get_frame_info"><tt class="xref py py-obj docutils literal"><span class="pre">get_frame_info</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_frame_info" title="imexam.ds9_viewer.ds9.get_frame_info"><code class="xref py py-obj docutils literal"><span class="pre">get_frame_info</span></code></a>()</td>
 <td>return more explicit information about the data displayed in the current frame</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_header" title="imexam.ds9_viewer.ds9.get_header"><tt class="xref py py-obj docutils literal"><span class="pre">get_header</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_header" title="imexam.ds9_viewer.ds9.get_header"><code class="xref py py-obj docutils literal"><span class="pre">get_header</span></code></a>()</td>
 <td>return the current fits header as a string or None if there&#8217;s a problem</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_slice_info" title="imexam.ds9_viewer.ds9.get_slice_info"><tt class="xref py py-obj docutils literal"><span class="pre">get_slice_info</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_slice_info" title="imexam.ds9_viewer.ds9.get_slice_info"><code class="xref py py-obj docutils literal"><span class="pre">get_slice_info</span></code></a>()</td>
 <td>return the slice tuple that is currently displayed</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_viewer_info" title="imexam.ds9_viewer.ds9.get_viewer_info"><tt class="xref py py-obj docutils literal"><span class="pre">get_viewer_info</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.get_viewer_info" title="imexam.ds9_viewer.ds9.get_viewer_info"><code class="xref py py-obj docutils literal"><span class="pre">get_viewer_info</span></code></a>()</td>
 <td>Return a dictionary of information about all frames which are loaded with data</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.grid" title="imexam.ds9_viewer.ds9.grid"><tt class="xref py py-obj docutils literal"><span class="pre">grid</span></tt></a>([on,&nbsp;param])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.grid" title="imexam.ds9_viewer.ds9.grid"><code class="xref py py-obj docutils literal"><span class="pre">grid</span></code></a>([on,&nbsp;param])</td>
 <td>convenience to turn the grid on and off, grid can be flushed with many more options</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.hideme" title="imexam.ds9_viewer.ds9.hideme"><tt class="xref py py-obj docutils literal"><span class="pre">hideme</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.hideme" title="imexam.ds9_viewer.ds9.hideme"><code class="xref py py-obj docutils literal"><span class="pre">hideme</span></code></a>()</td>
 <td>lower the ds9 window</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.iscube" title="imexam.ds9_viewer.ds9.iscube"><tt class="xref py py-obj docutils literal"><span class="pre">iscube</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.iscube" title="imexam.ds9_viewer.ds9.iscube"><code class="xref py py-obj docutils literal"><span class="pre">iscube</span></code></a>()</td>
 <td>return information on whether a cube image is displayed in the current frame</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_fits" title="imexam.ds9_viewer.ds9.load_fits"><tt class="xref py py-obj docutils literal"><span class="pre">load_fits</span></tt></a>([fname,&nbsp;extver,&nbsp;extname])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_fits" title="imexam.ds9_viewer.ds9.load_fits"><code class="xref py py-obj docutils literal"><span class="pre">load_fits</span></code></a>([fname,&nbsp;extver,&nbsp;extname])</td>
 <td>convenience function to load fits image to current frame</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_mef_as_cube" title="imexam.ds9_viewer.ds9.load_mef_as_cube"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_cube</span></tt></a>([filename])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_mef_as_cube" title="imexam.ds9_viewer.ds9.load_mef_as_cube"><code class="xref py py-obj docutils literal"><span class="pre">load_mef_as_cube</span></code></a>([filename])</td>
 <td>Load a Mult-Extension-Fits image into one frame as an image cube</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_mef_as_multi" title="imexam.ds9_viewer.ds9.load_mef_as_multi"><tt class="xref py py-obj docutils literal"><span class="pre">load_mef_as_multi</span></tt></a>([filename])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_mef_as_multi" title="imexam.ds9_viewer.ds9.load_mef_as_multi"><code class="xref py py-obj docutils literal"><span class="pre">load_mef_as_multi</span></code></a>([filename])</td>
 <td>Load a Mult-Extension-Fits image into multiple frames</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_region" title="imexam.ds9_viewer.ds9.load_region"><tt class="xref py py-obj docutils literal"><span class="pre">load_region</span></tt></a>(filename)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_region" title="imexam.ds9_viewer.ds9.load_region"><code class="xref py py-obj docutils literal"><span class="pre">load_region</span></code></a>(filename)</td>
 <td>Load regions from a file which uses ds9 standard formatting</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_rgb" title="imexam.ds9_viewer.ds9.load_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">load_rgb</span></tt></a>(red,&nbsp;green,&nbsp;blue[,&nbsp;scale,&nbsp;lockwcs])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.load_rgb" title="imexam.ds9_viewer.ds9.load_rgb"><code class="xref py py-obj docutils literal"><span class="pre">load_rgb</span></code></a>(red,&nbsp;green,&nbsp;blue[,&nbsp;scale,&nbsp;lockwcs])</td>
 <td>load 3 images into an RGBimage frame</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.make_region" title="imexam.ds9_viewer.ds9.make_region"><tt class="xref py py-obj docutils literal"><span class="pre">make_region</span></tt></a>(infile[,&nbsp;labels,&nbsp;header,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.make_region" title="imexam.ds9_viewer.ds9.make_region"><code class="xref py py-obj docutils literal"><span class="pre">make_region</span></code></a>(infile[,&nbsp;labels,&nbsp;header,&nbsp;...])</td>
 <td>make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.mark_region_from_array" title="imexam.ds9_viewer.ds9.mark_region_from_array"><tt class="xref py py-obj docutils literal"><span class="pre">mark_region_from_array</span></tt></a>(input_points[,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.mark_region_from_array" title="imexam.ds9_viewer.ds9.mark_region_from_array"><code class="xref py py-obj docutils literal"><span class="pre">mark_region_from_array</span></code></a>(input_points[,&nbsp;...])</td>
 <td>mark ds9 regions regions  given an input list of tuples, a convienence function, you can also use set_region</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.match" title="imexam.ds9_viewer.ds9.match"><tt class="xref py py-obj docutils literal"><span class="pre">match</span></tt></a>([coordsys,&nbsp;frame,&nbsp;crop,&nbsp;fslice,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.match" title="imexam.ds9_viewer.ds9.match"><code class="xref py py-obj docutils literal"><span class="pre">match</span></code></a>([coordsys,&nbsp;frame,&nbsp;crop,&nbsp;fslice,&nbsp;...])</td>
 <td>match all other frames to the current frame</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.nancolor" title="imexam.ds9_viewer.ds9.nancolor"><tt class="xref py py-obj docutils literal"><span class="pre">nancolor</span></tt></a>([color])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.nancolor" title="imexam.ds9_viewer.ds9.nancolor"><code class="xref py py-obj docutils literal"><span class="pre">nancolor</span></code></a>([color])</td>
 <td>set the not-a-number color, default is red</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.panto_image" title="imexam.ds9_viewer.ds9.panto_image"><tt class="xref py py-obj docutils literal"><span class="pre">panto_image</span></tt></a>(x,&nbsp;y)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.panto_image" title="imexam.ds9_viewer.ds9.panto_image"><code class="xref py py-obj docutils literal"><span class="pre">panto_image</span></code></a>(x,&nbsp;y)</td>
 <td>convenience function to change to x,y  physical image coordinates</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.panto_wcs" title="imexam.ds9_viewer.ds9.panto_wcs"><tt class="xref py py-obj docutils literal"><span class="pre">panto_wcs</span></tt></a>(x,&nbsp;y[,&nbsp;system])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.panto_wcs" title="imexam.ds9_viewer.ds9.panto_wcs"><code class="xref py py-obj docutils literal"><span class="pre">panto_wcs</span></code></a>(x,&nbsp;y[,&nbsp;system])</td>
 <td>pan to wcs location coordinates in image</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.readcursor" title="imexam.ds9_viewer.ds9.readcursor"><tt class="xref py py-obj docutils literal"><span class="pre">readcursor</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.readcursor" title="imexam.ds9_viewer.ds9.readcursor"><code class="xref py py-obj docutils literal"><span class="pre">readcursor</span></code></a>()</td>
 <td>returns image coordinate postion and key pressed,</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.rotate" title="imexam.ds9_viewer.ds9.rotate"><tt class="xref py py-obj docutils literal"><span class="pre">rotate</span></tt></a>([value,&nbsp;to])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.rotate" title="imexam.ds9_viewer.ds9.rotate"><code class="xref py py-obj docutils literal"><span class="pre">rotate</span></code></a>([value,&nbsp;to])</td>
 <td>rotate the current frame (in degrees), the current rotation is printed with no params</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.run_inet_ds9" title="imexam.ds9_viewer.ds9.run_inet_ds9"><tt class="xref py py-obj docutils literal"><span class="pre">run_inet_ds9</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.run_inet_ds9" title="imexam.ds9_viewer.ds9.run_inet_ds9"><code class="xref py py-obj docutils literal"><span class="pre">run_inet_ds9</span></code></a>()</td>
 <td>start a new ds9 window using an inet socket connection</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.save_regions" title="imexam.ds9_viewer.ds9.save_regions"><tt class="xref py py-obj docutils literal"><span class="pre">save_regions</span></tt></a>([filename])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.save_regions" title="imexam.ds9_viewer.ds9.save_regions"><code class="xref py py-obj docutils literal"><span class="pre">save_regions</span></code></a>([filename])</td>
 <td>save the regions in the current window to a DS9 style regions file</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.save_rgb" title="imexam.ds9_viewer.ds9.save_rgb"><tt class="xref py py-obj docutils literal"><span class="pre">save_rgb</span></tt></a>([filename])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.save_rgb" title="imexam.ds9_viewer.ds9.save_rgb"><code class="xref py py-obj docutils literal"><span class="pre">save_rgb</span></code></a>([filename])</td>
 <td>save an rgbimage frame as an MEF fits file</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.scale" title="imexam.ds9_viewer.ds9.scale"><tt class="xref py py-obj docutils literal"><span class="pre">scale</span></tt></a>([scale])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.scale" title="imexam.ds9_viewer.ds9.scale"><code class="xref py py-obj docutils literal"><span class="pre">scale</span></code></a>([scale])</td>
 <td>The default zscale is the most widely used option</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set" title="imexam.ds9_viewer.ds9.set"><tt class="xref py py-obj docutils literal"><span class="pre">set</span></tt></a>(param[,&nbsp;buf])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set" title="imexam.ds9_viewer.ds9.set"><code class="xref py py-obj docutils literal"><span class="pre">set</span></code></a>(param[,&nbsp;buf])</td>
 <td>XPA set method to ds9 instance</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set_iraf_display" title="imexam.ds9_viewer.ds9.set_iraf_display"><tt class="xref py py-obj docutils literal"><span class="pre">set_iraf_display</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set_iraf_display" title="imexam.ds9_viewer.ds9.set_iraf_display"><code class="xref py py-obj docutils literal"><span class="pre">set_iraf_display</span></code></a>()</td>
 <td>Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set_region" title="imexam.ds9_viewer.ds9.set_region"><tt class="xref py py-obj docutils literal"><span class="pre">set_region</span></tt></a>([region_string])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.set_region" title="imexam.ds9_viewer.ds9.set_region"><code class="xref py py-obj docutils literal"><span class="pre">set_region</span></code></a>([region_string])</td>
 <td>display a region using the specifications in region_string</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.show_commands" title="imexam.ds9_viewer.ds9.show_commands"><tt class="xref py py-obj docutils literal"><span class="pre">show_commands</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.show_commands" title="imexam.ds9_viewer.ds9.show_commands"><code class="xref py py-obj docutils literal"><span class="pre">show_commands</span></code></a>()</td>
 <td>print the available XPA commands</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.showme" title="imexam.ds9_viewer.ds9.showme"><tt class="xref py py-obj docutils literal"><span class="pre">showme</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.showme" title="imexam.ds9_viewer.ds9.showme"><code class="xref py py-obj docutils literal"><span class="pre">showme</span></code></a>()</td>
 <td>raise the ds9 window</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.showpix" title="imexam.ds9_viewer.ds9.showpix"><tt class="xref py py-obj docutils literal"><span class="pre">showpix</span></tt></a>([close])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.showpix" title="imexam.ds9_viewer.ds9.showpix"><code class="xref py py-obj docutils literal"><span class="pre">showpix</span></code></a>([close])</td>
 <td>display the pixel value table, close window when done</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.snapsave" title="imexam.ds9_viewer.ds9.snapsave"><tt class="xref py py-obj docutils literal"><span class="pre">snapsave</span></tt></a>([filename,&nbsp;format,&nbsp;resolution])</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.snapsave" title="imexam.ds9_viewer.ds9.snapsave"><code class="xref py py-obj docutils literal"><span class="pre">snapsave</span></code></a>([filename,&nbsp;format,&nbsp;resolution])</td>
 <td>create a snap shot of the current window and save in specified format.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.valid_data_in_viewer" title="imexam.ds9_viewer.ds9.valid_data_in_viewer"><tt class="xref py py-obj docutils literal"><span class="pre">valid_data_in_viewer</span></tt></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.valid_data_in_viewer" title="imexam.ds9_viewer.ds9.valid_data_in_viewer"><code class="xref py py-obj docutils literal"><span class="pre">valid_data_in_viewer</span></code></a>()</td>
 <td>return bool if valid file or array is loaded into the viewer</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.view" title="imexam.ds9_viewer.ds9.view"><tt class="xref py py-obj docutils literal"><span class="pre">view</span></tt></a>(img)</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.view" title="imexam.ds9_viewer.ds9.view"><code class="xref py py-obj docutils literal"><span class="pre">view</span></code></a>(img)</td>
 <td>Display numpy image array to current frame</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.zoom" title="imexam.ds9_viewer.ds9.zoom"><tt class="xref py py-obj docutils literal"><span class="pre">zoom</span></tt></a>([par])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.zoom" title="imexam.ds9_viewer.ds9.zoom"><code class="xref py py-obj docutils literal"><span class="pre">zoom</span></code></a>([par])</td>
 <td>zoom using the specified command in par</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.zoomtofit" title="imexam.ds9_viewer.ds9.zoomtofit"><tt class="xref py py-obj docutils literal"><span class="pre">zoomtofit</span></tt></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.ds9_viewer.ds9.zoomtofit" title="imexam.ds9_viewer.ds9.zoomtofit"><code class="xref py py-obj docutils literal"><span class="pre">zoomtofit</span></code></a>()</td>
 <td>convenience function for zoom</td>
 </tr>
 </tbody>
@@ -334,7 +334,7 @@ window (in XPA_METHOD) in order to create the connection.</p>
 <p class="rubric">Methods Documentation</p>
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.alignwcs">
-<tt class="descname">alignwcs</tt><big>(</big><em>on=True</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.alignwcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.alignwcs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">alignwcs</code><span class="sig-paren">(</span><em>on=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.alignwcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.alignwcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>align wcs</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -352,7 +352,7 @@ window (in XPA_METHOD) in order to create the connection.</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.blink">
-<tt class="descname">blink</tt><big>(</big><em>blink=True</em>, <em>interval=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.blink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.blink" title="Permalink to this definition">¶</a></dt>
+<code class="descname">blink</code><span class="sig-paren">(</span><em>blink=True</em>, <em>interval=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.blink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.blink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Blink frames</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -382,19 +382,19 @@ blink
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.clear_contour">
-<tt class="descname">clear_contour</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.clear_contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.clear_contour" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clear_contour</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.clear_contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.clear_contour" title="Permalink to this definition">¶</a></dt>
 <dd><p>clear contours from the screen</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.close">
-<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.close" title="Permalink to this definition">¶</a></dt>
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>close the window and end connection</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.cmap">
-<tt class="descname">cmap</tt><big>(</big><em>color=None</em>, <em>load=None</em>, <em>invert=False</em>, <em>save=False</em>, <em>filename='colormap.ds9'</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.cmap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cmap</code><span class="sig-paren">(</span><em>color=None</em>, <em>load=None</em>, <em>invert=False</em>, <em>save=False</em>, <em>filename='colormap.ds9'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.cmap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the color map table to something else, using a defined list of options</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -429,7 +429,7 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.colorbar">
-<tt class="descname">colorbar</tt><big>(</big><em>on=True</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.colorbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.colorbar" title="Permalink to this definition">¶</a></dt>
+<code class="descname">colorbar</code><span class="sig-paren">(</span><em>on=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.colorbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.colorbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>turn the colorbar on the bottom of the window on and off</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -447,7 +447,7 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.contour">
-<tt class="descname">contour</tt><big>(</big><em>on=True</em>, <em>construct=True</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.contour" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contour</code><span class="sig-paren">(</span><em>on=True</em>, <em>construct=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.contour" title="Permalink to this definition">¶</a></dt>
 <dd><p>show contours on the window</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -469,7 +469,7 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.contour_load">
-<tt class="descname">contour_load</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.contour_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.contour_load" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contour_load</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.contour_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.contour_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>load a contour file into the window</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -487,7 +487,7 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.crosshair">
-<tt class="descname">crosshair</tt><big>(</big><em>x=None</em>, <em>y=None</em>, <em>coordsys='physical'</em>, <em>skyframe='wcs'</em>, <em>skyformat='fk5'</em>, <em>match=False</em>, <em>lock=False</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.crosshair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.crosshair" title="Permalink to this definition">¶</a></dt>
+<code class="descname">crosshair</code><span class="sig-paren">(</span><em>x=None</em>, <em>y=None</em>, <em>coordsys='physical'</em>, <em>skyframe='wcs'</em>, <em>skyformat='fk5'</em>, <em>match=False</em>, <em>lock=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.crosshair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.crosshair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Control the position of the crosshair in the current frame, crosshair mode is turned on automatically</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -529,7 +529,7 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.cursor">
-<tt class="descname">cursor</tt><big>(</big><em>x=None</em>, <em>y=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.cursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.cursor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cursor</code><span class="sig-paren">(</span><em>x=None</em>, <em>y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.cursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.cursor" title="Permalink to this definition">¶</a></dt>
 <dd><p>move the cursor in the current frame to the specified image pixel; selected regions will also be moved</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -552,13 +552,13 @@ valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</p
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.disp_header">
-<tt class="descname">disp_header</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.disp_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.disp_header" title="Permalink to this definition">¶</a></dt>
+<code class="descname">disp_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.disp_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.disp_header" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the header of the current image to a DS9 window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.frame">
-<tt class="descname">frame</tt><big>(</big><em>n=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.frame" title="Permalink to this definition">¶</a></dt>
+<code class="descname">frame</code><span class="sig-paren">(</span><em>n=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience function to change or report frames</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -584,7 +584,7 @@ frame(3)  opens frame 3 if it doesn&#8217;t exist already, otherwise goes to fra
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.get">
-<tt class="descname">get</tt><big>(</big><em>param</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>XPA get method to ds9 instance which returns received string</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -601,7 +601,7 @@ get(param)</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.get_data">
-<tt class="descname">get_data</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>return a numpy array of the data displayed in the current frame</p>
 <p class="rubric">Notes</p>
 <p>This is the data array that the imexam() function from connect() uses for analysis</p>
@@ -611,7 +611,7 @@ just the one image is retured in the case of multidimensional data, not the cube
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.get_filename">
-<tt class="descname">get_filename</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_filename" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_filename</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the filename currently on display</p>
 <p>This function will check if there is already a filename saved. It&#8217;s possible that the user can
 connect to a ds9 window with no file loaded and then ask for the data file name after loading one through
@@ -620,25 +620,25 @@ the ds9 menu options. This will poll the private filename and then try and set o
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.get_frame_info">
-<tt class="descname">get_frame_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_frame_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_frame_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_frame_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_frame_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_frame_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>return more explicit information about the data displayed in the current frame</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.get_header">
-<tt class="descname">get_header</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_header" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_header" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the current fits header as a string or None if there&#8217;s a problem</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.get_slice_info">
-<tt class="descname">get_slice_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_slice_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_slice_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_slice_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_slice_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_slice_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the slice tuple that is currently displayed</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.get_viewer_info">
-<tt class="descname">get_viewer_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_viewer_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_viewer_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_viewer_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.get_viewer_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.get_viewer_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary of information about all frames which are loaded with data</p>
 <p class="rubric">Notes</p>
 <p>Consider adding a loop to verify that all the frames still exist and the user
@@ -647,7 +647,7 @@ has not deleted any through the gui.</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.grid">
-<tt class="descname">grid</tt><big>(</big><em>on=True</em>, <em>param=False</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.grid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">grid</code><span class="sig-paren">(</span><em>on=True</em>, <em>param=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience to turn the grid on and off, grid can be flushed with many more options</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -669,19 +669,19 @@ has not deleted any through the gui.</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.hideme">
-<tt class="descname">hideme</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.hideme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.hideme" title="Permalink to this definition">¶</a></dt>
+<code class="descname">hideme</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.hideme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.hideme" title="Permalink to this definition">¶</a></dt>
 <dd><p>lower the ds9 window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.iscube">
-<tt class="descname">iscube</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.iscube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.iscube" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iscube</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.iscube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.iscube" title="Permalink to this definition">¶</a></dt>
 <dd><p>return information on whether a cube image is displayed in the current frame</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.load_fits">
-<tt class="descname">load_fits</tt><big>(</big><em>fname=''</em>, <em>extver=1</em>, <em>extname=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_fits" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_fits</code><span class="sig-paren">(</span><em>fname=''</em>, <em>extver=1</em>, <em>extname=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_fits" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience function to load fits image to current frame</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -716,19 +716,19 @@ in another directory it can still find the file to load. arg.</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.load_mef_as_cube">
-<tt class="descname">load_mef_as_cube</tt><big>(</big><em>filename=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_mef_as_cube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_mef_as_cube" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_mef_as_cube</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_mef_as_cube"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_mef_as_cube" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a Mult-Extension-Fits image into one frame as an image cube</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.load_mef_as_multi">
-<tt class="descname">load_mef_as_multi</tt><big>(</big><em>filename=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_mef_as_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_mef_as_multi" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_mef_as_multi</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_mef_as_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_mef_as_multi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a Mult-Extension-Fits image into multiple frames</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.load_region">
-<tt class="descname">load_region</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_region" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_region</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_region" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load regions from a file which uses ds9 standard formatting</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -746,7 +746,7 @@ in another directory it can still find the file to load. arg.</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.load_rgb">
-<tt class="descname">load_rgb</tt><big>(</big><em>red</em>, <em>green</em>, <em>blue</em>, <em>scale=False</em>, <em>lockwcs=False</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_rgb</code><span class="sig-paren">(</span><em>red</em>, <em>green</em>, <em>blue</em>, <em>scale=False</em>, <em>lockwcs=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.load_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.load_rgb" title="Permalink to this definition">¶</a></dt>
 <dd><p>load 3 images into an RGBimage frame</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -781,7 +781,7 @@ information in their headers</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.make_region">
-<tt class="descname">make_region</tt><big>(</big><em>infile</em>, <em>labels=False</em>, <em>header=0</em>, <em>textoff=10</em>, <em>size=5</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.make_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.make_region" title="Permalink to this definition">¶</a></dt>
+<code class="descname">make_region</code><span class="sig-paren">(</span><em>infile</em>, <em>labels=False</em>, <em>header=0</em>, <em>textoff=10</em>, <em>size=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.make_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.make_region" title="Permalink to this definition">¶</a></dt>
 <dd><p>make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -817,7 +817,7 @@ information in their headers</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.mark_region_from_array">
-<tt class="descname">mark_region_from_array</tt><big>(</big><em>input_points</em>, <em>ptype='image'</em>, <em>textoff=10</em>, <em>size=5</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.mark_region_from_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.mark_region_from_array" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mark_region_from_array</code><span class="sig-paren">(</span><em>input_points</em>, <em>ptype='image'</em>, <em>textoff=10</em>, <em>size=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.mark_region_from_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.mark_region_from_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>mark ds9 regions regions  given an input list of tuples, a convienence function, you can also use set_region</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -846,7 +846,7 @@ information in their headers</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.match">
-<tt class="descname">match</tt><big>(</big><em>coordsys='wcs'</em>, <em>frame=True</em>, <em>crop=False</em>, <em>fslice=False</em>, <em>scale=False</em>, <em>bin=False</em>, <em>colorbar=False</em>, <em>smooth=False</em>, <em>crosshair=False</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.match" title="Permalink to this definition">¶</a></dt>
+<code class="descname">match</code><span class="sig-paren">(</span><em>coordsys='wcs'</em>, <em>frame=True</em>, <em>crop=False</em>, <em>fslice=False</em>, <em>scale=False</em>, <em>bin=False</em>, <em>colorbar=False</em>, <em>smooth=False</em>, <em>crosshair=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.match" title="Permalink to this definition">¶</a></dt>
 <dd><p>match all other frames to the current frame</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -899,7 +899,7 @@ so set frame=False and something else in addition to your choice if you don&#821
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.nancolor">
-<tt class="descname">nancolor</tt><big>(</big><em>color='red'</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.nancolor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.nancolor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">nancolor</code><span class="sig-paren">(</span><em>color='red'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.nancolor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.nancolor" title="Permalink to this definition">¶</a></dt>
 <dd><p>set the not-a-number color, default is red</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -917,7 +917,7 @@ so set frame=False and something else in addition to your choice if you don&#821
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.panto_image">
-<tt class="descname">panto_image</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.panto_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.panto_image" title="Permalink to this definition">¶</a></dt>
+<code class="descname">panto_image</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.panto_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.panto_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience function to change to x,y  physical image coordinates</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -939,7 +939,7 @@ so set frame=False and something else in addition to your choice if you don&#821
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.panto_wcs">
-<tt class="descname">panto_wcs</tt><big>(</big><em>x</em>, <em>y</em>, <em>system='fk5'</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.panto_wcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.panto_wcs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">panto_wcs</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>system='fk5'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.panto_wcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.panto_wcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>pan to wcs location coordinates in image</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -965,7 +965,7 @@ so set frame=False and something else in addition to your choice if you don&#821
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.readcursor">
-<tt class="descname">readcursor</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.readcursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.readcursor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readcursor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.readcursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.readcursor" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns image coordinate postion and key pressed,</p>
 <p class="rubric">Notes</p>
 <p>XPA returns strings of the form:  u a  257.5 239</p>
@@ -973,7 +973,7 @@ so set frame=False and something else in addition to your choice if you don&#821
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.rotate">
-<tt class="descname">rotate</tt><big>(</big><em>value=None</em>, <em>to=False</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.rotate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>value=None</em>, <em>to=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.rotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>rotate the current frame (in degrees), the current rotation is printed with no params</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -996,7 +996,7 @@ If value is 0, then the current rotation is printed</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.run_inet_ds9">
-<tt class="descname">run_inet_ds9</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.run_inet_ds9"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.run_inet_ds9" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run_inet_ds9</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.run_inet_ds9"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.run_inet_ds9" title="Permalink to this definition">¶</a></dt>
 <dd><p>start a new ds9 window using an inet socket connection</p>
 <p class="rubric">Notes</p>
 <p>It is given a unique title so it can be identified later.</p>
@@ -1004,7 +1004,7 @@ If value is 0, then the current rotation is printed</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.save_regions">
-<tt class="descname">save_regions</tt><big>(</big><em>filename=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.save_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.save_regions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_regions</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.save_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.save_regions" title="Permalink to this definition">¶</a></dt>
 <dd><p>save the regions in the current window to a DS9 style regions file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1025,7 +1025,7 @@ file in the current display with _regions.txt appended</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.save_rgb">
-<tt class="descname">save_rgb</tt><big>(</big><em>filename=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.save_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.save_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_rgb</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.save_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.save_rgb" title="Permalink to this definition">¶</a></dt>
 <dd><p>save an rgbimage frame as an MEF fits file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1043,7 +1043,7 @@ file in the current display with _regions.txt appended</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.scale">
-<tt class="descname">scale</tt><big>(</big><em>scale='zscale'</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.scale" title="Permalink to this definition">¶</a></dt>
+<code class="descname">scale</code><span class="sig-paren">(</span><em>scale='zscale'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.scale" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default zscale is the most widely used option</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1065,7 +1065,7 @@ it just doesn&#8217;t do anything, this is true for all the xpa calls</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.set">
-<tt class="descname">set</tt><big>(</big><em>param</em>, <em>buf=None</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.set" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set</code><span class="sig-paren">(</span><em>param</em>, <em>buf=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>XPA set method to ds9 instance</p>
 <p class="rubric">Notes</p>
 <p>This function is linked with the Cython implementation</p>
@@ -1076,7 +1076,7 @@ buf : aux data string (sometime string needed to be ended with CR)</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.set_iraf_display">
-<tt class="descname">set_iraf_display</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.set_iraf_display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.set_iraf_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_iraf_display</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.set_iraf_display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.set_iraf_display" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance.</p>
 <p class="rubric">Notes</p>
 <p>For example, your pyraf commands will use this ds9 for display.</p>
@@ -1085,7 +1085,7 @@ buf : aux data string (sometime string needed to be ended with CR)</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.set_region">
-<tt class="descname">set_region</tt><big>(</big><em>region_string=''</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.set_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.set_region" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_region</code><span class="sig-paren">(</span><em>region_string=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.set_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.set_region" title="Permalink to this definition">¶</a></dt>
 <dd><p>display a region using the specifications in region_string</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1106,19 +1106,19 @@ set_region(&#8220;line 0 400 3 400 #color=red&#8221;)</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.show_commands">
-<tt class="descname">show_commands</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.show_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.show_commands" title="Permalink to this definition">¶</a></dt>
+<code class="descname">show_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.show_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.show_commands" title="Permalink to this definition">¶</a></dt>
 <dd><p>print the available XPA commands</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.showme">
-<tt class="descname">showme</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.showme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.showme" title="Permalink to this definition">¶</a></dt>
+<code class="descname">showme</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.showme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.showme" title="Permalink to this definition">¶</a></dt>
 <dd><p>raise the ds9 window</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.showpix">
-<tt class="descname">showpix</tt><big>(</big><em>close=False</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.showpix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.showpix" title="Permalink to this definition">¶</a></dt>
+<code class="descname">showpix</code><span class="sig-paren">(</span><em>close=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.showpix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.showpix" title="Permalink to this definition">¶</a></dt>
 <dd><p>display the pixel value table, close window when done</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1136,7 +1136,7 @@ set_region(&#8220;line 0 400 3 400 #color=red&#8221;)</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.snapsave">
-<tt class="descname">snapsave</tt><big>(</big><em>filename=None</em>, <em>format=None</em>, <em>resolution=100</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.snapsave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.snapsave" title="Permalink to this definition">¶</a></dt>
+<code class="descname">snapsave</code><span class="sig-paren">(</span><em>filename=None</em>, <em>format=None</em>, <em>resolution=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.snapsave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.snapsave" title="Permalink to this definition">¶</a></dt>
 <dd><p>create a snap shot of the current window and save in specified format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1165,13 +1165,13 @@ If no format is specified the filename extension is used</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.valid_data_in_viewer">
-<tt class="descname">valid_data_in_viewer</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.valid_data_in_viewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.valid_data_in_viewer" title="Permalink to this definition">¶</a></dt>
+<code class="descname">valid_data_in_viewer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.valid_data_in_viewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.valid_data_in_viewer" title="Permalink to this definition">¶</a></dt>
 <dd><p>return bool if valid file or array is loaded into the viewer</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.view">
-<tt class="descname">view</tt><big>(</big><em>img</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.view" title="Permalink to this definition">¶</a></dt>
+<code class="descname">view</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.view" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display numpy image array to current frame</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1189,7 +1189,7 @@ If no format is specified the filename extension is used</p>
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.zoom">
-<tt class="descname">zoom</tt><big>(</big><em>par='to fit'</em><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.zoom" title="Permalink to this definition">¶</a></dt>
+<code class="descname">zoom</code><span class="sig-paren">(</span><em>par='to fit'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.zoom" title="Permalink to this definition">¶</a></dt>
 <dd><p>zoom using the specified command in par</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1213,7 +1213,7 @@ it can be &#8216;close&#8217; to close the dialog box (only valid if the box is 
 
 <dl class="method">
 <dt id="imexam.ds9_viewer.ds9.zoomtofit">
-<tt class="descname">zoomtofit</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.zoomtofit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.zoomtofit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">zoomtofit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/ds9_viewer.html#ds9.zoomtofit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.ds9_viewer.ds9.zoomtofit" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience function for zoom</p>
 </dd></dl>
 
@@ -1225,7 +1225,7 @@ it can be &#8216;close&#8217; to close the dialog box (only valid if the box is 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">ds9</a></li>
@@ -1242,9 +1242,9 @@ it can be &#8216;close&#8217; to close the dialog box (only valid if the box is 
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2015, Megan Sosey.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2. &nbsp;
-    Last built 01 May 2015. <br/>
+    &copy; Copyright 2016, Megan Sosey.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
+    Last built 23 Mar 2016. <br/>
   </p>
 </footer>
   </body>

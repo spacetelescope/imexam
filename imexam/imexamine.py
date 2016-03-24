@@ -6,7 +6,7 @@ from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import warnings
-import matplotlib.pyplot as plt
+from  matplotlib import pyplot as plt
 # turn on interactive mode for plotting
 plt.ion()
 
@@ -51,7 +51,6 @@ class Imexamine(object):
         self._define_default_pars()
         # default plot name saved with "s" key
         self.plot_name = "imexam_plot.pdf"
-        self.sleep_time = 1e-6    # for plotting convenience
         # let users have multiple plot windows, the list stores their names
         self._plot_windows = list()
         # this contains the name of the current plotting window
@@ -79,7 +78,8 @@ class Imexamine(object):
                                     'y': (self.show_xy_coords, 'return x,y,value of pixel'),
                                     'l': (self.plot_line, 'return line plot'),
                                     'c': (self.plot_column, 'return column plot'),
-                                    'r': (self.curve_of_growth_plot, 'return curve of growth plot'),
+                                    'g': (self.curve_of_growth_plot, 'return curve of growth plot'),
+                                    'r': (self.radial_profile_plot, 'return the radial profile plot'),
                                     'h': (self.histogram_plot, 'return a histogram in the region around the cursor'),
                                     'e': (self.contour_plot, 'return a contour plot in a region around the cursor'),
                                     's': (self.save_figure, 'save current figure to disk as [plot_name]'),
@@ -163,6 +163,7 @@ class Imexamine(object):
         """set all pars to their defaults which are stored in a file with dicts"""
 
         self.aperphot_def_pars = imexam_defpars.aperphot_pars
+        self.radial_profile_def_pars = imexam_defpars.radial_profile_pars
         self.curve_of_growth_def_pars = imexam_defpars.curve_of_growth_pars
         self.surface_def_pars = imexam_defpars.surface_pars
         self.line_fit_def_pars = imexam_defpars.line_fit_pars
@@ -181,6 +182,7 @@ class Imexamine(object):
         """set a copy of the default pars that users can alter"""
 
         self.aperphot_pars = deepcopy(self.aperphot_def_pars)
+        self.radial_profile_pars = deepcopy(self.radial_profile_def_pars)
         self.curve_of_growth_pars = deepcopy(self.curve_of_growth_def_pars)
         self.surface_pars = deepcopy(self.surface_def_pars)
         self.line_fit_pars = deepcopy(self.line_fit_def_pars)
@@ -243,14 +245,13 @@ class Imexamine(object):
         if self.lineplot_pars["logy"][0]:
             ax.set_yscale("log")
 
-        if self.lineplot_pars["pointmode"][0]:
+        if bool(self.lineplot_pars["pointmode"][0]):
             ax.plot(data[y, :], self.lineplot_pars["marker"][0])
         else:
             ax.plot(data[y, :])
 
         plt.draw()
-        plt.show(block=False)
-        time.sleep(self.sleep_time)
+        plt.pause(0.001)
 
     def plot_column(self, x, y, data, fig=None):
         """column plot of data at point y"""
@@ -278,14 +279,13 @@ class Imexamine(object):
 
         if self.colplot_pars["logy"][0]:
             ax.set_yscale("log")
-        if self.colplot_pars["pointmode"][0]:
+        if bool(self.colplot_pars["pointmode"][0]):
             ax.plot(data[:, x], self.colplot_pars["marker"][0])
         else:
             ax.plot(data[:, x])
 
         plt.draw()
-        plt.show(block=False)
-        time.sleep(self.sleep_time)
+        plt.pause(0.001)
 
     def show_xy_coords(self, x, y, data):
         """print the x,y,value to the screen"""
@@ -297,8 +297,9 @@ class Imexamine(object):
         """report the median of values in a box with side region_size"""
         region_size = self.report_stat_pars["region_size"][0]
         resolve = True
+        name=self.report_stat_pars["stat"][0]
         try:
-            stat = getattr(np, self.report_stat_pars["stat"][0])
+            stat = getattr(np, name)
         except AttributeError:
             warnings.warn("Invalid stat specified")
             resolve = False
@@ -309,7 +310,7 @@ class Imexamine(object):
             ymin = int(y - dist)
             ymax = int(y + dist)
             pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(
-                xmin, xmax, ymin, ymax, stat.func_name, (stat(data[ymin:ymax, xmin:xmax])))
+                xmin, xmax, ymin, ymax,name, (stat(data[ymin:ymax, xmin:xmax])))
             print(pstr)
             logging.info(pstr)
 
@@ -363,7 +364,7 @@ class Imexamine(object):
                     annulus_apertures)
 
                 # to calculate the mean local background, divide the circular annulus aperture sums
-                # by the area fo teh circular annuls. The bkg sum with the circular aperture is then
+                # by the area fo the circular annulus. The bkg sum with the circular aperture is then
                 # then mean local background tims the circular apreture area.
                 aperture_area = apertures.area()
                 annulus_area = annulus_apertures.area()
@@ -397,7 +398,7 @@ class Imexamine(object):
             print(pheader + pstr)
             logging.info(pheader + pstr)
 
-    def line_fit(self, x, y, data, form=None, subsample=4, fig=None):
+    def line_fit(self, x, y, data, form=None, subsample=4, fig=None, genplot=True):
         """compute the 1d  fit to the line of data using the specified form
 
 
@@ -446,64 +447,69 @@ class Imexamine(object):
 
         xline = np.arange(len(chunk))
         popt, pcov = curve_fit(
-            form, xline, chunk, [
-                argmap.get(
-                    arg, 1) for arg in args])
+            form, xline, chunk, [argmap.get(arg, 1) for arg in args])
+
+
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(xline), step=1. / subsample)
         fity = form(fitx, *popt)
 
         # calculate the std about the mean
         # make a plot
-        if fig is None:
-            fig = plt.figure(self._figure_name)
-        fig.clf()
-        fig.add_subplot(111)
-        ax = fig.gca()
-        ax.set_xlabel(self.line_fit_pars["xlabel"][0])
-        ax.set_ylabel(self.line_fit_pars["ylabel"][0])
-        if self.line_fit_pars["logx"][0]:
-            ax.set_xscale("log")
-        if self.line_fit_pars["logy"][0]:
-            ax.set_yscale("log")
+        if genplot:
+            if fig is None:
+                fig = plt.figure(self._figure_name)
+            fig.clf()
+            fig.add_subplot(111)
+            ax = fig.gca()
+            ax.set_xlabel(self.line_fit_pars["xlabel"][0])
+            ax.set_ylabel(self.line_fit_pars["ylabel"][0])
+            if self.line_fit_pars["logx"][0]:
+                ax.set_xscale("log")
+            if self.line_fit_pars["logy"][0]:
+                ax.set_yscale("log")
 
-        if self.line_fit_pars["pointmode"][0]:
-            ax.plot(xline + x - delta, chunk, 'o', label="data")
+            if bool(self.line_fit_pars["pointmode"][0]):
+                ax.plot(xline + x - delta, chunk, 'o', label="data")
+            else:
+                ax.plot(xline + x - delta, chunk, label="data", linestyle='-')
+
+            if self.line_fit_pars["func"][0] == "gaussian":
+                sigma = np.abs(popt[2])
+                fwhm = math_helper.gfwhm(sigma)
+                fitmean = popt[1] + x - delta
+            elif self.line_fit_pars["func"][0] == "moffat":
+                alpha = popt[0]
+                beta = popt[1]
+                fwhm = math_helper.mfwhm(alpha, beta)
+                fitmean = popt[2] + x - delta
+            else:
+                warnings.warn("Unsupported functional form used in line_fit")
+                raise ValueError
+
+            ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
+                self.line_fit_pars["title"][0], str(fitmean), str(fwhm)))
+            ax.plot(
+                fitx +
+                x -
+                delta,
+                fity,
+                c='r',
+                label=str(
+                    form.__name__) +
+                " fit")
+            plt.legend()
+            plt.draw()
+            plt.pause(0.001)
         else:
-            ax.plot(xline + x - delta, chunk, label="data", linestyle='-')
+            return (fitx+x-delta,fity,popt)
 
-        if self.line_fit_pars["func"][0] == "gaussian":
-            sigma = np.abs(popt[2])
-            fwhm = math_helper.gfwhm(sigma)
-            fitmean = popt[1] + x - delta
-        elif self.line_fit_pars["func"][0] == "moffat":
-            alpha = popt[0]
-            beta = popt[1]
-            fwhm = math_helper.mfwhm(alpha, beta)
-            fitmean = popt[2] + x - delta
-        else:
-            warnings.warn("Unsupported functional form used in line_fit")
-            raise ValueError
-
-        ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
-            self.line_fit_pars["title"][0], str(fitmean), str(fwhm)))
-        ax.plot(
-            fitx +
-            x -
-            delta,
-            fity,
-            c='r',
-            label=str(
-                form.__name__) +
-            " fit")
-        plt.legend()
-        plt.draw()
-        plt.show(block=False)
-        time.sleep(self.sleep_time)
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
         print(pstr)
         logging.info(pstr)
+
+
 
     def column_fit(self, x, y, data, form=None, subsample=4, fig=None):
         """compute the 1d  fit to the column of data
@@ -574,7 +580,7 @@ class Imexamine(object):
         if self.column_fit_pars["logy"][0]:
             ax.set_yscale("log")
 
-        if self.column_fit_pars["pointmode"][0]:
+        if bool(self.column_fit_pars["pointmode"][0]):
             ax.plot(yline + y - delta, chunk, 'o', label="data")
         else:
             ax.plot(yline + y - delta, chunk, linestyle='-', label="data")
@@ -603,8 +609,7 @@ class Imexamine(object):
             " fit")
         plt.legend()
         plt.draw()
-        plt.show(block=False)
-        time.sleep(self.sleep_time)
+        plt.pause(0.001)
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
         print(pstr)
@@ -639,10 +644,109 @@ class Imexamine(object):
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
+    def radial_profile_plot(self, x, y, data, form=None, fig=None):
+        """
+        Display the radial profile plot (intensity vs radius) for the object
+        Background may be subtracted and centering can be done with a 2dgauss fit
+        """
+        if not photutils_installed:
+            print("Install photutils to enable")
+        else:
+
+            amp = 0
+            sigma = 0
+            if not form:
+                form = getattr(math_helper, self.radial_profile_pars["fittype"][0])
+
+            getdata = bool(self.radial_profile_pars["getdata"][0])
+            subtract_background=bool(self.radial_profile_pars["background"][0])
+
+            #cut the data down to size
+            datasize=int(self.radial_profile_pars["rplot"][0])-1
+
+            delta = 10  # chunk size to find center
+            subpixels = 10  # for line fit later
+
+            # center on image using a 2d gaussian
+            if self.radial_profile_pars["center"][0]:
+                # pull out a small chunk
+                popt = self.gauss_center(x, y, data, delta=delta)
+                if popt.count(0) > 1:  # an error occurred in centering
+                    centerx = x
+                    centery = y
+                    warnings.warn(
+                        "Problem fitting center, using original coordinates")
+                else:
+                    amp, centerx, centery, sigma, offset = popt
+            else:
+                centery = y
+                centerx = x
+            icenterx = int(centerx)
+            icentery = int(centery)
+
+            #just grab the data box we want from the image
+            data_chunk=data[icentery-datasize:icentery+datasize,icenterx-datasize:icenterx+datasize]
+
+            y,x = np.indices((data_chunk.shape))
+            r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
+            r = r.astype(np.int)
+            #add up the flux in integer bins
+            tbin = np.bincount(r.ravel(), data_chunk.ravel())
+            nr = np.arange(len(tbin))
+
+            #Get a background measurement
+            if subtract_background:
+                inner = self.radial_profile_pars["skyrad"][0]
+                width = self.radial_profile_pars["width"][0]
+                annulus_apertures = photutils.CircularAnnulus(
+                        (centerx, centery), r_in=inner, r_out=inner+width)
+                bkgflux_table = photutils.aperture_photometry(data,
+                    annulus_apertures)
+
+                # to calculate the mean local background, divide the circular annulus aperture sums
+                # by the area fo the circular annulus. The bkg sum with the circular aperture is then
+                # then mean local background tims the circular apreture area.
+                annulus_area = annulus_apertures.area()
+                sky_per_pix = float(bkgflux_table['aperture_sum'] /annulus_area)
+                tbin -= np.bincount(r.ravel()) * sky_per_pix
+                if getdata:
+                    print("Sky per pixel: {0} using(rad={1}->{2})".format(sky_per_pix,inner,inner+width))
+
+            if fig is None:
+                fig = plt.figure(self._figure_name)
+            fig.clf()
+            fig.add_subplot(111)
+            ax = fig.gca()
+            title = self.radial_profile_pars["title"][0]
+            ax.set_xlabel(self.radial_profile_pars["xlabel"][0])
+            ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
+
+            if getdata:
+                info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
+                    int(centerx + 1), int(centery + 1), nr, tbin)
+                print(info)
+                logging.info(info)
+
+            #finish the plot
+            if bool(self.radial_profile_pars["pointmode"][0]):
+                ax.plot(nr, tbin, self.radial_profile_pars["marker"][0])
+            else:
+                ax.plot(nr,tbin)
+            ax.set_title(title)
+            ax.set_ylim(0,)
+
+            #over plot a gaussian fit to the data
+            if bool(self.radial_profile_pars["fitplot"][0]):
+                print("Fit overlay not yet implemented")
+
+            plt.draw()
+            plt.pause(0.001)
+
+
     def curve_of_growth_plot(self, x, y, data, fig=None):
         """
-        display the radial profile plot for the star
-
+        display the curve of growth plot for the object
+        photometry from photutil
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -688,7 +792,7 @@ class Imexamine(object):
             rapert = int(router) + 1
             for rad in range(1, rapert, 1):
                 aper_flux, annulus_sky, skysub_flux = self._aperture_phot(
-                    centerx, centery, data, radsize=rad, sky_inner=inner, skywidth=width, method="exact")
+                    centerx, centery, data, radsize=rad, sky_inner=inner, skywidth=width, method="exact",subpixels=subpixels)
                 radius.append(rad)
                 if self.curve_of_growth_pars["background"][0]:
                     if inner < router:
@@ -706,8 +810,7 @@ class Imexamine(object):
             ax.plot(radius, flux, 'o')
             ax.set_title(title)
             plt.draw()
-            plt.show(block=False)
-            time.sleep(self.sleep_time)
+            plt.pause(0.001)
 
     def _aperture_phot(self, x, y, data, radsize=1,
                        sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
@@ -754,8 +857,8 @@ class Imexamine(object):
                 annulus_apertures)
 
             # to calculate the mean local background, divide the circular annulus aperture sums
-            # by the area fo the circular annuls. The bkg sum with the circular aperture is then
-            # then mean local background tims the circular apreture area.
+            # by the area of the circular annulus. The bkg sum within the circular aperture is then
+            # then mean local background times the circular apreture area.
             aperture_area = apertures.area()
             annulus_area = annulus_apertures.area()
 
@@ -818,8 +921,7 @@ class Imexamine(object):
             flat_data, num_bins, range=[mini, maxi], normed=False, facecolor='green', alpha=0.5, histtype='bar')
         print("hist with {0} bins".format(num_bins))
         plt.draw()
-        plt.show(block=False)
-        time.sleep(self.sleep_time)
+        plt.pause(0.001)
 
     def contour_plot(self, x, y, data, fig=None):
         """plot contours in a region around the specified location"""
@@ -857,8 +959,7 @@ class Imexamine(object):
         if self.contour_pars["label"][0]:
             plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
         plt.draw()
-        plt.show(block=False)
-        time.sleep(self.sleep_time)
+        plt.pause(0.001)
 
     def surface_plot(self, x, y, data, fig=None):
         """plot a surface around the specified location
@@ -944,8 +1045,7 @@ class Imexamine(object):
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
         plt.draw()
-        plt.show(block=False)
-        time.sleep(self.sleep_time)
+        plt.pause(0.001)
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user so that it becomes an option
@@ -1005,7 +1105,12 @@ class Imexamine(object):
             self.aperphot_pars = user_dict
 
     def set_radial_pars(self):
-        """set parameters for radial profile plots"""
+        """ set parameters for radial profile plots"""
+
+        self.radial_profile_pars = imexam_defpars.radial_profile_pars
+
+    def set_curve_pars(self):
+        """set parameters for curve of growth plots"""
 
         self.curve_of_growth_pars = imexam_defpars.curve_of_growth_pars
 

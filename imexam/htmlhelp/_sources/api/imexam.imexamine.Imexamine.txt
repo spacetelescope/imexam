@@ -38,6 +38,7 @@ Imexamine
       ~Imexamine.plot_column
       ~Imexamine.plot_line
       ~Imexamine.print_options
+      ~Imexamine.radial_profile_plot
       ~Imexamine.register
       ~Imexamine.report_stat
       ~Imexamine.reset_defpars
@@ -46,14 +47,17 @@ Imexamine
       ~Imexamine.set_colplot_pars
       ~Imexamine.set_column_fit_pars
       ~Imexamine.set_contour_pars
+      ~Imexamine.set_curve_pars
       ~Imexamine.set_data
       ~Imexamine.set_histogram_pars
       ~Imexamine.set_line_fit_pars
       ~Imexamine.set_lineplot_pars
+      ~Imexamine.set_option_funcs
       ~Imexamine.set_plot_name
       ~Imexamine.set_radial_pars
       ~Imexamine.set_surface_pars
       ~Imexamine.show_xy_coords
+      ~Imexamine.showplt
       ~Imexamine.surface_plot
       ~Imexamine.unlearn_all
 
@@ -85,6 +89,7 @@ Imexamine
    .. automethod:: plot_column
    .. automethod:: plot_line
    .. automethod:: print_options
+   .. automethod:: radial_profile_plot
    .. automethod:: register
    .. automethod:: report_stat
    .. automethod:: reset_defpars
@@ -93,14 +98,17 @@ Imexamine
    .. automethod:: set_colplot_pars
    .. automethod:: set_column_fit_pars
    .. automethod:: set_contour_pars
+   .. automethod:: set_curve_pars
    .. automethod:: set_data
    .. automethod:: set_histogram_pars
    .. automethod:: set_line_fit_pars
    .. automethod:: set_lineplot_pars
+   .. automethod:: set_option_funcs
    .. automethod:: set_plot_name
    .. automethod:: set_radial_pars
    .. automethod:: set_surface_pars
    .. automethod:: show_xy_coords
+   .. automethod:: showplt
    .. automethod:: surface_plot
    .. automethod:: unlearn_all
 

@@ -12,6 +12,8 @@ from astropy import log
 from . import xpa
 from xpa import XpaException
 
+import codecs
+
 __all__ = [
     "find_ds9",
     "list_active_ds9",
@@ -45,15 +47,17 @@ def list_active_ds9():
 
     Notes
     -----
-    when I start a unix socket with connect() the xpa register isn't seeing it when I call this function
-    I think because it's only listening on the inet socket which starts by default in the OS. That's if xpans is installed
-    on the machine. Otherwise, no nameserver is running at all.
+    when I start a unix socket with connect() the xpa register isn't 
+    seeing it when I call this function. I think because it's only 
+    listening on the inet socket which starts by default in the OS. 
+    That's if xpans is installed on the machine. Otherwise, no 
+    nameserver is running at all.
     """
 
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
         try:
-            sessions = (xpa.get('xpans'))
+            sessions=xpa.get('xpans')
             if len(sessions) < 1:
                 print("No active sessions")
             else:
