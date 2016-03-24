@@ -12,83 +12,109 @@ addons:
             - texlive-latex-extra
             - dvipng
 
+os:
+    - linux
+
+
 python:
+
     - 2.7
+    - 3.3
     - 3.4
-    - 3.5
 
 env:
     global:
-        # The following versions are the 'default' for tests, unless
-        # overidden underneath. They are defined here in order to save having
-        # to repeat them for all configurations.
+        # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
+        - SETUPTOOLS_VERSION=stable
         - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='Cython scipy scikit-image matplotlib'
-        - PIP_DEPENDENCIES=''
-
-    matrix:
-        
-        # Make sure that egg_info works without dependencies
-        - SETUP_CMD='egg_info'
-
-        # Try all python versions with the latest numpy
+        - CONDA_INSTALL='conda install -c astropy-ci-extras --yes'
+        - PIP_INSTALL='pip install'
+        - INSTALL_OPTIONAL=true
         - SETUP_CMD='test'
 
 
 matrix:
-
     include:
-
-        # Do a test in Python 2 with the latest astropy
-        - python: 2.7
-          env: ASTROPY_VERSION=development SETUP_CMD='test'
-
 
         #CHECK SPHINX DOC WARNINGS
         - python: 2.7
+          env: SETUP_CMD='build_sphinx -w'
+        - python: 3.4
+          env: SETUP_CMD='build_sphinx -w'
+
+        #CHECK ASTROPY
+        - python: 2.7
           env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
-        - python: 3.5
-          env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
+        - python: 3.3
+          env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w's
 
-
-        # Try Astropy development and LTS versions
-        - python: 3.5
-          env: ASTROPY_VERSION=development SETUP_CMD='test'
+        #CHECK NUMPY
         - python: 2.7
-          env: ASTROPY_VERSION=lts SETUP_CMD='test'
-        - python: 3.5
-          env: ASTROPY_VERSION=lts SETUP_CMD='test'
-
-        # Try with optional dependencies disabled
+        - python: 3.3
+        - python: 3.4
         - python: 2.7
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='Cython'
-        - python: 3.5
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='Cython'
-
-        # Try older numpy versions
+          env: NUMPY_VERSION=1.8
         - python: 2.7
-          env: NUMPY_VERSION=1.9 SETUP_CMD='test'
+          env: NUMPY_VERSION=1.7
         - python: 2.7
-          env: NUMPY_VERSION=1.8 SETUP_CMD='test'
+          env: NUMPY_VERSION=1.6
+
+        #CHECK WITHOUT OPTIONAL DEPENDENCIES
         - python: 2.7
-          env: NUMPY_VERSION=1.7 SETUP_CMD='test'
-        - python: 2.7
-          env: NUMPY_VERSION=1.6 SETUP_CMD='test'
+          env: INSTALL_OPTIONAL=false
+        - python: 3.4
+          env: INSTALL_OPTIONAL=false
 
 
 
-install:
+before_install:
 
-    - git clone git://github.com/astropy/ci-helpers.git
-    - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
+    # USE UTF8 ENCODING. SHOULD BE DEFAULT, BUT THIS IS INSURANCE AGAINST
+    # FUTURE CHANGES
+    - export PYTHONIOENCODING=UTF8
 
-    # Make sure that interactive matplotlib backends work
+    # http://conda.pydata.org/docs/travis.html#the-travis-yml-file
+    - wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+
+    #CHECK INTERACTIVE MATPLOTLIB BACKENDS
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
 
 
+
+install:
+    - conda create -c astropy-ci-extras --yes -n test python=$TRAVIS_PYTHON_VERSION
+    - source activate test
+
+    # CORE DEPENDENCIES
+    - $CONDA_INSTALL -n test  numpy=$NUMPY_VERSION pytest pip Cython jinja2
+    - $PIP_INSTALL pytest-xdist
+    - $PIP_INSTALL astropy_helpers
+
+    # ASTROPY
+    - $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION astropy
+
+
+    # OPTIONAL DEPENDENCIES
+    # Here you can add any dependencies your package may have. You can use
+    # conda for packages available through conda, or pip for any other
+    # packages. You should leave the `numpy=$NUMPY_VERSION` in the `conda`
+    # install since this ensures Numpy does not get automatically upgraded.
+    - $CONDA_INSTALL -n test numpy=$NUMPY_VERSION scipy matplotlib
+
+    # DOCUMENTATION DEPENDENCIES
+    # build_sphinx needs sphinx and matplotlib (for plot_directive).
+    - if [[ $SETUP_CMD == build_sphinx* ]]; then $CONDA_INSTALL -n test numpy=$NUMPY_VERSION Sphinx matplotlib; fi
+
+
 script:
-    - python setup.py $SETUP_CMD
+   - python setup.py install
+
