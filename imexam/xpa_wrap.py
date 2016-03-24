@@ -4,6 +4,7 @@ from __future__ import print_function, division, absolute_import
 from imexam.xpa import xpa
 import sys
 
+
 class XPA(xpa):
 
     def __init__(self, template):

@@ -449,6 +449,7 @@ class Imexamine(object):
         popt, pcov = curve_fit(
             form, xline, chunk, [argmap.get(arg, 1) for arg in args])
 
+
         # do these so that it fits the real pixel range of the data
         fitx = np.arange(len(xline), step=1. / subsample)
         fity = form(fitx, *popt)
@@ -507,6 +508,7 @@ class Imexamine(object):
             int(x + 1), int(y + 1), fitmean, fwhm)
         print(pstr)
         logging.info(pstr)
+
 
 
     def column_fit(self, x, y, data, form=None, subsample=4, fig=None):
@@ -645,9 +647,7 @@ class Imexamine(object):
     def radial_profile_plot(self, x, y, data, form=None, fig=None):
         """
         Display the radial profile plot (intensity vs radius) for the object
-
         Background may be subtracted and centering can be done with a 2dgauss fit
-
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -663,7 +663,6 @@ class Imexamine(object):
 
             #cut the data down to size
             datasize=int(self.radial_profile_pars["rplot"][0])-1
-
 
             delta = 10  # chunk size to find center
             subpixels = 10  # for line fit later
@@ -699,7 +698,6 @@ class Imexamine(object):
             if subtract_background:
                 inner = self.radial_profile_pars["skyrad"][0]
                 width = self.radial_profile_pars["width"][0]
-
                 annulus_apertures = photutils.CircularAnnulus(
                         (centerx, centery), r_in=inner, r_out=inner+width)
                 bkgflux_table = photutils.aperture_photometry(data,
@@ -748,10 +746,7 @@ class Imexamine(object):
     def curve_of_growth_plot(self, x, y, data, fig=None):
         """
         display the curve of growth plot for the object
-
         photometry from photutil
-
-
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -1113,7 +1108,6 @@ class Imexamine(object):
         """ set parameters for radial profile plots"""
 
         self.radial_profile_pars = imexam_defpars.radial_profile_pars
-
 
     def set_curve_pars(self):
         """set parameters for curve of growth plots"""
