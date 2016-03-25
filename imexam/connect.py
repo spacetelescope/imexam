@@ -14,7 +14,7 @@ from .util import set_logging
 from . import xpa
 from .ds9_viewer import ds9
 try:
-    from .ginga_viewer import ginga_mp
+    from .ginga_viewer import ginga_mp, ginga_nb
     have_ginga = True
 except ImportError:
     have_ginga = False
@@ -69,6 +69,7 @@ class Connect(object):
 
         if have_ginga:
             _possible_viewers.append('ginga_mp')
+            _possible_viewers.append('ginga_nb')
 
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
@@ -94,6 +95,20 @@ class Connect(object):
             # alter the exam.imexam_option_funcs{} here through the viewer code if you want to
             # change key+function associations
             # self.window._reassign_keys(imexam_dict)
+
+        elif 'ginga_nb' in self._viewer:
+            self.window = ginga_nb(exam=self.exam,
+                                   close_on_del=quit_window)
+            # self.window.view.add_callback('key-press',self.window._imexam)
+            # rotate canvas in before this can be used
+            # self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
+            # the viewer will track imexam with callbacks
+            self._event_driven_exam = True
+
+            # alter the exam.imexam_option_funcs{} here through the viewer code if you want to
+            # change key+function associations
+            # self.window._reassign_keys(imexam_dict)
+
 
         self.logfile = 'imexam_log.txt'
         self.log = None  # points to the package logger

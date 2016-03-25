@@ -26,14 +26,13 @@ from ginga.misc import log, Settings
 from ginga.AstroImage import AstroImage
 from ginga import cmap
 from ginga.util import paths
-#from ginga.qtw.QtHelp import QtGui
 
 import matplotlib
 from matplotlib import pyplot as plt
 # module variables
 _matplotlib_cmaps_added = False
 
-__all__ = ['ginga_mp']
+__all__ = ['ginga_mp','ginga_nb','ginga_general']
 
 
 class ginga_general(object):
@@ -41,7 +40,8 @@ class ginga_general(object):
     """ A class which controls all interactions between the user and the
     ginga window
 
-        The ginga_mp() contructor creates a new window with the matplotlib backend
+        The ginga_??() contructor creates a new window with either the
+        matplotlib backend or through a jupyter notebook
 
         Parameters
         ----------
@@ -805,3 +805,56 @@ class ginga_mp(ginga_general):
 
         # create a canvas that we insert when doing imexam mode
         self.canvas = self.ginga_view.add_canvas()
+
+
+class ginga_nb(ginga_general):
+
+    """
+    A ginga-based viewer that uses an HTML5 window in the browser.
+    This is compatible with the jupyter notebook and can be run from a server
+
+    This kind of viewer has slower performance than if we
+    choose a particular widget back end, but the advantage is that
+    it works so long as the user has a working browser.
+
+    This example illustrates using a Ginga widget in a web browser,  All the
+    rendering is done on the server side and the browser only acts as a display
+    front end.  Using this you could create an analysis type environment on a
+    server and view it via a browser.
+    """
+
+    def _open_browser(self):
+        try:
+            import webbrowser
+        except ImportError:
+            warnings.warn(
+                "webbrowser module not installed, see the installed doc directory for the HTML help pages")
+            raise ImportError
+
+        webbrowser.open(self.ginga_view.url)
+
+    def _create_viewer(self, bind_prefs, viewer_prefs,opencv=False,port=9909):
+        # Ginga imports for  display in an HTML5 browser
+        from ginga.web.pgw import ipg
+        self.port=port
+
+        # Set this to True if you have a non-buggy python OpenCv bindings--it greatly speeds up some operations
+        self.use_opencv = opencv
+        server = ipg.make_server(host='localhost', port=self.port, use_opencv=self.use_opencv)
+
+        # Start viewer server
+        # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
+        server.start(no_ioloop=False)
+        self.ginga_view = server.get_viewer('ginga_view')
+        self.figure=self.ginga_view #didn't find figure 
+
+        #pop up a separate browser window with the viewer
+        self._open_browser()
+
+        # create a canvas that we insert when doing imexam mode
+        self.canvas = self.ginga_view.add_canvas()
+
+
+    def close(self):
+        """ close the window"""
+        print("You must close the browser window by hand")

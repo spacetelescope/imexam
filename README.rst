@@ -91,6 +91,12 @@ Starting a connection to a Ginga widget, using the Matplotlib backend for viewin
 
     a=imexam.connect(viewer='ginga_mp')
 
+Starting a connection to a Ginga window, inside a browser in Jupyter Notebooks:
+
+::
+
+    a=imexam.connect(viewer='ginga_nb')
+
 
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.
 

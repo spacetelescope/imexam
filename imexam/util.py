@@ -47,10 +47,10 @@ def list_active_ds9():
 
     Notes
     -----
-    when I start a unix socket with connect() the xpa register isn't 
-    seeing it when I call this function. I think because it's only 
-    listening on the inet socket which starts by default in the OS. 
-    That's if xpans is installed on the machine. Otherwise, no 
+    when I start a unix socket with connect() the xpa register isn't
+    seeing it when I call this function. I think because it's only
+    listening on the inet socket which starts by default in the OS.
+    That's if xpans is installed on the machine. Otherwise, no
     nameserver is running at all.
     """
 
