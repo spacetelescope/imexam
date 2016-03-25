@@ -205,7 +205,7 @@ class Imexamine(object):
         """
         self._define_local_pars()
 
-    def new_plot_window(self, x, y, data):
+    def new_plot_window(self, x, y, data=None):
         """make the next plot in a new plot window
 
 
@@ -217,14 +217,17 @@ class Imexamine(object):
         The old window cannot be used again.
 
         """
+        if data is None:
+            data = self._data
         counter = len(self._plot_windows) + 1
         self._figure_name = "imexam" + str(counter)
         self._plot_windows.append(self._figure_name)
         print("Plots now directed towards {0:s}".format(self._figure_name))
 
-    def plot_line(self, x, y, data, fig=None):
+    def plot_line(self, x, y, data=None, fig=None):
         """line plot of data at point x"""
-
+        if data is None:
+                data=self._data
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
@@ -256,8 +259,11 @@ class Imexamine(object):
         plt.draw()
         plt.pause(0.001)
 
-    def plot_column(self, x, y, data, fig=None):
+    def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y"""
+
+        if data is None:
+            data = self._data
 
         if fig is None:
             fig = plt.figure(self._figure_name)
@@ -290,14 +296,19 @@ class Imexamine(object):
         plt.draw()
         plt.pause(0.001)
 
-    def show_xy_coords(self, x, y, data):
+    def show_xy_coords(self, x, y, data=None):
         """print the x,y,value to the screen"""
+        if data is None:
+            data = self._data
         info = "{0} {1}  {2}".format(x + 1, y + 1, data[(y), (x)])
         print(info)
         logging.info(info)
 
-    def report_stat(self, x, y, data):
+    def report_stat(self, x, y, data=None):
         """report the median of values in a box with side region_size"""
+        if data is None:
+            data = self._data
+
         region_size = self.report_stat_pars["region_size"][0]
         resolve = True
         name=self.report_stat_pars["stat"][0]
@@ -317,11 +328,13 @@ class Imexamine(object):
             print(pstr)
             logging.info(pstr)
 
-    def save_figure(self, x, y, data ):
+    def save_figure(self, x, y, data=None ):
         """save the figure that's currently displayed
            this is used for the imexam loop, because
            there is a standard api for the loop
         """
+        if data is None:
+            data = self._data
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
         plt.savefig(self.plot_name)
@@ -335,7 +348,7 @@ class Imexamine(object):
         """
         if filename:
             self.set_plot_name(filename)
-            
+
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
         plt.savefig(self.plot_name)
@@ -343,10 +356,12 @@ class Imexamine(object):
         print(pstr)
         logging.info(pstr)
 
-    def aper_phot(self, x, y, data):
+    def aper_phot(self, x, y, data=None):
         """Perform aperture photometry, uses photutils functions, photutils must be available
 
         """
+        if data is None:
+            data = self._data
         sigma = 0.  # no centering
         amp = 0.  # no centering
         if not photutils_installed:
@@ -418,7 +433,7 @@ class Imexamine(object):
             print(pheader + pstr)
             logging.info(pheader + pstr)
 
-    def line_fit(self, x, y, data, form=None, subsample=4, fig=None, genplot=True):
+    def line_fit(self, x, y, data=None, form=None, subsample=4, fig=None, genplot=True):
         """compute the 1d  fit to the line of data using the specified form
 
 
@@ -440,6 +455,8 @@ class Imexamine(object):
         If centering is True in the parameter set, then the center is fit with a 2d gaussian
 
         """
+        if data is None:
+            data = self._data
         amp = 0
         sigma = 0
         if not form:
@@ -531,7 +548,7 @@ class Imexamine(object):
 
 
 
-    def column_fit(self, x, y, data, form=None, subsample=4, fig=None):
+    def column_fit(self, x, y, data=None, form=None, subsample=4, fig=None):
         """compute the 1d  fit to the column of data
 
         Parameters
@@ -550,6 +567,8 @@ class Imexamine(object):
         if centering is True, then the center is fit with a 2d gaussian
 
         """
+        if data is None:
+            data = self._data
 
         sigma = 0
         amp = 0
@@ -635,7 +654,7 @@ class Imexamine(object):
         print(pstr)
         logging.info(pstr)
 
-    def gauss_center(self, x, y, data, delta=10):
+    def gauss_center(self, x, y, data=None, delta=10):
         """return the 2d gaussian fit center
 
         Parameters
@@ -644,6 +663,9 @@ class Imexamine(object):
             The range of data values to use around the x,y location for calculating the center
 
         """
+        if data is None:
+            data = self._data
+
         chunk = data[
             y -
             delta:y +
@@ -664,7 +686,7 @@ class Imexamine(object):
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def radial_profile_plot(self, x, y, data, form=None, fig=None):
+    def radial_profile_plot(self, x, y, data=None, form=None, fig=None):
         """
         Display the radial profile plot (intensity vs radius) for the object
         Background may be subtracted and centering can be done with a 2dgauss fit
@@ -673,6 +695,8 @@ class Imexamine(object):
             print("Install photutils to enable")
         else:
 
+            if data is None:
+                data = self._data
             amp = 0
             sigma = 0
             if not form:
@@ -763,7 +787,7 @@ class Imexamine(object):
             plt.pause(0.001)
 
 
-    def curve_of_growth_plot(self, x, y, data, fig=None):
+    def curve_of_growth_plot(self, x, y, data=None, fig=None):
         """
         display the curve of growth plot for the object
         photometry from photutil
@@ -771,6 +795,9 @@ class Imexamine(object):
         if not photutils_installed:
             print("Install photutils to enable")
         else:
+
+            if data is None:
+                data = self._data
 
             delta = 10  # chunk size to find center
             subpixels = 10  # for line fit later
@@ -832,7 +859,7 @@ class Imexamine(object):
             plt.draw()
             plt.pause(0.001)
 
-    def _aperture_phot(self, x, y, data, radsize=1,
+    def _aperture_phot(self, x, y, data=None, radsize=1,
                        sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
         """Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed
 
@@ -861,6 +888,9 @@ class Imexamine(object):
         if not photutils_installed:
             print("Install photutils to enable")
         else:
+
+            if data is None:
+                data = self._data
 
             apertures = photutils.CircularAperture((x, y), radsize)
             rawflux_table = photutils.aperture_photometry(
@@ -891,8 +921,11 @@ class Imexamine(object):
             return (
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
-    def histogram_plot(self, x, y, data, fig=None):
+    def histogram_plot(self, x, y, data=None, fig=None):
         """plot a histogram of the pixel values in a region around the specified location"""
+
+        if data is None:
+            data = self._data
 
         if fig is None:
             fig = plt.figure(self._figure_name)
@@ -943,8 +976,11 @@ class Imexamine(object):
         plt.draw()
         plt.pause(0.001)
 
-    def contour_plot(self, x, y, data, fig=None):
+    def contour_plot(self, x, y, data=None, fig=None):
         """plot contours in a region around the specified location"""
+
+        if data is None:
+            data = self._data
 
         if fig is None:
             fig = plt.figure(self._figure_name)
@@ -981,7 +1017,7 @@ class Imexamine(object):
         plt.draw()
         plt.pause(0.001)
 
-    def surface_plot(self, x, y, data, fig=None):
+    def surface_plot(self, x, y, data=None, fig=None):
         """plot a surface around the specified location
 
                        "ncolumns":[21,"Number of columns"],
@@ -994,6 +1030,9 @@ class Imexamine(object):
 
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
+
+        if data is None:
+            data = self._data
 
         if fig is None:
             fig = plt.figure(self._figure_name)
@@ -1123,57 +1162,46 @@ class Imexamine(object):
 
     def set_radial_pars(self):
         """ set parameters for radial profile plots"""
-
         self.radial_profile_pars = imexam_defpars.radial_profile_pars
 
     def set_curve_pars(self):
         """set parameters for curve of growth plots"""
-
         self.curve_of_growth_pars = imexam_defpars.curve_of_growth_pars
 
     def set_surface_pars(self):
         """set parameters for surface plots"""
-
         self.surface_pars = imexam_defpars.surface_pars
 
     def set_line_fit_pars(self):
         """set parameters for 1D line fit plots"""
-
         self.line_fit_pars = imexam_defpars.line_fit_pars
 
     def set_column_fit_pars(self):
         """set parameters for 1D line fit plots"""
-
         self.column_fit_pars = imexam_defpars.column_fit_pars
 
     def set_contour_pars(self):
         """set parameters for contour plots"""
-
         self.contour_pars = imexam_defpars.contour_pars
 
     def set_histogram_pars(self):
         """set parameters for histogram plots"""
-
         self.histogram_pars = imexam_defpars.histogram_pars
 
     def set_lineplot_pars(self):
         """set parameters for line plots"""
-
         self.lineplot_pars = imexam_defpars.lineplot_pars
 
     def set_colplot_pars(self):
         """set parameters for column plots"""
-
         self.colplot_pars = imexam_defpars.colplot_pars
 
     def set_histogram_pars(self):
         """set parameters for histogram plots"""
-
         self.histogram_pars = imexam_defpars.histogram_pars
 
     def set_contour_pars(self):
         """set parameters for histogram plots"""
-
         self.contour_pars = imexam_defpars.contour_pars
 
     def reset_defpars(self):

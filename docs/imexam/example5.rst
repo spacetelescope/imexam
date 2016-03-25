@@ -47,3 +47,12 @@ produces the following plot:
     :height: 400
     :width: 400
     :alt: line plot generated without viewing
+
+
+You can save the current plot using the save method:
+
+::
+
+    plots.save() #with an optional filename using filename=something.extname
+
+Where the extname specifies the format of the file, ex: jpg or pdf. A pdf file will be the default output.

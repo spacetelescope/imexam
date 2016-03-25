@@ -24,3 +24,5 @@ try:
     from .version import githash as __githash__
 except ImportError:
     __githash__ = ''
+
+from imexamine import *
