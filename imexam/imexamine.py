@@ -317,8 +317,25 @@ class Imexamine(object):
             print(pstr)
             logging.info(pstr)
 
-    def save_figure(self, x, y, data):
-        """save the figure that's currently displayed"""
+    def save_figure(self, x, y, data ):
+        """save the figure that's currently displayed
+           this is used for the imexam loop, because
+           there is a standard api for the loop
+        """
+        fig = plt.figure(self._figure_name)
+        ax = fig.gca()
+        plt.savefig(self.plot_name)
+        pstr = "plot saved to {0:s}".format(self.plot_name)
+        print(pstr)
+        logging.info(pstr)
+
+    def save(self,filename=None):
+        """save the figure that's currently displayed
+            this is used for the standalone plotting
+        """
+        if filename:
+            self.set_plot_name(filename)
+            
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
         plt.savefig(self.plot_name)
