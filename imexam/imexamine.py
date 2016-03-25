@@ -1089,9 +1089,6 @@ class Imexamine(object):
         import types
         return setattr(cls, func.__name__, types.MethodType(func, None, cls))
 
-    # Some boilderplate to display matplotlib plots in notebook
-    # If QT GUI could interact nicely with --pylab=inline we wouldn't need this
-
     def showplt(self):
         buf = StringIO.StringIO()
         plt.savefig(buf, bbox_inches=0)

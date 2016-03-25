@@ -29,6 +29,7 @@ from ginga.util import paths
 
 import matplotlib
 from matplotlib import pyplot as plt
+
 # module variables
 _matplotlib_cmaps_added = False
 
@@ -57,7 +58,7 @@ class ginga_general(object):
         exam: imexamine object
     """
 
-    def __init__(self, exam=None, close_on_del=True, logger=None):
+    def __init__(self, exam=None, close_on_del=True, logger=None, port=None):
         """
 
         Notes
@@ -67,7 +68,7 @@ class ginga_general(object):
 
         """
         global _matplotlib_cmaps_added
-
+        self.port = port
         self.exam = exam
         self._close_on_del = close_on_del
         # dictionary where each key is a frame number, and the values are a
@@ -100,15 +101,14 @@ class ginga_general(object):
             logger=self.logger)
 
         # general preferences shared with other ginga viewers
-        settings = self.prefs.createCategory('general')
-        settings.load(onError='silent')
-        settings.setDefaults(useMatplotlibColormaps=False,
+        self.settings = self.prefs.createCategory('general')
+        self.settings.load(onError='silent')
+        self.settings.setDefaults(useMatplotlibColormaps=False,
                              autocuts='on', autocut_method='zscale')
-        self.settings = settings
 
         # add matplotlib colormaps to ginga's own set if user has this
         # preference set
-        if settings.get('useMatplotlibColormaps', False) and \
+        if self.settings.get('useMatplotlibColormaps', False) and \
                 (not _matplotlib_cmaps_added):
             # Add matplotlib color maps if matplotlib is installed
             try:
@@ -135,12 +135,11 @@ class ginga_general(object):
         bindings.enable_all(True)
         self.ginga_view.add_callback('key-press', self._key_press_normal)
 
-        canvas = self.canvas
-        canvas.enable_draw(False)
-        canvas.add_callback('key-press', self._key_press_imexam)
-        canvas.setSurface(self.ginga_view)
-        canvas.ui_setActive(True)
-        self.canvas = canvas
+
+        self.canvas.enable_draw(False)
+        self.canvas.add_callback('key-press', self._key_press_imexam)
+        self.canvas.setSurface(self.ginga_view)
+        self.canvas.ui_setActive(True)
 
     def _draw_indicator(self):
         return
@@ -155,10 +154,10 @@ class ginga_general(object):
             pass
 
         # assemble drawing classes
-        canvas = self.canvas
-        Text = canvas.getDrawClass('text')
-        Rect = canvas.getDrawClass('rectangle')
-        Compound = canvas.getDrawClass('compoundobject')
+
+        Text = self.canvas.getDrawClass('text')
+        Rect = self.canvas.getDrawClass('rectangle')
+        Compound = self.canvas.getDrawClass('compoundobject')
 
         # calculations for canvas coordinates
         mode = 'imexam'
@@ -179,7 +178,7 @@ class ginga_general(object):
 
         # use canvas, not data coordinates
 
-        canvas.add(o2, tag='indicator')
+        self.canvas.add(o2, tag='indicator')
         # -- end black magic ------
 
     def _create_viewer(self, bind_prefs, viewer_prefs):
@@ -324,7 +323,9 @@ class ginga_general(object):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 # run event loop, so window can get a keystroke
-                self.figure.canvas.start_event_loop(timeout=0.1)
+                #but only depending on context
+                if self.use_opencv():
+                    self.figure.canvas.start_event_loop(timeout=0.1)
 
             with self._cv:
                 # did we get a key event?
@@ -503,7 +504,7 @@ class ginga_general(object):
         ginga window with the canvas overlaid.  It handles all the
         dispatch of the 'imexam' mode.
         """
-        data_x, data_y = self.ginga_view.get_last_data_xy()
+        data_x, data_y = sself.ginga_view.get_last_data_xy()
         self.logger.debug("key %s pressed at data %f,%f" % (
             keyname, data_x, data_y))
 
@@ -833,10 +834,21 @@ class ginga_nb(ginga_general):
 
         webbrowser.open(self.ginga_view.url)
 
-    def _create_viewer(self, bind_prefs, viewer_prefs,opencv=False,port=9909):
-        # Ginga imports for  display in an HTML5 browser
+    def _get_open_port(self):
+        """
+        Try and assign an open port
+        """
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind(("",0))
+        self.port = s.getsockname()[1]
+        s.close()
+
+    def _create_viewer(self, bind_prefs, viewer_prefs,opencv=False):
+        """Ginga imports for  display in an HTML5 browser"""
         from ginga.web.pgw import ipg
-        self.port=port
+        if not self.port:
+            self.port=9906            
 
         # Set this to True if you have a non-buggy python OpenCv bindings--it greatly speeds up some operations
         self.use_opencv = opencv
@@ -846,7 +858,8 @@ class ginga_nb(ginga_general):
         # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
         server.start(no_ioloop=False)
         self.ginga_view = server.get_viewer('ginga_view')
-        self.figure=self.ginga_view #didn't find figure 
+        self.figure=self.ginga_view #didn't find figure
+        #self.figure.show()
 
         #pop up a separate browser window with the viewer
         self._open_browser()
@@ -858,3 +871,35 @@ class ginga_nb(ginga_general):
     def close(self):
         """ close the window"""
         print("You must close the browser window by hand")
+
+    def readcursor(self):
+        """returns image coordinate postion and key pressed,
+
+        Notes
+        -----
+        """
+        # insert canvas to trap keyboard events if not already inserted
+        if not self._capturing:
+            self._capture()
+
+        with self._cv:
+            self._kv = ()
+
+        # wait for a key press
+        # NOTE: the viewer now calls the functions directly from the
+        # dispatch table, and only returns on the quit key here
+        while True:
+            # ugly hack to suppress deprecation  by mpl
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                # run event loop, so window can get a keystroke
+                #but only depending on context
+
+            with self._cv:
+                # did we get a key event?
+                if len(self._kv) > 0:
+                    (k, x, y) = self._kv
+                    break
+
+        # ginga is returning 0 based indexes
+        return x + 1, y + 1, k

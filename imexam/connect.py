@@ -60,7 +60,7 @@ class Connect(object):
     """
 
     def __init__(self, target=None, path=None, viewer="ds9",
-                 wait_time=10, quit_window=True):
+                 wait_time=10, quit_window=True,port=None):
 
         # better dynamic way so people can add their own viewers?
         _possible_viewers = ["ds9"]
@@ -98,7 +98,7 @@ class Connect(object):
 
         elif 'ginga_nb' in self._viewer:
             self.window = ginga_nb(exam=self.exam,
-                                   close_on_del=quit_window)
+                                   close_on_del=quit_window,port=port)
             # self.window.view.add_callback('key-press',self.window._imexam)
             # rotate canvas in before this can be used
             # self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
