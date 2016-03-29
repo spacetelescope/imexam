@@ -1559,18 +1559,28 @@ class ds9(object):
         """
         frame = self.frame()
         if not filename:
-            filename = self._viewer[frame]['filename'] + "_snap.jpg"
+            filename = self._viewer[frame]['filename']
 
-        cstring = "saveimage "
-        name = filename
-        if format:
-            name = filename + format
-        cstring += name
-        if "jpeg" in name:
+        if not format:
+            filename += "_snap.jpg"
+        else:
+            filename += "_snap." + format
+
+        cstring = "saveimage " + filename
+
+        if "jpeg" in filename:
             cstring += (" " + str(resolution))
+
         self.set(cstring)
         print("Image saved to {0:s}".format(filename))
         logging.info("Image saved to {0:s}".format(filename))
+        return(filename)
+
+    def grab(self):
+        fname=self.snapsave(format="png")
+        data=mpimage.imread(fname)
+        plt.imshow(data)
+
 
     def view(self, img):
         """ Display numpy image array to current frame

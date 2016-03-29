@@ -1,7 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """help with math functions
-   From iraf documentation:
+   These could eventually be replaced with astropy models
+
+   From iraf documentation, for comparison:
 
             The intensity profile functions (with unit peak) are:
 

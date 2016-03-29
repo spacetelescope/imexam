@@ -14,11 +14,13 @@ from .util import set_logging
 from . import xpa
 from .ds9_viewer import ds9
 try:
-    from .ginga_viewer import ginga_mp, ginga_nb
+    from .ginga_viewer import  ginga, ginga_general
     have_ginga = True
 except ImportError:
     have_ginga = False
 
+import matplotlib.image as mpimage
+import matplotlib.pyplot as plt
 
 from .imexamine import Imexamine
 
@@ -68,8 +70,7 @@ class Connect(object):
         self._viewer = viewer.lower()
 
         if have_ginga:
-            _possible_viewers.append('ginga_mp')
-            _possible_viewers.append('ginga_nb')
+            _possible_viewers.append('ginga')
 
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
@@ -83,25 +84,8 @@ class Connect(object):
                 target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
             self._event_driven_exam = False  # use the imexam loop
 
-        elif 'ginga_mp' in self._viewer:
-            self.window = ginga_mp(exam=self.exam,
-                                   close_on_del=quit_window)
-            # self.window.view.add_callback('key-press',self.window._imexam)
-            # rotate canvas in before this can be used
-            # self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
-            # the viewer will track imexam with callbacks
-            self._event_driven_exam = True
-
-            # alter the exam.imexam_option_funcs{} here through the viewer code if you want to
-            # change key+function associations
-            # self.window._reassign_keys(imexam_dict)
-
-        elif 'ginga_nb' in self._viewer:
-            self.window = ginga_nb(exam=self.exam,
-                                   close_on_del=quit_window,port=port)
-            # self.window.view.add_callback('key-press',self.window._imexam)
-            # rotate canvas in before this can be used
-            # self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
+        elif 'ginga' in self._viewer:
+            self.window = ginga(exam=self.exam, close_on_del=quit_window, port=port)
             # the viewer will track imexam with callbacks
             self._event_driven_exam = True
 
@@ -148,6 +132,10 @@ class Connect(object):
             self.exam.print_options()
             print(
                 "\nPress the i key in the graphics window for access to imexam keys, i or q again to exit\n")
+
+    def grab(self):
+        """display a snapshop of the current image in the browser window"""
+        self.window.grab()
 
     def get_data_filename(self):
         """return the filename for the data in the current window"""

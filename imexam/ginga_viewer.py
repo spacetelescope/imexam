@@ -27,18 +27,18 @@ from ginga.AstroImage import AstroImage
 from ginga import cmap
 from ginga.util import paths
 
-import matplotlib
-from matplotlib import pyplot as plt
+from matplotlib import get_backend
+import matplotlib.pyplot as plt
 
 # module variables
 _matplotlib_cmaps_added = False
 
-__all__ = ['ginga_mp','ginga_nb','ginga_general']
-
+#the html5 viewer is currently supported
+__all__ = ['ginga','ginga_general']
 
 class ginga_general(object):
 
-    """ A class which controls all interactions between the user and the
+    """ A base class which controls all interactions between the user and the
     ginga window
 
         The ginga_??() contructor creates a new window with either the
@@ -60,11 +60,13 @@ class ginga_general(object):
 
     def __init__(self, exam=None, close_on_del=True, logger=None, port=None):
         """
-
         Notes
         -----
         Ginga viewers all need a logger, if none is provided it will create one
 
+        the port option is for use in the Jupyter notebook since the server
+        displays the image to a distict port. The user can choose to have multiple
+        windows open at the same time as long as they have different ports.
 
         """
         global _matplotlib_cmaps_added
@@ -73,13 +75,15 @@ class ginga_general(object):
         self._close_on_del = close_on_del
         # dictionary where each key is a frame number, and the values are a
         # dictionary of details about the image loaded in that frame
-        self._viewer = dict()
+        self._viewer=dict()
         self._current_frame = 1
         self._current_slice = None
 
-        self.ginga_view = None  # ginga view object
+        # ginga view object, created in subclass
+        self.ginga_view = None
 
-        self._define_cmaps()  # set up possible color maps
+        # set up possible color maps
+        self._define_cmaps()
 
         # for synchronizing on keystrokes
         self._cv = threading.RLock()
@@ -134,14 +138,12 @@ class ginga_general(object):
         bindings = self.ginga_view.get_bindings()
         bindings.enable_all(True)
         self.ginga_view.add_callback('key-press', self._key_press_normal)
-
-
         self.canvas.enable_draw(False)
         self.canvas.add_callback('key-press', self._key_press_imexam)
         self.canvas.setSurface(self.ginga_view)
         self.canvas.ui_setActive(True)
 
-    def _draw_indicator(self):
+    def _draw_imexam_indicator(self):
         return
         # -- Here be black magic ------
         # This function draws the imexam indicator on the lower left
@@ -191,11 +193,11 @@ class ginga_general(object):
         processing by the bindings layer of Ginga.
         """
         self.ginga_view.onscreen_message("Entering imexam mode",
-                                         delay=1.0)
+                                         delay=0.5)
         # insert the canvas
-        self.ginga_view.add(self.canvas, tag='mycanvas')
-        self._draw_indicator()
+        self.ginga_view.add(self.canvas, tag='imexam-canvas')
         self._capturing = True
+        self._draw_imexam_indicator()
 
     def _release(self):
         """
@@ -207,7 +209,7 @@ class ginga_general(object):
         self.canvas.deleteObjectByTag('indicator')
 
         # retract the canvas
-        self.ginga_view.deleteObjectByTag('mycanvas')
+        self.ginga_view.deleteObjectByTag('imexam-canvas')
 
     def __str__(self):
         return "<ginga viewer>"
@@ -216,23 +218,23 @@ class ginga_general(object):
         if self._close_on_del:
             self.close()
 
-    def _set_frameinfo(self, frame, fname=None, hdu=None, data=None,
+    def _set_frameinfo(self, fname=None, hdu=None, data=None,
                        image=None):
         """Set the name and extension information for the data displayed in
-        frame n and gather header information.
+        the frame and gather header information.
 
         Notes
         -----
         """
-
         # check the current frame, if none exists, then don't continue
+        frame=self.frame()
         if frame:
             if frame not in self._viewer.keys():
-                self._viewer[frame] = dict()
+                self._viewer[self._current_frame] = dict()
 
             if data is None or not data.any():
                 try:
-                    data = self._viewer[frame]['user_array']
+                    data = self._viewer[self._current_frame]['user_array']
                 except KeyError:
                     pass
 
@@ -253,7 +255,7 @@ class ginga_general(object):
             # this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through
             # frame changes
 
-            self._viewer[frame] = {'filename': fname,
+            self._viewer[self._current_frame] = {'filename': fname,
                                    'extver': extver,
                                    'extname': extname,
                                    'naxis': naxis,
@@ -266,7 +268,7 @@ class ginga_general(object):
 
     def valid_data_in_viewer(self):
         """return bool if valid file or array is loaded into the viewer"""
-        frame = self.frame()
+        frame = self._current_frame
 
         if self._viewer[frame]['filename']:
             return True
@@ -303,10 +305,8 @@ class ginga_general(object):
         plt.close(self.figure)
 
     def readcursor(self):
-        """returns image coordinate postion and key pressed,
-
-        Notes
-        -----
+        """
+        returns image coordinate postion and key pressed,
         """
         # insert canvas to trap keyboard events if not already inserted
         if not self._capturing:
@@ -385,73 +385,21 @@ class ginga_general(object):
         if save:
             warnings.warn("Colormap saving not supported")
 
-    def frame(self, n=None):
-        """convenience function to change or report frames
-
-
-        Parameters
-        ----------
-        n: int, string, optional
-            The frame number to open or change to. If the number specified doesn't exist, a new frame will be opened
-            If nothing is specified, then the current frame number will be returned.
-
-        Examples
-        --------
-        frame(1)  sets the current frame to 1
-        frame("last") set the current frame to the last frame
-        frame() returns the number of the current frame
-        frame("new") opens a new frame
-        frame(3)  opens frame 3 if it doesn't exist already, otherwise goes to frame 3
-
+    def frame(self):
+        """convenience function to report frames
+        currently only 1 frame is supported per object in HTML5
         """
-        frame = self._current_frame
-        n_str = str(n)
-        frames = sorted(self._viewer.keys())
-
-        if not n is None:
-            if n_str == "delete":
-                if frame in frames:
-                    del self._viewer[frame]
-                    frames = self._viewer.keys()
-                    if len(frames) > 0:
-                        n = frames[0]
-                    else:
-                        n = None
-
-            elif n_str == "new":
-                n = frames[-1]
-                n += 1
-                self._set_frameinfo(n)
-
-            elif n_str == "last":
-                n = frames[-1]
-
-            elif n_str == "first":
-                n = frames[0]
-
-            else:
-                n = int(n)
-                if not n in frames:
-                    print("%d is not a created frame." % (n))
-
-            self._current_frame = n
-            image = self._viewer[frame]['image']
-            if image is not None:
-                self.ginga_view.set_image(image)
-            return n
-
-        else:
-            return frame
+        return self._current_frame
 
     def iscube(self):
         """return information on whether a cube image is displayed in the current frame"""
-        frame = self.frame()
+        frame = self._current_frame
         if frame:
             return self._viewer[frame]['iscube']
 
     def get_slice_info(self):
         """return the slice tuple that is currently displayed"""
-        frame = self.frame()
+        frame = self._current_frame
 
         if self._viewer[frame]['iscube']:
             image_slice = self._viewer[frame]['naxis']
@@ -463,7 +411,7 @@ class ginga_general(object):
         """ return a numpy array of the data displayed in the current frame
         """
 
-        frame = self.frame()
+        frame = self._current_frame
         if frame:
             if isinstance(self._viewer[frame]['user_array'], np.ndarray):
                 return self._viewer[frame]['user_array']
@@ -479,8 +427,7 @@ class ginga_general(object):
 
         # TODO return the simple header for arrays which are loaded
 
-        frame = self.frame()
-        if frame and self._viewer[frame]['hdu'] != None:
+        if frame and self._viewer[self._current_frame]['hdu'] != None:
             hdu = self._viewer[frame]['hdu']
             return hdu.header
         else:
@@ -603,8 +550,7 @@ class ginga_general(object):
                 self.logger.error("Exception opening file: {0}".format(e))
                 raise IOError(str(e))
 
-            frame = self.frame()
-            self._set_frameinfo(frame, fname=fname, hdu=hdu, image=image)
+            self._set_frameinfo(fname=fname, hdu=hdu, image=image)
             self.ginga_view.set_image(image)
 
         else:
@@ -691,7 +637,7 @@ class ginga_general(object):
 
         self.ginga_view.transform(flipx, flipy, swapxy)
 
-    def save_png(self, filename=None):
+    def snapsave(self):
         """save a frame display as a PNG file
 
         Parameters
@@ -701,12 +647,7 @@ class ginga_general(object):
             The name of the output PNG image
 
         """
-        if not filename:
-            print("No filename specified, try again")
-        else:
-            buf = self.ginga_view.get_png_image_as_buffer()
-            with open(filename, 'w') as out_f:
-                out_f.write(buf)
+        self.ginga_view.show()
 
     def scale(self, scale='zscale'):
         """ The default zscale is the most widely used option
@@ -754,7 +695,7 @@ class ginga_general(object):
         else:
             img_np = np.array(img)
             image = AstroImage(img_np, logger=self.logger)
-            self._set_frameinfo(frame, data=img_np, image=image)
+            self._set_frameinfo(data=img_np, image=image)
             self.ginga_view.set_image(image)
 
     def zoomtofit(self):
@@ -781,82 +722,70 @@ class ginga_general(object):
         except Exception as e:
             print("problem with zoom: %s" % str(e))
 
-
-class ginga_mp(ginga_general):
-
-    """
-    A ginga-based viewer that uses a matplotlib widget.
-
-    This kind of viewer has slower performance than if we
-    choose a particular widget back end, but the advantage is that
-    it works so long as the user has a working matplotlib.
-
-    This implementation has the benefit of adding image overlays
-    """
-
-    def _create_viewer(self, bind_prefs, viewer_prefs):
-
-        # Ginga imports for matplotlib backend
-        from ginga.mplw import ipg
-
-        self.ginga_view = ipg.get_viewer()
-        self.figure = self.ginga_view.figure
-
-        self.figure.show()
-
-        # create a canvas that we insert when doing imexam mode
-        self.canvas = self.ginga_view.add_canvas()
-
-
-class ginga_nb(ginga_general):
+    def grab(self):
+        raise NotImplementedError
+        
+class ginga(ginga_general):
 
     """
     A ginga-based viewer that uses an HTML5 window in the browser.
-    This is compatible with the jupyter notebook and can be run from a server
+    This is compatible with the jupyter notebook and can be run from a server.
 
     This kind of viewer has slower performance than if we
-    choose a particular widget back end, but the advantage is that
+    choose some widget back ends, but the advantage is that
     it works so long as the user has a working browser.
 
     This example illustrates using a Ginga widget in a web browser,  All the
     rendering is done on the server side and the browser only acts as a display
     front end.  Using this you could create an analysis type environment on a
-    server and view it via a browser.
+    server and view it via a browser or from a jupyter notebook.
     """
 
     def _open_browser(self):
         try:
             import webbrowser
+            webbrowser.open_new_tab(self.ginga_view.url)
         except ImportError:
             warnings.warn(
                 "webbrowser module not installed, see the installed doc directory for the HTML help pages")
-            raise ImportError
+            print("Open a new browser window for: {}".format(self.ginga_view.url()))
 
-        webbrowser.open(self.ginga_view.url)
 
     def _get_open_port(self):
         """
-        Try and assign an open port
+        Try and assign an open port automatically
         """
         import socket
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("",0))
-        self.port = s.getsockname()[1]
-        s.close()
+        for port in range(9904,9999):
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            remote  = socket.gethostbyname("localhost")
+            result = s.connect_ex((remote, port))
+            if result == 0:
+                self.port = port #should be unused
+                print("connecting on port {%i}:".format(port))
+                s.close()
+                break
 
-    def _create_viewer(self, bind_prefs, viewer_prefs,opencv=False):
+    def _create_viewer(self, bind_prefs, viewer_prefs, opencv=False, threads=1):
         """Ginga imports for  display in an HTML5 browser"""
         from ginga.web.pgw import ipg
         if not self.port:
-            self.port=9906            
+            self.port=9904 #still working on autoport
 
         # Set this to True if you have a non-buggy python OpenCv bindings--it greatly speeds up some operations
         self.use_opencv = opencv
-        server = ipg.make_server(host='localhost', port=self.port, use_opencv=self.use_opencv)
+        server = ipg.make_server(host='localhost',
+                                 port=self.port,
+                                 use_opencv=self.use_opencv,
+                                 numthreads=threads)
 
         # Start viewer server
         # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
-        server.start(no_ioloop=False)
+        if 'nbagg' in get_backend().lower():
+            server.start(no_ioloop=True)
+        else:
+            server.start(no_ioloop=False)
+
         self.ginga_view = server.get_viewer('ginga_view')
         self.figure=self.ginga_view #didn't find figure
         #self.figure.show()
@@ -870,36 +799,11 @@ class ginga_nb(ginga_general):
 
     def close(self):
         """ close the window"""
-        print("You must close the browser window by hand")
+        print("You must close the image window by hand")
 
-    def readcursor(self):
-        """returns image coordinate postion and key pressed,
 
-        Notes
-        -----
-        """
-        # insert canvas to trap keyboard events if not already inserted
-        if not self._capturing:
-            self._capture()
-
-        with self._cv:
-            self._kv = ()
-
-        # wait for a key press
-        # NOTE: the viewer now calls the functions directly from the
-        # dispatch table, and only returns on the quit key here
-        while True:
-            # ugly hack to suppress deprecation  by mpl
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                # run event loop, so window can get a keystroke
-                #but only depending on context
-
-            with self._cv:
-                # did we get a key event?
-                if len(self._kv) > 0:
-                    (k, x, y) = self._kv
-                    break
-
-        # ginga is returning 0 based indexes
-        return x + 1, y + 1, k
+    def grab(self):
+            """
+            copy current image to notebook
+            """
+            self.ginga_view.show()

@@ -8,12 +8,11 @@ It's possible to use the imexamine library of plotting functions without loading
 
 ::
 
-    import imexam
-    from imexam import imexamine
+    from imexam.imexamine import Imexamine()
     import numpy as np
 
     data=np.random.rand(100,100) #create a random array thats 100x100 pixels
-    plots=imexamine.Imexamine()
+    plots=Imexamine()
 
 
 These are the functions you now have access to:
@@ -53,6 +52,6 @@ You can save the current plot using the save method:
 
 ::
 
-    plots.save() #with an optional filename using filename=something.extname
+    plots.save() #with an optional filename using filename="something.extname"
 
 Where the extname specifies the format of the file, ex: jpg or pdf. A pdf file will be the default output.

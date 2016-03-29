@@ -1,12 +1,31 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-"""This class implements IRAF/imexamine type capabilities"""
+"""This class implements IRAF/imexamine type capabilities
+
+    However, the power of this class is that it is essential a library
+    of plotting and analysis routines which can be directed towards
+    any viewer. It can also be used without connecting to any viewer
+    since the calls take only data,x,y information. This means that
+    given a data array and a list of x,y positions you can creates
+    plots without havin to interact with the viewers.
+
+    Users can also register a custom function with the class
+    and have it available for use in either case.
+
+    The plots which are made are fully customizable
+
+"""
 
 from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import warnings
-from  matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimage
+import warnings
+
+from matplotlib import get_backend
+
 # turn on interactive mode for plotting
 plt.ion()
 
@@ -37,6 +56,7 @@ from . import imexam_defpars
 __all__ = ["Imexamine"]
 
 
+
 class Imexamine(object):
 
     def __init__(self):
@@ -60,6 +80,7 @@ class Imexamine(object):
         self._figure_name = "imexam"
 
         self._plot_windows.append(self._figure_name)
+
 
     def set_option_funcs(self):
         """Define the dictionary which maps imexam option keys to their functions
@@ -205,6 +226,12 @@ class Imexamine(object):
         """
         self._define_local_pars()
 
+    def grab(self):
+        """
+        Grab a snapshot of the current image in the viewer
+        """
+
+
     def new_plot_window(self, x, y, data=None):
         """make the next plot in a new plot window
 
@@ -256,8 +283,11 @@ class Imexamine(object):
         else:
             ax.plot(data[y, :])
 
-        plt.draw()
-        plt.pause(0.001)
+        if 'nbagg' in get_backend().lower():
+            fig.canvas.draw()
+        else:
+            plt.draw()
+            plt.pause(0.001)
 
     def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y"""
@@ -293,8 +323,11 @@ class Imexamine(object):
         else:
             ax.plot(data[:, x])
 
-        plt.draw()
-        plt.pause(0.001)
+        if 'nbagg' in get_backend().lower():
+            fig.canvas.draw()
+        else:
+            plt.draw()
+            plt.pause(0.001)
 
     def show_xy_coords(self, x, y, data=None):
         """print the x,y,value to the screen"""
@@ -329,7 +362,7 @@ class Imexamine(object):
             logging.info(pstr)
 
     def save_figure(self, x, y, data=None ):
-        """save the figure that's currently displayed
+        """save to file the figure that's currently displayed
            this is used for the imexam loop, because
            there is a standard api for the loop
         """
@@ -343,7 +376,7 @@ class Imexamine(object):
         logging.info(pstr)
 
     def save(self,filename=None):
-        """save the figure that's currently displayed
+        """save to file the figure that's currently displayed
             this is used for the standalone plotting
         """
         if filename:
@@ -436,7 +469,6 @@ class Imexamine(object):
     def line_fit(self, x, y, data=None, form=None, subsample=4, fig=None, genplot=True):
         """compute the 1d  fit to the line of data using the specified form
 
-
         Parameters
         ----------
         form: string
@@ -444,7 +476,7 @@ class Imexamine(object):
             Currently gaussian or moffat
 
         subsample: int
-            used to draw the fitted function on a finer scale than the data
+            used to draw the fitted function on a finer scale than the data;
             delta is the range of data values to use around the x,y location
             form is the functional form to use
 
@@ -464,6 +496,7 @@ class Imexamine(object):
 
         delta = self.line_fit_pars["rplot"][0]
 
+        #fit the center with a 2d gaussian
         if self.line_fit_pars["center"][0]:
             popt = self.gauss_center(x, y, data, delta=delta)
             if popt.count(0) > 1:  # an error occurred in centering
@@ -526,18 +559,13 @@ class Imexamine(object):
 
             ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
                 self.line_fit_pars["title"][0], str(fitmean), str(fwhm)))
-            ax.plot(
-                fitx +
-                x -
-                delta,
-                fity,
-                c='r',
-                label=str(
-                    form.__name__) +
-                " fit")
+            ax.plot( fitx + x - delta, fity, c='r', label=str(form.__name__) +" fit")
             plt.legend()
-            plt.draw()
-            plt.pause(0.001)
+            if 'nbagg' in get_backend().lower():
+                fig.canvas.draw()
+            else:
+                plt.draw()
+                plt.pause(0.001)
         else:
             return (fitx+x-delta,fity,popt)
 
@@ -563,8 +591,8 @@ class Imexamine(object):
         Notes
         -----
         delta is the range of data values to use around the x,y location
-        The background is currently ignored
-        if centering is True, then the center is fit with a 2d gaussian
+        The background is currently ignored if centering is True, then
+        the center is fit with a 2d gaussian.
 
         """
         if data is None:
@@ -637,18 +665,13 @@ class Imexamine(object):
 
         ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
             self.column_fit_pars["title"][0], str(fitmean), str(fwhm)))
-        ax.plot(
-            fitx +
-            y -
-            delta,
-            fity,
-            c='r',
-            label=str(
-                form.__name__) +
-            " fit")
+        ax.plot( fitx + y - delta, fity, c='r', label=str( form.__name__) +" fit")
         plt.legend()
-        plt.draw()
-        plt.pause(0.001)
+        if 'nbagg' in get_backend().lower():
+            fig.canvas.draw()
+        else:
+            plt.draw()
+            plt.pause(0.001)
         pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
             int(x + 1), int(y + 1), fitmean, fwhm)
         print(pstr)
@@ -666,13 +689,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
-        chunk = data[
-            y -
-            delta:y +
-            delta,
-            x -
-            delta:x +
-            delta]  # flipped from xpa
+        chunk = data[ y - delta:y + delta, x - delta:x + delta]  # flipped from xpa
         try:
             amp, ycenter, xcenter, sigma, offset = math_helper.gauss_center(
                 chunk)
@@ -783,14 +800,17 @@ class Imexamine(object):
             if bool(self.radial_profile_pars["fitplot"][0]):
                 print("Fit overlay not yet implemented")
 
-            plt.draw()
-            plt.pause(0.001)
+            if 'nbagg' in get_backend().lower():
+                fig.canvas.draw()
+            else:
+                plt.draw()
+                plt.pause(0.001)
 
 
     def curve_of_growth_plot(self, x, y, data=None, fig=None):
         """
-        display the curve of growth plot for the object
-        photometry from photutil
+        display the curve of growth plot;  the object
+        photometry is from photutils
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -856,8 +876,11 @@ class Imexamine(object):
                 logging.info(info)
             ax.plot(radius, flux, 'o')
             ax.set_title(title)
-            plt.draw()
-            plt.pause(0.001)
+            if 'nbagg' in get_backend().lower():
+                fig.canvas.draw()
+            else:
+                plt.draw()
+                plt.pause(0.001)
 
     def _aperture_phot(self, x, y, data=None, radsize=1,
                        sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
@@ -973,8 +996,11 @@ class Imexamine(object):
         n, bins, patches = plt.hist(
             flat_data, num_bins, range=[mini, maxi], normed=False, facecolor='green', alpha=0.5, histtype='bar')
         print("hist with {0} bins".format(num_bins))
-        plt.draw()
-        plt.pause(0.001)
+        if 'nbagg' in get_backend().lower():
+            fig.canvas.draw()
+        else:
+            plt.draw()
+            plt.pause(0.001)
 
     def contour_plot(self, x, y, data=None, fig=None):
         """plot contours in a region around the specified location"""
@@ -1014,8 +1040,12 @@ class Imexamine(object):
             linestyle=lsty)
         if self.contour_pars["label"][0]:
             plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
-        plt.draw()
-        plt.pause(0.001)
+
+        if 'nbagg' in get_backend().lower():
+            fig.canvas.draw()
+        else:
+            plt.draw()
+            plt.pause(0.001)
 
     def surface_plot(self, x, y, data=None, fig=None):
         """plot a surface around the specified location
@@ -1103,8 +1133,11 @@ class Imexamine(object):
         fig.colorbar(surf, shrink=0.5, aspect=5)
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
-        plt.draw()
-        plt.pause(0.001)
+        if 'nbagg' in get_backend().lower():
+            fig.canvas.draw()
+        else:
+            plt.draw()
+            plt.pause(0.001)
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user so that it becomes an option
