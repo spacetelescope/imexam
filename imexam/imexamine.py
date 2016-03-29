@@ -22,7 +22,12 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimage
-import warnings
+import sys
+
+if sys.version_info.major < 3:
+    PY3=False
+else:
+    PY3=True
 
 from matplotlib import get_backend
 
@@ -1176,7 +1181,11 @@ class Imexamine(object):
     @classmethod
     def _add_user_function(cls, func):
         import types
-        return setattr(cls, func.__name__, types.MethodType(func, None, cls))
+        if PY3:
+            return setattr(cls, func.__name__, types.MethodType(func, cls))
+        else:
+            return setattr(cls, func.__name__, types.MethodType(func, None, cls))
+
 
     def showplt(self):
         buf = StringIO.StringIO()
