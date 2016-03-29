@@ -27,6 +27,8 @@ import time
 import warnings
 import logging
 from tempfile import mkdtemp
+import matplotlib.image as mpimage
+import matplotlib.pyplot as plt
 
 import imexam.xpa_wrap as xpa
 from imexam.xpa import XpaException
@@ -1579,6 +1581,7 @@ class ds9(object):
     def grab(self):
         fname=self.snapsave(format="png")
         data=mpimage.imread(fname)
+        plt.clf()
         plt.imshow(data)
 
 
