@@ -28,7 +28,6 @@ from ginga import cmap
 from ginga.util import paths
 
 from matplotlib import get_backend
-import matplotlib.pyplot as plt
 
 # module variables
 _matplotlib_cmaps_added = False
@@ -86,8 +85,8 @@ class ginga_general(object):
         self._define_cmaps()
 
         # for synchronizing on keystrokes
-        self._cv = threading.RLock()
-        self._kv = []
+        self._rlock = threading.RLock() #this creates a thread lock
+        self._keyvals = []
         self._capturing = False
 
         # ginga objects need a logger, create a null one if we are not
@@ -137,11 +136,15 @@ class ginga_general(object):
         # enable all interactive ginga features
         bindings = self.ginga_view.get_bindings()
         bindings.enable_all(True)
+
+        #create imexam canvas
         self.ginga_view.add_callback('key-press', self._key_press_normal)
-        self.canvas.enable_draw(False)
-        self.canvas.add_callback('key-press', self._key_press_imexam)
-        self.canvas.setSurface(self.ginga_view)
-        self.canvas.ui_setActive(True)
+        canvas = self.canvas
+        canvas.enable_draw(False)
+        canvas.add_callback('key-press', self._key_press_imexam)
+        canvas.setSurface(self.ginga_view)
+        canvas.ui_setActive(True)
+        self.canvas=canvas
 
     def _draw_imexam_indicator(self):
         return
@@ -156,10 +159,10 @@ class ginga_general(object):
             pass
 
         # assemble drawing classes
-
-        Text = self.canvas.getDrawClass('text')
-        Rect = self.canvas.getDrawClass('rectangle')
-        Compound = self.canvas.getDrawClass('compoundobject')
+        canvas=self.canvas
+        Text =  canvas.getDrawClass('text')
+        Rect =  canvas.getDrawClass('rectangle')
+        Compound = canvas.getDrawClass('compoundobject')
 
         # calculations for canvas coordinates
         mode = 'imexam'
@@ -180,7 +183,7 @@ class ginga_general(object):
 
         # use canvas, not data coordinates
 
-        self.canvas.add(o2, tag='indicator')
+        canvas.add(o2, tag='indicator')
         # -- end black magic ------
 
     def _create_viewer(self, bind_prefs, viewer_prefs):
@@ -189,15 +192,15 @@ class ginga_general(object):
 
     def _capture(self):
         """
-        Insert our canvas so that we intercept all events before they reach
+        Insert our imexam canvas so that we intercept all events before they reach
         processing by the bindings layer of Ginga.
         """
         self.ginga_view.onscreen_message("Entering imexam mode",
                                          delay=0.5)
         # insert the canvas
         self.ginga_view.add(self.canvas, tag='imexam-canvas')
-        self._capturing = True
         self._draw_imexam_indicator()
+        self._capturing = True
 
     def _release(self):
         """
@@ -212,7 +215,7 @@ class ginga_general(object):
         self.ginga_view.deleteObjectByTag('imexam-canvas')
 
     def __str__(self):
-        return "<ginga viewer>"
+        return "<ginga imexam viewer>"
 
     def __del__(self):
         if self._close_on_del:
@@ -255,7 +258,7 @@ class ginga_general(object):
             # this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through
             # frame changes
 
-            self._viewer[self._current_frame] = {'filename': fname,
+            self._viewer[self._current_frame] = {'filename': filename,
                                    'extver': extver,
                                    'extname': extname,
                                    'naxis': naxis,
@@ -302,7 +305,7 @@ class ginga_general(object):
 
     def close(self):
         """ close the window"""
-        plt.close(self.figure)
+        raise NotImplementedError
 
     def readcursor(self):
         """
@@ -312,8 +315,8 @@ class ginga_general(object):
         if not self._capturing:
             self._capture()
 
-        with self._cv:
-            self._kv = ()
+        with self._rlock:
+            self._keyvals = ()
 
         # wait for a key press
         # NOTE: the viewer now calls the functions directly from the
@@ -325,12 +328,13 @@ class ginga_general(object):
                 # run event loop, so window can get a keystroke
                 #but only depending on context
                 if self.use_opencv():
-                    self.figure.canvas.start_event_loop(timeout=0.1)
+                    self.canvas.start_event_loop(timeout=0.1)
 
-            with self._cv:
+            with self._rlock:
                 # did we get a key event?
-                if len(self._kv) > 0:
-                    (k, x, y) = self._kv
+                if len(self._keyvals) > 0:
+                    (k, x, y) = self._keyvals
+                    print("key pressed:{0:s} on x:{1} y:{2}".format(k,x,y))
                     break
 
         # ginga is returning 0 based indexes
@@ -409,25 +413,33 @@ class ginga_general(object):
 
     def get_data(self):
         """ return a numpy array of the data displayed in the current frame
+
+        Notes
+        -----
+        This is the data array that the imexam() function from connect() uses for analysis
+
+        astropy.io.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]
+        just the one image is retured in the case of multidimensional data, not the cube
+
         """
 
-        frame = self._current_frame
+        frame = self.frame()
         if frame:
             if isinstance(self._viewer[frame]['user_array'], np.ndarray):
                 return self._viewer[frame]['user_array']
 
-            elif self._viewer[frame]['hdu'] != None:
-                return self._viewer[frame]['hdu'].data
-
-            elif self._viewer[frame]['image'] != None:
+            if isinstance(self._viewer[frame]['image'],AstroImage):
                 return self._viewer[frame]['image'].get_data()
+        else:
+            return None
 
     def get_header(self):
         """return the current fits header as a string or None if there's a problem"""
 
         # TODO return the simple header for arrays which are loaded
 
-        if frame and self._viewer[self._current_frame]['hdu'] != None:
+        frame=self.frame()
+        if frame and self._viewer[frame]['hdu'] != None:
             hdu = self._viewer[frame]['hdu']
             return hdu.header
         else:
@@ -451,16 +463,19 @@ class ginga_general(object):
         ginga window with the canvas overlaid.  It handles all the
         dispatch of the 'imexam' mode.
         """
-        data_x, data_y = sself.ginga_view.get_last_data_xy()
+        data_x, data_y = self.ginga_view.get_last_data_xy()
+
+        print("read: {0:s} at {1}, {2}".format(keyname,data_x,data_y))
+
         self.logger.debug("key %s pressed at data %f,%f" % (
             keyname, data_x, data_y))
 
-        if keyname == 'i':
+        if keyname == 'q':
             # temporarily switch to non-imexam mode
             self._release()
             return True
 
-        elif keyname == 'backslash':
+        if keyname == 'backslash':
             # exchange normal logger for the stdout debug logger
             if self.logger != self._debug_logger:
                 self.logger = self._debug_logger
@@ -470,34 +485,22 @@ class ginga_general(object):
                 self.logger = self._saved_logger
                 self.ginga_view.onscreen_message("Debug logging off",
                                                  delay=1.0)
-            return True
-
-        elif keyname == 'q':
-            # exit imexam mode
-            self._release()
-
-            with self._cv:
-                # this will be picked up by the caller in readcursor()
-                self._kv = (keyname, data_x, data_y)
-            return True
-
-        # get our data array
         data = self.get_data()
-        self.logger.debug(
-            "x,y,data dim: %f %f %i" %
-            (data_x, data_y, data.ndim))
-        self.logger.debug("exam=%s" % str(self.exam))
-        # call the imexam function directly
-        if self.exam is not None:
+        # this will be picked up by the caller in readcursor()
+        self._keyvals = (keyname, data_x, data_y)
+        with self._rlock:
+            self.logger.debug(
+                "x,y,data dim: %f %f %i" %
+                (data_x, data_y, data.ndim))
+            self.logger.debug("exam=%s" % str(self.exam))
+
+            # call the imexam function directly
+            self.logger.debug(
+                "calling examine function key={0}".format(keyname))
             try:
                 method = self.exam.imexam_option_funcs[keyname][0]
             except KeyError:
-                self.logger.debug(
-                    "no method defined in the option_funcs dictionary")
                 return False
-
-            self.logger.debug(
-                "calling examine function key={0}".format(keyname))
             try:
                 method(data_x, data_y, data)
             except Exception as e:
@@ -511,7 +514,7 @@ class ginga_general(object):
                     tb_str = "Traceback information unavailable."
                     self.logger.error(tb_str)
 
-        return True
+            return True
 
     def load_fits(self, fname="", extver=1, extname=None):
         """convenience function to load fits image to current frame
@@ -723,8 +726,12 @@ class ginga_general(object):
             print("problem with zoom: %s" % str(e))
 
     def grab(self):
-        raise NotImplementedError
-        
+        """
+        copy current image to notebook
+        """
+        self.ginga_view.show()
+
+
 class ginga(ginga_general):
 
     """
@@ -782,28 +789,25 @@ class ginga(ginga_general):
         # Start viewer server
         # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
         if 'nbagg' in get_backend().lower():
-            server.start(no_ioloop=True)
+            server.start(no_ioloop=True) #assume in notebook
         else:
             server.start(no_ioloop=False)
 
         self.ginga_view = server.get_viewer('ginga_view')
-        self.figure=self.ginga_view #didn't find figure
-        #self.figure.show()
-
-        #pop up a separate browser window with the viewer
-        self._open_browser()
 
         # create a canvas that we insert when doing imexam mode
         self.canvas = self.ginga_view.add_canvas()
 
+        #pop up a separate browser window with the viewer
+        self._open_browser()
+
+
+    def reopen(self):
+        """
+        reopen the viewer window if the user closes it
+        """
+        self._open_browser()
 
     def close(self):
         """ close the window"""
         print("You must close the image window by hand")
-
-
-    def grab(self):
-            """
-            copy current image to notebook
-            """
-            self.ginga_view.show()

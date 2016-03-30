@@ -231,12 +231,6 @@ class Imexamine(object):
         """
         self._define_local_pars()
 
-    def grab(self):
-        """
-        Grab a snapshot of the current image in the viewer
-        """
-
-
     def new_plot_window(self, x, y, data=None):
         """make the next plot in a new plot window
 

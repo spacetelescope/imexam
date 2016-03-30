@@ -133,6 +133,12 @@ class Connect(object):
             print(
                 "\nPress the i key in the graphics window for access to imexam keys, i or q again to exit\n")
 
+    def reopen(self):
+        """
+        reopen a display window closed by the user but not exited
+        """
+        self.window.reopen()
+
     def grab(self):
         """display a snapshop of the current image in the browser window"""
         self.window.grab()
@@ -189,6 +195,10 @@ class Connect(object):
         current_key = keys[0]  # q is not in the list of keys
 
         while current_key:
+            # ugly hack to suppress deprecation  by mpl
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+
             self._check_frame()
             if self.window.iscube():
                 self._check_slice()

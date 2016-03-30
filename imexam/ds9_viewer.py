@@ -1583,6 +1583,7 @@ class ds9(object):
         data=mpimage.imread(fname)
         plt.clf()
         plt.imshow(data)
+        #remove the file from disk?
 
 
     def view(self, img):
@@ -1668,6 +1669,12 @@ class ds9(object):
         """print the available XPA commands"""
 
         print(self.get())  # with no arguments supplied, XPA returns options
+
+    def reopen(self):
+        """
+        reopen a closed window
+        """
+        raise NotImplementedError
 
 import atexit
 atexit.register(ds9._purge_tmp_dirs)
