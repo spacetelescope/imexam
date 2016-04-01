@@ -203,7 +203,7 @@ class ginga_general(object):
         -----
         """
         # check the current frame, if none exists, then don't continue
-        frame=self.frame()
+        frame=self._current_frame
         if frame:
             if frame not in self._viewer.keys():
                 self._viewer[self._current_frame] = dict()
@@ -231,7 +231,7 @@ class ginga_general(object):
             # this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through
             # frame changes
 
-            self._viewer[self._current_frame] = {'filename': filename,
+            self._viewer[self._current_frame] = {'filename': fname,
                                    'extver': extver,
                                    'extname': extname,
                                    'naxis': naxis,
