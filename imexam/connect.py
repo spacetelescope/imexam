@@ -180,6 +180,10 @@ class Connect(object):
 
         """
 
+        # ugly hack to suppress deprecation  by mpl
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()

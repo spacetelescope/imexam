@@ -32,16 +32,20 @@ from matplotlib import get_backend
 # module variables
 _matplotlib_cmaps_added = False
 
-#the html5 viewer is currently supported
+#the html5 viewer is currently supported as ginga
+#this can be used from the python commandline or
+#inside a jupyter notebook
 __all__ = ['ginga','ginga_general']
+
 
 class ginga_general(object):
 
     """ A base class which controls all interactions between the user and the
     ginga window
 
-        The ginga_??() contructor creates a new window with either the
-        matplotlib backend or through a jupyter notebook
+        The ginga contructor creates a new window with the
+        HTML5 backend which can be used through a jupyter notebook
+        or from the commandline.
 
         Parameters
         ----------
@@ -69,7 +73,7 @@ class ginga_general(object):
 
         """
         global _matplotlib_cmaps_added
-        self.port = port
+        self._port = port
         self.exam = exam
         self._close_on_del = close_on_del
         # dictionary where each key is a frame number, and the values are a
@@ -86,16 +90,15 @@ class ginga_general(object):
 
         # for synchronizing on keystrokes
         self._rlock = threading.RLock() #this creates a thread lock
-        self._keyvals = []
+        self._keyvals = list()
         self._capturing = False
 
         # ginga objects need a logger, create a null one if we are not
         # handed one in the constructor
+        self._log_level = 40
         if logger is None:
-            logger = log.get_logger(null=True)
+            logger = log.get_logger(level=self._log_level, log_stderr=True)
         self.logger = logger
-        self._saved_logger = logger
-        self._debug_logger = log.get_logger(level=10, log_stderr=True)
 
         # Establish settings (preferences) for ginga viewers
         basedir = paths.ginga_home
@@ -133,58 +136,28 @@ class ginga_general(object):
         # create the viewer specific to this backend
         self._create_viewer(bind_prefs, viewer_prefs)
 
+        # TODO: at some point, it might be better to simply add a custom
+        # mode called "imexam"--that is a more robust way to do things
+        # but we'd have to register the imexam key bindings in a different way
+        # bm = self.ginga_view.get_bindmap()
+        # bm.add_mode('i', 'imexam', mode_type='locked',
+        #             msg="Entering imexam mode...")
+        # modifiers_set = bindmap.get_modifiers()
+        # bm.map_event('imexam', modifiers_set, trigger, evname)
+
         # enable all interactive ginga features
         bindings = self.ginga_view.get_bindings()
         bindings.enable_all(True)
 
-        #create imexam canvas
-        self.ginga_view.add_callback('key-press', self._key_press_normal)
-        canvas = self.canvas
-        canvas.enable_draw(False)
-        canvas.add_callback('key-press', self._key_press_imexam)
-        canvas.setSurface(self.ginga_view)
-        canvas.ui_setActive(True)
-        self.canvas=canvas
+        # Add a callback to take us into imexam mode
+        top_canvas = self.ginga_view.get_canvas()
+        top_canvas.add_callback('key-press', self._key_press_normal)
 
-    def _draw_imexam_indicator(self):
-        return
-        # -- Here be black magic ------
-        # This function draws the imexam indicator on the lower left
-        # hand corner of the canvas
-
-        try:
-            # delete previous indicator, if there was one
-            self.canvas.deleteObjectByTag('indicator')
-        except:
-            pass
-
-        # assemble drawing classes
-        canvas=self.canvas
-        Text =  canvas.getDrawClass('text')
-        Rect =  canvas.getDrawClass('rectangle')
-        Compound = canvas.getDrawClass('compoundobject')
-
-        # calculations for canvas coordinates
-        mode = 'imexam'
-        xsp, ysp = 6, 6
-        wd, ht = self.ginga_view.get_window_size()
-        #x1, y1 = wd-12*len(mode), ht-12
-        x1, y1 = 12, 12
-        o1 = Text(x1, y1, mode,
-                  fontsize=12, color='orange', coord='canvas')
-        #o1.fitsimage = self.view
-        wd, ht = o1.get_dimensions()
-
-        # yellow text on a black filled rectangle
-        o2 = Compound(Rect(x1 - xsp, y1 - ht - ysp, x1 + wd + xsp, y1 + ht + ysp,
-                           color='black',
-                           fill=True, fillcolor='black', coord='canvas'),
-                      o1, coord='canvas')
-
-        # use canvas, not data coordinates
-
-        canvas.add(o2, tag='indicator')
-        # -- end black magic ------
+        # Add a callback to our private canvas to take us out of imexam mode
+        self.canvas.enable_draw(False)
+        self.canvas.add_callback('key-press', self._key_press_imexam)
+        self.canvas.set_surface(self.ginga_view)
+        self.canvas.ui_setActive(True)
 
     def _create_viewer(self, bind_prefs, viewer_prefs):
         """Create backend-specific viewer."""
@@ -196,11 +169,11 @@ class ginga_general(object):
         processing by the bindings layer of Ginga.
         """
         self.ginga_view.onscreen_message("Entering imexam mode",
-                                         delay=0.5)
-        # insert the canvas
-        self.ginga_view.add(self.canvas, tag='imexam-canvas')
-        self._draw_imexam_indicator()
+                                         delay=1.0)
+        top_canvas = self.ginga_view.get_canvas()
+        top_canvas.add(self.canvas, tag='imexam-canvas')
         self._capturing = True
+
 
     def _release(self):
         """
@@ -209,10 +182,10 @@ class ginga_general(object):
         self.ginga_view.onscreen_message("Leaving imexam mode",
                                          delay=1.0)
         self._capturing = False
-        self.canvas.deleteObjectByTag('indicator')
+        top_canvas = self.ginga_view.get_canvas()
+        top_canvas.delete_object_by_tag("imexam-canvas")
+        self.logger.debug("canvas deleted top=%s" % top_canvas.objects)
 
-        # retract the canvas
-        self.ginga_view.deleteObjectByTag('imexam-canvas')
 
     def __str__(self):
         return "<ginga imexam viewer>"
@@ -307,6 +280,9 @@ class ginga_general(object):
         """ close the window"""
         raise NotImplementedError
 
+    def start_event_loop(self):
+        pass
+
     def readcursor(self):
         """
         returns image coordinate postion and key pressed,
@@ -391,15 +367,14 @@ class ginga_general(object):
 
     def frame(self):
         """convenience function to report frames
-        currently only 1 frame is supported per object in HTML5
+        currently only 1 frame is supported per calling object in HTML5 display
         """
         return self._current_frame
 
     def iscube(self):
         """return information on whether a cube image is displayed in the current frame"""
-        frame = self._current_frame
-        if frame:
-            return self._viewer[frame]['iscube']
+        if self._current_frame:
+            return self._viewer[self._current_frame]['iscube']
 
     def get_slice_info(self):
         """return the slice tuple that is currently displayed"""
@@ -423,7 +398,7 @@ class ginga_general(object):
 
         """
 
-        frame = self.frame()
+        frame = self._current_frame
         if frame:
             if isinstance(self._viewer[frame]['user_array'], np.ndarray):
                 return self._viewer[frame]['user_array']
@@ -438,13 +413,21 @@ class ginga_general(object):
 
         # TODO return the simple header for arrays which are loaded
 
-        frame=self.frame()
+        frame=self._current_frame
         if frame and self._viewer[frame]['hdu'] != None:
             hdu = self._viewer[frame]['hdu']
             return hdu.header
         else:
             warnings.warn("No file with header loaded into ginga")
             return None
+
+    def _set_log_level(self, level):
+        self.logger.setLevel(level)
+        # Because levels are settable at each handler, we have to run
+        # through the handlers to set them as well.
+        # Ugh...no logging API for getting handlers!
+        for hdlr in self.logger.handlers:
+            hdlr.setLevel(level)
 
     def _key_press_normal(self, canvas, keyname):
         """
@@ -477,15 +460,19 @@ class ginga_general(object):
 
         if keyname == 'backslash':
             # exchange normal logger for the stdout debug logger
-            if self.logger != self._debug_logger:
-                self.logger = self._debug_logger
+            log_debug = (self._log_level == 10)
+            if not log_debug:
+                self._log_level = 10
+                self._set_log_level(self._log_level)
                 self.ginga_view.onscreen_message("Debug logging on",
                                                  delay=1.0)
             else:
-                self.logger = self._saved_logger
+                self._log_level = 60
+                self._set_log_level(self._log_level)
                 self.ginga_view.onscreen_message("Debug logging off",
                                                  delay=1.0)
         data = self.get_data()
+
         # this will be picked up by the caller in readcursor()
         self._keyvals = (keyname, data_x, data_y)
         with self._rlock:
@@ -725,12 +712,14 @@ class ginga_general(object):
         except Exception as e:
             print("problem with zoom: %s" % str(e))
 
+    def blink(self):
+        print("Not implemented for Ginga")
+
     def grab(self):
         """
         copy current image to notebook
         """
         self.ginga_view.show()
-
 
 class ginga(ginga_general):
 
@@ -747,6 +736,19 @@ class ginga(ginga_general):
     front end.  Using this you could create an analysis type environment on a
     server and view it via a browser or from a jupyter notebook.
     """
+
+    def __init__(self, exam=None, close_on_del=True, logger=None, port=None,
+                 host='localhost', use_opencv=False):
+
+        # Set this to True if you have a non-buggy python OpenCv bindings
+        #   --it greatly speeds up some operations
+        self.use_opencv = use_opencv
+        self._host = host
+        self._server = None
+        self._port = port
+
+        super(ginga, self).__init__(exam=exam, close_on_del=close_on_del,
+                                       logger=logger, port=self._port)
 
     def _open_browser(self):
         try:
@@ -765,48 +767,66 @@ class ginga(ginga_general):
         import socket
         for port in range(9904,9999):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            remote  = socket.gethostbyname("localhost")
+            remote  = socket.gethostbyname(self._host)
             result = s.connect_ex((remote, port))
             if result == 0:
-                self.port = port #should be unused
+                self._port = port #should be unused
                 print("connecting on port {%i}:".format(port))
                 s.close()
                 break
 
     def _create_viewer(self, bind_prefs, viewer_prefs, opencv=False, threads=1):
         """Ginga imports for  display in an HTML5 browser"""
-        from ginga.web.pgw import ipg
-        if not self.port:
-            self.port=9904 #still working on autoport
 
         # Set this to True if you have a non-buggy python OpenCv bindings--it greatly speeds up some operations
         self.use_opencv = opencv
-        server = ipg.make_server(host='localhost',
-                                 port=self.port,
-                                 use_opencv=self.use_opencv,
-                                 numthreads=threads)
+        self._threads = threads
+        self._server = None
+        self._start_server()
 
-        # Start viewer server
-        # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
-        if 'nbagg' in get_backend().lower():
-            server.start(no_ioloop=True) #assume in notebook
-        else:
-            server.start(no_ioloop=False)
-
-        self.ginga_view = server.get_viewer('ginga_view')
+        self.ginga_view = self._server.get_viewer('ginga_view')
 
         # create a canvas that we insert when doing imexam mode
-        self.canvas = self.ginga_view.add_canvas()
+        #self.canvas = self.ginga_view.add_canvas()
+        #self.canvas.enable_draw(False)
+        #self.canvas.add_callback('key-press', self._key_press_imexam)
+        #self.canvas.set_surface(self.ginga_view)
+        #self.canvas.ui_setActive(True)
 
         #pop up a separate browser window with the viewer
         self._open_browser()
 
+        # create a canvas that we insert when doing imexam mode
+        top_canvas = self.ginga_view.get_canvas()
+        self.canvas = top_canvas.get_draw_class('drawingcanvas')()
 
     def reopen(self):
         """
         reopen the viewer window if the user closes it
         """
-        self._open_browser()
+        if self._server:
+            self._open_browser()
+        else:
+            #start up a new server for the user
+            self._start_server()
+
+    def _start_server(self):
+        # Start viewer server
+        # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
+        from ginga.web.pgw import ipg
+        if not self._port:
+            self._port=9904 #still working on autoport
+
+        self._server = ipg.make_server(host=self._host,
+                                 port=self._port,
+                                 use_opencv=self.use_opencv,
+                                 numthreads=self._threads)
+
+        if 'nbagg' in get_backend().lower():
+            self._server.start(no_ioloop=True) #assume in notebook
+        else:
+            self._server.start(no_ioloop=False)
+
 
     def close(self):
         """ close the window"""
