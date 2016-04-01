@@ -1,4 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+#grab Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """This class supports communication with DS9 through the XPA
 
@@ -29,6 +29,7 @@ import logging
 from tempfile import mkdtemp
 import matplotlib.image as mpimage
 import matplotlib.pyplot as plt
+from matplotlib import get_backend
 
 import imexam.xpa_wrap as xpa
 from imexam.xpa import XpaException
@@ -1579,11 +1580,14 @@ class ds9(object):
         return(filename)
 
     def grab(self):
-        fname=self.snapsave(format="png")
-        data=mpimage.imread(fname)
-        plt.clf()
-        plt.imshow(data)
-        #remove the file from disk?
+        if "nbagg" not in get_backend().lower():
+            print("Only implemented for Jupyter with nbAgg backend")
+        else:
+            fname=self.snapsave(format="png")
+            data=mpimage.imread(fname)
+            plt.clf()
+            plt.imshow(data)
+            #remove the file from disk?
 
 
     def view(self, img):
@@ -1674,6 +1678,7 @@ class ds9(object):
         """
         reopen a closed window
         """
+        print("Not available for DS9, start a new object")
         raise NotImplementedError
 
 import atexit
