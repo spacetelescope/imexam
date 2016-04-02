@@ -131,7 +131,7 @@ class Connect(object):
         else:
             self.exam.print_options()
             print(
-                "\nPress the i key in the graphics window for access to imexam keys, i or q again to exit\n")
+                "\nPress the i key in the graphics window for access to imexam keys, or q to exit\n")
 
     def reopen(self):
         """
@@ -180,10 +180,6 @@ class Connect(object):
 
         """
 
-        # ugly hack to suppress deprecation  by mpl
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
@@ -203,30 +199,30 @@ class Connect(object):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
 
-            self._check_frame()
-            if self.window.iscube():
-                self._check_slice()
-            try:
-                x, y, current_key = self.readcursor()
                 self._check_frame()
                 if self.window.iscube():
                     self._check_slice()
-                if current_key not in keys and 'q' not in current_key:
-                    print("Invalid key")
-                else:
-                    if 'q' in current_key:
-                        current_key = None
+                try:
+                    x, y, current_key = self.readcursor()
+                    self._check_frame()
+                    if self.window.iscube():
+                        self._check_slice()
+                    if current_key not in keys and 'q' not in current_key:
+                        print("Invalid key")
                     else:
-                        self.exam.do_option(
-                            x -
-                            1,
-                            y -
-                            1,
-                            current_key)  # ds9 returns 1 based array
-            except KeyError:
-                print(
-                    "Invalid key, use\n: {0}".format(
-                        self.exam.print_options()))
+                        if 'q' in current_key:
+                            current_key = None
+                        else:
+                            self.exam.do_option(
+                                x -
+                                1,
+                                y -
+                                1,
+                                current_key)  # ds9 returns 1 based array
+                except KeyError:
+                    print(
+                        "Invalid key, use\n: {0}".format(
+                            self.exam.print_options()))
 
     def _check_frame(self):
         """check if the user switched frames"""
@@ -301,6 +297,10 @@ class Connect(object):
     def get_data(self):
         """ return a numpy array of the data in the current window"""
         return self.window.get_data()
+
+    def get_image(self):
+        """ return the full image object, not just the numpy array"""
+        return self.window.get_image()
 
     def get_header(self):
         """return the current fits header as a string, or None if there's a problem"""

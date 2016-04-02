@@ -102,7 +102,7 @@ class Imexamine(object):
         self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
                                     'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
                                     'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
-                                    'm': (self.report_stat, 'square region stats, in [region_size],defayult is median'),
+                                    'm': (self.report_stat, 'square region stats, in [region_size],default is median'),
                                     'x': (self.show_xy_coords, 'return x,y,value of pixel'),
                                     'y': (self.show_xy_coords, 'return x,y,value of pixel'),
                                     'l': (self.plot_line, 'return line plot'),
@@ -380,6 +380,8 @@ class Imexamine(object):
         """
         if filename:
             self.set_plot_name(filename)
+        else:
+            self.set_plot_name(self._figure_name +".pdf")
 
         fig = plt.figure(self._figure_name)
         ax = fig.gca()

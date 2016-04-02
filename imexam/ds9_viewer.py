@@ -1005,6 +1005,12 @@ class ds9(object):
                         data = filedata[0].data
                     return data
 
+    def get_image(self):
+        """ return the full image object instead of just the data array"""
+        print("Returning just the data array, open the image file for the full object")
+        self.get_data()
+
+
     def get_header(self):
         """return the current fits header as a string or None if there's a problem"""
 
@@ -1580,15 +1586,16 @@ class ds9(object):
         return(filename)
 
     def grab(self):
-        if "nbagg" not in get_backend().lower():
-            print("Only implemented for Jupyter with nbAgg backend")
+        backend=get_backend().lower()
+        supported=["ngagg","tkagg","qt4agg"]
+        if backend in supported or "pylab" in backend:
+                fname=self.snapsave(format="png")
+                data=mpimage.imread(fname)
+                plt.clf()
+                plt.imshow(data)
+                #remove the file from disk?
         else:
-            fname=self.snapsave(format="png")
-            data=mpimage.imread(fname)
-            plt.clf()
-            plt.imshow(data)
-            #remove the file from disk?
-
+            print("Not supported for {0:s}".format(backend))
 
     def view(self, img):
         """ Display numpy image array to current frame

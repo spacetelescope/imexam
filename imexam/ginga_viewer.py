@@ -24,8 +24,11 @@ from astropy.io import fits
 
 from ginga.misc import log, Settings
 from ginga.AstroImage import AstroImage
+from ginga.BaseImage import BaseImage
 from ginga import cmap
 from ginga.util import paths
+from ginga.util import wcsmod
+wcsmod.use('AstropyWCS')
 
 from matplotlib import get_backend
 
@@ -402,11 +405,35 @@ class ginga_general(object):
         if frame:
             if isinstance(self._viewer[frame]['user_array'], np.ndarray):
                 return self._viewer[frame]['user_array']
-
+            if isinstance(self._viewer[frame]['user_array'], BaseImage):
+                return self._viewer[frame]['user_array'].get_data()
             if isinstance(self._viewer[frame]['image'],AstroImage):
                 return self._viewer[frame]['image'].get_data()
         else:
             return None
+
+    def get_image(self):
+        """return the AstroImage instance for the data in the viewer"""
+        frame = self._current_frame
+        if frame:
+            if isinstance(self._viewer[frame]['user_array'], np.ndarray):
+                print("Data is just a numpy array")
+                return self._viewer[frame]['user_array']
+            if isinstance(self._viewer[frame]['user_array'], BaseImage):
+                return self._viewer[frame]['user_array']
+            if isinstance(self._viewer[frame]['image'],AstroImage):
+                return self._viewer[frame]['image']
+        else:
+            return None
+
+
+    def contour_load(self):
+        raise NotImplementedError
+
+
+    def disp_header(self):
+        """ display the fits header"""
+        self.get_header()
 
     def get_header(self):
         """return the current fits header as a string or None if there's a problem"""
@@ -448,7 +475,8 @@ class ginga_general(object):
         """
         data_x, data_y = self.ginga_view.get_last_data_xy()
 
-        print("read: {0:s} at {1}, {2}".format(keyname,data_x,data_y))
+        if "q" not in keyname:
+            print("read: {0:s} at {1}, {2}".format(keyname,data_x,data_y))
 
         self.logger.debug("key %s pressed at data %f,%f" % (
             keyname, data_x, data_y))
@@ -651,19 +679,25 @@ class ginga_general(object):
 
         """
 
-        # setting the autocut method?
-        mode_scale = self.ginga_view.get_autocut_methods()
+        if isinstance(scale,tuple):
+            self.ginga_view.scale_to(scale)
 
-        if scale in mode_scale:
-            self.ginga_view.set_autocut_params(scale)
-            return
+        elif isinstance(scale,str):
+            # setting the autocut method?
+            mode_scale = self.ginga_view.get_autocut_methods()
 
-        # setting the color distribution algorithm?
-        color_dist = self.ginga_view.get_color_algorithms()
+            if scale in mode_scale:
+                self.ginga_view.set_autocut_params(scale)
 
-        if scale in color_dist:
-            self.ginga_view.set_color_algorithm(scale)
-            return
+
+            # setting the color distribution algorithm?
+            color_dist = self.ginga_view.get_color_algorithms()
+
+            if scale in color_dist:
+                self.ginga_view.set_color_algorithm(scale)
+        else:
+            print("Unknown scale value")
+
 
     def view(self, img):
         """ Display numpy image array to current frame
@@ -684,7 +718,7 @@ class ginga_general(object):
             print("No valid frame")
         else:
             img_np = np.array(img)
-            image = AstroImage(img_np, logger=self.logger)
+            image = BaseImage(data_np=img_np, logger=self.logger)
             self._set_frameinfo(data=img_np, image=image)
             self.ginga_view.set_image(image)
 
@@ -713,13 +747,85 @@ class ginga_general(object):
             print("problem with zoom: %s" % str(e))
 
     def blink(self):
-        print("Not implemented for Ginga")
+        raise NotImplementedError
 
-    def grab(self):
-        """
-        copy current image to notebook
-        """
-        self.ginga_view.show()
+
+    def crosshair(self, **kwargs):
+        """Control the current position of the crosshair in the current frame, crosshair mode is turned on"""
+        raise NotImplementedError
+
+    def cursor(self, **kwargs):
+        """move the cursor in the current frame to the specified image pixel, it will also move selected regions"""
+        raise NotImplementedError
+
+    def grid(self, *args, **kwargs):
+        """convenience to turn the grid on and off, grid can be flushed with many more options"""
+        raise NotImplementedError
+
+    def hideme(self):
+        """lower the display window"""
+        raise NotImplementedError
+
+    def load_region(self, *args, **kwargs):
+        """Load regions from a file which uses ds9 standard formatting"""
+        raise NotImplementedError
+
+    def load_mef_as_cube(self, *args, **kwargs):
+        """Load a Mult-Extension-Fits image one frame as a cube"""
+        raise NotImplementedError
+
+    def load_mef_as_multi(self, *args, **kwargs):
+        """Load a Mult-Extension-Fits image into multiple frames"""
+        raise NotImplementedError
+
+    def make_region(self, *args, **kwargs):
+        """make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment"""
+        raise NotImplementedError
+
+    def mark_region_from_array(self, *args, **kwargs):
+        """mark regions on the viewer with a list of tuples as input"""
+        raise NotImplementedError
+
+    def match(self, **kwargs):
+        """match all other frames to the current frame"""
+        raise NotImplementedError
+
+    def nancolor(self, **kwargs):
+        """set the not-a-number color, default is red"""
+        raise NotImplementedError
+
+    def load_rgb(self, *args, **kwargs):
+        """load three images into a frame, each one for a different color"""
+        raise NotImplementedError
+
+    def save_rgb(self, *args, **kwargs):
+        """save an rgb image frame that is displayed as an MEF fits file"""
+        raise NotImplementedError
+
+    def save_header(self, *args, **kwargs):
+        """save the header of the current image to a file"""
+        raise NotImplementedError
+
+    def save_regions(self, *args, **kwargs):
+        """save the regions on the current window to a file"""
+        raise NotImplementedError
+
+    def set_region(self, *args, **kwargs):
+        """display a region using the specifications in region_string"""
+        raise NotImplementedError
+
+    def showme(self):
+        """raise the display window"""
+        raise NotImplementedError
+
+    def showpix(self, *args, **kwargs):
+        """display the pixel value table, close window when done"""
+        raise NotImplementedError
+
+    def show_window_commands(self):
+        """print the available commands for the selected display application"""
+        raise NotImplementedError
+
 
 class ginga(ginga_general):
 
@@ -760,23 +866,9 @@ class ginga(ginga_general):
             print("Open a new browser window for: {}".format(self.ginga_view.url()))
 
 
-    def _get_open_port(self):
-        """
-        Try and assign an open port automatically
-        """
-        import socket
-        for port in range(9904,9999):
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            remote  = socket.gethostbyname(self._host)
-            result = s.connect_ex((remote, port))
-            if result == 0:
-                self._port = port #should be unused
-                print("connecting on port {%i}:".format(port))
-                s.close()
-                break
-
     def _create_viewer(self, bind_prefs, viewer_prefs, opencv=False, threads=1):
         """Ginga imports for  display in an HTML5 browser"""
+        from ginga.web.pgw import Widgets
 
         # Set this to True if you have a non-buggy python OpenCv bindings--it greatly speeds up some operations
         self.use_opencv = opencv
@@ -784,7 +876,7 @@ class ginga(ginga_general):
         self._server = None
         self._start_server()
 
-        self.ginga_view = self._server.get_viewer('ginga_view')
+        self.ginga_view = self._server.get_viewer('Imexam Display')
 
         # create a canvas that we insert when doing imexam mode
         #self.canvas = self.ginga_view.add_canvas()
@@ -822,12 +914,25 @@ class ginga(ginga_general):
                                  use_opencv=self.use_opencv,
                                  numthreads=self._threads)
 
-        if 'nbagg' in get_backend().lower():
+        backend=get_backend().lower()
+        if 'nbagg' in backend:
             self._server.start(no_ioloop=True) #assume in notebook
-        else:
+        elif 'tkagg' in backend:
             self._server.start(no_ioloop=False)
-
+        elif "pylab" in backend:
+            raise NotImplementedError
+        elif "qt4agg" in backend:
+            raise NotImplementedError
+        else:
+            print("not designed to work with {0:s}".format(backend))
+            raise NotImplementedError
 
     def close(self):
         """ close the window"""
         print("You must close the image window by hand")
+
+    def grab(self):
+        """
+        copy current image to notebook
+        """
+        self.ginga_view.show()
