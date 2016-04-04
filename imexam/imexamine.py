@@ -1,4 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+# Licensed under a 3-clause BSD style license - see LICENSE.rst.
 
 """This class implements IRAF/imexamine type capabilities
 
@@ -21,27 +21,26 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimage
 import sys
+import logging
+from copy import deepcopy
+import inspect
+from matplotlib import get_backend
+from scipy.optimize import curve_fit
+from IPython.display import Image
+
+from . import math_helper
+from . import imexam_defpars
 
 if sys.version_info.major < 3:
-    PY3=False
+    PY3 = False
 else:
-    PY3=True
-
-from matplotlib import get_backend
+    PY3 = True
 
 # turn on interactive mode for plotting
 plt.ion()
 
-from scipy.optimize import curve_fit
-import time
-import logging
-from copy import deepcopy
-import inspect
-
 # enable display plot in iPython notebook
-from IPython.display import Image
 try:
     from io import StringIO
 except:
@@ -52,26 +51,23 @@ try:
     photutils_installed = True
 except ImportError:
     print(
-        "photutils not installed, photometry functionality in imexam() not available")
+        "photutils not installed, photometry functionality \
+        in imexam() not available")
     photutils_installed = False
-
-from . import math_helper
-from . import imexam_defpars
 
 __all__ = ["Imexamine"]
 
 
-
 class Imexamine(object):
+    """The imexamine class controls plotting and other functions."""
 
     def __init__(self):
-        """ do imexamine like routines on the current frame
+        """do imexamine like routines on the current frame.
 
         read the returned cursor key value to decide what to do
 
         region_size is the default radius or side of the square for stat info
         """
-
         self.set_option_funcs()  # define the dictionary of keys and functions
         self._data = np.zeros(0)  # the data array
         self._datafile = ""  # the file from which the data came
@@ -86,10 +82,8 @@ class Imexamine(object):
 
         self._plot_windows.append(self._figure_name)
 
-
     def set_option_funcs(self):
-        """Define the dictionary which maps imexam option keys to their functions
-
+        """Define the dictionary which maps imexam keys to their functions.
 
          Notes
          -----
@@ -98,7 +92,6 @@ class Imexamine(object):
          the second item in the tuple is the description of what the function
          does when that key is pressed
         """
-
         self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
                                     'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
                                     'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
@@ -118,14 +111,14 @@ class Imexamine(object):
                                     }
 
     def print_options(self):
-        """print the imexam options to screen"""
+        """print the imexam options to screen."""
         keys = self.get_options()
         for key in keys:
             print("%s\t%s" % (key, self.option_descrip(key)))
         print()
 
     def do_option(self, x, y, key):
-        """run the option
+        """run the imexam option.
 
         Parameters
         ----------
@@ -144,13 +137,12 @@ class Imexamine(object):
         self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
-        """return the imexam options as a key list"""
+        """return the imexam options as a key list."""
         keys = sorted(self.imexam_option_funcs.keys())
         return keys
 
     def option_descrip(self, key, field=1):
-        """return the looked up dictionary of options
-
+        """return the looked up dictionary of options.
 
         Parameters
         ----------
@@ -158,26 +150,23 @@ class Imexamine(object):
             The key which was pressed, it relates to the function to call
 
         field: int
-            This tells where in the option dictionary the function name can be found
-
-
+            This tells where in the option dictionary the function name
+            can be found
         """
         return self.imexam_option_funcs[key][field]
 
     def set_data(self, data=np.zeros(0)):
-        """initialize the data that imexamine uses"""
+        """initialize the data that imexamine uses."""
         self._data = data
 
     def set_plot_name(self, filename=None):
-        """set the default plot name for the "s" key
+        """set the default plot name for the "s" key.
 
         Parameters
         ----------
         filename: string
-            The name which is used to save the current plotting window to a file
-            The extension on the name decides which file type is used
-
-
+          The name which is used to save the current plotting window to a file
+          The extension on the name decides which file type is used
         """
         if not filename:
             warnings.warn("No filename provided")
@@ -185,12 +174,11 @@ class Imexamine(object):
             self.plot_name = filename
 
     def get_plot_name(self):
-        """return the default plot name"""
+        """return the default plot name."""
         print(self.plot_name)
 
     def _define_default_pars(self):
-        """set all pars to their defaults which are stored in a file with dicts"""
-
+        """set all pars to their defaults, stored in a file with dicts."""
         self.aperphot_def_pars = imexam_defpars.aperphot_pars
         self.radial_profile_def_pars = imexam_defpars.radial_profile_pars
         self.curve_of_growth_def_pars = imexam_defpars.curve_of_growth_pars
@@ -208,8 +196,7 @@ class Imexamine(object):
         self._define_local_pars()
 
     def _define_local_pars(self):
-        """set a copy of the default pars that users can alter"""
-
+        """set a copy of the default pars that users can alter."""
         self.aperphot_pars = deepcopy(self.aperphot_def_pars)
         self.radial_profile_pars = deepcopy(self.radial_profile_def_pars)
         self.curve_of_growth_pars = deepcopy(self.curve_of_growth_def_pars)
@@ -225,22 +212,21 @@ class Imexamine(object):
         self.report_stat_pars = deepcopy(self.report_stat_def_pars)
 
     def unlearn_all(self):
-        """reset the default parameters for all functions
+        """reset the default parameters for all functions.
 
         Haven't decided how to reset the parameters for just one function yet
         """
         self._define_local_pars()
 
     def new_plot_window(self, x, y, data=None):
-        """make the next plot in a new plot window
-
+        """make the next plot in a new plot window.
 
         Notes
         -----
         x,y, data, are not used here, but the calls are setup to take them
-        for all imexam options. Is there a better way to do the calls in general?
-        Once the new plotting window is open all plots will be directed towards it
-        The old window cannot be used again.
+        for all imexam options. Is there a better way to do the calls in
+        general? Once the new plotting window is open all plots will be
+        directed towards it. The old window cannot be used again.
 
         """
         if data is None:
@@ -251,9 +237,9 @@ class Imexamine(object):
         print("Plots now directed towards {0:s}".format(self._figure_name))
 
     def plot_line(self, x, y, data=None, fig=None):
-        """line plot of data at point x"""
+        """line plot of data at point x."""
         if data is None:
-                data=self._data
+            data = self._data
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
@@ -289,8 +275,7 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def plot_column(self, x, y, data=None, fig=None):
-        """column plot of data at point y"""
-
+        """column plot of data at point y."""
         if data is None:
             data = self._data
 
@@ -329,7 +314,7 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def show_xy_coords(self, x, y, data=None):
-        """print the x,y,value to the screen"""
+        """print the x,y,value to the screen."""
         if data is None:
             data = self._data
         info = "{0} {1}  {2}".format(x + 1, y + 1, data[(y), (x)])
@@ -337,13 +322,13 @@ class Imexamine(object):
         logging.info(info)
 
     def report_stat(self, x, y, data=None):
-        """report the median of values in a box with side region_size"""
+        """report the median of values in a box with side region_size."""
         if data is None:
             data = self._data
 
         region_size = self.report_stat_pars["region_size"][0]
         resolve = True
-        name=self.report_stat_pars["stat"][0]
+        name = self.report_stat_pars["stat"][0]
         try:
             stat = getattr(np, name)
         except AttributeError:
@@ -356,14 +341,15 @@ class Imexamine(object):
             ymin = int(y - dist)
             ymax = int(y + dist)
             pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(
-                xmin, xmax, ymin, ymax,name, (stat(data[ymin:ymax, xmin:xmax])))
+              xmin, xmax, ymin, ymax, name, (stat(data[ymin:ymax, xmin:xmax])))
             print(pstr)
             logging.info(pstr)
 
-    def save_figure(self, x, y, data=None ):
-        """save to file the figure that's currently displayed
-           this is used for the imexam loop, because
-           there is a standard api for the loop
+    def save_figure(self, x, y, data=None):
+        """save to file the figure that's currently displayed.
+
+           this is used for the imexam loop, because there is a standard api
+           for the loop
         """
         if data is None:
             data = self._data
@@ -374,14 +360,15 @@ class Imexamine(object):
         print(pstr)
         logging.info(pstr)
 
-    def save(self,filename=None):
-        """save to file the figure that's currently displayed
+    def save(self, filename=None):
+        """save to file the figure that's currently displayed.
+
             this is used for the standalone plotting
         """
         if filename:
             self.set_plot_name(filename)
         else:
-            self.set_plot_name(self._figure_name +".pdf")
+            self.set_plot_name(self._figure_name + ".pdf")
 
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
@@ -391,8 +378,9 @@ class Imexamine(object):
         logging.info(pstr)
 
     def aper_phot(self, x, y, data=None):
-        """Perform aperture photometry, uses photutils functions, photutils must be available
+        """Perform aperture photometry.
 
+        uses photutils functions, photutils must be available
         """
         if data is None:
             data = self._data
@@ -432,8 +420,9 @@ class Imexamine(object):
                     data,
                     annulus_apertures)
 
-                # to calculate the mean local background, divide the circular annulus aperture sums
-                # by the area fo the circular annulus. The bkg sum with the circular aperture is then
+                # to calculate the mean local background, divide the circular
+                # annulus aperture sums by the area fo the circular annulus.
+                # The bkg sum with the circular aperture is then
                 # then mean local background tims the circular apreture area.
                 aperture_area = apertures.area()
                 annulus_area = annulus_apertures.area()
@@ -467,8 +456,9 @@ class Imexamine(object):
             print(pheader + pstr)
             logging.info(pheader + pstr)
 
-    def line_fit(self, x, y, data=None, form=None, subsample=4, fig=None, genplot=True):
-        """compute the 1d  fit to the line of data using the specified form
+    def line_fit(self, x, y, data=None, form=None, subsample=4,
+                 fig=None, genplot=True):
+        """compute the 1d  fit to the line of data using the specified form.
 
         Parameters
         ----------
@@ -485,8 +475,8 @@ class Imexamine(object):
         -----
         The background is currently ignored
 
-        If centering is True in the parameter set, then the center is fit with a 2d gaussian
-
+        If centering is True in the parameter set, then the center
+        is fit with a 2d gaussian
         """
         if data is None:
             data = self._data
@@ -497,7 +487,7 @@ class Imexamine(object):
 
         delta = self.line_fit_pars["rplot"][0]
 
-        #fit the center with a 2d gaussian
+        # fit the center with a 2d gaussian
         if self.line_fit_pars["center"][0]:
             popt = self.gauss_center(x, y, data, delta=delta)
             if popt.count(0) > 1:  # an error occurred in centering
@@ -860,12 +850,14 @@ class Imexamine(object):
             rapert = int(router) + 1
             for rad in range(1, rapert, 1):
                 aper_flux, annulus_sky, skysub_flux = self._aperture_phot(
-                    centerx, centery, data, radsize=rad, sky_inner=inner, skywidth=width, method="exact",subpixels=subpixels)
+                    centerx, centery, data, radsize=rad, sky_inner=inner,
+                    skywidth=width, method="exact", subpixels=subpixels)
                 radius.append(rad)
                 if self.curve_of_growth_pars["background"][0]:
                     if inner < router:
                         warnings.warn(
-                            "Your sky annulus is inside your photometry radius rplot")
+                            "Your sky annulus is inside your \
+                            photometry radius rplot")
                     flux.append(skysub_flux)
                 else:
                     flux.append(aper_flux)
@@ -884,8 +876,11 @@ class Imexamine(object):
                 plt.pause(0.001)
 
     def _aperture_phot(self, x, y, data=None, radsize=1,
-                       sky_inner=5, skywidth=5, method="subpixel", subpixels=4):
-        """Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed
+                       sky_inner=5, skywidth=5,
+                       method="subpixel", subpixels=4):
+        """Perform sky subtracted aperture photometry.
+
+        uses photutils functions, photutil must be installed
 
         Parameters
         ----------
@@ -906,8 +901,8 @@ class Imexamine(object):
 
         Notes
         -----
-           background is taken from sky annulus pixels, check into masking bad pixels
-
+        background is taken from sky annulus pixels, check into
+        masking bad pixels
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -930,8 +925,10 @@ class Imexamine(object):
                 data,
                 annulus_apertures)
 
-            # to calculate the mean local background, divide the circular annulus aperture sums
-            # by the area of the circular annulus. The bkg sum within the circular aperture is then
+            # to calculate the mean local background, divide the circular
+            # annulus aperture sums
+            # by the area of the circular annulus. The bkg sum within the
+            # circular aperture is then
             # then mean local background times the circular apreture area.
             aperture_area = apertures.area()
             annulus_area = annulus_apertures.area()
@@ -946,8 +943,7 @@ class Imexamine(object):
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
     def histogram_plot(self, x, y, data=None, fig=None):
-        """plot a histogram of the pixel values in a region around the specified location"""
-
+        """plot a histogram of the pixel values."""
         if data is None:
             data = self._data
 
@@ -995,7 +991,8 @@ class Imexamine(object):
         num_bins = int(self.histogram_pars["nbins"][0])
 
         n, bins, patches = plt.hist(
-            flat_data, num_bins, range=[mini, maxi], normed=False, facecolor='green', alpha=0.5, histtype='bar')
+                flat_data, num_bins, range=[mini, maxi], normed=False,
+                facecolor='green', alpha=0.5, histtype='bar')
         print("hist with {0} bins".format(num_bins))
         if 'nbagg' in get_backend().lower():
             fig.canvas.draw()
@@ -1004,8 +1001,7 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def contour_plot(self, x, y, data=None, fig=None):
-        """plot contours in a region around the specified location"""
-
+        """plot contours in a region around the specified location."""
         if data is None:
             data = self._data
 
@@ -1029,7 +1025,7 @@ class Imexamine(object):
         lsty = self.contour_pars["linestyle"][0]
 
         X, Y = np.meshgrid(np.arange(0, deltax, 0.5) + x - deltax / 2.,
-                           np.arange(0, deltay, 0.5) + y - deltay / 2.)  # check this
+                           np.arange(0, deltay, 0.5) + y - deltay / 2.)
         plt.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
         C = plt.contour(
             X,
@@ -1049,16 +1045,7 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def surface_plot(self, x, y, data=None, fig=None):
-        """plot a surface around the specified location
-
-                       "ncolumns":[21,"Number of columns"],
-                       "nlines":[21,"Number of lines"],
-                       "angh":[-33.,"Horizontal viewing angle in degrees"],
-                       "angv":[25.,"Vertical viewing angle in degrees"],
-                       "floor":[None,"Minimum value to be contoured"],
-                       "ceiling":[None,"Maximum value to be contoured"],
-        """
-
+        """plot a surface around the specified location."""
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
@@ -1097,10 +1084,12 @@ class Imexamine(object):
         stride = int(self.surface_pars["stride"][0])
         if fancy:
             surf = ax.plot_surface(
-                X, Y, Z, rstride=stride, cstride=stride, cmap=self.surface_pars["cmap"][0], alpha=0.6)
+                X, Y, Z, rstride=stride, cstride=stride,
+                cmap=self.surface_pars["cmap"][0], alpha=0.6)
         else:
-            surf = ax.plot_surface(X, Y, Z, rstride=stride, cstride=stride, cmap=self.surface_pars[
-                                   "cmap"][0], linewidth=0, antialiased=False)
+            surf = ax.plot_surface(X, Y, Z, rstride=stride, cstride=stride,
+                            cmap=self.surface_pars["cmap"][0], linewidth=0,
+                            antialiased=False)
 
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.0f'))
@@ -1141,19 +1130,19 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def register(self, user_funcs):
-        """register a new imexamine function made by the user so that it becomes an option
+        """register a new imexamine function made by the user as an option.
 
         Parameters
         ----------
         user_funcs: dict
-            Contains a dictionary where each key is the binding for the (function,description) tuple
+            Contains a dictionary where each key is the binding for the
+            (function,description) tuple
 
         Notes
         -----
-        The new binding will be added to the dictionary of imexamine functions as long as the key is unique
-        The new functions do not have to have default dictionaries associated with them
-        imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size ') ->tuple example
-
+        The new binding will be added to the dictionary of imexamine functions
+        as long as the key is unique. The new functions do not have to have
+        default dictionaries associated with them.
         """
         if not isinstance(user_funcs, type(dict())):
             warnings.warn("Your input needs to be a dictionary")
@@ -1182,8 +1171,8 @@ class Imexamine(object):
         else:
             return setattr(cls, func.__name__, types.MethodType(func, None, cls))
 
-
     def showplt(self):
+        """Show the plot."""
         buf = StringIO.StringIO()
         plt.savefig(buf, bbox_inches=0)
         img = Image(data=bytes(buf.getvalue()),
@@ -1192,56 +1181,48 @@ class Imexamine(object):
         return img
 
     def set_aperphot_pars(self, user_dict=None):
-        """the user may supply a dictionary of par settings"""
+        """the user may supply a dictionary of par settings."""
         if not user_dict:
             self.aperphot_pars = imexam_defpars.aperphot_pars
         else:
             self.aperphot_pars = user_dict
 
     def set_radial_pars(self):
-        """ set parameters for radial profile plots"""
+        """set parameters for radial profile plots."""
         self.radial_profile_pars = imexam_defpars.radial_profile_pars
 
     def set_curve_pars(self):
-        """set parameters for curve of growth plots"""
+        """set parameters for curve of growth plots."""
         self.curve_of_growth_pars = imexam_defpars.curve_of_growth_pars
 
     def set_surface_pars(self):
-        """set parameters for surface plots"""
+        """set parameters for surface plots."""
         self.surface_pars = imexam_defpars.surface_pars
 
     def set_line_fit_pars(self):
-        """set parameters for 1D line fit plots"""
+        """set parameters for 1D line fit plots."""
         self.line_fit_pars = imexam_defpars.line_fit_pars
 
     def set_column_fit_pars(self):
-        """set parameters for 1D line fit plots"""
+        """set parameters for 1D line fit plots."""
         self.column_fit_pars = imexam_defpars.column_fit_pars
 
     def set_contour_pars(self):
-        """set parameters for contour plots"""
+        """set parameters for contour plots."""
         self.contour_pars = imexam_defpars.contour_pars
 
     def set_histogram_pars(self):
-        """set parameters for histogram plots"""
+        """set parameters for histogram plots."""
         self.histogram_pars = imexam_defpars.histogram_pars
 
     def set_lineplot_pars(self):
-        """set parameters for line plots"""
+        """set parameters for line plots."""
         self.lineplot_pars = imexam_defpars.lineplot_pars
 
     def set_colplot_pars(self):
-        """set parameters for column plots"""
+        """set parameters for column plots."""
         self.colplot_pars = imexam_defpars.colplot_pars
 
-    def set_histogram_pars(self):
-        """set parameters for histogram plots"""
-        self.histogram_pars = imexam_defpars.histogram_pars
-
-    def set_contour_pars(self):
-        """set parameters for histogram plots"""
-        self.contour_pars = imexam_defpars.contour_pars
-
     def reset_defpars(self):
-        """set all pars to their defaults"""
+        """set all pars to their defaults."""
         self._define_pars()
