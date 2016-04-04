@@ -1,5 +1,5 @@
-version 0.6 (released)
----------------------
+version 0.6dev (unreleased)
+---------------------------
 - Ginga viewer support for images in matplotlib and QT backend removed, but replaced with HTML5 canvas viewer which is faster and simpler for users to both use and install. 
 - General bug fixes and documentation updates
 

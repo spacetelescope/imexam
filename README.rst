@@ -89,7 +89,7 @@ Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Ju
 
 ::
 
-    a=imexam.connect(viewer='ginga_nb')
+    a=imexam.connect(viewer='ginga')
 
 
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.
