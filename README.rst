@@ -85,15 +85,28 @@ Starting a new connection with no target specified will open a new DS9 window us
     a=imexam.connect()
 
 
-Starting a connection to a Ginga widget, using the Matplotlib backend for viewing:
+Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Juppyter viewing:
 
 ::
 
-    a=imexam.connect(viewer='ginga_mp')
+    a=imexam.connect(viewer='ginga')
 
 
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.
 
+
+You can also just load the plotting library and NOT connect to any viewer:
+
+::
+
+    from imexam.imexamine import Imexamine
+    import numpy as np
+
+    plots = Imexamine()
+    data = np.random.rand(100,100) * np.ones((100,100))
+    plots.plot_line(35,45,data) #shows a matplotlib window with a plot
+    plots.save() #saves the current plot to file
+    
 
 License
 -------

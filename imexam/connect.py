@@ -14,11 +14,13 @@ from .util import set_logging
 from . import xpa
 from .ds9_viewer import ds9
 try:
-    from .ginga_viewer import ginga_mp
+    from .ginga_viewer import  ginga, ginga_general
     have_ginga = True
 except ImportError:
     have_ginga = False
 
+import matplotlib.image as mpimage
+import matplotlib.pyplot as plt
 
 from .imexamine import Imexamine
 
@@ -60,7 +62,7 @@ class Connect(object):
     """
 
     def __init__(self, target=None, path=None, viewer="ds9",
-                 wait_time=10, quit_window=True):
+                 wait_time=10, quit_window=True,port=None):
 
         # better dynamic way so people can add their own viewers?
         _possible_viewers = ["ds9"]
@@ -68,7 +70,7 @@ class Connect(object):
         self._viewer = viewer.lower()
 
         if have_ginga:
-            _possible_viewers.append('ginga_mp')
+            _possible_viewers.append('ginga')
 
         if self._viewer not in _possible_viewers:
             warnings.warn("**Unsupported viewer**\n")
@@ -82,18 +84,15 @@ class Connect(object):
                 target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
             self._event_driven_exam = False  # use the imexam loop
 
-        elif 'ginga_mp' in self._viewer:
-            self.window = ginga_mp(exam=self.exam,
-                                   close_on_del=quit_window)
-            # self.window.view.add_callback('key-press',self.window._imexam)
-            # rotate canvas in before this can be used
-            # self.window.canvas.add_callback('key-press',self.start_imexam_ginga)
+        elif 'ginga' in self._viewer:
+            self.window = ginga(exam=self.exam, close_on_del=quit_window, port=port)
             # the viewer will track imexam with callbacks
             self._event_driven_exam = True
 
             # alter the exam.imexam_option_funcs{} here through the viewer code if you want to
             # change key+function associations
             # self.window._reassign_keys(imexam_dict)
+
 
         self.logfile = 'imexam_log.txt'
         self.log = None  # points to the package logger
@@ -132,7 +131,17 @@ class Connect(object):
         else:
             self.exam.print_options()
             print(
-                "\nPress the i key in the graphics window for access to imexam keys, i or q again to exit\n")
+                "\nPress the i key in the graphics window for access to imexam keys, or q to exit\n")
+
+    def reopen(self):
+        """
+        reopen a display window closed by the user but not exited
+        """
+        self.window.reopen()
+
+    def grab(self):
+        """display a snapshop of the current image in the browser window"""
+        self.window.grab()
 
     def get_data_filename(self):
         """return the filename for the data in the current window"""
@@ -186,30 +195,34 @@ class Connect(object):
         current_key = keys[0]  # q is not in the list of keys
 
         while current_key:
-            self._check_frame()
-            if self.window.iscube():
-                self._check_slice()
-            try:
-                x, y, current_key = self.readcursor()
+            # ugly hack to suppress deprecation  by mpl
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+
                 self._check_frame()
                 if self.window.iscube():
                     self._check_slice()
-                if current_key not in keys and 'q' not in current_key:
-                    print("Invalid key")
-                else:
-                    if 'q' in current_key:
-                        current_key = None
+                try:
+                    x, y, current_key = self.readcursor()
+                    self._check_frame()
+                    if self.window.iscube():
+                        self._check_slice()
+                    if current_key not in keys and 'q' not in current_key:
+                        print("Invalid key")
                     else:
-                        self.exam.do_option(
-                            x -
-                            1,
-                            y -
-                            1,
-                            current_key)  # ds9 returns 1 based array
-            except KeyError:
-                print(
-                    "Invalid key, use\n: {0}".format(
-                        self.exam.print_options()))
+                        if 'q' in current_key:
+                            current_key = None
+                        else:
+                            self.exam.do_option(
+                                x -
+                                1,
+                                y -
+                                1,
+                                current_key)  # ds9 returns 1 based array
+                except KeyError:
+                    print(
+                        "Invalid key, use\n: {0}".format(
+                            self.exam.print_options()))
 
     def _check_frame(self):
         """check if the user switched frames"""
@@ -284,6 +297,10 @@ class Connect(object):
     def get_data(self):
         """ return a numpy array of the data in the current window"""
         return self.window.get_data()
+
+    def get_image(self):
+        """ return the full image object, not just the numpy array"""
+        return self.window.get_image()
 
     def get_header(self):
         """return the current fits header as a string, or None if there's a problem"""

@@ -7,18 +7,18 @@ These are methods particular to the imexam package which are meant to aid users 
 
 **close** ():
     close the image viewing window and end the connection.
-            
+
     ::
-    
+
         viewer.close()
 
-**view** (img, header=None, frame=None, asFits=False): 
+**view** (img, header=None, frame=None, asFits=False):
     Load an image array into the image viewing frame, if no frame is specified, the current frame is used. If no frame exists, then a new one is created.
-    A basic header is created and sent to DS9. You can look at this header with disp_header() but get_header() will return an error because it 
-    looks for a filename, and no file was loaded, just the array. No header is sent to the Ginga widget.
+    A basic header is created and sent to DS9. You can look at this header with disp_header() but get_header() will return an error because it
+    looks for a filename, and no file was loaded, just the array. 
 
     ::
-               
+
         image_array=fits.getdata('image.fits')
         viewer.view(image_array)
 
@@ -28,11 +28,11 @@ These are methods particular to the imexam package which are meant to aid users 
         viewer.view(image_array)
 
 
-**readcursor** (): 
+**readcursor** ():
     Returns image coordinate postion and key pressed as a tuple of the for float(x), float(y), str(key).
-    
-    :: 
-        
+
+    ::
+
         In [1]: viewer.readcursor()
         Out[2]: (56.0, 28.333333, 'a')
 
@@ -41,9 +41,9 @@ These are methods particular to the imexam package which are meant to aid users 
         In [1]: viewer.readcursor()
         Out[2]: (67.333333, 80.0, '<1>')
 
-        
 
-**make_region** (infile,doLabels=False): 
+
+**make_region** (infile,doLabels=False):
     Make an input reg file which contains rows with  "x,y,comment" into a region file that the DS9 viewer recognizes.
 
     infile: str
@@ -63,20 +63,20 @@ These are methods particular to the imexam package which are meant to aid users 
 
     size: int
         size of the region type
-        
+
     ::
-    
+
         Here's what the input file 'test' looks like:
-        
+
         100,100, 1
         200,200, 2
         300,300, comment 3
-        
-        
+
+
         viewer.make_region('test',labels=True)
-        
+
         And the output region file:
-        
+
         image; circle(100,100,5)
         image;text(110.0,110.0{ 1 })# font="time 12 bold"
         image; circle(200,200,5)
@@ -98,7 +98,7 @@ Now let's load the region file into our image:
 **mark_region_from_array** (input_points,rtype="circle",ptype="image",textoff=10,size=5):
     mark regions on the display given a list of tuples, a single tuple, or a string, where each object has x,y,comment specified
 
-    input_points: a tuple, or list of tuples, or a string which contain: (x,y,comment), 
+    input_points: a tuple, or list of tuples, or a string which contain: (x,y,comment),
 
 
     ptype: string
@@ -110,42 +110,42 @@ Now let's load the region file into our image:
 
     textoff: string
         the offset for the comment text, if comment is empty it will not show
-    
-    
+
+
     ::
-    
+
         locations=list()
         locations.append( (100,100,1) )
         locations.append( (200,200,2) )
         locations.append( (300,300,'comment 3') )
-        
+
         viewer.mark_region_from_array(locations)
-        
+
 .. image:: mark_region.png
     :height: 600
     :width: 500
     :alt: image with regions plotted
-        
+
 
 
 
 **setlog** (self, filename=None, on=True, level=logging.DEBUG):
     Turn on and off imexam logging to the a file. You can set the filename to something specific or let the package record to the default logfile.
     Once you give the object a logfile name, it will continue to use that file until you change it.
-    
+
     ::
-    
+
         In [5]: viewer.setlog()
         Saving imexam commands to imexam_log.txt
 
 This is what's displayed in the terminal when you use imexam():
-    
+
 .. image:: setlog1.png
     :height: 500
     :width: 600
     :alt: log information to terminal
-    
-    
+
+
 and this is what shows up in the logfile:
 
 .. image:: setlog2.png
@@ -156,20 +156,20 @@ and this is what shows up in the logfile:
 You can see there are some leftovers from a previous logging session to the same file. You can toggle logging during a session too:
 
     ::
-    
+
         viewer.setlog(on=False)
-        
+
 
 **set_region** (region_string):
     Use this to send the DS9 viewer a formatted region string it's expecting
-    
+
 For example, in DS9::
 
-    viewer.set_region("text 110.0 110.0 '1' #font=times") 
-    
-    
+    viewer.set_region("text 110.0 110.0 '1' #font=times")
+
+
     See the DS9 XPA documentation for more examples.
-    
+
 **unlearn** ():
     Reset all the imexam default parameters
 
@@ -177,20 +177,20 @@ For example, in DS9::
 
 **get_data_filename** ():
     Return the filename for the data in the current window
-    
+
     ::
-        
+
         In [1]: viewer.get_data_filename()
         Out[2]: '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits'
 
 
 **get_frame_info** ():
-    Return more explicit information about the data displayed in the current frame. A dictionary of the information is returned. 
-    
+    Return more explicit information about the data displayed in the current frame. A dictionary of the information is returned.
+
     ::
-    
+
         In [1]: viewer.get_frame_info()
-        
+
             {'extname': 'SCI',
             'extver': 1,
             'filename': '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits',
@@ -203,13 +203,13 @@ For example, in DS9::
 
 **get_viewer_info** ():
     Return a dictionary which contains information about all frames which have data loaded.
-    This could be useful to users who are scripting an analysis for polling what items are available, 
-    how many frames or displayed, what type of data is hanging around, etc ... 
-    
+    This could be useful to users who are scripting an analysis for polling what items are available,
+    how many frames or displayed, what type of data is hanging around, etc ...
+
     ::
-        
+
         In [1]: viewer.get_viewer_info()
-        
+
         {'1': {'extname': 'SCI',
           'extver': 1,
           'filename': '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits',
@@ -223,9 +223,9 @@ For example, in DS9::
 
 **plotname**:
     change or show the default save plotname for imexamine
-    
+
     ::
-    
+
         In [1]: viewer.plotname()
         imexam_plot.pdf
 
@@ -239,12 +239,9 @@ The extension of the filename controls the plot type.
 
 **display_help**():
     Display the help documentation into a webpage from the locally installed version. This is done from the main package:
-    
-    ::
-    
-        In [1]: import imexam
-        
-        In [2]: imexam.display_help()
-        
-        
 
+    ::
+
+        In [1]: import imexam
+
+        In [2]: imexam.display_help()
