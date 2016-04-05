@@ -39,6 +39,7 @@ import matplotlib.image as mpimage
 import matplotlib.pyplot as plt
 from matplotlib import get_backend
 import atexit
+from subprocess import call
 
 import imexam.xpa_wrap as xpa
 from imexam.xpa import XpaException
@@ -1211,15 +1212,15 @@ class ds9(object):
             self.set("file multiframe {0:s}".format(filename))
 
     def mark_region_from_array(
-            self, input_points, ptype="image", textoff=10, size=5):
+            self, input_points, ptype="image", textoff=10, size=4):
         """mark ds9 regions regions  given an input list of tuples.
 
          a convienence function, you can also use set_region
 
         Parameters
         ----------
-        input_points: a tuple, or list of tuples, or a string: (x,y,comment),
-
+        input_points: iterator, a tuple, or list of tuples
+                      or a string: (x,y,comment),
 
         ptype: string
             the reference system for the point locations, image|physical|fk5
@@ -1593,6 +1594,10 @@ class ds9(object):
     def snapsave(self, filename=None, format=None, resolution=100):
         """Create a snap shot of the current window, save in specified format.
 
+        This function bypasses the XPA  calling routines to avoid a bug with
+        the X11/XPA interface. Instead is uses the os import function which
+        takes a snapshot of the specified x11 window.
+
         Parameters
         ----------
 
@@ -1600,7 +1605,7 @@ class ds9(object):
            filename of output image, the extension in the filename can also be
            used to specify the format. If no filename is specified, then the
            filename will be constructed from the name of the image displayed
-           image with _snap.jpg appended.
+           image with _snap.png appended.
 
         format: str, optional
            available formats are fits, eps, gif, tiff, jpeg, png
@@ -1615,16 +1620,30 @@ class ds9(object):
             filename = self._viewer[frame]['filename']
 
         if not format:
-            filename += "_snap.jpg"
+            filename += "_snap.png"
         else:
             filename += "_snap." + format
 
-        cstring = "saveimage " + filename
+        cstring = ['import']
+        cstring.append('-window ')
+        # get the name of the window
+        if "local" in self._xpa_method:
+            win_name = self._xpa_name.split("DS9_")[1].split(".")
+            newname = "SAOImage "
+            newname += (".".join(win_name[0:2]))
+            cstring.append(newname)
+        else:
+            cstring.append(self._xpa_name)
 
         if "jpeg" in filename:
-            cstring += (" " + str(resolution))
+            cstring.append(' -quality')
+            cstring.append(str(resolution))
 
-        self.set(cstring)
+        cstring.append(filename)
+
+        # self.set(cstring)
+        # save the local directory, erase later?
+        call(cstring)
         print("Image saved to {0:s}".format(filename))
         logging.info("Image saved to {0:s}".format(filename))
         return(filename)
@@ -1637,7 +1656,7 @@ class ds9(object):
                 fname = self.snapsave(format="png")
                 data = mpimage.imread(fname)
                 plt.clf()
-                plt.imshow(data)
+                plt.imshow(data,origin="upper")
         else:
             print("Not supported for {0:s}".format(backend))
 

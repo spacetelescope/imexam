@@ -1,12 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-""" This is the main controlling class, it allows the user to connect to (at least) ds9 and the imexamine classes """
+"""This is the main controlling class, it allows the user to connect to
+(at least) ds9 and the imexamine classes
+"""
 
 from __future__ import print_function, division, absolute_import
 
 import warnings
 import logging
-import subprocess
 import os
 
 
@@ -14,13 +15,10 @@ from .util import set_logging
 from . import xpa
 from .ds9_viewer import ds9
 try:
-    from .ginga_viewer import  ginga, ginga_general
+    from .ginga_viewer import *
     have_ginga = True
 except ImportError:
     have_ginga = False
-
-import matplotlib.image as mpimage
-import matplotlib.pyplot as plt
 
 from .imexamine import Imexamine
 
@@ -29,23 +27,30 @@ __all__ = ["Connect"]
 
 class Connect(object):
 
-    """ Connect to a display device to look at and examine images that are displayed within
+    """Connect to a display device
 
-    The control features below are a basic set that should be available in all display tools.
-    The class for the display tool should override them and add it's own extra features.
+       to look at and examine images that are  displayed within
+
+    The control features below are a basic set that should be available
+    in all display tools.
+
+    The class for the display tool should override them and add it's own
+    extra features.
 
 
     Parameters
     ----------
 
     target: string, optional
-        the viewer target name or id (default is to start a new instance of a DS9 window)
+        the viewer target name or id (default is to start a new
+        instance of a DS9 window)
 
     path : string, optional
         absolute path to the viewers executable
 
     viewer: string, optional
-        The name of the image viewer you want to use, currently only DS9 is supported
+        The name of the image viewer you want to use, currently only
+        DS9 is supported
 
     wait_time: int, optional
         The time to wait for a connection to be eastablished before quitting
