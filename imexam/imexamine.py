@@ -1161,7 +1161,7 @@ class Imexamine(object):
                 self.imexam_option_funcs[key] = (
                     self.__getattribute__(func_name), user_funcs[key][1])
                 print(
-                    "User function: {0:s} added to imexam options with key {1:s}".format(func_name, key))
+                    "User function: {0:s} added to imexam options with \key {1:s}".format(func_name, key))
 
     @classmethod
     def _add_user_function(cls, func):
@@ -1169,7 +1169,8 @@ class Imexamine(object):
         if PY3:
             return setattr(cls, func.__name__, types.MethodType(func, cls))
         else:
-            return setattr(cls, func.__name__, types.MethodType(func, None, cls))
+            return setattr(cls, func.__name__,
+                           types.MethodType(func, None, cls))
 
     def showplt(self):
         """Show the plot."""

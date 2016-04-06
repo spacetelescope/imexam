@@ -13,11 +13,10 @@ from __future__ import print_function, division, absolute_import
 import sys
 import os
 import traceback
-import time
 import warnings
-import logging
 import threading
 import numpy as np
+from matplotlib import get_backend
 
 from . import util
 from astropy.io import fits
@@ -30,15 +29,14 @@ from ginga.util import paths
 from ginga.util import wcsmod
 wcsmod.use('AstropyWCS')
 
-from matplotlib import get_backend
 
 # module variables
 _matplotlib_cmaps_added = False
 
-#the html5 viewer is currently supported as ginga
-#this can be used from the python commandline or
-#inside a jupyter notebook
-__all__ = ['ginga','ginga_general']
+# the html5 viewer is currently supported as ginga
+# this can be used from the python commandline or
+# inside a jupyter notebook
+__all__ = ['ginga', 'ginga_general']
 
 
 class ginga_general(object):
@@ -65,14 +63,16 @@ class ginga_general(object):
     """
 
     def __init__(self, exam=None, close_on_del=True, logger=None, port=None):
-        """
+        """initialize a general ginga viewer object.
+
         Notes
         -----
         Ginga viewers all need a logger, if none is provided it will create one
 
         the port option is for use in the Jupyter notebook since the server
-        displays the image to a distict port. The user can choose to have multiple
-        windows open at the same time as long as they have different ports.
+        displays the image to a distict port. The user can choose to have
+        multiple windows open at the same time as long as they have different
+        ports.
 
         """
         global _matplotlib_cmaps_added
@@ -81,7 +81,7 @@ class ginga_general(object):
         self._close_on_del = close_on_del
         # dictionary where each key is a frame number, and the values are a
         # dictionary of details about the image loaded in that frame
-        self._viewer=dict()
+        self._viewer = dict()
         self._current_frame = 1
         self._current_slice = None
 
@@ -92,7 +92,7 @@ class ginga_general(object):
         self._define_cmaps()
 
         # for synchronizing on keystrokes
-        self._rlock = threading.RLock() #this creates a thread lock
+        self._rlock = threading.RLock()  # this creates a thread lock
         self._keyvals = list()
         self._capturing = False
 
@@ -113,7 +113,7 @@ class ginga_general(object):
         self.settings = self.prefs.createCategory('general')
         self.settings.load(onError='silent')
         self.settings.setDefaults(useMatplotlibColormaps=False,
-                             autocuts='on', autocut_method='zscale')
+                                  autocuts='on', autocut_method='zscale')
 
         # add matplotlib colormaps to ginga's own set if user has this
         # preference set
@@ -167,9 +167,9 @@ class ginga_general(object):
         raise Exception("Subclass should override this method!")
 
     def _capture(self):
-        """
-        Insert our imexam canvas so that we intercept all events before they reach
-        processing by the bindings layer of Ginga.
+        """Insert our imexam canvas so that we intercept all events.
+
+        before they reach processing by the bindings layer of Ginga.
         """
         self.ginga_view.onscreen_message("Entering imexam mode",
                                          delay=1.0)
@@ -177,11 +177,9 @@ class ginga_general(object):
         top_canvas.add(self.canvas, tag='imexam-canvas')
         self._capturing = True
 
-
     def _release(self):
-        """
-        Remove our canvas so that we no longer intercept events.
-        """
+        """Remove our canvas so that we no longer intercept events."""
+
         self.ginga_view.onscreen_message("Leaving imexam mode",
                                          delay=1.0)
         self._capturing = False
@@ -191,22 +189,25 @@ class ginga_general(object):
 
 
     def __str__(self):
+        """Return viewer name."""
         return "<ginga imexam viewer>"
 
     def __del__(self):
+        """Close the viewer."""
         if self._close_on_del:
             self.close()
 
     def _set_frameinfo(self, fname=None, hdu=None, data=None,
                        image=None):
-        """Set the name and extension information for the data displayed in
-        the frame and gather header information.
+        """Set the name and extension information for the data displayed.
+
+        also gather header information.
 
         Notes
         -----
         """
         # check the current frame, if none exists, then don't continue
-        frame=self._current_frame
+        frame = self._current_frame
         if frame:
             if frame not in self._viewer.keys():
                 self._viewer[self._current_frame] = dict()
@@ -219,7 +220,6 @@ class ginga_general(object):
 
             extver = None  # extension number
             extname = None  # name of extension
-            filename = None  # filename of image
             numaxis = 2  # number of image planes, this is NAXIS
             # tuple of each image plane, defaulted to 1 image plane
             naxis = (0)
@@ -375,7 +375,7 @@ class ginga_general(object):
         return self._current_frame
 
     def iscube(self):
-        """return information on whether a cube image is displayed in the current frame"""
+        """return whether a cube image is displayed in the current frame"""
         if self._current_frame:
             return self._viewer[self._current_frame]['iscube']
 
@@ -390,14 +390,16 @@ class ginga_general(object):
         return image_slice
 
     def get_data(self):
-        """ return a numpy array of the data displayed in the current frame
+        """return a numpy array of the data displayed in the current frame
 
         Notes
         -----
-        This is the data array that the imexam() function from connect() uses for analysis
+        This is the data array that the imexam() function from connect() uses
+        for analysis
 
-        astropy.io.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]
-        just the one image is retured in the case of multidimensional data, not the cube
+        astropy.io.fits stores data in row-major format. So a 4d image would be
+        [NAXIS4, NAXIS3, NAXIS2, NAXIS1] just the one image is retured in the
+        case of multidimensional data, not the cube
 
         """
 
@@ -436,12 +438,15 @@ class ginga_general(object):
         self.get_header()
 
     def get_header(self):
-        """return the current fits header as a string or None if there's a problem"""
+        """return current fits header
+
+        as a string or None if there's a problem
+        """
 
         # TODO return the simple header for arrays which are loaded
 
-        frame=self._current_frame
-        if frame and self._viewer[frame]['hdu'] != None:
+        frame = self._current_frame
+        if frame and self._viewer[frame]['hdu'] is not None:
             hdu = self._viewer[frame]['hdu']
             return hdu.header
         else:
