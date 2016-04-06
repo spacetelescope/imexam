@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """These are default parameters for some of the plotting functions in Imexam
-Maybe it would be better to put these along with the imexam functions into their own class
-which the connect class can import? Users could edit this file to set their own defaults before
-installation, they could script something that resets the dictionaries themselves, or we could
-create a method to let them set from a json or text file maybe
-
+Maybe it would be better to put these along with the imexam functions into
+their own class which the connect class can import? Users could edit this file
+to set their own defaults before installation, they could script something that
+resets the dictionaries themselves, or we could create a method to let them set
+from a json or text file maybe
 """
 
 #aperture photometry parameters
@@ -26,7 +26,7 @@ report_stat_pars = {"function": ["report_stat", ],
                     }
 
 #radial profile plots
-radial_profile_pars = {"function": ["radial_profile_plot", ],
+radial_profile_pars = {"function": ["radial_profile", ],
                         "title": ["Radial Profile", "Title of the plot"],
                         "xlabel": ["Radius", "The string for the xaxis label"],
                         "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
