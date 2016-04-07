@@ -4,9 +4,9 @@ Introduction
 
 imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python.
 
-It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using an HTML5 backend is also available as an alternate viewer. The package is designed so that it may accept other display devices in the future.
+Imexam currently provides display support two viewers. The first is a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using an HTML5 backend is also available as a viewer. The package is designed so that it may accept other display devices in the future.
 
-The imexam library can be used standalone to create the plots which are available in the interactive sessions by just importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots are saved inside the notebook in conjunection with the nbAgg matplotlib backend.
+The imexam library can be used standalone, without a viewer, to create the plots which are available in the interactive sessions by just importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots are saved inside the notebook in conjunction with the nbAgg matplotlib backend.
 
 .. note:: For DS9, it is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory.
 
@@ -32,9 +32,10 @@ If you want to have access to the photometry features of the imexam analysis, do
 If photutils is not installed, imexam should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop which requires photutils to render a result.
 
 
-imexam displays plots using matplotlib, if you find that no windows are popping up after installation it's probably the backend that was loaded. One quick way to get things started is to start ipython with the --pylab option, this will make sure the proper display backend loads when matplotlib is imported::
+imexam displays plots using matplotlib, if you find that no windows are popping up after installation it's probably the backend that was loaded. One quick way to get things started is to start ipython  and use the %matplotlib magic, this will make sure the proper display backend loads when matplotlib is imported::
 
-    ipython --pylab
+    >ipython
+    >%matplotlib
     >import imexam
 
 If you install Ginga you will have access to another display tool for your images and data. You can find the source code on GitHub, but you can also install it with pip or conda.
@@ -44,7 +45,7 @@ If you install Ginga you will have access to another display tool for your image
 Usage
 =====
 
-imexam is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated.
+imexam is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relavent information about the window and data with which it is associated.
 
 For example, in order to open a new DS9 window and use the object "viewer" to control it, you would issue the commmand:
 
@@ -185,5 +186,3 @@ If you are using Ginga and the plotting window seems to block, check to see if y
 ::
 
     matplotlib.use('Qt4Agg')  <-- remove this and see if it helps
-
-    

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example 2 &mdash; imexam v0.5.3dev</title>
+    <title>Example 2 &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
@@ -55,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.5.3dev</a>
+	<a href="../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       
@@ -80,7 +80,7 @@
 </ul>
 <div class="section" id="method-1">
 <h3>Method 1<a class="headerlink" href="#method-1" title="Permalink to this headline">¶</a></h3>
-<p>Assuming we&#8217;ve already connected to the DS9 window where the data is displayed with the object called &#8220;ds9&#8221;;</p>
+<p>Assuming we&#8217;ve already connected to the  window where the data is displayed with the object called &#8220;ds9&#8221;;</p>
 <ul class="simple">
 <li>This method first uses the &#8220;a&#8221; key to check out the aperture photometry with the default settings</li>
 <li>Display a profile plot around the start we choose</li>
@@ -104,7 +104,8 @@ j       1D [gaussian|moffat] line fit
 k       1D [gaussian|moffat] column fit
 l       return line plot
 m       square region stats, in [region_size],defayult is median
-r       return curve of growth plot *
+r       return radial profile plot
+g   curve of growth
 s       save current figure to disk as [plot_name]
 w       display a surface plot around the cursor location
 x       return x,y coords of pixel
@@ -128,7 +129,7 @@ viewer.aimexam() # print out the parameters for aperture photometry, returns a d
  &#39;zmag&#39;: [25.0, &#39;zeropoint for the magnitude calculation&#39;]}
 
 
-ds.imexam() #lets look at a curve of growth for the star in question
+ds9.imexam() #lets look at a curve of growth for the star in question
 
 xc=813.109250   yc=706.687612 &lt;--printed because centering is turned on
 radii:[1 2 3 4 5 6 7 8]
@@ -140,13 +141,13 @@ flux:[131647.90413345056, 498482.2347664542, 914397.81480508228, 1132799.3621327
 Let&#39;s alter the defaults for the aperture photometry, get some new values and then make a nicer curve of growth.
 
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=10
-viewer.exam.aperphot_pars[&quot;skyrad&quot;][0]=20 #it looks like there are some nearby spoilers
-viewer.exam.aperphot_pars[&quot;width&quot;][0]=10  #maybe we should just give the sky some more space (haha)
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,10)
+viewer.set_plot_pars(&#39;a&#39;,&#39;skyrad&#39;,20) #it looks like there are some nearby spoilers
+viewer.set_plot_pars(&#39;a&#39;,&#39;width&#39;,10)  #maybe we should just give the sky some more space (haha)
 
 We&#39;ll update the curve of growth plot to match those:
 
-viewer.exam.curve_of_growth_pars
+viewer.gimexam()
 
 {&#39;function&#39;: [&#39;curve_of_growth_plot&#39;],
 &#39;center&#39;: [True, &#39;Solve for center using 2d Gaussian? [bool]&#39;],
@@ -166,10 +167,10 @@ viewer.exam.curve_of_growth_pars
 &#39;getdata&#39;: [True, &#39;return the plotted data values&#39;]}
 
 
-viewer.exam.curve_of_growth_pars[&quot;buffer&quot;][0]=20
-viewer.exam.curve_of_growth_pars[&quot;rplot&quot;][0]=15 #we&#39;ll go a little farther than the aperture photometry
-viewer.exam.curve_of_growth_pars[&quot;width&quot;][0]=10
-viewer.exam.curve_of_growth_pars[&quot;title&quot;][0]=&quot;My favorite star at 813,706&quot;
+viewer.set_plot_pars(&#39;g&#39;,&#39;buffer&#39;,20)
+viewer.set_plot_pars(&#39;g&#39;,&#39;rplot&#39;,15)  #we&#39;ll go a little farther than the aperture photometry
+viewer.set_plot_pars(&#39;g&#39;,&#39;width&#39;,10)
+viewer.set_plot_pars(&#39;g&#39;,&#39;title&#39;,&#39;My favorite star at 813,706)
 
 xc=813.109250   yc=706.437612
 radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]
@@ -217,15 +218,15 @@ Lets get some more aperture photometry at larger radii by resetting some of the 
     &#39;width&#39;: [5, &#39;Width of sky annulus in pixels&#39;],
     &#39;zmag&#39;: [25.0, &#39;zeropoint for the magnitude calculation&#39;]}
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=9
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,9)
 
 viewer.imexam() #use the &quot;a&quot; key
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=10
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,10)
 
 viewer.imexam() #use the &quot;a&quot; key
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=11
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,11)
 
 viewer.imexam() #use the &quot;a&quot; key
 
@@ -306,7 +307,7 @@ aper_phot
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

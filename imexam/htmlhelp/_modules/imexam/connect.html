@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.connect &mdash; imexam v0.5.3dev</title>
+    <title>imexam.connect &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../../_static/copybutton.js"></script>
@@ -56,7 +56,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">imexam v0.5.3dev</a>
+	<a href="../../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
@@ -74,25 +74,24 @@
   <h1>Source code for imexam.connect</h1><div class="highlight"><pre>
 <span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
 
-<span class="sd">&quot;&quot;&quot; This is the main controlling class, it allows the user to connect to (at least) ds9 and the imexamine classes &quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;This is the main controlling class, it allows the user to connect to</span>
+<span class="sd">(at least) ds9 and the imexamine classes</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">set_logging</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">xpa</span>
 <span class="kn">from</span> <span class="nn">.ds9_viewer</span> <span class="kn">import</span> <span class="n">ds9</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.ginga_viewer</span> <span class="kn">import</span> <span class="n">ginga_mp</span>
+    <span class="kn">from</span> <span class="nn">.ginga_viewer</span> <span class="kn">import</span> <span class="n">ginga</span>
     <span class="n">have_ginga</span> <span class="o">=</span> <span class="bp">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">have_ginga</span> <span class="o">=</span> <span class="bp">False</span>
-
 
 <span class="kn">from</span> <span class="nn">.imexamine</span> <span class="kn">import</span> <span class="n">Imexamine</span>
 
@@ -100,24 +99,28 @@
 
 
 <div class="viewcode-block" id="Connect"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect">[docs]</a><span class="k">class</span> <span class="nc">Connect</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Connect to a display device to look at and examine images.</span>
 
-    <span class="sd">&quot;&quot;&quot; Connect to a display device to look at and examine images that are displayed within</span>
+<span class="sd">    The control features below are a basic set that should be available</span>
+<span class="sd">    in all display tools.</span>
 
-<span class="sd">    The control features below are a basic set that should be available in all display tools.</span>
-<span class="sd">    The class for the display tool should override them and add it&#39;s own extra features.</span>
+<span class="sd">    The class for the display tool should override them and add it&#39;s own</span>
+<span class="sd">    extra features.</span>
 
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 
 <span class="sd">    target: string, optional</span>
-<span class="sd">        the viewer target name or id (default is to start a new instance of a DS9 window)</span>
+<span class="sd">        the viewer target name or id (default is to start a new</span>
+<span class="sd">        instance of a DS9 window)</span>
 
 <span class="sd">    path : string, optional</span>
 <span class="sd">        absolute path to the viewers executable</span>
 
 <span class="sd">    viewer: string, optional</span>
-<span class="sd">        The name of the image viewer you want to use, currently only DS9 is supported</span>
+<span class="sd">        The name of the image viewer you want to use, currently only</span>
+<span class="sd">        DS9 is supported</span>
 
 <span class="sd">    wait_time: int, optional</span>
 <span class="sd">        The time to wait for a connection to be eastablished before quitting</span>
@@ -134,15 +137,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">viewer</span><span class="o">=</span><span class="s2">&quot;ds9&quot;</span><span class="p">,</span>
-                 <span class="n">wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">quit_window</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-
+                 <span class="n">wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">quit_window</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the imexam control object.&quot;&quot;&quot;</span>
         <span class="c1"># better dynamic way so people can add their own viewers?</span>
         <span class="n">_possible_viewers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ds9&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">have_ginga</span><span class="p">:</span>
-            <span class="n">_possible_viewers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ginga_mp&#39;</span><span class="p">)</span>
+            <span class="n">_possible_viewers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;ginga&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_possible_viewers</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;**Unsupported viewer**</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -156,17 +159,13 @@
                 <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="n">wait_time</span><span class="p">,</span> <span class="n">quit_ds9_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># use the imexam loop</span>
 
-        <span class="k">elif</span> <span class="s1">&#39;ginga_mp&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">ginga_mp</span><span class="p">(</span><span class="n">exam</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="p">,</span>
-                                   <span class="n">close_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">)</span>
-            <span class="c1"># self.window.view.add_callback(&#39;key-press&#39;,self.window._imexam)</span>
-            <span class="c1"># rotate canvas in before this can be used</span>
-            <span class="c1"># self.window.canvas.add_callback(&#39;key-press&#39;,self.start_imexam_ginga)</span>
+        <span class="k">elif</span> <span class="s1">&#39;ginga&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">ginga</span><span class="p">(</span><span class="n">exam</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="p">,</span> <span class="n">close_on_del</span><span class="o">=</span><span class="n">quit_window</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
             <span class="c1"># the viewer will track imexam with callbacks</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span> <span class="o">=</span> <span class="bp">True</span>
 
-            <span class="c1"># alter the exam.imexam_option_funcs{} here through the viewer code if you want to</span>
-            <span class="c1"># change key+function associations</span>
+            <span class="c1"># alter the exam.imexam_option_funcs{} here through the viewer code</span>
+            <span class="c1"># if you want to change key+function associations</span>
             <span class="c1"># self.window._reassign_keys(imexam_dict)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="s1">&#39;imexam_log.txt&#39;</span>
@@ -175,18 +174,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">None</span>
 
 <div class="viewcode-block" id="Connect.setlog"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.setlog">[docs]</a>    <span class="k">def</span> <span class="nf">setlog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;turn on and off imexam logging to the a file&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;turn on and off imexam logging to the a file.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">filename</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">set_logging</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="n">on</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.close"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; close the window and end connection&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; close the window and end connection.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.imexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.imexam">[docs]</a>    <span class="k">def</span> <span class="nf">imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;run imexamine with user interaction. At a minimum it requires a copy of the data array&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Run imexamine with user interaction.</span>
+
+<span class="sd">        At a minimum it requires a copy of the data array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_data_in_viewer</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_run_event_imexam</span><span class="p">()</span>
@@ -196,53 +198,64 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No valid image loaded in viewer&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_run_event_imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; let the viewer run an event driven imexam</span>
+        <span class="sd">&quot;&quot;&quot;Let the viewer run an event driven imexam.</span>
 
 <span class="sd">        pass the key binding dictionary in for it to attach to?</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_driven_exam</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Event driven imexam not implemented for viewer&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()</span>
-            <span class="k">print</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Press the i key in the graphics window for access to imexam keys, i or q again to exit</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Press the i key in the graphics window for access </span><span class="se">\</span>
+<span class="s2">                 to imexam keys, or q to exit</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Connect.reopen"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.reopen">[docs]</a>    <span class="k">def</span> <span class="nf">reopen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reopen a display window closed by the user but not exited.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">reopen</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Connect.grab"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.grab">[docs]</a>    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display a snapshop of the current image in the browser window.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">grab</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.get_data_filename"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_data_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the filename for the data in the current window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the filename for the data in the current window.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.valid_data_in_viewer"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.valid_data_in_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">valid_data_in_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return True if a valid file or array is loaded in the current viewing frame&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if a valid file or array is loaded.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">valid_data_in_viewer</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.get_frame_info"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_frame_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return more explicit information about the data displayed in the current frame&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return explicit information about the data displayed.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_frame_info</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.get_viewer_info"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_viewer_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_viewer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a dictionary which has information about all frames loaded with data&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary with information about all frames with data.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_viewer_info</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_run_imexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;start imexam analysis loop for non event driven viewers</span>
+        <span class="sd">&quot;&quot;&quot;Start imexam analysis loop for non event driven viewers.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        The data displayed in the current frame is grabbed .The catch is that the user can change the data</span>
-<span class="sd">        that is displayed using the gui menus in DS9, so during the imexam loop the display needs to be</span>
-<span class="sd">        checked after each key stroke.</span>
+<span class="sd">        The data displayed in the current frame is grabbed .The catch is that</span>
+<span class="sd">        the user can change the data that is displayed using the gui menus in</span>
+<span class="sd">        DS9, so during the imexam loop the display needs to be checked after</span>
+<span class="sd">        each key stroke.</span>
 
-<span class="sd">        This function will track the user changing the frame number using the gui display</span>
-<span class="sd">        for  images and update the data array.</span>
+<span class="sd">        This function will track the user changing the frame number using the</span>
+<span class="sd">        gui display for  images and update the data array.</span>
 
 <span class="sd">        TODO</span>
-<span class="sd">        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented,</span>
-<span class="sd">        the problem comes with  printing the coordinates and visual comparison with what&#39;s displayed</span>
-<span class="sd">        in the gui. The gui display seems to round up integer pixels at some zoom factors. Verify this to some level</span>
-<span class="sd">        by looking at the pixel returned and using the pixel table window in DS9 to look at surrounding values.</span>
-<span class="sd">        imexamine() returns the value at the integer pixel location.</span>
+<span class="sd">        ds9 returns 1-based, figure out how to deal with this better so that</span>
+<span class="sd">        other viewers can be implemented, the problem comes with  printing the</span>
+<span class="sd">        coordinates and visual comparison with what&#39;s displayed in the gui.</span>
+<span class="sd">        The gui display seems to round up integer pixels at some zoom factors.</span>
 
+<span class="sd">        Verify this to some level by looking at the pixel returned and using</span>
+<span class="sd">        the pixel table window in DS9 to look at surrounding values.</span>
+
+<span class="sd">        imexamine() returns the value at the integer pixel location.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Press &#39;q&#39; to quit</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -260,33 +273,37 @@
         <span class="n">current_key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># q is not in the list of keys</span>
 
         <span class="k">while</span> <span class="n">current_key</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_check_slice</span><span class="p">()</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readcursor</span><span class="p">()</span>
+            <span class="c1"># ugly hack to suppress deprecation  by mpl</span>
+            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">()</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_check_slice</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">current_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span> <span class="ow">and</span> <span class="s1">&#39;q&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
-                    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Invalid key&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="s1">&#39;q&#39;</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
-                        <span class="n">current_key</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readcursor</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_check_frame</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">iscube</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_check_slice</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">current_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span> <span class="ow">and</span> <span class="s1">&#39;q&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
+                        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Invalid key&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span>
-                            <span class="n">x</span> <span class="o">-</span>
-                            <span class="mi">1</span><span class="p">,</span>
-                            <span class="n">y</span> <span class="o">-</span>
-                            <span class="mi">1</span><span class="p">,</span>
-                            <span class="n">current_key</span><span class="p">)</span>  <span class="c1"># ds9 returns 1 based array</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Invalid key, use</span><span class="se">\n</span><span class="s2">: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()))</span>
+                        <span class="k">if</span> <span class="s1">&#39;q&#39;</span> <span class="ow">in</span> <span class="n">current_key</span><span class="p">:</span>
+                            <span class="n">current_key</span> <span class="o">=</span> <span class="bp">None</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">do_option</span><span class="p">(</span>
+                                <span class="n">x</span> <span class="o">-</span>
+                                <span class="mi">1</span><span class="p">,</span>
+                                <span class="n">y</span> <span class="o">-</span>
+                                <span class="mi">1</span><span class="p">,</span>
+                                <span class="n">current_key</span><span class="p">)</span>  <span class="c1"># ds9 returns 1 based array</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span>
+                        <span class="s2">&quot;Invalid key, use</span><span class="se">\n</span><span class="s2">: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">print_options</span><span class="p">()))</span>
 
     <span class="k">def</span> <span class="nf">_check_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;check if the user switched frames&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;check if the user switched frames.&quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">!=</span> <span class="n">frame</span><span class="p">:</span>  <span class="c1"># the user has changed window frames</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
@@ -297,7 +314,7 @@
             <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; check if the user switched slice images &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;check if the user switched slice images.&quot;&quot;&quot;</span>
         <span class="n">this_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_slice_info</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">!=</span> <span class="n">this_slice</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
@@ -307,226 +324,377 @@
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
-    <span class="sd">&quot;&quot;&quot;Implement the following functions in your viewer class&quot;&quot;&quot;</span>
+    <span class="c1">#  Implement the following functions in your viewer class</span>
 
 <div class="viewcode-block" id="Connect.readcursor"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.readcursor">[docs]</a>    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed, in the form of x,y,str with 0arrar offset&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return image coordinate postion and key pressed.</span>
+
+<span class="sd">        in the form of x,y,str with array offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">readcursor</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.alignwcs"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.alignwcs">[docs]</a>    <span class="k">def</span> <span class="nf">alignwcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;align frames with wcs&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;align frames with wcs.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">alignwcs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.blink"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.blink">[docs]</a>    <span class="k">def</span> <span class="nf">blink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;blink windows if available.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blink</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.clear_contour"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.clear_contour">[docs]</a>    <span class="k">def</span> <span class="nf">clear_contour</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;clear contours on window if available.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">clear_contour</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.cmap"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.cmap">[docs]</a>    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the color map table to something else, in a defined list of options&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the color map table to something else.</span>
+
+<span class="sd">        will verify with a defined list of options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">cmap</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.colorbar"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.colorbar">[docs]</a>    <span class="k">def</span> <span class="nf">colorbar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;turn the colorbar on the screen on and off&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;turn the colorbar on the screen on and off.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.contour"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.contour">[docs]</a>    <span class="k">def</span> <span class="nf">contour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show contours on the window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;show contours on the window.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.contour_load"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.contour_load">[docs]</a>    <span class="k">def</span> <span class="nf">contour_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;load contours from a file&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;load contours from a file.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">contour_load</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.crosshair"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.crosshair">[docs]</a>    <span class="k">def</span> <span class="nf">crosshair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Control the current position of the crosshair in the current frame, crosshair mode is turned on&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Control the current position of the crosshair in the current frame.</span>
+
+<span class="sd">        crosshair mode is turned on</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">crosshair</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.cursor"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.cursor">[docs]</a>    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;move the cursor in the current frame to the specified image pixel, it will also move selected regions&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;move the cursor in the current frame to the specified image pixel.</span>
+
+<span class="sd">        it will also move selected regions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.disp_header"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.disp_header">[docs]</a>    <span class="k">def</span> <span class="nf">disp_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Display the header of the current image to a window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Display the header of the current image to a window.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">disp_header</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.frame"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.frame">[docs]</a>    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; move to a frame &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Move to a difference frame.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.get_data"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; return a numpy array of the data in the current window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a numpy array of the data in the current window.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span></div>
 
+<div class="viewcode-block" id="Connect.get_image"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the full image object, not just the numpy array.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_image</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="Connect.get_header"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.get_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the current fits header as a string, or None if there&#39;s a problem&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the current fits header as a string.</span>
+
+<span class="sd">        None is returned if there&#39;s a problem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">get_header</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.grid"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.grid">[docs]</a>    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience to turn the grid on and off, grid can be flushed with many more options&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Convenience to turn the grid on and off.</span>
+
+<span class="sd">        grid can be flushed with many more options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.hideme"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.hideme">[docs]</a>    <span class="k">def</span> <span class="nf">hideme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;lower the display window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Lower the precedence of the display window.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">hideme</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.load_fits"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.load_fits">[docs]</a>    <span class="k">def</span> <span class="nf">load_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience function to load fits image to current frame&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Convenience function to load fits image to current frame.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.load_region"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.load_region">[docs]</a>    <span class="k">def</span> <span class="nf">load_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load regions from a file which uses ds9 standard formatting&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Load regions from a file which uses ds9 standard formatting.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">load_region</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.load_mef_as_cube"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.load_mef_as_cube">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image one frame as a cube&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image one frame as a cube.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">load_mef_as_cube</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.load_mef_as_multi"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.load_mef_as_multi">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into multiple frames&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into multiple frames.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">load_mef_as_multi</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.make_region"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.make_region">[docs]</a>    <span class="k">def</span> <span class="nf">make_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;make an input reg file with  [x,y,comment] to a DS9 reg file.</span>
+
+<span class="sd">        the input file should contains lines with x,y,comment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">make_region</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.mark_region_from_array"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.mark_region_from_array">[docs]</a>    <span class="k">def</span> <span class="nf">mark_region_from_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;mark regions on the viewer with a list of tuples as input&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Mark regions on the viewer with a list of tuples as input.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">mark_region_from_array</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.match"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;match all other frames to the current frame&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Match all other frames to the current frame.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.nancolor"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.nancolor">[docs]</a>    <span class="k">def</span> <span class="nf">nancolor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set the not-a-number color, default is red&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the not-a-number color, default is red.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">nancolor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.panto_image"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.panto_image">[docs]</a>    <span class="k">def</span> <span class="nf">panto_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience function to change to x,y images coordinates using ra,dec</span>
-<span class="sd">           x, y in image coord&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Convenience function to change to x,y images coordinates.</span>
+
+<span class="sd">        using ra,dec x, y in image coord</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">panto_image</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.panto_wcs"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.panto_wcs">[docs]</a>    <span class="k">def</span> <span class="nf">panto_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;pan to wcs coordinates in image&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Pan to wcs coordinates in image.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">panto_wcs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.load_rgb"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.load_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">load_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;load three images into a frame, each one for a different color&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Load three images into a frame, each one for a different color.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">load_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.rotate"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;rotate the current frame (in degrees)&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Rotate the current frame (in degrees).&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.save_rgb"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.save_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">save_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;save an rgb image frame that is displayed as an MEF fits file&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Save an rgb image frame that is displayed as an MEF fits file.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">save_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.save_header"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.save_header">[docs]</a>    <span class="k">def</span> <span class="nf">save_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;save the header of the current image to a file&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Save the header of the current image to a file.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">save_header</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.save_regions"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.save_regions">[docs]</a>    <span class="k">def</span> <span class="nf">save_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;save the regions on the current window to a file&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Save the regions on the current window to a file.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.scale"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Scale the image on display.The default zscale is the most widely used option&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Scale the image on display.</span>
+
+<span class="sd">        The default zscale is the most widely used option</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.set_region"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.set_region">[docs]</a>    <span class="k">def</span> <span class="nf">set_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;display a region using the specifications in region_string&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Display a region using the specifications in region_string.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.showme"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.showme">[docs]</a>    <span class="k">def</span> <span class="nf">showme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;raise the display window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Raise the precedence of the display window.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">showme</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.showpix"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.showpix">[docs]</a>    <span class="k">def</span> <span class="nf">showpix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;display the pixel value table, close window when done&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Display the pixel value table, close window when done.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">showpix</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.show_window_commands"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.show_window_commands">[docs]</a>    <span class="k">def</span> <span class="nf">show_window_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;print the available commands for the selected display application&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">show_commands</span><span class="p">()</span></div>
+        <span class="sd">&quot;&quot;&quot;Print the available commands for the selected display window.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Connect.snapsave"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.snapsave">[docs]</a>    <span class="k">def</span> <span class="nf">snapsave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Create a snap shot of the current window.</span>
+
+<span class="sd">        save in the specified format.</span>
+<span class="sd">        If no format is specified the filename extension is used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">snapsave</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.view"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Display numpy image array &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Display numpy image array.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.zoom"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;zoom to parameter which can be any recognized string&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Zoom to parameter which can be any recognized string.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.zoomtofit"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.zoomtofit">[docs]</a>    <span class="k">def</span> <span class="nf">zoomtofit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;zoom the image to fit the display&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Zoom the image to fit the display.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">zoomtofit</span><span class="p">()</span></div>
 
-    <span class="sd">&quot;&quot;&quot; These are imexam parameters that the user can change for plotting  &quot;&quot;&quot;</span>
+    <span class="c1">#  These are imexam parameters that the user can change for plotting</span>
 
-    <span class="c1"># seems easiest to return the parameter dictionaries here, then the user can catch it, edit it</span>
-    <span class="c1"># and reset the pars with self.set in the exam link or directly into the</span>
-    <span class="c1"># imexamine object.</span>
+    <span class="c1"># seems easiest to return the parameter dictionaries here, then the user</span>
+    <span class="c1"># can catch it, edit it and reset the pars with self.set in the exam link</span>
+    <span class="c1"># or directly into the  imexamine object.</span>
 
-<div class="viewcode-block" id="Connect.aimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.aimexam">[docs]</a>    <span class="k">def</span> <span class="nf">aimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for aperture photometry&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_get_function_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the function and parname associated with the key.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;You need to specify the key-name for the function&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">_reserved_keys</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{0:s} is reserved&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Key not available&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">parname</span> <span class="o">=</span> <span class="n">fname</span> <span class="o">+</span> <span class="s2">&quot;_pars&quot;</span>
+        <span class="k">return</span> <span class="n">fname</span><span class="p">,</span> <span class="n">parname</span>
 
-<div class="viewcode-block" id="Connect.cimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.cimexam">[docs]</a>    <span class="k">def</span> <span class="nf">cimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for column plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Connect.set_plot_pars"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.set_plot_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_plot_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set the chosen plot parameter with the provided value.</span>
 
-<div class="viewcode-block" id="Connect.eimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.eimexam">[docs]</a>    <span class="k">def</span> <span class="nf">eimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for contour plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">)</span></div>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 
-<div class="viewcode-block" id="Connect.himexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.himexam">[docs]</a>    <span class="k">def</span> <span class="nf">himexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for histogram plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">)</span></div>
+<span class="sd">        key: String</span>
+<span class="sd">            The value of the option key, should be a single letter or number</span>
 
-<div class="viewcode-block" id="Connect.jimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.jimexam">[docs]</a>    <span class="k">def</span> <span class="nf">jimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for 1D fit line plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">)</span></div>
+<span class="sd">        item: string</span>
+<span class="sd">            The value of the parameter in the dictionary</span>
 
-<div class="viewcode-block" id="Connect.kimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.kimexam">[docs]</a>    <span class="k">def</span> <span class="nf">kimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for 1D fit column plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">column_fit_pars</span><span class="p">)</span></div>
+<span class="sd">        value: float, string, int, bool</span>
+<span class="sd">            What the parameters value should be set to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Connect.limexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.limexam">[docs]</a>    <span class="k">def</span> <span class="nf">limexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for  line plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">)</span></div>
+        <span class="n">fname</span><span class="p">,</span> <span class="n">parname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_name</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parname</span><span class="p">:</span>
+            <span class="n">current_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">parname</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No information for parameters available&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_dict</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No parameter of that name in dictionary&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">current_dict</span><span class="p">[</span><span class="n">item</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;set {} to {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Connect.mimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.mimexam">[docs]</a>    <span class="k">def</span> <span class="nf">mimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show the current parameters for statistical regions&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">report_stat_pars</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Connect.aimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.aimexam">[docs]</a>    <span class="k">def</span> <span class="nf">aimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for the &#39;a&#39; key.</span>
 
-<div class="viewcode-block" id="Connect.gimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.gimexam">[docs]</a>    <span class="k">def</span> <span class="nf">gimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for curve of growth plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">)</span></div>
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Connect.rimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.rimexam">[docs]</a>    <span class="k">def</span> <span class="nf">rimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for curve of growth plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Connect.cimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.cimexam">[docs]</a>    <span class="k">def</span> <span class="nf">cimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for the &#39;c&#39; key.</span>
 
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">colplot_pars</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Connect.wimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.wimexam">[docs]</a>    <span class="k">def</span> <span class="nf">wimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show current parameters for surface plots&quot;&quot;&quot;</span>
-        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Connect.eimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.eimexam">[docs]</a>    <span class="k">def</span> <span class="nf">eimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for the &#39;e&#39; key, returns dict.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.himexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.himexam">[docs]</a>    <span class="k">def</span> <span class="nf">himexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for &#39;h&#39; key, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.jimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.jimexam">[docs]</a>    <span class="k">def</span> <span class="nf">jimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for 1D fit line plots, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.kimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.kimexam">[docs]</a>    <span class="k">def</span> <span class="nf">kimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for 1D fit column plots, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">column_fit_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.limexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.limexam">[docs]</a>    <span class="k">def</span> <span class="nf">limexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for  line plots, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">lineplot_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.mimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.mimexam">[docs]</a>    <span class="k">def</span> <span class="nf">mimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for statistical regions, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">report_stat_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.gimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.gimexam">[docs]</a>    <span class="k">def</span> <span class="nf">gimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for curve of growth plots, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.rimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.rimexam">[docs]</a>    <span class="k">def</span> <span class="nf">rimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for curve of growth plots, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Connect.wimexam"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.wimexam">[docs]</a>    <span class="k">def</span> <span class="nf">wimexam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_name</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;show current parameters for surface plots, returns dict.</span>
+
+<span class="sd">        Either returns the name of the function associated with the keyname</span>
+<span class="sd">        Or it returns the dictionary of plotting parameters for that key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="s1">&#39;w&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Connect.unlearn"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.unlearn">[docs]</a>    <span class="k">def</span> <span class="nf">unlearn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;unlearn all the imexam parameters and reset to default&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;unlearn all the imexam parameters and reset to default.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">unlearn_all</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Connect.plotname"><a class="viewcode-back" href="../../api/imexam.connect.Connect.html#imexam.connect.Connect.plotname">[docs]</a>    <span class="k">def</span> <span class="nf">plotname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;change or show the default save plotname for imexamine&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;change or show the default save plotname for imexamine.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">get_plot_name</span><span class="p">()</span>  <span class="c1"># show the current default</span>
         <span class="k">else</span><span class="p">:</span>
@@ -554,7 +722,7 @@
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

@@ -81,6 +81,7 @@ class Imexamine(object):
         self._figure_name = "imexam"
 
         self._plot_windows.append(self._figure_name)
+        self._reserved_keys = ['q', '2']  # not to be changed with user funcs
 
     def set_option_funcs(self):
         """Define the dictionary which maps imexam keys to their functions.
@@ -100,13 +101,13 @@ class Imexamine(object):
                                     'y': (self.show_xy_coords, 'return x,y,value of pixel'),
                                     'l': (self.plot_line, 'return line plot'),
                                     'c': (self.plot_column, 'return column plot'),
-                                    'g': (self.curve_of_growth_plot, 'return curve of growth plot'),
-                                    'r': (self.radial_profile_plot, 'return the radial profile plot'),
-                                    'h': (self.histogram_plot, 'return a histogram in the region around the cursor'),
-                                    'e': (self.contour_plot, 'return a contour plot in a region around the cursor'),
+                                    'g': (self.curve_of_growth, 'return curve of growth plot'),
+                                    'r': (self.radial_profile, 'return the radial profile plot'),
+                                    'h': (self.histogram, 'return a histogram in the region around the cursor'),
+                                    'e': (self.contour, 'return a contour plot in a region around the cursor'),
                                     's': (self.save_figure, 'save current figure to disk as [plot_name]'),
                                     'b': (self.gauss_center, 'return the gauss fit center of the object'),
-                                    'w': (self.surface_plot, 'display a surface plot around the cursor location'),
+                                    'w': (self.surface, 'display a surface plot around the cursor location'),
                                     '2': (self.new_plot_window, 'make the next plot in a new window'),
                                     }
 
@@ -346,10 +347,10 @@ class Imexamine(object):
             logging.info(pstr)
 
     def save_figure(self, x, y, data=None):
-        """save to file the figure that's currently displayed.
+        """Save to file the figure that's currently displayed.
 
-           this is used for the imexam loop, because there is a standard api
-           for the loop
+        this is used for the imexam loop, because there is a standard api
+        for the loop
         """
         if data is None:
             data = self._data
@@ -361,9 +362,9 @@ class Imexamine(object):
         logging.info(pstr)
 
     def save(self, filename=None):
-        """save to file the figure that's currently displayed.
+        """Save to file the figure that's currently displayed.
 
-            this is used for the standalone plotting
+        this is used for the standalone plotting
         """
         if filename:
             self.set_plot_name(filename)
@@ -694,7 +695,7 @@ class Imexamine(object):
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def radial_profile_plot(self, x, y, data=None, form=None, fig=None):
+    def radial_profile(self, x, y, data=None, form=None, fig=None):
         """
         Display the radial profile plot (intensity vs radius) for the object
         Background may be subtracted and centering can be done with a 2dgauss fit
@@ -798,7 +799,7 @@ class Imexamine(object):
                 plt.pause(0.001)
 
 
-    def curve_of_growth_plot(self, x, y, data=None, fig=None):
+    def curve_of_growth(self, x, y, data=None, fig=None):
         """
         display the curve of growth plot;  the object
         photometry is from photutils
@@ -942,7 +943,7 @@ class Imexamine(object):
             return (
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
-    def histogram_plot(self, x, y, data=None, fig=None):
+    def histogram(self, x, y, data=None, fig=None):
         """plot a histogram of the pixel values."""
         if data is None:
             data = self._data
@@ -1000,7 +1001,7 @@ class Imexamine(object):
             plt.draw()
             plt.pause(0.001)
 
-    def contour_plot(self, x, y, data=None, fig=None):
+    def contour(self, x, y, data=None, fig=None):
         """plot contours in a region around the specified location."""
         if data is None:
             data = self._data
@@ -1044,7 +1045,7 @@ class Imexamine(object):
             plt.draw()
             plt.pause(0.001)
 
-    def surface_plot(self, x, y, data=None, fig=None):
+    def surface(self, x, y, data=None, fig=None):
         """plot a surface around the specified location."""
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter

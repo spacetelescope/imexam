@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.ds9_viewer &mdash; imexam v0.5.3dev</title>
+    <title>imexam.ds9_viewer &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../../_static/copybutton.js"></script>
@@ -56,7 +56,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">imexam v0.5.3dev</a>
+	<a href="../../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
@@ -74,21 +74,29 @@
   <h1>Source code for imexam.ds9_viewer</h1><div class="highlight"><pre>
 <span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
 
-<span class="sd">&quot;&quot;&quot;This class supports communication with DS9 through the XPA</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This class supports communication with DS9 through the XPA</span>
 
 
-<span class="sd">Some code in this class was adapted from pysao, which can be found at https://github.com/leejjoon/pysao.</span>
-<span class="sd">Specifically this package used the existing Cython implementation to the XPA  and extended the calls to</span>
-<span class="sd">the other available XPA executables so that more functionality is added. The same information is available</span>
-<span class="sd">here: http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen</span>
+<span class="sd">Some code in this class was adapted from pysao, which can be found</span>
+<span class="sd">at https://github.com/leejjoon/pysao. Specifically this package used the</span>
+<span class="sd">existing Cython implementation to the XPA  and extended the calls to the other</span>
+<span class="sd">available XPA executables so that more functionality is added. The same</span>
+<span class="sd">information is available here:</span>
 
-<span class="sd">Using Cython will allow for broader development of the code and produce faster runtimes for large datasets</span>
-<span class="sd">with repeated calls to the display manager.</span>
+<span class="sd">http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen</span>
 
-<span class="sd">XPA is licensed under LGPL, help can be found here: http://hea-www.cfa.harvard.edu/saord/xpa/help.html</span>
-<span class="sd">The current XPA can be downloaded from here: http://hea-www.harvard.edu/saord/xpa/</span>
+<span class="sd">Using Cython will allow for broader development of the code and produce faster</span>
+<span class="sd">runtimes for large datasets with repeated calls to the display manager.</span>
 
-<span class="sd">DS9 also supports the SAMP protocol, but that has not been fully implemented in this package. http://ds9.si.edu/doc/ref/samp.html</span>
+<span class="sd">XPA is licensed under LGPL, help can be found here:</span>
+<span class="sd">http://hea-www.cfa.harvard.edu/saord/xpa/help.html</span>
+
+<span class="sd">The current XPA can be downloaded from here:</span>
+<span class="sd">http://hea-www.harvard.edu/saord/xpa/</span>
+
+<span class="sd">DS9 also supports the SAMP protocol, but that has not been fully implemented</span>
+<span class="sd">in this package. http://ds9.si.edu/doc/ref/samp.html</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
@@ -101,6 +109,11 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">mkdtemp</span>
+<span class="kn">import</span> <span class="nn">matplotlib.image</span> <span class="kn">as</span> <span class="nn">mpimage</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">call</span>
 
 <span class="kn">import</span> <span class="nn">imexam.xpa_wrap</span> <span class="kn">as</span> <span class="nn">xpa</span>
 <span class="kn">from</span> <span class="nn">imexam.xpa</span> <span class="kn">import</span> <span class="n">XpaException</span>
@@ -119,88 +132,93 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ds9&#39;</span><span class="p">]</span>
 
 
-<span class="c1"># make a new object for every window you want to create</span>
-
 <div class="viewcode-block" id="ds9"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9">[docs]</a><span class="k">class</span> <span class="nc">ds9</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Controls all interactions between the user and the ds9 window.</span>
 
-    <span class="sd">&quot;&quot;&quot; A class which controls all interactions between the user and the ds9 window</span>
+<span class="sd">    The ds9() contructor takes a ds9 target as its main argument.</span>
+<span class="sd">    If none is given, then a new window will be opened.</span>
 
-<span class="sd">        The ds9() contructor takes a ds9 target as its main argument. If none is given,</span>
-<span class="sd">        then a new window will be opened.</span>
+<span class="sd">    DS9&#39;s xpa access points are documented in the reference manual,</span>
+<span class="sd">    but the can also be returned to the user with a call to xpaset.</span>
 
-<span class="sd">        DS9&#39;s xpa access points are documented in the reference manual, but the can also</span>
-<span class="sd">        be returned to the user with a call to xpaset.</span>
-
-<span class="sd">        http://hea-www.harvard.edu/saord/ds9/ref/xpa.html</span>
-
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        target: string, optional</span>
-<span class="sd">             the ds9 target name or id (default is to start a new instance)</span>
-
-<span class="sd">        path : string, optional</span>
-<span class="sd">            path of the ds9</span>
-
-<span class="sd">        wait_time : float, optional</span>
-<span class="sd">            waiting time before error is raised</span>
-
-<span class="sd">        quit_ds9_on_del : boolean, optional</span>
-<span class="sd">            If True, try to quit ds9 when this instance is deleted.</span>
+<span class="sd">    http://hea-www.harvard.edu/saord/ds9/ref/xpa.html</span>
 
 
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target: string, optional</span>
+<span class="sd">         the ds9 target name or id (default is to start a new instance)</span>
 
-<span class="sd">        wait_time: float</span>
-<span class="sd">             The waiting time before error is raised</span>
+<span class="sd">    path : string, optional</span>
+<span class="sd">        path of the ds9</span>
 
-<span class="sd">        path: string</span>
-<span class="sd">            The path to the DS9 executable</span>
+<span class="sd">    wait_time : float, optional</span>
+<span class="sd">        waiting time before error is raised</span>
 
-<span class="sd">        _xpa_name: string</span>
-<span class="sd">            The value in XPA_METHOD, the name of the DS9 window</span>
+<span class="sd">    quit_ds9_on_del : boolean, optional</span>
+<span class="sd">        If True, try to quit ds9 when this instance is deleted.</span>
 
-<span class="sd">        _quit_ds9_on_del: boolean</span>
-<span class="sd">             Determine whether to quit ds9 when object goes out of scope.</span>
 
-<span class="sd">        _ds9_unix_name: string</span>
-<span class="sd">            The full path filename to the unix socket, only if unix sockets are being used with local</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
 
-<span class="sd">        _need_to_purge: boolean</span>
-<span class="sd">             whenever there are unix socket directories which need to be purged when the object goes out of scope</span>
+<span class="sd">    wait_time: float</span>
+<span class="sd">         The waiting time before error is raised</span>
 
-<span class="sd">        _tmpd_name: string</span>
-<span class="sd">            The full path name to the unix socket file on the local system</span>
+<span class="sd">    path: string</span>
+<span class="sd">        The path to the DS9 executable</span>
 
-<span class="sd">        _filename: string</span>
-<span class="sd">            The name of the image that&#39;s currently loaded into DS9</span>
+<span class="sd">    _xpa_name: string</span>
+<span class="sd">        The value in XPA_METHOD, the name of the DS9 window</span>
 
-<span class="sd">        _ext: int</span>
-<span class="sd">            Extension of the current image that is loaded. If one extension of an MEF file is loaded this will be 1</span>
-<span class="sd">            regarless of the extension that was specified (because DS9 and the XPA now see it as a single image and header)</span>
+<span class="sd">    _quit_ds9_on_del: boolean</span>
+<span class="sd">         Determine whether to quit ds9 when object goes out of scope.</span>
 
-<span class="sd">        _extname: string</span>
-<span class="sd">            If available, the EXTNAME of the MEF extension that is loaded, taken from the current data header</span>
+<span class="sd">    _ds9_unix_name: string</span>
+<span class="sd">        The full path filename to the unix socket, only if unix sockets are</span>
+<span class="sd">        being used with local</span>
 
-<span class="sd">        _extver: int</span>
-<span class="sd">            If available, the EXTVER of the MEF extension that is loaded, taken from the current data header</span>
+<span class="sd">    _need_to_purge: boolean</span>
+<span class="sd">        whenever there are unix socket directories which need to be purged when</span>
+<span class="sd">        the object goes out of scope</span>
 
-<span class="sd">        _ds9_process: pointer</span>
-<span class="sd">            Points to the ds9 process id on the system, returned by Popen, whenever this module starts DS9</span>
+<span class="sd">    _tmpd_name: string</span>
+<span class="sd">        The full path name to the unix socket file on the local system</span>
 
-<span class="sd">        _mef_file: boolean</span>
-<span class="sd">            The file is a multi-extension fits file</span>
+<span class="sd">    _filename: string</span>
+<span class="sd">        The name of the image that&#39;s currently loaded into DS9</span>
 
-<span class="sd">        _iscube: bookean</span>
-<span class="sd">            The file is a multiextension fits file, and one of the extensions contains at least 1 additional extension (3D or more)</span>
+<span class="sd">    _ext: int</span>
+<span class="sd">        Extension of the current image that is loaded. If one extension of an</span>
+<span class="sd">        MEF file is loaded this will be 1 regardless of the extension that was</span>
+<span class="sd">        specified (because DS9 and the XPA now see it as a single image and</span>
+<span class="sd">        header)</span>
 
-<span class="sd">        _numaxis: int</span>
-<span class="sd">            number of image planes, this is NAXIS</span>
+<span class="sd">    _extname: string</span>
+<span class="sd">        If available, the EXTNAME of the MEF extension that is loaded, taken</span>
+<span class="sd">        from the current data header</span>
 
-<span class="sd">        _naxis: tuple</span>
-<span class="sd">            specific image plane displayed, defaulted to 1 image plane, most relevant to cube fits files</span>
+<span class="sd">    _extver: int</span>
+<span class="sd">        If available, the EXTVER of the MEF extension that is loaded, taken</span>
+<span class="sd">        from the current data header</span>
 
+<span class="sd">    _ds9_process: pointer</span>
+<span class="sd">        Points to the ds9 process id on the system, returned by Popen, whenever</span>
+<span class="sd">        this module starts DS9</span>
+
+<span class="sd">    _mef_file: boolean</span>
+<span class="sd">        The file is a multi-extension fits file</span>
+
+<span class="sd">    _iscube: bookean</span>
+<span class="sd">        The file is a multiextension fits file, and one of the extensions</span>
+<span class="sd">        contains at least 1 additional extension (3D or more)</span>
+
+<span class="sd">    _numaxis: int</span>
+<span class="sd">        number of image planes, this is NAXIS</span>
+
+<span class="sd">    _naxis: tuple</span>
+<span class="sd">        specific image plane displayed, defaulted to 1 image plane, most</span>
+<span class="sd">        relevant to cube fits files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># _ImgCode : copied from fits, used for displaying arrays straight to DS9</span>
@@ -217,29 +235,34 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                  <span class="n">quit_ds9_on_del</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;starter.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        I think this is a quirk in the XPA communication. The xpans, and XPA prefer to have all connections</span>
-<span class="sd">        be of the same type. DS9 defaults to creating an INET connection. In some cases, if no IP address can be</span>
-<span class="sd">        found for the computer, the startup can hang. In these cases, a local connection is preferred, which</span>
-<span class="sd">        uses a unix filename for the socket.</span>
+<span class="sd">        I think this is a quirk in the XPA communication. The xpans, and XPA</span>
+<span class="sd">        prefer to have all connections be of the same type. DS9 defaults to</span>
+<span class="sd">        creating an INET connection. In some cases, if no IP address can be</span>
+<span class="sd">        found for the computer, the startup can hang. In these cases, a local</span>
+<span class="sd">        connection is preferred, which uses a unix filename for the socket.</span>
 
-<span class="sd">        The problem arises that if the user already has DS9 windows running, that were started by default, the nameserver</span>
-<span class="sd">        is only listening for the default socket type (inet) and not local. There are also cases where the machine</span>
-<span class="sd">        running this code does not have xpa installed, so there is no xpans (nameserver) to run and keep track of the</span>
-<span class="sd">        open connections. In that case, the user needs to provide this init with the name of the socket in their</span>
-<span class="sd">        window (in XPA_METHOD) in order to create the connection.</span>
+<span class="sd">        The problem arises that if the user already has DS9 windows running,</span>
+<span class="sd">        that were started by default, the nameserver is only listening for the</span>
+<span class="sd">        default socket type (inet) and not local. There are also cases where</span>
+<span class="sd">        the machine running this code does not have xpa installed, so there is</span>
+<span class="sd">        no xpans (nameserver) to run and keep track of the open connections.</span>
+<span class="sd">        In that case, the user needs to provide this init with the name of the</span>
+<span class="sd">        socket in their window (in XPA_METHOD) in order to create the</span>
+<span class="sd">        connection.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_quit_ds9_on_del</span> <span class="o">=</span> <span class="n">quit_ds9_on_del</span>  <span class="c1"># determine whether to quit ds9 also when object deleted.</span>
+        <span class="c1"># determine whether to quit ds9 also when object deleted.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_quit_ds9_on_del</span> <span class="o">=</span> <span class="n">quit_ds9_on_del</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">=</span> <span class="n">wait_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_need_to_purge</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c1"># dictionary where each key is a frame number, and the values are a dictionary of details</span>
-        <span class="c1"># about the image loaded in that frame</span>
+        <span class="c1"># dictionary where each key is a frame number, and the values are a</span>
+        <span class="c1"># dictionary of details about the image loaded in that frame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">None</span>
@@ -267,8 +290,9 @@
 
             <span class="k">if</span> <span class="s1">&#39;inet&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_inet_ds9</span><span class="p">()</span>
-                <span class="c1"># xpa_name is the title of the window, the xpa can be referenced</span>
-                <span class="c1"># with either the socket address or name of the window</span>
+                <span class="c1"># xpa_name is the title of the window, the xpa can be</span>
+                <span class="c1"># referenced with either the socket address or name</span>
+                <span class="c1"># of the window</span>
 
             <span class="k">elif</span> <span class="s1">&#39;local&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_unix_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_unixonly_ds9</span><span class="p">()</span>
@@ -290,6 +314,7 @@
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Nicely exit the DS9 process.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quit_ds9_on_del</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;local&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_purge_local</span><span class="p">()</span>
@@ -297,24 +322,27 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stop_process</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_set_frameinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the name and extension information for the data displayed in the current frame</span>
-<span class="sd">        and gather header information</span>
+        <span class="sd">&quot;&quot;&quot;Set the name and extension for the data displayed in current frame.</span>
 
+<span class="sd">        also gather header information</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        The absolute path reference is stored to make XPA happy in all cases, wherever the user</span>
-<span class="sd">        started the DS9 process.</span>
+<span class="sd">        The absolute path reference is stored to make XPA happy in all cases,</span>
+<span class="sd">        wherever the user started the DS9 process.</span>
 
-<span class="sd">        The only consistant way to return which cube and slice that is displayed is with the call</span>
-<span class="sd">        to &quot;file&quot; which has the full plane=x:y information, but only when looking at something</span>
-<span class="sd">        other than the first extension for each plane. In this case, you have to look at the header</span>
-<span class="sd">        information to see it&#39;s a cube image, and assume the first image plane is displayed.</span>
+<span class="sd">        The only consistant way to return which cube and slice that is</span>
+<span class="sd">        displayed is with the call to &quot;file&quot; which has the full plane=x:y</span>
+<span class="sd">        information, but only when looking at something other than the first</span>
+<span class="sd">        extension for each plane. In this case, you have to look at the header</span>
+<span class="sd">        information to see it&#39;s a cube image, and assume the first image plane</span>
+<span class="sd">        is displayed.</span>
 
-<span class="sd">        If you load a single extension from an MEF into DS9, XPA references the extension as 1 afterwards for access points</span>
-<span class="sd">        you need to look in the header of the displayed image to find out what the actual extension that is loaded is</span>
+<span class="sd">        If you load a single extension from an MEF into DS9, XPA references</span>
+<span class="sd">        the extension as 1 afterwards for access points you need to look in</span>
+<span class="sd">        the header of the displayed image to find out what the actual extension</span>
+<span class="sd">        that is loaded</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># check the current frame, if none exists, then don&#39;t continue</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
@@ -340,7 +368,8 @@
             <span class="n">load_header</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># not used for in memory arrays</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="n">frame</span>
 
-            <span class="c1"># see if any file is currently loaded into ds9, xpa returns &#39;\n&#39; for nothing loaded</span>
+            <span class="c1"># see if any file is currently loaded into ds9,</span>
+            <span class="c1"># xpa returns &#39;\n&#39; for nothing loaded</span>
             <span class="c1"># get the current frame</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">filename_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span>
@@ -367,15 +396,15 @@
                     <span class="n">naxis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">naxis</span><span class="p">)</span>
                     <span class="n">naxis</span> <span class="o">=</span> <span class="p">[</span>
                         <span class="n">axis</span> <span class="o">-</span>
-                        <span class="mi">1</span> <span class="k">if</span> <span class="n">axis</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">naxis</span><span class="p">]</span>  <span class="c1"># zero index fits</span>
+                        <span class="mi">1</span> <span class="k">if</span> <span class="n">axis</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">naxis</span><span class="p">]</span>
                     <span class="n">naxis</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">naxis</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Problem parsing filename&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">load_header</span><span class="p">:</span>
-                <span class="c1"># set the extension from the header information returned from DS9</span>
-                <span class="c1"># this is the best way to get the information if the user changes</span>
-                <span class="c1"># the loaded file using the gui</span>
+                <span class="c1"># set the extension from the header information returned from</span>
+                <span class="c1"># DS9 this is the best way to get the information if the user</span>
+                <span class="c1"># changes the loaded file using the gui</span>
                 <span class="n">header_cards</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">get_header</span><span class="p">(),</span>
                     <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -407,8 +436,10 @@
                             <span class="n">naxis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="n">naxis</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">naxis</span><span class="p">)</span>
 
-            <span class="c1"># update the viewer dictionary, if the user changes what&#39;s displayed in a frame this should update correctly</span>
-            <span class="c1"># this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through</span>
+            <span class="c1"># update the viewer dictionary, if the user changes what&#39;s</span>
+            <span class="c1"># displayed in a frame this should update correctly</span>
+            <span class="c1"># this dictionary will be referenced in the other parts of</span>
+            <span class="c1"># the code. This enables tracking user arrays through</span>
             <span class="c1"># frame changes</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span>
@@ -424,7 +455,7 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No frame loaded in viewer&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ds9.valid_data_in_viewer"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.valid_data_in_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">valid_data_in_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return bool if valid file or array is loaded into the viewer&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return bool if valid file or array is loaded into the viewer.&quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
@@ -442,12 +473,13 @@
         <span class="k">return</span> <span class="bp">False</span></div>
 
 <div class="viewcode-block" id="ds9.get_filename"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the filename currently on display</span>
+        <span class="sd">&quot;&quot;&quot;return the filename currently on display.</span>
 
-
-<span class="sd">        This function will check if there is already a filename saved. It&#39;s possible that the user can</span>
-<span class="sd">        connect to a ds9 window with no file loaded and then ask for the data file name after loading one through</span>
-<span class="sd">        the ds9 menu options. This will poll the private filename and then try and set one if it&#39;s empty.</span>
+<span class="sd">        This function will check if there is already a filename saved. It&#39;s</span>
+<span class="sd">        possible that the user can connect to a ds9 window with no file loaded</span>
+<span class="sd">        and then ask for the data file name after loading one through the ds9</span>
+<span class="sd">        menu options. This will poll the private filename and then try and set</span>
+<span class="sd">        one if it&#39;s empty.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># see if the user has loaded a file by hand or changed frames in the</span>
         <span class="c1"># gui</span>
@@ -458,27 +490,27 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="ds9.get_frame_info"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_frame_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return more explicit information about the data displayed in the current frame&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return more explicit information about the data displayed.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()]</span></div>
 
 <div class="viewcode-block" id="ds9.get_viewer_info"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_viewer_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_viewer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a dictionary of information about all frames which are loaded with data</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary of information.</span>
 
+<span class="sd">        The dictionary contains information about all frames which are</span>
+<span class="sd">        loaded with data</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        Consider adding a loop to verify that all the frames still exist and the user</span>
-<span class="sd">        has not deleted any through the gui.</span>
-
-
+<span class="sd">        Consider adding a loop to verify that all the frames still exist</span>
+<span class="sd">        and the user has not deleted any through the gui.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_purge_tmp_dirs</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Delete temporary directories made for the unix socket</span>
+        <span class="sd">&quot;&quot;&quot;Delete temporary directories made for the unix socket.</span>
 
 <span class="sd">        When used with ipython (pylab mode), it seems that the objects</span>
 <span class="sd">        are not properly deleted, i.e., temporary directories are not</span>
@@ -490,14 +522,17 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_stop_running_process</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;stop self generated DS9 windows when user quits python window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;stop self generated DS9 windows when user quits python window.&quot;&quot;&quot;</span>
         <span class="k">while</span> <span class="n">cls</span><span class="o">.</span><span class="n">_process_list</span><span class="p">:</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_process_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="n">process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_stop_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;stop the ds9 window process nicely, only if this package started it&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;stop the ds9 window process nicely.</span>
+
+<span class="sd">        only if this package started it</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="p">:</span>
                 <span class="c1"># none means not yet terminated</span>
@@ -510,8 +545,7 @@
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;XPA Exception: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_purge_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;remove temporary directories from the unix socket&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;remove temporary directories from the unix socket.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_need_to_purge</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -530,12 +564,13 @@
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Warning : couldn&#39;t delete the temporary directory ({0:s})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">,))</span>
+                <span class="s2">&quot;Warning : couldn&#39;t delete the temporary </span><span class="se">\</span>
+<span class="s2">                directory ({0:s})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmpd_name</span><span class="p">,))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_need_to_purge</span> <span class="o">=</span> <span class="bp">False</span>
 
 <div class="viewcode-block" id="ds9.close"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; close the window and end connection&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;close the window and end connection.&quot;&quot;&quot;</span>
         <span class="c1"># make sure we clean up the object and quit_ds9 local files</span>
         <span class="k">if</span> <span class="s1">&#39;local&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span> <span class="ow">or</span> <span class="s1">&#39;tmp&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_purge_local</span><span class="p">()</span>
@@ -543,13 +578,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_stop_process</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ds9.run_inet_ds9"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.run_inet_ds9">[docs]</a>    <span class="k">def</span> <span class="nf">run_inet_ds9</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;start a new ds9 window using an inet socket connection</span>
+        <span class="sd">&quot;&quot;&quot;start a new ds9 window using an inet socket connection.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        It is given a unique title so it can be identified later.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
 
         <span class="c1"># this is the title of the window, without a nameserver connection</span>
@@ -567,24 +601,33 @@
             <span class="k">return</span> <span class="n">xpaname</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># refine error class</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Opening  ds9 failed&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Opening ds9 failed&quot;</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Exception: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
             <span class="kn">from</span> <span class="nn">signal</span> <span class="kn">import</span> <span class="n">SIGTERM</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">SIGTERM</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">Exception</span></div>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pidtokill</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">pid</span>
+            <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+                <span class="c1"># in case p failed at the initialization level</span>
+                <span class="n">pidtokill</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="n">pidtokill</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pidtokill</span><span class="p">,</span> <span class="n">SIGTERM</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
 
     <span class="k">def</span> <span class="nf">_run_unixonly_ds9</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; start new ds9 window and connect to object using a unix socket</span>
+        <span class="sd">&quot;&quot;&quot;start new ds9 window and connect to object using a unix socket.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        When the xpa method in libxpa parses a given template as a unix socket, it checks if the template string starts with tmpdir (from env[&quot;XPA_TMPDIR&quot;]</span>
-<span class="sd">        or default to /tmp/.xpa). This can make having multiple instances of ds9 a bit difficult, but if you give it unique names or use the inet address</span>
-<span class="sd">        you should be fine</span>
+<span class="sd">        When the xpa method in libxpa parses a given template as a unix</span>
+<span class="sd">        socket, it checks if the template string starts with tmpdir</span>
+<span class="sd">        (from env[&quot;XPA_TMPDIR&quot;] or default to /tmp/.xpa). This can make</span>
+<span class="sd">        having multiple instances of ds9 a bit difficult, but if you give it</span>
+<span class="sd">        unique names or use the inet address you should be fine</span>
 
-<span class="sd">        For unix only, we run ds9 with XPA_TMPDIR set to temporary directory whose prefix start with /tmp/xpa</span>
-<span class="sd">        (eg, /tmp/xpa_sf23f), them set os.environ[&quot;XPA_TMPDIR&quot;] (which affects xpa set and/or get command from python) to /tmp/xpa.</span>
-
+<span class="sd">        For unix only, we run ds9 with XPA_TMPDIR set to temporary directory</span>
+<span class="sd">        whose prefix start with /tmp/xpa (eg, /tmp/xpa_sf23f), them set</span>
+<span class="sd">        os.environ[&quot;XPA_TMPDIR&quot;] (which affects xpa set and/or get command</span>
+<span class="sd">        from python) to /tmp/xpa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
         <span class="n">wait_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span>
@@ -607,7 +650,7 @@
             <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_path</span><span class="p">,</span>
                        <span class="s2">&quot;-xpa&quot;</span><span class="p">,</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
                        <span class="s2">&quot;-unix_only&quot;</span><span class="p">,</span> <span class="s2">&quot;-title&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span>
-                       <span class="s2">&quot;-unix&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">iraf_unix</span><span class="p">],</span>
+                       <span class="s2">&quot;-unix&quot;</span><span class="p">,</span> <span class="s2">&quot;{0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iraf_unix</span><span class="p">)],</span>
                       <span class="n">shell</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
 
             <span class="c1"># wait until ds9 starts and the .IMT socket exists</span>
@@ -622,7 +665,9 @@
                 <span class="kn">from</span> <span class="nn">signal</span> <span class="kn">import</span> <span class="n">SIGTERM</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">SIGTERM</span><span class="p">)</span>
                 <span class="k">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Connection timeout with the ds9. Try to increase the *wait_time* parameter (current value is  {0:d} s)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span><span class="p">,))</span>
+                    <span class="s2">&quot;Connection timeout with the ds9. Try to increase the </span><span class="se">\</span>
+<span class="s2">                    *wait_time* parameter (current value </span><span class="se">\</span>
+<span class="s2">                    is  {0:d} s)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span><span class="p">,))</span>
 
         <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Starting ds9 failed&quot;</span><span class="p">)</span>
@@ -650,26 +695,26 @@
         <span class="k">return</span> <span class="n">xpaname</span><span class="p">,</span> <span class="n">iraf_unix</span>
 
 <div class="viewcode-block" id="ds9.set_iraf_display"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.set_iraf_display">[docs]</a>    <span class="k">def</span> <span class="nf">set_iraf_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set the environemnt variable IMTDEV to the socket address of the current imexam.ds9 instance.</span>
+        <span class="sd">&quot;&quot;&quot;Set the environemnt variable IMTDEV to the current display.</span>
 
+<span class="sd">        the socket address of the current imexam.ds9 instance is used</span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        For example, your pyraf commands will use this ds9 for display.</span>
 
 <span class="sd">        TODO: Not sure this is still needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;IMTDEV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unix:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_unix_name</span><span class="p">)</span></div>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;IMTDEV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unix:{0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ds9_unix_name</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_check_ds9_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Check to see if the ds9 process is still running</span>
+        <span class="sd">&quot;&quot;&quot;Check to see if the ds9 process is still running.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        If you start a ds9 window from the shell and then connect to imexam, imexam</span>
-<span class="sd">        will not have a reference for the process, so this method ignores that state.</span>
-
+<span class="sd">        If you start a ds9 window from the shell and then connect</span>
+<span class="sd">        to imexam, imexam will not have a reference for the process,</span>
+<span class="sd">        so this method ignores that state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds9_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -677,7 +722,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_purge_local</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ds9.set"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">buf</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;XPA set method to ds9 instance</span>
+        <span class="sd">&quot;&quot;&quot;XPA set method to ds9 instance.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -691,7 +736,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">xpa</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.get"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;XPA get method to ds9 instance which returns received string</span>
+        <span class="sd">&quot;&quot;&quot;XPA get method to ds9 instance which returns received string.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -708,12 +753,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpa</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.readcursor"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.readcursor">[docs]</a>    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed,</span>
+        <span class="sd">&quot;&quot;&quot;Returns the image coordinate postion and key pressed.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        XPA returns strings of the form:  u a  257.5 239 \n</span>
-
+<span class="sd">        XPA returns strings of the form:  u a  257.5 239</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">xpa_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;imexam any coordinate image&quot;</span><span class="p">)</span>
@@ -729,17 +773,17 @@
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.alignwcs"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.alignwcs">[docs]</a>    <span class="k">def</span> <span class="nf">alignwcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;align wcs</span>
+        <span class="sd">&quot;&quot;&quot;align wcs.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        on: bool</span>
 <span class="sd">            Align the images using the WCS in their headers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;align </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">on</span><span class="p">)))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;align {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">on</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="ds9.blink"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.blink">[docs]</a>    <span class="k">def</span> <span class="nf">blink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blink</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Blink frames</span>
+        <span class="sd">&quot;&quot;&quot;Blink frames.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -765,17 +809,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;no &quot;</span>
             <span class="k">if</span> <span class="n">interval</span><span class="p">:</span>
-                <span class="n">cstring</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+                <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot; {0:d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.clear_contour"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.clear_contour">[docs]</a>    <span class="k">def</span> <span class="nf">clear_contour</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;clear contours from the screen&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;clear contours from the screen.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;contour clear&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_define_cmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;setup the default color maps which are available&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;setup the default color maps which are available.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_syntax</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        Syntax:</span>
 <span class="s2">        cmap [&lt;colormap&gt;]</span>
@@ -791,26 +834,19 @@
 <span class="s2">            [open|close]</span>
 
 <span class="s2">         Example:</span>
-<span class="s2">            &gt;obj.cmap(map=&quot;Heat&quot;)</span>
+<span class="s2">            &gt;obj.cmap(map=&quot;gist_heat&quot;)</span>
 <span class="s2">            &gt;obj.cmap(invert=True)</span>
 <span class="s2">         &quot;&quot;&quot;</span>
 
         <span class="c1"># is there a list I can pull automatically from ds9?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;heat&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grey&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cool&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;aips0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;he&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;i8&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;bb&quot;</span><span class="p">,</span> <span class="s2">&quot;he&quot;</span><span class="p">,</span> <span class="s2">&quot;i8&quot;</span><span class="p">,</span> <span class="s2">&quot;aips0&quot;</span><span class="p">,</span> <span class="s2">&quot;sls&quot;</span><span class="p">,</span> <span class="s2">&quot;hsv&quot;</span><span class="p">,</span> <span class="s2">&quot;heat&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;cool&quot;</span><span class="p">,</span> <span class="s2">&quot;rainbow&quot;</span><span class="p">,</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="s2">&quot;staircase&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;color&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ds9.cmap"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.cmap">[docs]</a>    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
              <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;colormap.ds9&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set the color map table to something else, using a defined list of options</span>
-
+        <span class="sd">&quot;&quot;&quot;Set the color map table, using a defined list of options.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -819,7 +855,8 @@
 
 <span class="sd">        load: string, optional</span>
 <span class="sd">            set to the filename which is a valid colormap lookup table</span>
-<span class="sd">            valid contrast values are from 0 to 10, and valid bias values are from 0 to 1</span>
+<span class="sd">            valid contrast values are from 0 to 10, and valid bias</span>
+<span class="sd">            values are from 0 to 1</span>
 
 <span class="sd">        invert: bool, optional</span>
 <span class="sd">            invert the colormap</span>
@@ -829,13 +866,11 @@
 
 <span class="sd">        filename: string, optional</span>
 <span class="sd">            the name of the file to save the colormap to</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="n">color</span><span class="p">:</span>
             <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">color</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span><span class="p">:</span>
-                <span class="n">cstring</span> <span class="o">=</span> <span class="s2">&quot;cmap </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span><span class="p">:</span>
+                <span class="n">cstring</span> <span class="o">=</span> <span class="s2">&quot;cmap {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Unrecognized color map, choose one of these:&quot;</span><span class="p">)</span>
@@ -843,19 +878,22 @@
 
         <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
             <span class="n">invert</span> <span class="o">=</span> <span class="s1">&#39;yes&#39;</span>
-            <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cmap invert </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">invert</span><span class="p">)</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s1">&#39;cmap invert {0:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">invert</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">load</span><span class="p">:</span>
-            <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cmap load </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">load</span><span class="p">)</span>  <span class="c1"># where load is the filename</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s1">&#39;cmap load {0:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">load</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
-            <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cmap save </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span></div>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s1">&#39;cmap save {0:s}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">color</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">load</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.colorbar"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.colorbar">[docs]</a>    <span class="k">def</span> <span class="nf">colorbar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;turn the colorbar on the bottom of the window on and off</span>
+        <span class="sd">&quot;&quot;&quot;turn the colorbar on the bottom of the window on and off.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -863,10 +901,10 @@
 <span class="sd">            Set to True to turn on the colorbar, False to turn it off</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;colorbar </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">on</span><span class="p">)))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;colorbar {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">on</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="ds9.contour"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.contour">[docs]</a>    <span class="k">def</span> <span class="nf">contour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">construct</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;show contours on the window</span>
+        <span class="sd">&quot;&quot;&quot;show contours on the window.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -882,8 +920,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;contour levels&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.contour_load"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.contour_load">[docs]</a>    <span class="k">def</span> <span class="nf">contour_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;load a contour file into the window</span>
-
+        <span class="sd">&quot;&quot;&quot;load a contour file into the window.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -898,16 +935,20 @@
 
 <div class="viewcode-block" id="ds9.crosshair"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.crosshair">[docs]</a>    <span class="k">def</span> <span class="nf">crosshair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">coordsys</span><span class="o">=</span><span class="s2">&quot;physical&quot;</span><span class="p">,</span>
                   <span class="n">skyframe</span><span class="o">=</span><span class="s2">&quot;wcs&quot;</span><span class="p">,</span> <span class="n">skyformat</span><span class="o">=</span><span class="s2">&quot;fk5&quot;</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Control the position of the crosshair in the current frame, crosshair mode is turned on automatically</span>
+        <span class="sd">&quot;&quot;&quot;Control the position of the crosshair in the current frame.</span>
+
+<span class="sd">        crosshair mode is turned on automatically</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 
 <span class="sd">        x: string or int</span>
-<span class="sd">            The value of x is converted to a string for the call to XPA, use a value here appropriate for the skyformat you choose</span>
+<span class="sd">            The value of x is converted to a string for the call to XPA,</span>
+<span class="sd">            use a value here appropriate for the skyformat you choose</span>
 
 <span class="sd">        y: string or int</span>
-<span class="sd">            The value of y is converted to a string for the call to XPA, use a value here appropriate for the skyformat you choose</span>
+<span class="sd">            The value of y is converted to a string for the call to XPA,</span>
+<span class="sd">            use a value here appropriate for the skyformat you choose</span>
 
 <span class="sd">        coordsys: string, optional</span>
 <span class="sd">            The coordinate system your x and y are defined in</span>
@@ -916,14 +957,14 @@
 <span class="sd">            If skyframe has &quot;wcs&quot; in it then skyformat is also sent to the XPA</span>
 
 <span class="sd">        skyformat: string, optional</span>
-<span class="sd">            Used with skyframe, specifies the format of the coordinate which were given in x and y</span>
+<span class="sd">            Used with skyframe, specifies the format of the coordinate</span>
+<span class="sd">            which were given in x and y</span>
 
 <span class="sd">        match: bool, optional</span>
 <span class="sd">            If set to True, then the wcs is matched for the frames</span>
 
 <span class="sd">        lock: bool, optional</span>
 <span class="sd">            If set to True, then the frame is locked in wcs</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">y</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;wcs&quot;</span> <span class="ow">in</span> <span class="n">skyframe</span><span class="p">:</span>
@@ -938,7 +979,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;crosshair lock wcs&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.cursor"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.cursor">[docs]</a>    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;move the cursor in the current frame to the specified image pixel; selected regions will also be moved</span>
+        <span class="sd">&quot;&quot;&quot;move the cursor in the current frame to the specified image pixel.</span>
+
+<span class="sd">         selected regions will also be moved</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -958,8 +1001,7 @@
                 <span class="s2">&quot;You need to supply both an x and y location for the cursor&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.disp_header"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.disp_header">[docs]</a>    <span class="k">def</span> <span class="nf">disp_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Display the header of the current image to a DS9 window&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;Display the header of the current image to a DS9 window.&quot;&quot;&quot;</span>
         <span class="n">cstring</span> <span class="o">=</span> <span class="s2">&quot;header &quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>  <span class="c1"># display the header of the current frame</span>
@@ -967,15 +1009,16 @@
             <span class="k">raise</span> <span class="n">XpaException</span><span class="p">(</span><span class="s2">&quot;XPA Exception getting header: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.frame"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.frame">[docs]</a>    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience function to change or report frames</span>
-
+        <span class="sd">&quot;&quot;&quot;convenience function to change or report frames.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        n: int, string, optional</span>
-<span class="sd">            The frame number to open or change to. If the number specified doesn&#39;t exist, a new frame will be opened</span>
-<span class="sd">            If nothing is specified, then the current frame number will be returned. The value of n is converted to</span>
-<span class="sd">            a string before passing to the XPA</span>
+<span class="sd">            The frame number to open or change to. If the number specified</span>
+<span class="sd">            doesn&#39;t exist, a new frame will be opened</span>
+<span class="sd">            If nothing is specified, then the current frame number will be</span>
+<span class="sd">            returned. The value of n is converted to a string before passing</span>
+<span class="sd">            to the XPA</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -983,7 +1026,8 @@
 <span class="sd">        frame(&quot;last&quot;) set the current frame to the last frame</span>
 <span class="sd">        frame() returns the number of the current frame</span>
 <span class="sd">        frame(&quot;new&quot;) opens a new frame</span>
-<span class="sd">        frame(3)  opens frame 3 if it doesn&#39;t exist already, otherwise goes to frame 3</span>
+<span class="sd">        frame(3)  opens frame 3 if it doesn&#39;t exist already, otherwise</span>
+<span class="sd">        goes to frame 3</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c1"># xpa returns &#39;\n&#39; for no frame</span>
@@ -1013,7 +1057,7 @@
                 <span class="k">return</span> <span class="s1">&#39;1&#39;</span></div>
 
 <div class="viewcode-block" id="ds9.iscube"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.iscube">[docs]</a>    <span class="k">def</span> <span class="nf">iscube</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return information on whether a cube image is displayed in the current frame&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return whether a cube image is displayed in the current frame.&quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
@@ -1021,7 +1065,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;iscube&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="ds9.get_slice_info"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_slice_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_slice_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the slice tuple that is currently displayed&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return the slice tuple that is currently displayed.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
 
@@ -1032,17 +1076,19 @@
         <span class="k">return</span> <span class="n">image_slice</span></div>
 
 <div class="viewcode-block" id="ds9.get_data"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; return a numpy array of the data displayed in the current frame</span>
+        <span class="sd">&quot;&quot;&quot;return a numpy array of the data displayed in the current frame.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        This is the data array that the imexam() function from connect() uses for analysis</span>
+<span class="sd">        This is the data array that the imexam() function from connect()</span>
+<span class="sd">        uses for analysis</span>
 
-<span class="sd">        astropy.io.fits stores data in row-major format. So a 4d image would be  [NAXIS4, NAXIS3, NAXIS2, NAXIS1]</span>
-<span class="sd">        just the one image is retured in the case of multidimensional data, not the cube</span>
+<span class="sd">        astropy.io.fits stores data in row-major format. So a 4d image would be</span>
+<span class="sd">        [NAXIS4, NAXIS3, NAXIS2, NAXIS1]</span>
+<span class="sd">        just the one image is retured in the case of multidimensional data, not</span>
+<span class="sd">        the cube</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># make sure the filename and extension info are correct for the current</span>
         <span class="c1"># frame in DS9, users can change this in the gui</span>
         <span class="c1"># users can change frame and slice before calling this, best to check</span>
@@ -1070,9 +1116,18 @@
                         <span class="n">data</span> <span class="o">=</span> <span class="n">filedata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
                     <span class="k">return</span> <span class="n">data</span></div>
 
-<div class="viewcode-block" id="ds9.get_header"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the current fits header as a string or None if there&#39;s a problem&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ds9.get_image"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return the full image object instead of just the data array.&quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Returning just the data array, open the image file </span><span class="se">\</span>
+<span class="s2">               for the full object&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span></div>
 
+
+<div class="viewcode-block" id="ds9.get_header"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.get_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current fits header.</span>
+
+<span class="sd">        The return value is the string or None if there&#39;s a problem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO return the simple header for arrays which are loaded</span>
 
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
@@ -1092,7 +1147,9 @@
             <span class="k">return</span> <span class="bp">None</span></div>
 
 <div class="viewcode-block" id="ds9.grid"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.grid">[docs]</a>    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience to turn the grid on and off, grid can be flushed with many more options</span>
+        <span class="sd">&quot;&quot;&quot;convenience to turn the grid on and off.</span>
+
+<span class="sd">        grid can be flushed with many more options</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1104,21 +1161,22 @@
 <span class="sd">            Will open the parameter dialog in DS9</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;grid </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">on</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;grid {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">on</span><span class="p">)))</span>
         <span class="k">if</span> <span class="n">param</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;grid open&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.hideme"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.hideme">[docs]</a>    <span class="k">def</span> <span class="nf">hideme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;lower the ds9 window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;lower the ds9 window.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.load_fits"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.load_fits">[docs]</a>    <span class="k">def</span> <span class="nf">load_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">extver</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">extname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience function to load fits image to current frame</span>
+        <span class="sd">&quot;&quot;&quot;convenience function to load fits image to current frame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        fname: string, optional</span>
-<span class="sd">            The name of the file to be loaded. You can specify the full extension in the name, such as</span>
+<span class="sd">            The name of the file to be loaded. You can specify the full</span>
+<span class="sd">            extension in the name, such as</span>
 <span class="sd">            filename_flt.fits[sci,1] or filename_flt.fits[1]</span>
 
 <span class="sd">        extver: int, optional</span>
@@ -1134,13 +1192,14 @@
 
 <span class="sd">        % xpaset -p ds9 file &quot;{foo bar/my image.fits}&quot;</span>
 
-<span class="sd">        This is assuming that the image loads into the current or next new frame, watch the internal</span>
-<span class="sd">        file and ext values because the user can switch frames through DS9 app itself</span>
+<span class="sd">        This is assuming that the image loads into the current or next</span>
+<span class="sd">        new frame, watch the internal file and ext values because the user</span>
+<span class="sd">        can switch frames through DS9 app itself</span>
 
-<span class="sd">        XPA needs to have the absolute path to the filename so that if the DS9 window was started</span>
-<span class="sd">        in another directory it can still find the file to load. arg.</span>
+<span class="sd">        XPA needs to have the absolute path to the filename so that if the</span>
+<span class="sd">        DS9 window was started in another directory it can still find the</span>
+<span class="sd">        file to load. arg.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">frame</span><span class="p">:</span>
             <span class="n">frame</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># load into first frame</span>
@@ -1160,7 +1219,7 @@
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No filename provided&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.load_region"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.load_region">[docs]</a>    <span class="k">def</span> <span class="nf">load_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load regions from a file which uses ds9 standard formatting</span>
+        <span class="sd">&quot;&quot;&quot;Load regions from a file which uses ds9 standard formatting.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1170,30 +1229,30 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">F_OK</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;regions load </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;regions load {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No such file:{0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.load_rgb"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.load_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">load_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">lockwcs</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;load 3 images into an RGBimage frame</span>
+        <span class="sd">&quot;&quot;&quot;load 3 images into an RGBimage frame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        red: string</span>
-<span class="sd">            The name of the fits file which will be loaded into the red channel</span>
+<span class="sd">            The name of the fits file loaded into the red channel</span>
 
 <span class="sd">        green: string</span>
-<span class="sd">            The name of the fits file which will be loaded into the green channel</span>
+<span class="sd">            The name of the fits file loaded into the green channel</span>
 
 <span class="sd">        blue: string</span>
-<span class="sd">            The name of the fits file which will be loaded into the blue channel</span>
+<span class="sd">            The name of the fits file loaded into the blue channel</span>
 
 <span class="sd">        scale: bool</span>
-<span class="sd">            If True, then each image will be scale with zscale() after loading</span>
+<span class="sd">            If True, then each image will be scaled with zscale() after loading</span>
 
 <span class="sd">        lockwcs: bool</span>
-<span class="sd">            If True, then the image positions will be locked to each other using the WCS</span>
-<span class="sd">            information in their headers</span>
+<span class="sd">            If True, then the image positions will be locked to each other</span>
+<span class="sd">            using the WCS information in their headers</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;rgb new&quot;</span><span class="p">)</span>
@@ -1213,27 +1272,29 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;rgb wcs yes&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.load_mef_as_cube"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.load_mef_as_cube">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into one frame as an image cube&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into one frame as an image cube.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No filename specified&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;file mecube new {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.load_mef_as_multi"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.load_mef_as_multi">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into multiple frames&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into multiple frames.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No filename specified&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;file multiframe {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.mark_region_from_array"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.mark_region_from_array">[docs]</a>    <span class="k">def</span> <span class="nf">mark_region_from_array</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="n">textoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;mark ds9 regions regions  given an input list of tuples, a convienence function, you can also use set_region</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="n">textoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;mark ds9 regions regions  given an input list of tuples.</span>
+
+<span class="sd">         a convienence function, you can also use set_region</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        input_points: a tuple, or list of tuples, or a string: (x,y,comment),</span>
-
+<span class="sd">        input_points: iterator, a tuple, or list of tuples</span>
+<span class="sd">                      or a string: (x,y,comment),</span>
 
 <span class="sd">        ptype: string</span>
 <span class="sd">            the reference system for the point locations, image|physical|fk5</span>
@@ -1242,7 +1303,8 @@
 <span class="sd">            the size of the region marker</span>
 
 <span class="sd">        textoff: string</span>
-<span class="sd">            the offset for the comment text, if comment is empty it will not show</span>
+<span class="sd">            the offset for the comment text, if comment is empty</span>
+<span class="sd">            it will not show</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -1277,8 +1339,9 @@
                 <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ds9.make_region"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.make_region">[docs]</a>    <span class="k">def</span> <span class="nf">make_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infile</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">textoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment</span>
+        <span class="sd">&quot;&quot;&quot;make an input reg file with  [x,y,comment] to a DS9 reg file.</span>
 
+<span class="sd">        the input file should contain lines specifying x,y,comment</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1302,9 +1365,7 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        only circular regions are supported currently</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">try</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -1316,11 +1377,10 @@
             <span class="k">raise</span> <span class="ne">ValueError</span>
 
         <span class="c1"># assumed defaults for simple regions file</span>
-        <span class="n">point</span> <span class="o">=</span> <span class="n">rtype</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="s2">&quot;circle&quot;</span>  <span class="c1"># only one supported right now</span>
         <span class="n">delta</span> <span class="o">=</span> <span class="n">textoff</span>  <span class="c1"># pixels to offset text</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">header</span><span class="p">:]</span>
 
-        <span class="n">numCols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">text</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -1349,9 +1409,9 @@
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;output reg file saved to: {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.match"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordsys</span><span class="o">=</span><span class="s2">&quot;wcs&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fslice</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-              <span class="n">scale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">bin</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">crosshair</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;match all other frames to the current frame</span>
-
+              <span class="n">scale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">bin</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+              <span class="n">crosshair</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;match all other frames to the current frame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1387,18 +1447,18 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 
-<span class="sd">        You can only choose one of the options at a time, and the logic will select the first True option</span>
-<span class="sd">        so set frame=False and something else in addition to your choice if you don&#39;t want the default option.</span>
-
+<span class="sd">        You can only choose one of the options at a time, and the logic will</span>
+<span class="sd">        select the first True option so set frame=False and something else in</span>
+<span class="sd">        addition to your choice if you don&#39;t want the default option.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cstring</span> <span class="o">=</span> <span class="s2">&quot;match &quot;</span>
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
-            <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;frame {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">corrdsys</span><span class="p">)</span>
+            <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;frame {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordsys</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">crosshair</span><span class="p">:</span>
-            <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;crosshair {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">corrdsys</span><span class="p">)</span>
+            <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;crosshair {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordsys</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">crop</span><span class="p">:</span>
-            <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;crop {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">corrdsys</span><span class="p">)</span>
+            <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;crop {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordsys</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">fslice</span><span class="p">:</span>
             <span class="n">cstring</span> <span class="o">+=</span> <span class="s2">&quot;slice&quot;</span>
         <span class="k">elif</span> <span class="nb">bin</span><span class="p">:</span>
@@ -1412,7 +1472,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.nancolor"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.nancolor">[docs]</a>    <span class="k">def</span> <span class="nf">nancolor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set the not-a-number color, default is red</span>
+        <span class="sd">&quot;&quot;&quot;set the not-a-number color, default is red.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1425,8 +1485,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;nan {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">color</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.panto_image"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.panto_image">[docs]</a>    <span class="k">def</span> <span class="nf">panto_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience function to change to x,y  physical image coordinates</span>
-
+        <span class="sd">&quot;&quot;&quot;convenience function to change to x,y  physical image coordinates.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1436,14 +1495,11 @@
 <span class="sd">        y: float</span>
 <span class="sd">            Y location in physical coords to pan to</span>
 
-
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;pan to {0:f} {0:f} image&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.panto_wcs"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.panto_wcs">[docs]</a>    <span class="k">def</span> <span class="nf">panto_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="s1">&#39;fk5&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;pan to wcs location coordinates in image</span>
-
+        <span class="sd">&quot;&quot;&quot;pan to wcs location coordinates in image.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1453,13 +1509,16 @@
 <span class="sd">        y: string</span>
 <span class="sd">            The y location to move to</span>
 <span class="sd">        system: string</span>
-<span class="sd">            The reference system that x and y were specified in, they should be understood by DS9</span>
+<span class="sd">            The reference system that x and y were specified in, they should</span>
+<span class="sd">            be understood by DS9</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;pan to {0:s} {1:s} wcs </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">system</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;pan to {0:s} {1:s} wcs {2:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">system</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.rotate"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;rotate the current frame (in degrees), the current rotation is printed with no params</span>
+        <span class="sd">&quot;&quot;&quot;rotate the current frame (in degrees).</span>
+
+<span class="sd">        the current rotation is printed with no params</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1487,17 +1546,19 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.save_regions"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.save_regions">[docs]</a>    <span class="k">def</span> <span class="nf">save_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;save the regions in the current window to a DS9 style regions file</span>
+        <span class="sd">&quot;&quot;&quot;save the regions in the current window to a DS9 style regions file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 
 <span class="sd">        filename: string</span>
-<span class="sd">            The nameof th file to which the regions displayed in the current window are saved</span>
-<span class="sd">            If no filename is provided then it will try and save the regions to the name of the</span>
-<span class="sd">            file in the current display with _regions.txt appended</span>
+<span class="sd">            The nameof th file to which the regions displayed in the current</span>
+<span class="sd">            window are saved. If no filename is provided then it will try and</span>
+<span class="sd">            save the regions to the name of the file in the current display</span>
+<span class="sd">            with _regions.txt appended</span>
 
-<span class="sd">            If a file of that name already exists on disk it will no attempt to overwrite it</span>
+<span class="sd">            If a file of that name already exists on disk it will no attempt</span>
+<span class="sd">            to overwrite it</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regions save&quot;</span><span class="p">)</span>
@@ -1515,7 +1576,7 @@
                 <span class="s2">&quot;File already exists: {0} try again&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.save_rgb"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.save_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">save_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;save an rgbimage frame as an MEF fits file</span>
+        <span class="sd">&quot;&quot;&quot;save an rgbimage frame as an MEF fits file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1530,11 +1591,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;save rgbimage {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.scale"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;zscale&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The default zscale is the most widely used option</span>
+        <span class="sd">&quot;&quot;&quot;The default zscale is the most widely used option.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-
 <span class="sd">        scale: string</span>
 <span class="sd">            The scale for ds9 to use, these are set strings of</span>
 <span class="sd">            [linear|log|pow|sqrt|squared|asinh|sinh|histequ]</span>
@@ -1544,7 +1604,6 @@
 <span class="sd">        The xpa doesn&#39;t return an error if you set an unknown scale,</span>
 <span class="sd">        it just doesn&#39;t do anything, this is true for all the xpa calls</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">_help</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Syntax:</span>
 <span class="s2">           scales available: [linear|log|pow|sqrt|squared|asinh|sinh|histequ]</span>
 
@@ -1559,10 +1618,10 @@
 
 <span class="s2">          &quot;&quot;&quot;</span>
         <span class="n">mode_scale</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;zscale&quot;</span><span class="p">,</span> <span class="s2">&quot;zmax&quot;</span><span class="p">,</span> <span class="s2">&quot;minmax&quot;</span><span class="p">]</span>
-        <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;scale </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+        <span class="n">cstring</span> <span class="o">=</span> <span class="s2">&quot;scale {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">mode_scale</span><span class="p">:</span>
-            <span class="n">cstring</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;scale mode </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+            <span class="n">cstring</span> <span class="o">=</span> <span class="s2">&quot;scale mode {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">XpaException</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
@@ -1570,7 +1629,7 @@
             <span class="k">print</span><span class="p">(</span><span class="n">_help</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.set_region"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.set_region">[docs]</a>    <span class="k">def</span> <span class="nf">set_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_string</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;display a region using the specifications in region_string</span>
+        <span class="sd">&quot;&quot;&quot;display a region using the specifications in region_string.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1588,11 +1647,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">command</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.showme"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.showme">[docs]</a>    <span class="k">def</span> <span class="nf">showme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;raise the ds9 window&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;raise the ds9 window.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;raise&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.showpix"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.showpix">[docs]</a>    <span class="k">def</span> <span class="nf">showpix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">close</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;display the pixel value table, close window when done</span>
+        <span class="sd">&quot;&quot;&quot;display the pixel value table, close window when done.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1607,41 +1666,76 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;pixeltable close&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.snapsave"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.snapsave">[docs]</a>    <span class="k">def</span> <span class="nf">snapsave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create a snap shot of the current window and save in specified format.</span>
+        <span class="sd">&quot;&quot;&quot;Create a snap shot of the current window, save in specified format.</span>
+
+<span class="sd">        This function bypasses the XPA  calling routines to avoid a bug with</span>
+<span class="sd">        the X11/XPA interface. Instead is uses the os import function which</span>
+<span class="sd">        takes a snapshot of the specified x11 window.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 
-<span class="sd">       filename: str, optional</span>
-<span class="sd">           filename of output image, the extension in the filename can also be used to specify the format</span>
-<span class="sd">           If no filename is specified, then the filename will be constructed from the name of the</span>
-<span class="sd">           currently displayed image with _snap.jpg appended.</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">           filename of output image, the extension in the filename can also be</span>
+<span class="sd">           used to specify the format. If no filename is specified, then the</span>
+<span class="sd">           filename will be constructed from the name of the image displayed</span>
+<span class="sd">           image with _snap.png appended.</span>
 
-<span class="sd">       format: str, optional</span>
+<span class="sd">        format: str, optional</span>
 <span class="sd">           available formats are fits, eps, gif, tiff, jpeg, png</span>
 <span class="sd">           If no format is specified the filename extension is used</span>
 
-<span class="sd">       resolution: int, optional</span>
+<span class="sd">        resolution: int, optional</span>
 <span class="sd">           1 to 100, for jpeg images</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_snap.jpg&quot;</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
 
-        <span class="n">cstring</span> <span class="o">=</span> <span class="s2">&quot;saveimage &quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">filename</span>
-        <span class="k">if</span> <span class="n">format</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="n">format</span>
-        <span class="n">cstring</span> <span class="o">+=</span> <span class="n">name</span>
-        <span class="k">if</span> <span class="s2">&quot;jpeg&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
-            <span class="n">cstring</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resolution</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">format</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;_snap.png&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;_snap.&quot;</span> <span class="o">+</span> <span class="n">format</span>
+
+        <span class="n">cstring</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;import&#39;</span><span class="p">]</span>
+        <span class="n">cstring</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-window &#39;</span><span class="p">)</span>
+        <span class="c1"># get the name of the window</span>
+        <span class="k">if</span> <span class="s2">&quot;local&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_method</span><span class="p">:</span>
+            <span class="n">win_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;DS9_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+            <span class="n">newname</span> <span class="o">=</span> <span class="s2">&quot;SAOImage &quot;</span>
+            <span class="n">newname</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">win_name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">cstring</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newname</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cstring</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_xpa_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;jpeg&quot;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">cstring</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39; -quality&#39;</span><span class="p">)</span>
+            <span class="n">cstring</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">resolution</span><span class="p">))</span>
+
+        <span class="n">cstring</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="c1"># self.set(cstring)</span>
+        <span class="c1"># save the local directory, erase later?</span>
+        <span class="n">call</span><span class="p">(</span><span class="n">cstring</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Image saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Image saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Image saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ds9.grab"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.grab">[docs]</a>    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a copy of the image view.&quot;&quot;&quot;</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nbagg&quot;</span><span class="p">,</span> <span class="s2">&quot;tkagg&quot;</span><span class="p">,</span> <span class="s2">&quot;qt4agg&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">supported</span> <span class="ow">or</span> <span class="s2">&quot;pylab&quot;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
+                <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapsave</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">mpimage</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Not supported for {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">backend</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.view"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Display numpy image array to current frame</span>
+        <span class="sd">&quot;&quot;&quot;Display numpy image array to current frame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1649,7 +1743,6 @@
 <span class="sd">            The array containing data, it will be forced to numpy.array()</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">frame</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No valid frame&quot;</span><span class="p">)</span>
@@ -1675,56 +1768,62 @@
             <span class="p">(</span><span class="n">ydim</span><span class="p">,</span> <span class="n">xdim</span><span class="p">)</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
             <span class="n">arr_str</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
 
-            <span class="n">itemsize</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="mi">8</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">bitpix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ImgCode</span><span class="p">[</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">UnsupportedDatatypeException</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
-            <span class="n">option</span> <span class="o">=</span> <span class="s2">&quot;[xdim=</span><span class="si">%d</span><span class="s2">,ydim=</span><span class="si">%d</span><span class="s2">,bitpix=</span><span class="si">%d%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">xdim</span><span class="p">,</span> <span class="n">ydim</span><span class="p">,</span>
-                                                        <span class="n">bitpix</span><span class="p">,</span> <span class="n">endianness</span><span class="p">)</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s2">&quot;[xdim={0:d},ydim={1:d},bitpix={2:d}{3:s}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xdim</span><span class="p">,</span>
+                        <span class="n">ydim</span><span class="p">,</span><span class="n">bitpix</span><span class="p">,</span> <span class="n">endianness</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;array &quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">,</span> <span class="n">arr_str</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
             <span class="k">except</span> <span class="n">XpaException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">XpaException</span><span class="p">(</span>
-                    <span class="s2">&quot;XPA: {0} : Problem loading array into frame {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">frame</span><span class="p">))</span></div>
+                    <span class="s2">&quot;XPA: {0} : Problem loading array </span><span class="se">\</span>
+<span class="s2">                    into frame {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">frame</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ds9.zoomtofit"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.zoomtofit">[docs]</a>    <span class="k">def</span> <span class="nf">zoomtofit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience function for zoom&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;convenience function for zoom.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="s2">&quot;to fit&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ds9.zoom"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">par</span><span class="o">=</span><span class="s2">&quot;to fit&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; zoom using the specified command in par</span>
+        <span class="sd">&quot;&quot;&quot;zoom using the specified command in par.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        par: string</span>
-<span class="sd">            it can be a number (ranging 0 to 8 effectively), and successive calls continue zooming in the same direction</span>
-<span class="sd">            it can be two numbers &#39;4 2&#39;, which specify zoom on different axis</span>
-<span class="sd">            if can be to a specific value &#39;to 8&#39; or &#39;to fit&#39;</span>
-<span class="sd">            it can be &#39;open&#39; to open the dialog box</span>
-<span class="sd">            it can be &#39;close&#39; to close the dialog box (only valid if the box is already open)</span>
+<span class="sd">            - it can be a number (ranging 0 to 8 effectively), and successive</span>
+<span class="sd">                    calls continue zooming in the same direction</span>
+<span class="sd">            - it can be two numbers &#39;4 2&#39;, which specify zoom on different axis</span>
+<span class="sd">            - if can be to a specific value &#39;to 8&#39; or &#39;to fit&#39;</span>
+<span class="sd">            - it can be &#39;open&#39; to open the dialog box</span>
+<span class="sd">            - it can be &#39;close&#39; to close the dialog box (only valid if the box</span>
+<span class="sd">                    is already open)</span>
+
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        zoom(&quot;0.1&quot;)</span>
+<span class="sd">        zoom(&#39;0.1&#39;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;zoom </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">par</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;zoom {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">par</span><span class="p">)))</span>
         <span class="k">except</span> <span class="n">XpaException</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span>
-                <span class="s2">&quot;XPA problem with zoom (probably your zoom window is already closed)&quot;</span><span class="p">)</span></div>
+                <span class="s2">&quot;XPA problem with zoom (probably your zoom </span><span class="se">\</span>
+<span class="s2">                window is already closed)&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ds9.show_commands"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.show_commands">[docs]</a>    <span class="k">def</span> <span class="nf">show_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;print the available XPA commands&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ds9.show_xpa_commands"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.show_xpa_commands">[docs]</a>    <span class="k">def</span> <span class="nf">show_xpa_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;print the available XPA commands.&quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>  <span class="c1"># with no arguments supplied, XPA returns options</span></div>
 
-        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>  <span class="c1"># with no arguments supplied, XPA returns options</span></div></div>
+<div class="viewcode-block" id="ds9.reopen"><a class="viewcode-back" href="../../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9.reopen">[docs]</a>    <span class="k">def</span> <span class="nf">reopen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;reopen a closed window.&quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Not available for DS9, start a new object&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
-<span class="kn">import</span> <span class="nn">atexit</span>
 <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ds9</span><span class="o">.</span><span class="n">_purge_tmp_dirs</span><span class="p">)</span>
 <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ds9</span><span class="o">.</span><span class="n">_stop_running_process</span><span class="p">)</span>
 </pre></div>
@@ -1746,7 +1845,7 @@
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

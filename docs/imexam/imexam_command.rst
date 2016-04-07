@@ -82,7 +82,7 @@ This will use Ginga for the viewer::
     #Use Ginga for the image viewer
 
     import imexam
-    viewer=imexam.connect(viewer='ginga_mp')
+    viewer=imexam.connect(viewer='ginga')
     viewer.load_fits('iabf01bzq_flt.fits')
     viewer.scale()
     viewer.panto_image(576,633)
@@ -116,9 +116,7 @@ These are the default parameters for aperture photometry. They live in a diction
 
 You can change the parameters by editing the dictionary, whose structure is { "parameter": [values, description] }. In order to change the width of the photometry aperture around the object you would do this ::
 
-    viewer.exam.aperphot_pars["radius"][0] = 10
-
-It might seem a little odd to non-python users at the moment. What you are doing is updating the value of the first item in that list. I intend on changing this interface to make it a little more seamless to users in the near future.
+    viewer.set_plot_pars('a',"radius",10)
 
 This is what the return looks like when you do photometry, where I've asked for photometry from the star circled in green above::
 
@@ -224,7 +222,7 @@ The user can map the function to any reasonable numpy function, it's set to nump
 
 You can change the statistic reported by changing the "stat" parameter::
 
-    viewer.exam.report_stat_pars["stat"][0]="max"
+    viewer.set_plot_pars('m',"stat","max")
 
     [572:577,629:634] amax: 55271.000000
 
@@ -321,7 +319,7 @@ The available parameters are ::
 
 Returned to the screen is the data information from the plot, the (x,y) location of the center, followed by the radius and corresponding flux which was measured::
 
-    viewer.exam.curve_of_growth_pars["rplot"][0]=25  #set the default radius larger
+    viewer.set_plot_pars('g',"rplot",25)  #set the default radius larger
 
     xc=577.242311	yc=634.578361
 
@@ -387,10 +385,10 @@ Pressing the "e" key will display  a contour plot around the clicked pixel locat
 
 Here's what it looks like if we change some of the default parameters::
 
-    viewer.exam.contour_pars["cmap"][0]="gist_heat"
-    viewer.exam.contour_pars["title"][0]="Contours around my favorite star"
-    viewer.exam.contour_pars["ncontours"][0]=4
-    viewer.exam.contour_pars["floor"][0]=0
+    viewer.set_plot_pars('e', "cmap", "gist_heat")
+    viewer.set_plot_pars('e', "title", "Contours around my favorite star")
+    viewer.set_plot_pars('e', "ncontours", 4)
+    viewer.set_plot_pars('e', "floor", 0)
 
 
 .. image:: contour_plot2.png
@@ -529,17 +527,6 @@ This is what the workspace could look like with DS9 as the viewer:
     :height: 650
     :width: 800
     :alt: multiple plots in DS9 with imexam
-
-
-
-This is what the workspace might look like with Ginga as the viewer, the plots are all
-identical, just the viewer of the image changes:
-
-
-.. image:: multiple_ginga_plots.png
-    :height: 550
-    :width: 950
-    :alt: multiple plots in Ginga with imexam
 
 
 As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:

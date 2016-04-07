@@ -1,7 +1,7 @@
 Example 1
 =========
 
-Basic Usage 
+Basic Usage
 -----------
 
 First you need to import the package
@@ -28,7 +28,7 @@ If you already have a window running, you can ask for a list of windows
 You can attach to a current DS9 window be specifying its unique name
 ::
 
-    viewer=imexam.connect('ds9')  
+    viewer=imexam.connect('ds9')
 
 
 If you haven't given your windows unique names, then you must use the ip:port address
@@ -41,10 +41,10 @@ If you haven't given your windows unique names, then you must use the ip:port ad
 Usage with Ginga viewer
 -----------------------
 
-Start up a ginga window using the matplotlib backend
+Start up a ginga window using the HTML5 backend
 ::
 
-    viewer=imexam.connect(viewer='ginga_mp')
+    viewer=imexam.connect(viewer='ginga')
 
 
 
@@ -80,7 +80,7 @@ Plot stuff at cursor location, in a while loop. Type a key when the mouse is ove
 ::
 
     viewer.imexam()
-    
+
      'a': 'aperture sum, with radius region_size, optional sky subtraction',
      'j': '1D  line fit ',
      'k': '1D  column fit ',
@@ -97,10 +97,9 @@ Plot stuff at cursor location, in a while loop. Type a key when the mouse is ove
      's': 'save current figure to plotname'
      'b': 'return the gauss fit center of the object'
      'w': 'display a surface plot around the cursor location'
-    
+
 
 Quit out and delete windows and references
 ::
 
     viewer.close()
-

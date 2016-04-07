@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.connect Module &mdash; imexam v0.5.3dev</title>
+    <title>imexam.connect Module &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
@@ -55,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.5.3dev</a>
+	<a href="../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       
@@ -71,7 +71,8 @@
             
   <div class="section" id="module-imexam.connect">
 <span id="imexam-connect-module"></span><h1>imexam.connect Module<a class="headerlink" href="#module-imexam.connect" title="Permalink to this headline">¶</a></h1>
-<p>This is the main controlling class, it allows the user to connect to (at least) ds9 and the imexamine classes</p>
+<p>This is the main controlling class, it allows the user to connect to
+(at least) ds9 and the imexamine classes</p>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="longtable docutils">
@@ -81,7 +82,7 @@
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="../api/imexam.connect.Connect.html#imexam.connect.Connect" title="imexam.connect.Connect"><code class="xref py py-obj docutils literal"><span class="pre">Connect</span></code></a>([target,&nbsp;path,&nbsp;viewer,&nbsp;wait_time,&nbsp;...])</td>
-<td>Connect to a display device to look at and examine images that are displayed within</td>
+<td>Connect to a display device to look at and examine images.</td>
 </tr>
 </tbody>
 </table>
@@ -90,6 +91,15 @@
 <div class="section" id="module-imexam.imexamine">
 <span id="imexam-imexamine-module"></span><h1>imexam.imexamine Module<a class="headerlink" href="#module-imexam.imexamine" title="Permalink to this headline">¶</a></h1>
 <p>This class implements IRAF/imexamine type capabilities</p>
+<p>However, the power of this class is that it is essential a library
+of plotting and analysis routines which can be directed towards
+any viewer. It can also be used without connecting to any viewer
+since the calls take only data,x,y information. This means that
+given a data array and a list of x,y positions you can creates
+plots without havin to interact with the viewers.</p>
+<p>Users can also register a custom function with the class
+and have it available for use in either case.</p>
+<p>The plots which are made are fully customizable</p>
 <div class="section" id="id1">
 <h2>Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="longtable docutils">
@@ -99,7 +109,7 @@
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine" title="imexam.imexamine.Imexamine"><code class="xref py py-obj docutils literal"><span class="pre">Imexamine</span></code></a>()</td>
-<td>do imexamine like routines on the current frame</td>
+<td>The imexamine class controls plotting and other functions.</td>
 </tr>
 </tbody>
 </table>
@@ -108,15 +118,20 @@
 <div class="section" id="module-imexam.ds9_viewer">
 <span id="imexam-ds9-viewer-module"></span><h1>imexam.ds9_viewer Module<a class="headerlink" href="#module-imexam.ds9_viewer" title="Permalink to this headline">¶</a></h1>
 <p>This class supports communication with DS9 through the XPA</p>
-<p>Some code in this class was adapted from pysao, which can be found at <a class="reference external" href="https://github.com/leejjoon/pysao">https://github.com/leejjoon/pysao</a>.
-Specifically this package used the existing Cython implementation to the XPA  and extended the calls to
-the other available XPA executables so that more functionality is added. The same information is available
-here: <a class="reference external" href="http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen">http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen</a></p>
-<p>Using Cython will allow for broader development of the code and produce faster runtimes for large datasets
-with repeated calls to the display manager.</p>
-<p>XPA is licensed under LGPL, help can be found here: <a class="reference external" href="http://hea-www.cfa.harvard.edu/saord/xpa/help.html">http://hea-www.cfa.harvard.edu/saord/xpa/help.html</a>
-The current XPA can be downloaded from here: <a class="reference external" href="http://hea-www.harvard.edu/saord/xpa/">http://hea-www.harvard.edu/saord/xpa/</a></p>
-<p>DS9 also supports the SAMP protocol, but that has not been fully implemented in this package. <a class="reference external" href="http://ds9.si.edu/doc/ref/samp.html">http://ds9.si.edu/doc/ref/samp.html</a></p>
+<p>Some code in this class was adapted from pysao, which can be found
+at <a class="reference external" href="https://github.com/leejjoon/pysao">https://github.com/leejjoon/pysao</a>. Specifically this package used the
+existing Cython implementation to the XPA  and extended the calls to the other
+available XPA executables so that more functionality is added. The same
+information is available here:</p>
+<p><a class="reference external" href="http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen">http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen</a></p>
+<p>Using Cython will allow for broader development of the code and produce faster
+runtimes for large datasets with repeated calls to the display manager.</p>
+<p>XPA is licensed under LGPL, help can be found here:
+<a class="reference external" href="http://hea-www.cfa.harvard.edu/saord/xpa/help.html">http://hea-www.cfa.harvard.edu/saord/xpa/help.html</a></p>
+<p>The current XPA can be downloaded from here:
+<a class="reference external" href="http://hea-www.harvard.edu/saord/xpa/">http://hea-www.harvard.edu/saord/xpa/</a></p>
+<p>DS9 also supports the SAMP protocol, but that has not been fully implemented
+in this package. <a class="reference external" href="http://ds9.si.edu/doc/ref/samp.html">http://ds9.si.edu/doc/ref/samp.html</a></p>
 <div class="section" id="id2">
 <h2>Classes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="longtable docutils">
@@ -126,7 +141,7 @@ The current XPA can be downloaded from here: <a class="reference external" href=
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="../api/imexam.ds9_viewer.ds9.html#imexam.ds9_viewer.ds9" title="imexam.ds9_viewer.ds9"><code class="xref py py-obj docutils literal"><span class="pre">ds9</span></code></a>([target,&nbsp;path,&nbsp;wait_time,&nbsp;quit_ds9_on_del])</td>
-<td>A class which controls all interactions between the user and the ds9 window</td>
+<td>Controls all interactions between the user and the ds9 window.</td>
 </tr>
 </tbody>
 </table>
@@ -147,8 +162,11 @@ The current XPA can be downloaded from here: <a class="reference external" href=
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="../api/imexam.ginga_viewer.ginga_mp.html#imexam.ginga_viewer.ginga_mp" title="imexam.ginga_viewer.ginga_mp"><code class="xref py py-obj docutils literal"><span class="pre">ginga_mp</span></code></a>([exam,&nbsp;close_on_del,&nbsp;logger])</td>
-<td>A ginga-based viewer that uses a matplotlib widget.</td>
+<tr class="row-odd"><td><a class="reference internal" href="../api/imexam.ginga_viewer.ginga.html#imexam.ginga_viewer.ginga" title="imexam.ginga_viewer.ginga"><code class="xref py py-obj docutils literal"><span class="pre">ginga</span></code></a>([exam,&nbsp;close_on_del,&nbsp;logger,&nbsp;port,&nbsp;...])</td>
+<td>A ginga-based viewer that uses an HTML5 window in the browser.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general" title="imexam.ginga_viewer.ginga_general"><code class="xref py py-obj docutils literal"><span class="pre">ginga_general</span></code></a>([exam,&nbsp;close_on_del,&nbsp;logger,&nbsp;port])</td>
+<td>A base class which controls all interactions between the user and the</td>
 </tr>
 </tbody>
 </table>
@@ -193,7 +211,7 @@ The current XPA can be downloaded from here: <a class="reference external" href=
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

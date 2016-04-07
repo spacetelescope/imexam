@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.ginga_viewer &mdash; imexam v0.5.3dev</title>
+    <title>imexam.ginga_viewer &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../../_static/copybutton.js"></script>
@@ -56,7 +56,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">imexam v0.5.3dev</a>
+	<a href="../../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
@@ -87,35 +87,40 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">get_backend</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
 
 <span class="kn">from</span> <span class="nn">ginga.misc</span> <span class="kn">import</span> <span class="n">log</span><span class="p">,</span> <span class="n">Settings</span>
 <span class="kn">from</span> <span class="nn">ginga.AstroImage</span> <span class="kn">import</span> <span class="n">AstroImage</span>
+<span class="kn">from</span> <span class="nn">ginga.BaseImage</span> <span class="kn">import</span> <span class="n">BaseImage</span>
 <span class="kn">from</span> <span class="nn">ginga</span> <span class="kn">import</span> <span class="n">cmap</span>
 <span class="kn">from</span> <span class="nn">ginga.util</span> <span class="kn">import</span> <span class="n">paths</span>
-<span class="c1">#from ginga.qtw.QtHelp import QtGui</span>
+<span class="kn">from</span> <span class="nn">ginga.util</span> <span class="kn">import</span> <span class="n">wcsmod</span>
+<span class="n">wcsmod</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;AstropyWCS&#39;</span><span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
 <span class="c1"># module variables</span>
 <span class="n">_matplotlib_cmaps_added</span> <span class="o">=</span> <span class="bp">False</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ginga_mp&#39;</span><span class="p">]</span>
+<span class="c1"># the html5 viewer is currently supported as ginga</span>
+<span class="c1"># this can be used from the python commandline or</span>
+<span class="c1"># inside a jupyter notebook</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ginga&#39;</span><span class="p">,</span> <span class="s1">&#39;ginga_general&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">ginga_general</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general">[docs]</a><span class="k">class</span> <span class="nc">ginga_general</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot; A class which controls all interactions between the user and the</span>
+    <span class="sd">&quot;&quot;&quot; A base class which controls all interactions between the user and the</span>
 <span class="sd">    ginga window</span>
 
-<span class="sd">        The ginga_mp() contructor creates a new window with the matplotlib backend</span>
+<span class="sd">        The ginga contructor creates a new window with the</span>
+<span class="sd">        HTML5 backend which can be used through a jupyter notebook</span>
+<span class="sd">        or from the commandline.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -131,17 +136,21 @@
 <span class="sd">        exam: imexamine object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exam</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">close_on_del</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exam</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">close_on_del</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize a general ginga viewer object.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        Ginga viewers all need a logger, if none is provided it will create one</span>
 
+<span class="sd">        the port option is for use in the Jupyter notebook since the server</span>
+<span class="sd">        displays the image to a distict port. The user can choose to have</span>
+<span class="sd">        multiple windows open at the same time as long as they have different</span>
+<span class="sd">        ports.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">global</span> <span class="n">_matplotlib_cmaps_added</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exam</span> <span class="o">=</span> <span class="n">exam</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_close_on_del</span> <span class="o">=</span> <span class="n">close_on_del</span>
         <span class="c1"># dictionary where each key is a frame number, and the values are a</span>
@@ -150,22 +159,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_slice</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># ginga view object</span>
+        <span class="c1"># ginga view object, created in subclass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_define_cmaps</span><span class="p">()</span>  <span class="c1"># set up possible color maps</span>
+        <span class="c1"># set up possible color maps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_define_cmaps</span><span class="p">()</span>
 
         <span class="c1"># for synchronizing on keystrokes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cv</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_kv</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rlock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>  <span class="c1"># this creates a thread lock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keyvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_capturing</span> <span class="o">=</span> <span class="bp">False</span>
 
         <span class="c1"># ginga objects need a logger, create a null one if we are not</span>
         <span class="c1"># handed one in the constructor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="mi">40</span>
         <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span><span class="p">,</span> <span class="n">log_stderr</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_saved_logger</span> <span class="o">=</span> <span class="n">logger</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_debug_logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">log_stderr</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c1"># Establish settings (preferences) for ginga viewers</span>
         <span class="n">basedir</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">ginga_home</span>
@@ -174,15 +184,14 @@
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># general preferences shared with other ginga viewers</span>
-        <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">createCategory</span><span class="p">(</span><span class="s1">&#39;general&#39;</span><span class="p">)</span>
-        <span class="n">settings</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">onError</span><span class="o">=</span><span class="s1">&#39;silent&#39;</span><span class="p">)</span>
-        <span class="n">settings</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">(</span><span class="n">useMatplotlibColormaps</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                             <span class="n">autocuts</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">autocut_method</span><span class="o">=</span><span class="s1">&#39;zscale&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">createCategory</span><span class="p">(</span><span class="s1">&#39;general&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">onError</span><span class="o">=</span><span class="s1">&#39;silent&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">(</span><span class="n">useMatplotlibColormaps</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                  <span class="n">autocuts</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">autocut_method</span><span class="o">=</span><span class="s1">&#39;zscale&#39;</span><span class="p">)</span>
 
         <span class="c1"># add matplotlib colormaps to ginga&#39;s own set if user has this</span>
         <span class="c1"># preference set</span>
-        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;useMatplotlibColormaps&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">and</span> \
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;useMatplotlibColormaps&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="p">(</span><span class="ow">not</span> <span class="n">_matplotlib_cmaps_added</span><span class="p">):</span>
             <span class="c1"># Add matplotlib color maps if matplotlib is installed</span>
             <span class="k">try</span><span class="p">:</span>
@@ -204,116 +213,87 @@
         <span class="c1"># create the viewer specific to this backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_viewer</span><span class="p">(</span><span class="n">bind_prefs</span><span class="p">,</span> <span class="n">viewer_prefs</span><span class="p">)</span>
 
+        <span class="c1"># TODO: at some point, it might be better to simply add a custom</span>
+        <span class="c1"># mode called &quot;imexam&quot;--that is a more robust way to do things</span>
+        <span class="c1"># but we&#39;d have to register the imexam key bindings in a different way</span>
+        <span class="c1"># bm = self.ginga_view.get_bindmap()</span>
+        <span class="c1"># bm.add_mode(&#39;i&#39;, &#39;imexam&#39;, mode_type=&#39;locked&#39;,</span>
+        <span class="c1">#             msg=&quot;Entering imexam mode...&quot;)</span>
+        <span class="c1"># modifiers_set = bindmap.get_modifiers()</span>
+        <span class="c1"># bm.map_event(&#39;imexam&#39;, modifiers_set, trigger, evname)</span>
+
         <span class="c1"># enable all interactive ginga features</span>
         <span class="n">bindings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_bindings</span><span class="p">()</span>
         <span class="n">bindings</span><span class="o">.</span><span class="n">enable_all</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="s1">&#39;key-press&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_press_normal</span><span class="p">)</span>
 
-        <span class="n">canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span>
-        <span class="n">canvas</span><span class="o">.</span><span class="n">enable_draw</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-        <span class="n">canvas</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="s1">&#39;key-press&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_press_imexam</span><span class="p">)</span>
-        <span class="n">canvas</span><span class="o">.</span><span class="n">setSurface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="p">)</span>
-        <span class="n">canvas</span><span class="o">.</span><span class="n">ui_setActive</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span>
+        <span class="c1"># Add a callback to take us into imexam mode</span>
+        <span class="n">top_canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_canvas</span><span class="p">()</span>
+        <span class="n">top_canvas</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="s1">&#39;key-press&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_press_normal</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_draw_indicator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span>
-        <span class="c1"># -- Here be black magic ------</span>
-        <span class="c1"># This function draws the imexam indicator on the lower left</span>
-        <span class="c1"># hand corner of the canvas</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># delete previous indicator, if there was one</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">deleteObjectByTag</span><span class="p">(</span><span class="s1">&#39;indicator&#39;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>
-
-        <span class="c1"># assemble drawing classes</span>
-        <span class="n">canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span>
-        <span class="n">Text</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">getDrawClass</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span>
-        <span class="n">Rect</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">getDrawClass</span><span class="p">(</span><span class="s1">&#39;rectangle&#39;</span><span class="p">)</span>
-        <span class="n">Compound</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">getDrawClass</span><span class="p">(</span><span class="s1">&#39;compoundobject&#39;</span><span class="p">)</span>
-
-        <span class="c1"># calculations for canvas coordinates</span>
-        <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;imexam&#39;</span>
-        <span class="n">xsp</span><span class="p">,</span> <span class="n">ysp</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span>
-        <span class="n">wd</span><span class="p">,</span> <span class="n">ht</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_window_size</span><span class="p">()</span>
-        <span class="c1">#x1, y1 = wd-12*len(mode), ht-12</span>
-        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span>
-        <span class="n">o1</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span>
-                  <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="s1">&#39;canvas&#39;</span><span class="p">)</span>
-        <span class="c1">#o1.fitsimage = self.view</span>
-        <span class="n">wd</span><span class="p">,</span> <span class="n">ht</span> <span class="o">=</span> <span class="n">o1</span><span class="o">.</span><span class="n">get_dimensions</span><span class="p">()</span>
-
-        <span class="c1"># yellow text on a black filled rectangle</span>
-        <span class="n">o2</span> <span class="o">=</span> <span class="n">Compound</span><span class="p">(</span><span class="n">Rect</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">xsp</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">ht</span> <span class="o">-</span> <span class="n">ysp</span><span class="p">,</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">wd</span> <span class="o">+</span> <span class="n">xsp</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="n">ht</span> <span class="o">+</span> <span class="n">ysp</span><span class="p">,</span>
-                           <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
-                           <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="s1">&#39;canvas&#39;</span><span class="p">),</span>
-                      <span class="n">o1</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="s1">&#39;canvas&#39;</span><span class="p">)</span>
-
-        <span class="c1"># use canvas, not data coordinates</span>
-
-        <span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">o2</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;indicator&#39;</span><span class="p">)</span>
-        <span class="c1"># -- end black magic ------</span>
+        <span class="c1"># Add a callback to our private canvas to take us out of imexam mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">enable_draw</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="s1">&#39;key-press&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_press_imexam</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">set_surface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">ui_setActive</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bind_prefs</span><span class="p">,</span> <span class="n">viewer_prefs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create backend-specific viewer.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Subclass should override this method!&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_capture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Insert our canvas so that we intercept all events before they reach</span>
-<span class="sd">        processing by the bindings layer of Ginga.</span>
+        <span class="sd">&quot;&quot;&quot;Insert our imexam canvas so that we intercept all events.</span>
+
+<span class="sd">        before they reach processing by the bindings layer of Ginga.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">onscreen_message</span><span class="p">(</span><span class="s2">&quot;Entering imexam mode&quot;</span><span class="p">,</span>
                                          <span class="n">delay</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="c1"># insert the canvas</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;mycanvas&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_draw_indicator</span><span class="p">()</span>
+        <span class="n">top_canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_canvas</span><span class="p">()</span>
+        <span class="n">top_canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;imexam-canvas&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_capturing</span> <span class="o">=</span> <span class="bp">True</span>
 
     <span class="k">def</span> <span class="nf">_release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove our canvas so that we no longer intercept events.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Remove our canvas so that we no longer intercept events.&quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">onscreen_message</span><span class="p">(</span><span class="s2">&quot;Leaving imexam mode&quot;</span><span class="p">,</span>
                                          <span class="n">delay</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_capturing</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">deleteObjectByTag</span><span class="p">(</span><span class="s1">&#39;indicator&#39;</span><span class="p">)</span>
+        <span class="n">top_canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_canvas</span><span class="p">()</span>
+        <span class="n">top_canvas</span><span class="o">.</span><span class="n">delete_object_by_tag</span><span class="p">(</span><span class="s2">&quot;imexam-canvas&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;canvas deleted top=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">top_canvas</span><span class="o">.</span><span class="n">objects</span><span class="p">)</span>
 
-        <span class="c1"># retract the canvas</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">deleteObjectByTag</span><span class="p">(</span><span class="s1">&#39;mycanvas&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&lt;ginga viewer&gt;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return viewer name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;ginga imexam viewer&gt;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the viewer.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_close_on_del</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_set_frameinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hdu</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">_set_frameinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hdu</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                        <span class="n">image</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the name and extension information for the data displayed in</span>
-<span class="sd">        frame n and gather header information.</span>
+        <span class="sd">&quot;&quot;&quot;Set the name and extension information for the data displayed.</span>
+
+<span class="sd">        also gather header information.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># check the current frame, if none exists, then don&#39;t continue</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span>
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">frame</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">]</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                     <span class="k">pass</span>
 
             <span class="n">extver</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># extension number</span>
             <span class="n">extname</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># name of extension</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># filename of image</span>
             <span class="n">numaxis</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># number of image planes, this is NAXIS</span>
             <span class="c1"># tuple of each image plane, defaulted to 1 image plane</span>
             <span class="n">naxis</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -328,7 +308,7 @@
             <span class="c1"># this dictionary will be referenced in the other parts of the code. This enables tracking user arrays through</span>
             <span class="c1"># frame changes</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
                                    <span class="s1">&#39;extver&#39;</span><span class="p">:</span> <span class="n">extver</span><span class="p">,</span>
                                    <span class="s1">&#39;extname&#39;</span><span class="p">:</span> <span class="n">extname</span><span class="p">,</span>
                                    <span class="s1">&#39;naxis&#39;</span><span class="p">:</span> <span class="n">naxis</span><span class="p">,</span>
@@ -339,9 +319,9 @@
                                    <span class="s1">&#39;hdu&#39;</span><span class="p">:</span> <span class="n">hdu</span><span class="p">,</span>
                                    <span class="s1">&#39;mef&#39;</span><span class="p">:</span> <span class="n">mef_file</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">valid_data_in_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.valid_data_in_viewer"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.valid_data_in_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">valid_data_in_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return bool if valid file or array is loaded into the viewer&quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="bp">True</span>
@@ -357,38 +337,39 @@
                 <span class="n">valid</span> <span class="o">=</span> <span class="bp">False</span>
                 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;error in array&quot;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">valid</span>
+            <span class="k">return</span> <span class="n">valid</span></div>
 
-    <span class="k">def</span> <span class="nf">get_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.get_filename"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.get_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the filename currently on display&quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">get_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.get_frame_info"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.get_frame_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return more explicit information about the data displayed in the current frame&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()]</span></div>
 
-    <span class="k">def</span> <span class="nf">get_viewer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.get_viewer_info"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.get_viewer_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_viewer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a dictionary of information about all frames which are loaded with data&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span></div>
 
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.close"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; close the window&quot;&quot;&quot;</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns image coordinate postion and key pressed,</span>
+<div class="viewcode-block" id="ginga_general.start_event_loop"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.start_event_loop">[docs]</a>    <span class="k">def</span> <span class="nf">start_event_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
 
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
+<div class="viewcode-block" id="ginga_general.readcursor"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.readcursor">[docs]</a>    <span class="k">def</span> <span class="nf">readcursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns image coordinate postion and key pressed,</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># insert canvas to trap keyboard events if not already inserted</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capturing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_capture</span><span class="p">()</span>
 
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cv</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_kv</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rlock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_keyvals</span> <span class="o">=</span> <span class="p">()</span>
 
         <span class="c1"># wait for a key press</span>
         <span class="c1"># NOTE: the viewer now calls the functions directly from the</span>
@@ -398,16 +379,19 @@
             <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
                 <span class="c1"># run event loop, so window can get a keystroke</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">start_event_loop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+                <span class="c1">#but only depending on context</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_opencv</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">start_event_loop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cv</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rlock</span><span class="p">:</span>
                 <span class="c1"># did we get a key event?</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kv</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keyvals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyvals</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;key pressed:{0:s} on x:{1} y:{2}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
                     <span class="k">break</span>
 
         <span class="c1"># ginga is returning 0 based indexes</span>
-        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span></div>
 
     <span class="k">def</span> <span class="nf">_define_cmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;setup the default color maps which are available&quot;&quot;&quot;</span>
@@ -415,7 +399,7 @@
         <span class="c1"># get ginga color maps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cmap_colors</span> <span class="o">=</span> <span class="n">cmap</span><span class="o">.</span><span class="n">get_names</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="viewcode-block" id="ginga_general.cmap"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.cmap">[docs]</a>    <span class="k">def</span> <span class="nf">cmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">load</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
              <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;colormap.ds9&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Set the color map table to something else, using a defined list of options</span>
 
@@ -456,109 +440,100 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Colormap loading not supported&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Colormap saving not supported&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Colormap saving not supported&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;convenience function to change or report frames</span>
-
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        n: int, string, optional</span>
-<span class="sd">            The frame number to open or change to. If the number specified doesn&#39;t exist, a new frame will be opened</span>
-<span class="sd">            If nothing is specified, then the current frame number will be returned.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        frame(1)  sets the current frame to 1</span>
-<span class="sd">        frame(&quot;last&quot;) set the current frame to the last frame</span>
-<span class="sd">        frame() returns the number of the current frame</span>
-<span class="sd">        frame(&quot;new&quot;) opens a new frame</span>
-<span class="sd">        frame(3)  opens frame 3 if it doesn&#39;t exist already, otherwise goes to frame 3</span>
-
+<div class="viewcode-block" id="ginga_general.frame"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.frame">[docs]</a>    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;convenience function to report frames</span>
+<span class="sd">        currently only 1 frame is supported per calling object in HTML5 display</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span>
-        <span class="n">n_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-        <span class="n">frames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span></div>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">n_str</span> <span class="o">==</span> <span class="s2">&quot;delete&quot;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
-                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
-                    <span class="n">frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">n</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">n</span> <span class="o">=</span> <span class="bp">None</span>
+<div class="viewcode-block" id="ginga_general.iscube"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.iscube">[docs]</a>    <span class="k">def</span> <span class="nf">iscube</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return whether a cube image is displayed in the current frame&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span><span class="p">][</span><span class="s1">&#39;iscube&#39;</span><span class="p">]</span></div>
 
-            <span class="k">elif</span> <span class="n">n_str</span> <span class="o">==</span> <span class="s2">&quot;new&quot;</span><span class="p">:</span>
-                <span class="n">n</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-            <span class="k">elif</span> <span class="n">n_str</span> <span class="o">==</span> <span class="s2">&quot;last&quot;</span><span class="p">:</span>
-                <span class="n">n</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-            <span class="k">elif</span> <span class="n">n_str</span> <span class="o">==</span> <span class="s2">&quot;first&quot;</span><span class="p">:</span>
-                <span class="n">n</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
-                    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> is not a created frame.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">))</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span> <span class="o">=</span> <span class="n">n</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">n</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">frame</span>
-
-    <span class="k">def</span> <span class="nf">iscube</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return information on whether a cube image is displayed in the current frame&quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;iscube&#39;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">get_slice_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.get_slice_info"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.get_slice_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_slice_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the slice tuple that is currently displayed&quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;iscube&#39;</span><span class="p">]:</span>
             <span class="n">image_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;naxis&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">image_slice</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">return</span> <span class="n">image_slice</span>
+        <span class="k">return</span> <span class="n">image_slice</span></div>
 
-    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; return a numpy array of the data displayed in the current frame</span>
+<div class="viewcode-block" id="ginga_general.get_data"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return a numpy array of the data displayed in the current frame</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is the data array that the imexam() function from connect() uses</span>
+<span class="sd">        for analysis</span>
+
+<span class="sd">        astropy.io.fits stores data in row-major format. So a 4d image would be</span>
+<span class="sd">        [NAXIS4, NAXIS3, NAXIS2, NAXIS1] just the one image is retured in the</span>
+<span class="sd">        case of multidimensional data, not the cube</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span>
         <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">]</span>
-
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;hdu&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;hdu&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
-
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">],</span> <span class="n">BaseImage</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">],</span><span class="n">AstroImage</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div>
 
-    <span class="k">def</span> <span class="nf">get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the current fits header as a string or None if there&#39;s a problem&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ginga_general.get_image"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return the AstroImage instance for the data in the viewer&quot;&quot;&quot;</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span>
+        <span class="k">if</span> <span class="n">frame</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Data is just a numpy array&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">],</span> <span class="n">BaseImage</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;user_array&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">],</span><span class="n">AstroImage</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div>
+
+
+<div class="viewcode-block" id="ginga_general.contour_load"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.contour_load">[docs]</a>    <span class="k">def</span> <span class="nf">contour_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="ginga_general.disp_header"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.disp_header">[docs]</a>    <span class="k">def</span> <span class="nf">disp_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; display the fits header&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_header</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ginga_general.get_header"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.get_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return current fits header</span>
+
+<span class="sd">        as a string or None if there&#39;s a problem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># TODO return the simple header for arrays which are loaded</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">frame</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;hdu&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_frame</span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;hdu&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">hdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viewer</span><span class="p">[</span><span class="n">frame</span><span class="p">][</span><span class="s1">&#39;hdu&#39;</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No file with header loaded into ginga&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="bp">None</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_log_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+        <span class="c1"># Because levels are settable at each handler, we have to run</span>
+        <span class="c1"># through the handlers to set them as well.</span>
+        <span class="c1"># Ugh...no logging API for getting handlers!</span>
+        <span class="k">for</span> <span class="n">hdlr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="n">hdlr</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_key_press_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">keyname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -578,52 +553,48 @@
 <span class="sd">        dispatch of the &#39;imexam&#39; mode.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_last_data_xy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="s2">&quot;q&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keyname</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;read: {0:s} at {1}, {2}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span><span class="n">data_x</span><span class="p">,</span><span class="n">data_y</span><span class="p">))</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;key </span><span class="si">%s</span><span class="s2"> pressed at data </span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="n">keyname</span><span class="p">,</span> <span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">keyname</span> <span class="o">==</span> <span class="s1">&#39;i&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">keyname</span> <span class="o">==</span> <span class="s1">&#39;q&#39;</span><span class="p">:</span>
             <span class="c1"># temporarily switch to non-imexam mode</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_release</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">True</span>
 
-        <span class="k">elif</span> <span class="n">keyname</span> <span class="o">==</span> <span class="s1">&#39;backslash&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">keyname</span> <span class="o">==</span> <span class="s1">&#39;backslash&#39;</span><span class="p">:</span>
             <span class="c1"># exchange normal logger for the stdout debug logger</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug_logger</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug_logger</span>
+            <span class="n">log_debug</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">==</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">log_debug</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="mi">10</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_log_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">onscreen_message</span><span class="p">(</span><span class="s2">&quot;Debug logging on&quot;</span><span class="p">,</span>
                                                  <span class="n">delay</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_saved_logger</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="mi">60</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_log_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">onscreen_message</span><span class="p">(</span><span class="s2">&quot;Debug logging off&quot;</span><span class="p">,</span>
                                                  <span class="n">delay</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">True</span>
-
-        <span class="k">elif</span> <span class="n">keyname</span> <span class="o">==</span> <span class="s1">&#39;q&#39;</span><span class="p">:</span>
-            <span class="c1"># exit imexam mode</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_release</span><span class="p">()</span>
-
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cv</span><span class="p">:</span>
-                <span class="c1"># this will be picked up by the caller in readcursor()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_kv</span> <span class="o">=</span> <span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">True</span>
-
-        <span class="c1"># get our data array</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;x,y,data dim: </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span>
-            <span class="p">(</span><span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;exam=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="p">))</span>
-        <span class="c1"># call the imexam function directly</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+
+        <span class="c1"># this will be picked up by the caller in readcursor()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keyvals</span> <span class="o">=</span> <span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rlock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;x,y,data dim: </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;exam=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="p">))</span>
+
+            <span class="c1"># call the imexam function directly</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;calling examine function key={0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keyname</span><span class="p">))</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="n">keyname</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;no method defined in the option_funcs dictionary&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">False</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;calling examine function key={0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keyname</span><span class="p">))</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">method</span><span class="p">(</span><span class="n">data_x</span><span class="p">,</span> <span class="n">data_y</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -637,9 +608,9 @@
                     <span class="n">tb_str</span> <span class="o">=</span> <span class="s2">&quot;Traceback information unavailable.&quot;</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">tb_str</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="bp">True</span>
 
-    <span class="k">def</span> <span class="nf">load_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">extver</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">extname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.load_fits"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.load_fits">[docs]</a>    <span class="k">def</span> <span class="nf">load_fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">extver</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">extname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;convenience function to load fits image to current frame</span>
 
 <span class="sd">        Parameters</span>
@@ -676,14 +647,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception opening file: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                 <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
-            <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">hdu</span><span class="o">=</span><span class="n">hdu</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span> <span class="n">hdu</span><span class="o">=</span><span class="n">hdu</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No filename provided&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No filename provided&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">panto_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.panto_image"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.panto_image">[docs]</a>    <span class="k">def</span> <span class="nf">panto_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;convenience function to change to x,y  physical image coordinates</span>
 
 
@@ -700,9 +670,9 @@
         <span class="c1"># ginga deals in 0-based coords</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_pan</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_pan</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">panto_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="s1">&#39;fk5&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.panto_wcs"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.panto_wcs">[docs]</a>    <span class="k">def</span> <span class="nf">panto_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="s1">&#39;fk5&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;pan to wcs location coordinates in image</span>
 
 
@@ -720,9 +690,9 @@
         <span class="c1"># this should be replaced by querying our own copy of the wcs</span>
         <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_image</span><span class="p">()</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">radectopix</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_pan</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_pan</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.rotate"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;rotate the current frame (in degrees), the current rotation is printed with no params</span>
 
 <span class="sd">        Parameters</span>
@@ -737,9 +707,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="n">rot_deg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_rotation</span><span class="p">()</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Image rotated at {0:f} deg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rot_deg</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Image rotated at {0:f} deg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rot_deg</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flipx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flipy</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flipxy</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.transform"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flipx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flipy</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flipxy</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;transform the frame</span>
 
 <span class="sd">        Parameters</span>
@@ -762,9 +732,9 @@
         <span class="k">if</span> <span class="n">swapxy</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">swapxy</span> <span class="o">=</span> <span class="n">_swapxy</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">flipx</span><span class="p">,</span> <span class="n">flipy</span><span class="p">,</span> <span class="n">swapxy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">flipx</span><span class="p">,</span> <span class="n">flipy</span><span class="p">,</span> <span class="n">swapxy</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">save_png</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.snapsave"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.snapsave">[docs]</a>    <span class="k">def</span> <span class="nf">snapsave</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;save a frame display as a PNG file</span>
 
 <span class="sd">        Parameters</span>
@@ -774,14 +744,9 @@
 <span class="sd">            The name of the output PNG image</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No filename specified, try again&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">buf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_png_image_as_buffer</span><span class="p">()</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
-                <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;zscale&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.scale"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;zscale&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The default zscale is the most widely used option</span>
 
 <span class="sd">        Parameters</span>
@@ -793,21 +758,27 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># setting the autocut method?</span>
-        <span class="n">mode_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_autocut_methods</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">scale_to</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">mode_scale</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_autocut_params</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># setting the autocut method?</span>
+            <span class="n">mode_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_autocut_methods</span><span class="p">()</span>
 
-        <span class="c1"># setting the color distribution algorithm?</span>
-        <span class="n">color_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_color_algorithms</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">mode_scale</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_autocut_params</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">color_dist</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_color_algorithm</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
-            <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+            <span class="c1"># setting the color distribution algorithm?</span>
+            <span class="n">color_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_color_algorithms</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">color_dist</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_color_algorithm</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Unknown scale value&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ginga_general.view"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Display numpy image array to current frame</span>
 
 <span class="sd">        Parameters</span>
@@ -826,15 +797,15 @@
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No valid frame&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">img_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">AstroImage</span><span class="p">(</span><span class="n">img_np</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">img_np</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">BaseImage</span><span class="p">(</span><span class="n">data_np</span><span class="o">=</span><span class="n">img_np</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_frameinfo</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">img_np</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">set_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">zoomtofit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.zoomtofit"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.zoomtofit">[docs]</a>    <span class="k">def</span> <span class="nf">zoomtofit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;convenience function for zoom&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">zoom_fit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">zoom_fit</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zoomlevel</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.zoom"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zoomlevel</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; zoom using the specified level</span>
 
 <span class="sd">        Parameters</span>
@@ -852,33 +823,198 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">zoom_to</span><span class="p">(</span><span class="n">zoomlevel</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;problem with zoom: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;problem with zoom: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ginga_general.blink"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.blink">[docs]</a>    <span class="k">def</span> <span class="nf">blink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="ginga_mp"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_mp.html#imexam.ginga_viewer.ginga_mp">[docs]</a><span class="k">class</span> <span class="nc">ginga_mp</span><span class="p">(</span><span class="n">ginga_general</span><span class="p">):</span>
+<div class="viewcode-block" id="ginga_general.crosshair"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.crosshair">[docs]</a>    <span class="k">def</span> <span class="nf">crosshair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Control the current position of the crosshair in the current frame, crosshair mode is turned on&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.cursor"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.cursor">[docs]</a>    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;move the cursor in the current frame to the specified image pixel, it will also move selected regions&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.grid"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.grid">[docs]</a>    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;convenience to turn the grid on and off, grid can be flushed with many more options&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.hideme"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.hideme">[docs]</a>    <span class="k">def</span> <span class="nf">hideme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;lower the display window&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.load_region"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.load_region">[docs]</a>    <span class="k">def</span> <span class="nf">load_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load regions from a file which uses ds9 standard formatting&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.load_mef_as_cube"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.load_mef_as_cube">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image one frame as a cube&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.load_mef_as_multi"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.load_mef_as_multi">[docs]</a>    <span class="k">def</span> <span class="nf">load_mef_as_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a Mult-Extension-Fits image into multiple frames&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.make_region"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.make_region">[docs]</a>    <span class="k">def</span> <span class="nf">make_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;make an input reg file with  [x,y,comment] to a DS9 reg file, the input file should contains lines with x,y,comment&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.mark_region_from_array"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.mark_region_from_array">[docs]</a>    <span class="k">def</span> <span class="nf">mark_region_from_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;mark regions on the viewer with a list of tuples as input&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.match"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;match all other frames to the current frame&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.nancolor"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.nancolor">[docs]</a>    <span class="k">def</span> <span class="nf">nancolor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set the not-a-number color, default is red&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.load_rgb"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.load_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">load_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;load three images into a frame, each one for a different color&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.save_rgb"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.save_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">save_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;save an rgb image frame that is displayed as an MEF fits file&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.save_header"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.save_header">[docs]</a>    <span class="k">def</span> <span class="nf">save_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;save the header of the current image to a file&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.save_regions"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.save_regions">[docs]</a>    <span class="k">def</span> <span class="nf">save_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;save the regions on the current window to a file&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.set_region"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.set_region">[docs]</a>    <span class="k">def</span> <span class="nf">set_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;display a region using the specifications in region_string&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.showme"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.showme">[docs]</a>    <span class="k">def</span> <span class="nf">showme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;raise the display window&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.showpix"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.showpix">[docs]</a>    <span class="k">def</span> <span class="nf">showpix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;display the pixel value table, close window when done&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ginga_general.show_window_commands"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga_general.html#imexam.ginga_viewer.ginga_general.show_window_commands">[docs]</a>    <span class="k">def</span> <span class="nf">show_window_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;print the available commands for the selected display application&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="ginga"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga.html#imexam.ginga_viewer.ginga">[docs]</a><span class="k">class</span> <span class="nc">ginga</span><span class="p">(</span><span class="n">ginga_general</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A ginga-based viewer that uses a matplotlib widget.</span>
+<span class="sd">    A ginga-based viewer that uses an HTML5 window in the browser.</span>
+<span class="sd">    This is compatible with the jupyter notebook and can be run from a server.</span>
 
 <span class="sd">    This kind of viewer has slower performance than if we</span>
-<span class="sd">    choose a particular widget back end, but the advantage is that</span>
-<span class="sd">    it works so long as the user has a working matplotlib.</span>
+<span class="sd">    choose some widget back ends, but the advantage is that</span>
+<span class="sd">    it works so long as the user has a working browser.</span>
 
-<span class="sd">    This implementation has the benefit of adding image overlays</span>
+<span class="sd">    This example illustrates using a Ginga widget in a web browser,  All the</span>
+<span class="sd">    rendering is done on the server side and the browser only acts as a display</span>
+<span class="sd">    front end.  Using this you could create an analysis type environment on a</span>
+<span class="sd">    server and view it via a browser or from a jupyter notebook.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_create_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bind_prefs</span><span class="p">,</span> <span class="n">viewer_prefs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exam</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">close_on_del</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">use_opencv</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
-        <span class="c1"># Ginga imports for matplotlib backend</span>
-        <span class="kn">from</span> <span class="nn">ginga.mplw</span> <span class="kn">import</span> <span class="n">ipg</span>
+        <span class="c1"># Set this to True if you have a non-buggy python OpenCv bindings</span>
+        <span class="c1">#   --it greatly speeds up some operations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_opencv</span> <span class="o">=</span> <span class="n">use_opencv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span> <span class="o">=</span> <span class="n">ipg</span><span class="o">.</span><span class="n">get_viewer</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">figure</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ginga</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">exam</span><span class="o">=</span><span class="n">exam</span><span class="p">,</span> <span class="n">close_on_del</span><span class="o">=</span><span class="n">close_on_del</span><span class="p">,</span>
+                                       <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_open_browser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">webbrowser</span>
+            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open_new_tab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;webbrowser module not installed, see the installed doc directory for the HTML help pages&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Open a new browser window for: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">url</span><span class="p">()))</span>
+
+
+    <span class="k">def</span> <span class="nf">_create_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bind_prefs</span><span class="p">,</span> <span class="n">viewer_prefs</span><span class="p">,</span> <span class="n">opencv</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ginga imports for  display in an HTML5 browser&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">ginga.web.pgw</span> <span class="kn">import</span> <span class="n">Widgets</span>
+
+        <span class="c1"># Set this to True if you have a non-buggy python OpenCv bindings--it greatly speeds up some operations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_opencv</span> <span class="o">=</span> <span class="n">opencv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_threads</span> <span class="o">=</span> <span class="n">threads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_server</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">get_viewer</span><span class="p">(</span><span class="s1">&#39;Imexam Display&#39;</span><span class="p">)</span>
 
         <span class="c1"># create a canvas that we insert when doing imexam mode</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">add_canvas</span><span class="p">()</span></div>
+        <span class="c1">#self.canvas = self.ginga_view.add_canvas()</span>
+        <span class="c1">#self.canvas.enable_draw(False)</span>
+        <span class="c1">#self.canvas.add_callback(&#39;key-press&#39;, self._key_press_imexam)</span>
+        <span class="c1">#self.canvas.set_surface(self.ginga_view)</span>
+        <span class="c1">#self.canvas.ui_setActive(True)</span>
+
+        <span class="c1">#pop up a separate browser window with the viewer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_open_browser</span><span class="p">()</span>
+
+        <span class="c1"># create a canvas that we insert when doing imexam mode</span>
+        <span class="n">top_canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">get_canvas</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">top_canvas</span><span class="o">.</span><span class="n">get_draw_class</span><span class="p">(</span><span class="s1">&#39;drawingcanvas&#39;</span><span class="p">)()</span>
+
+<div class="viewcode-block" id="ginga.reopen"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga.html#imexam.ginga_viewer.ginga.reopen">[docs]</a>    <span class="k">def</span> <span class="nf">reopen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        reopen the viewer window if the user closes it</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_browser</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#start up a new server for the user</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_start_server</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_start_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Start viewer server</span>
+        <span class="c1"># IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option</span>
+        <span class="kn">from</span> <span class="nn">ginga.web.pgw</span> <span class="kn">import</span> <span class="n">ipg</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="o">=</span><span class="mi">9904</span> <span class="c1">#still working on autoport</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">ipg</span><span class="o">.</span><span class="n">make_server</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_host</span><span class="p">,</span>
+                                 <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">,</span>
+                                 <span class="n">use_opencv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_opencv</span><span class="p">,</span>
+                                 <span class="n">numthreads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_threads</span><span class="p">)</span>
+
+        <span class="n">backend</span><span class="o">=</span><span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">no_ioloop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c1">#assume in notebook</span>
+        <span class="k">elif</span> <span class="s1">&#39;tkagg&#39;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">no_ioloop</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;pylab&quot;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">elif</span> <span class="s2">&quot;qt4agg&quot;</span> <span class="ow">in</span> <span class="n">backend</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;not designed to work with {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">backend</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="ginga.close"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga.html#imexam.ginga_viewer.ginga.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; close the window&quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;You must close the image window by hand&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ginga.grab"><a class="viewcode-back" href="../../api/imexam.ginga_viewer.ginga.html#imexam.ginga_viewer.ginga.grab">[docs]</a>    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        copy current image to notebook</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ginga_view</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 </pre></div>
 
           </div>
@@ -898,7 +1034,7 @@
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

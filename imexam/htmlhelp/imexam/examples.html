@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example 1 &mdash; imexam v0.5.3dev</title>
+    <title>Example 1 &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="Software Dependencies" href="dependencies.html" />
     <link rel="prev" title="Capabilities in Development" href="development.html" />
@@ -69,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.5.3dev</a>
+	<a href="../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -115,8 +115,8 @@ DS9 ds9 gs 82a7e75f:57222 sosey
 </div>
 <div class="section" id="usage-with-ginga-viewer">
 <h2>Usage with Ginga viewer<a class="headerlink" href="#usage-with-ginga-viewer" title="Permalink to this headline">¶</a></h2>
-<p>Start up a ginga window using the matplotlib backend</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s1">&#39;ginga_mp&#39;</span><span class="p">)</span>
+<p>Start up a ginga window using the HTML5 backend</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s1">&#39;ginga&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -180,7 +180,7 @@ DS9 ds9 gs 82a7e75f:57222 sosey
 </ul>
 <div class="section" id="method-1">
 <h3>Method 1<a class="headerlink" href="#method-1" title="Permalink to this headline">¶</a></h3>
-<p>Assuming we&#8217;ve already connected to the DS9 window where the data is displayed with the object called &#8220;ds9&#8221;;</p>
+<p>Assuming we&#8217;ve already connected to the  window where the data is displayed with the object called &#8220;ds9&#8221;;</p>
 <ul class="simple">
 <li>This method first uses the &#8220;a&#8221; key to check out the aperture photometry with the default settings</li>
 <li>Display a profile plot around the start we choose</li>
@@ -204,7 +204,8 @@ j       1D [gaussian|moffat] line fit
 k       1D [gaussian|moffat] column fit
 l       return line plot
 m       square region stats, in [region_size],defayult is median
-r       return curve of growth plot *
+r       return radial profile plot
+g   curve of growth
 s       save current figure to disk as [plot_name]
 w       display a surface plot around the cursor location
 x       return x,y coords of pixel
@@ -228,7 +229,7 @@ viewer.aimexam() # print out the parameters for aperture photometry, returns a d
  &#39;zmag&#39;: [25.0, &#39;zeropoint for the magnitude calculation&#39;]}
 
 
-ds.imexam() #lets look at a curve of growth for the star in question
+ds9.imexam() #lets look at a curve of growth for the star in question
 
 xc=813.109250   yc=706.687612 &lt;--printed because centering is turned on
 radii:[1 2 3 4 5 6 7 8]
@@ -240,13 +241,13 @@ flux:[131647.90413345056, 498482.2347664542, 914397.81480508228, 1132799.3621327
 Let&#39;s alter the defaults for the aperture photometry, get some new values and then make a nicer curve of growth.
 
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=10
-viewer.exam.aperphot_pars[&quot;skyrad&quot;][0]=20 #it looks like there are some nearby spoilers
-viewer.exam.aperphot_pars[&quot;width&quot;][0]=10  #maybe we should just give the sky some more space (haha)
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,10)
+viewer.set_plot_pars(&#39;a&#39;,&#39;skyrad&#39;,20) #it looks like there are some nearby spoilers
+viewer.set_plot_pars(&#39;a&#39;,&#39;width&#39;,10)  #maybe we should just give the sky some more space (haha)
 
 We&#39;ll update the curve of growth plot to match those:
 
-viewer.exam.curve_of_growth_pars
+viewer.gimexam()
 
 {&#39;function&#39;: [&#39;curve_of_growth_plot&#39;],
 &#39;center&#39;: [True, &#39;Solve for center using 2d Gaussian? [bool]&#39;],
@@ -266,10 +267,10 @@ viewer.exam.curve_of_growth_pars
 &#39;getdata&#39;: [True, &#39;return the plotted data values&#39;]}
 
 
-viewer.exam.curve_of_growth_pars[&quot;buffer&quot;][0]=20
-viewer.exam.curve_of_growth_pars[&quot;rplot&quot;][0]=15 #we&#39;ll go a little farther than the aperture photometry
-viewer.exam.curve_of_growth_pars[&quot;width&quot;][0]=10
-viewer.exam.curve_of_growth_pars[&quot;title&quot;][0]=&quot;My favorite star at 813,706&quot;
+viewer.set_plot_pars(&#39;g&#39;,&#39;buffer&#39;,20)
+viewer.set_plot_pars(&#39;g&#39;,&#39;rplot&#39;,15)  #we&#39;ll go a little farther than the aperture photometry
+viewer.set_plot_pars(&#39;g&#39;,&#39;width&#39;,10)
+viewer.set_plot_pars(&#39;g&#39;,&#39;title&#39;,&#39;My favorite star at 813,706)
 
 xc=813.109250   yc=706.437612
 radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]
@@ -317,15 +318,15 @@ Lets get some more aperture photometry at larger radii by resetting some of the 
     &#39;width&#39;: [5, &#39;Width of sky annulus in pixels&#39;],
     &#39;zmag&#39;: [25.0, &#39;zeropoint for the magnitude calculation&#39;]}
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=9
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,9)
 
 viewer.imexam() #use the &quot;a&quot; key
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=10
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,10)
 
 viewer.imexam() #use the &quot;a&quot; key
 
-viewer.exam.aperphot_pars[&quot;radius&quot;][0]=11
+viewer.set_plot_pars(&#39;a&#39;,&#39;radius&#39;,11)
 
 viewer.imexam() #use the &quot;a&quot; key
 
@@ -378,7 +379,7 @@ aper_phot
 <div class="section" id="example-3">
 <h1>Example 3<a class="headerlink" href="#example-3" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="advanced-usage-interact-with-daophot-and-astropy">
-<h2>Advanced Usage - Interact with Daophot and astropy<a class="headerlink" href="#advanced-usage-interact-with-daophot-and-astropy" title="Permalink to this headline">¶</a></h2>
+<h2>Advanced Usage - Interact with Daophot and Astropy<a class="headerlink" href="#advanced-usage-interact-with-daophot-and-astropy" title="Permalink to this headline">¶</a></h2>
 <p>While the original intent for the imexam module was to replicate the realtime interaction of the old IRAF imexamine interface with data, there are other posibilities for data analysis which this module can support.
 One such example, performing more advanced interaction which can be scripted, is outlined below.</p>
 <p>If you have  a  list of source identifications, perhaps prepared by SExtractor, DAOFind, Starfind or a similar program, you can use imexam to display the science image and overlay apertures for all their locations. From there you can do some visual examination and cleaning up of the list with a combination of region manipulation and useful imexam methods.</p>
@@ -441,7 +442,6 @@ iraf.daophot.datapars.datamin=0.
 iraf.daophot.datapars.gain=&quot;ccdgain&quot;
 iraf.daophot.datapars.exposure=&quot;exptime&quot;
 iraf.daophot.datapars.sigma=105.
-
 
 
 #assume the science extension and find some stars
@@ -552,9 +552,8 @@ photfile.print()
 </pre></div>
 </div>
 <p>You can even pop this up in your web browser if that&#8217;s a good format for you: photfile.show_in_browser().
-imexam has several functions to help display regions on the DS9 window. Since we have this data loaded into memory, the one we will use here is mark_region_from_array().
-Let&#8217;s make an array that the method will accept, namely a list of tuples which contain the (x,y,comment) that we want marked to the display. It will also accept a single
-tuple, or a string containing &#8220;x,y,comment&#8221;.</p>
+imexam has several functions to help display regions on the DS9 window. Since we have this data loaded into memory, the one we will use here is mark_region_from_array().</p>
+<p>Let&#8217;s make an array that the method will accept, namely a list of tuples which contain the (x,y,comment) that we want marked to the display. It will also accept any iterator containing a tuple of (x,y,comment).</p>
 <div class="highlight-python"><div class="highlight"><pre>#lets make a list of our locations as a tuple of x,y,comment
 #we&#39;ll cut the list to a smaller area and only include those points whose mag is &lt; -4.
 locations=list()
@@ -577,7 +576,7 @@ Out[91]: (807.57500000000005, 2.4449999999999998, 16)
 <a class="reference internal image-reference" href="../_images/iab_locations.png"><img alt="subsection of image being examined" src="../_images/iab_locations.png" style="width: 600px; height: 400px;" /></a>
 <p>Now we can get rid of some of the stars by hand and save a new file of locations we like. I did this arbitrarily because I decided I didn&#8217;t like stars in this part of space. Click on the regions you don&#8217;t want and delete them from the screen. You can even add more regions of your own choosing.</p>
 <a class="reference internal image-reference" href="../_images/iab_badstars.png"><img alt="subsection of image being examined" src="../_images/iab_badstars.png" style="width: 600px; height: 400px;" /></a>
-<p>Now you can save these new regions to a DS9 style region file, either through DS9 or imexam</p>
+<p>You can save these new regions to a DS9 style region file, either through DS9 or imexam</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="s1">&#39;badstars.reg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -614,7 +613,7 @@ imexam.list_active_ds9()
 
 viewer=imexam.connect(&#39;82a7e75f:53892&#39;)
 
-#A little unsure this is the corrent window? Let&#39;s check by asking what image is loaded. The image I&#39;m working with is iabf01bzq_flt.fits
+#A little unsure this is the correct window? Let&#39;s check by asking what image is loaded. The image I&#39;m working with is iabf01bzq_flt.fits
 
 viewer.get_data_filename()
 
@@ -637,9 +636,7 @@ for point in range(0,len(photfile[&#39;XCENTER&#39;]),1):
         locations.append((photfile[&#39;XCENTER&#39;][point],photfile[&#39;YCENTER&#39;][point],photfile[&#39;ID&#39;][point])) &lt;-- appending tuple to the list
 </pre></div>
 </div>
-<p>Take your list of locations and cycle through each one, displaying a zoomed in section on the DS9 window and starting imexam for each coordinate.
-I&#8217;m just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition
-in conjuection with the viewer.readcursor()</p>
+<p>Take your list of locations and cycle through each one, displaying a zoomed in section on the DS9 window and starting imexam for each coordinate. I&#8217;m just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition in conjunction with the viewer.readcursor()</p>
 <p>I&#8217;ll also mark the object we&#8217;re interested in on the display for reference</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="n">locations</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">110</span><span class="p">]:</span>
@@ -654,6 +651,7 @@ in conjuection with the viewer.readcursor()</p>
 <h1>Example 4<a class="headerlink" href="#example-4" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="load-and-examine-an-image-cube">
 <h2>Load and examine an image CUBE<a class="headerlink" href="#load-and-examine-an-image-cube" title="Permalink to this headline">¶</a></h2>
+<p>Loading image cubes are currently only supported for the DS9 viewer.</p>
 <p>Image cubes can be multi-extension fits files which have multidimensional (&gt; 2) images in any of their extensions. When they are loaded into DS9, a cube dialog frame is opened along with a box which allows the user to control which slices are displayed. Here&#8217;s what the structure of such a file might look like:</p>
 <div class="highlight-python"><div class="highlight"><pre>astropy.io.fits.info(&#39;test_cube.fits&#39;)
 
@@ -700,13 +698,14 @@ Out[28]: (3, 13)
 <h1>Example 5<a class="headerlink" href="#example-5" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="use-the-imexamine-library-standalone-to-create-plots-without-viewing">
 <h2>Use the imexamine library standalone to create plots without viewing<a class="headerlink" href="#use-the-imexamine-library-standalone-to-create-plots-without-viewing" title="Permalink to this headline">¶</a></h2>
-<p>It&#8217;s possible to use the imexamine library of plotting functions without loading an image into the viewer. All of the functions take 3 inputs: the x, y, and data array. In order to access the function, first create an imexamine object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">imexam</span>
-<span class="kn">from</span> <span class="nn">imexam</span> <span class="kn">import</span> <span class="n">imexamine</span>
+<p>It&#8217;s possible to use the imexamine library of plotting functions without loading
+an image into the viewer. All of the functions take 3 inputs: the x, y, and data
+array. In order to access the function, first create an imexamine object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">imexam.imexamine</span> <span class="kn">import</span> <span class="n">Imexamine</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-<span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="c1">#create a random array thats 100x100 pixels</span>
-<span class="n">plots</span><span class="o">=</span><span class="n">imexamine</span><span class="o">.</span><span class="n">Imexamine</span><span class="p">()</span>
+<span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">))</span> <span class="c1">#create a random array thats 100x100 pixels</span>
+<span class="n">plots</span><span class="o">=</span><span class="n">Imexamine</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>These are the functions you now have access to:</p>
@@ -728,6 +727,11 @@ plots.contour_pars              plots.histogram_pars            plots.plot_colum
 </div>
 <p>produces the following plot:</p>
 <a class="reference internal image-reference" href="../_images/imexamine_library_lineplot.png"><img alt="line plot generated without viewing" src="../_images/imexamine_library_lineplot.png" style="width: 400px; height: 400px;" /></a>
+<p>You can save the current plot using the save method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plots</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> <span class="c1">#with an optional filename using filename=&quot;something.extname&quot;</span>
+</pre></div>
+</div>
+<p>Where the extname specifies the format of the file, ex: jpg or pdf. A pdf file will be the default output, using the curent self.plot_name</p>
 </div>
 </div>
 
@@ -754,7 +758,7 @@ plots.contour_pars              plots.histogram_pars            plots.plot_colum
 </ul>
 </li>
 <li><a class="reference internal" href="#example-3">Example 3</a><ul>
-<li><a class="reference internal" href="#advanced-usage-interact-with-daophot-and-astropy">Advanced Usage - Interact with Daophot and astropy</a></li>
+<li><a class="reference internal" href="#advanced-usage-interact-with-daophot-and-astropy">Advanced Usage - Interact with Daophot and Astropy</a></li>
 <li><a class="reference internal" href="#advanced-usage-ii-cycle-through-objects-from-a-list">Advanced Usage II - Cycle through objects from a list</a></li>
 </ul>
 </li>
@@ -781,7 +785,7 @@ plots.contour_pars              plots.histogram_pars            plots.plot_colum
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

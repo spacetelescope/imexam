@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The imexam() method &mdash; imexam v0.5.3dev</title>
+    <title>The imexam() method &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="imexam() User Methods" href="current_capability.html" />
     <link rel="prev" title="Introduction" href="description.html" />
@@ -69,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.5.3dev</a>
+	<a href="../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -154,7 +154,7 @@ mimexam(): return dict of current parameters for area statistics
 <div class="highlight-python"><div class="highlight"><pre><span class="c1">#Use Ginga for the image viewer</span>
 
 <span class="kn">import</span> <span class="nn">imexam</span>
-<span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s1">&#39;ginga_mp&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s1">&#39;ginga&#39;</span><span class="p">)</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">load_fits</span><span class="p">(</span><span class="s1">&#39;iabf01bzq_flt.fits&#39;</span><span class="p">)</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">panto_image</span><span class="p">(</span><span class="mi">576</span><span class="p">,</span><span class="mi">633</span><span class="p">)</span>
@@ -178,10 +178,9 @@ mimexam(): return dict of current parameters for area statistics
 </pre></div>
 </div>
 <p>You can change the parameters by editing the dictionary, whose structure is { &#8220;parameter&#8221;: [values, description] }. In order to change the width of the photometry aperture around the object you would do this</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">set_plot_pars</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>It might seem a little odd to non-python users at the moment. What you are doing is updating the value of the first item in that list. I intend on changing this interface to make it a little more seamless to users in the near future.</p>
 <p>This is what the return looks like when you do photometry, where I&#8217;ve asked for photometry from the star circled in green above:</p>
 <div class="highlight-python"><div class="highlight"><pre>viewer.imexam()
 
@@ -267,7 +266,7 @@ The user can map the function to any reasonable numpy function, it&#8217;s set t
 </pre></div>
 </div>
 <p>You can change the statistic reported by changing the &#8220;stat&#8221; parameter:</p>
-<div class="highlight-python"><div class="highlight"><pre>viewer.exam.report_stat_pars[&quot;stat&quot;][0]=&quot;max&quot;
+<div class="highlight-python"><div class="highlight"><pre>viewer.set_plot_pars(&#39;m&#39;,&quot;stat&quot;,&quot;max&quot;)
 
 [572:577,629:634] amax: 55271.000000
 </pre></div>
@@ -338,7 +337,7 @@ If centering is on, the center is computed close to the star using a 2d gaussian
 </div>
 <a class="reference internal image-reference" href="../_images/curve_of_growth.png"><img alt="Curve of growth  plot around star" src="../_images/curve_of_growth.png" style="width: 600px; height: 400px;" /></a>
 <p>Returned to the screen is the data information from the plot, the (x,y) location of the center, followed by the radius and corresponding flux which was measured:</p>
-<div class="highlight-python"><div class="highlight"><pre>viewer.exam.curve_of_growth_pars[&quot;rplot&quot;][0]=25  #set the default radius larger
+<div class="highlight-python"><div class="highlight"><pre>viewer.set_plot_pars(&#39;g&#39;,&quot;rplot&quot;,25)  #set the default radius larger
 
 xc=577.242311       yc=634.578361
 
@@ -389,10 +388,10 @@ flux:[131192.03694247041, 489485.48536408512, 911376.50226695999, 1301726.718984
 </div>
 <a class="reference internal image-reference" href="../_images/contour_plot.png"><img alt="contour plot" src="../_images/contour_plot.png" style="width: 600px; height: 400px;" /></a>
 <p>Here&#8217;s what it looks like if we change some of the default parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="s2">&quot;gist_heat&quot;</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="s2">&quot;Contours around my favorite star&quot;</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s2">&quot;ncontours&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">4</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">set_plot_pars</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;gist_heat&quot;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">set_plot_pars</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;Contours around my favorite star&quot;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">set_plot_pars</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s2">&quot;ncontours&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">set_plot_pars</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/contour_plot2.png"><img alt="contour plot" src="../_images/contour_plot2.png" style="width: 600px; height: 400px;" /></a>
@@ -494,9 +493,6 @@ flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.707623
 </div>
 <p>This is what the workspace could look like with DS9 as the viewer:</p>
 <a class="reference internal image-reference" href="../_images/multiple_plots.png"><img alt="multiple plots in DS9 with imexam" src="../_images/multiple_plots.png" style="width: 800px; height: 650px;" /></a>
-<p>This is what the workspace might look like with Ginga as the viewer, the plots are all
-identical, just the viewer of the image changes:</p>
-<a class="reference internal image-reference" href="../_images/multiple_ginga_plots.png"><img alt="multiple plots in Ginga with imexam" src="../_images/multiple_ginga_plots.png" style="width: 950px; height: 550px;" /></a>
 <p>As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:</p>
 <a class="reference internal image-reference" href="../_images/contour_zoom.png"><img alt="contour zoom plot" src="../_images/contour_zoom.png" style="width: 800px; height: 600px;" /></a>
 </div>
@@ -539,7 +535,7 @@ identical, just the viewer of the image changes:</p>
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

@@ -25,23 +25,24 @@ Imexamine
    
       ~Imexamine.aper_phot
       ~Imexamine.column_fit
-      ~Imexamine.contour_plot
-      ~Imexamine.curve_of_growth_plot
+      ~Imexamine.contour
+      ~Imexamine.curve_of_growth
       ~Imexamine.do_option
       ~Imexamine.gauss_center
       ~Imexamine.get_options
       ~Imexamine.get_plot_name
-      ~Imexamine.histogram_plot
+      ~Imexamine.histogram
       ~Imexamine.line_fit
       ~Imexamine.new_plot_window
       ~Imexamine.option_descrip
       ~Imexamine.plot_column
       ~Imexamine.plot_line
       ~Imexamine.print_options
-      ~Imexamine.radial_profile_plot
+      ~Imexamine.radial_profile
       ~Imexamine.register
       ~Imexamine.report_stat
       ~Imexamine.reset_defpars
+      ~Imexamine.save
       ~Imexamine.save_figure
       ~Imexamine.set_aperphot_pars
       ~Imexamine.set_colplot_pars
@@ -58,7 +59,7 @@ Imexamine
       ~Imexamine.set_surface_pars
       ~Imexamine.show_xy_coords
       ~Imexamine.showplt
-      ~Imexamine.surface_plot
+      ~Imexamine.surface
       ~Imexamine.unlearn_all
 
    
@@ -76,23 +77,24 @@ Imexamine
    
    .. automethod:: aper_phot
    .. automethod:: column_fit
-   .. automethod:: contour_plot
-   .. automethod:: curve_of_growth_plot
+   .. automethod:: contour
+   .. automethod:: curve_of_growth
    .. automethod:: do_option
    .. automethod:: gauss_center
    .. automethod:: get_options
    .. automethod:: get_plot_name
-   .. automethod:: histogram_plot
+   .. automethod:: histogram
    .. automethod:: line_fit
    .. automethod:: new_plot_window
    .. automethod:: option_descrip
    .. automethod:: plot_column
    .. automethod:: plot_line
    .. automethod:: print_options
-   .. automethod:: radial_profile_plot
+   .. automethod:: radial_profile
    .. automethod:: register
    .. automethod:: report_stat
    .. automethod:: reset_defpars
+   .. automethod:: save
    .. automethod:: save_figure
    .. automethod:: set_aperphot_pars
    .. automethod:: set_colplot_pars
@@ -109,7 +111,7 @@ Imexamine
    .. automethod:: set_surface_pars
    .. automethod:: show_xy_coords
    .. automethod:: showplt
-   .. automethod:: surface_plot
+   .. automethod:: surface
    .. automethod:: unlearn_all
 
    
