@@ -40,8 +40,10 @@ ds9
       ~ds9.get_filename
       ~ds9.get_frame_info
       ~ds9.get_header
+      ~ds9.get_image
       ~ds9.get_slice_info
       ~ds9.get_viewer_info
+      ~ds9.grab
       ~ds9.grid
       ~ds9.hideme
       ~ds9.iscube
@@ -57,6 +59,7 @@ ds9
       ~ds9.panto_image
       ~ds9.panto_wcs
       ~ds9.readcursor
+      ~ds9.reopen
       ~ds9.rotate
       ~ds9.run_inet_ds9
       ~ds9.save_regions
@@ -65,7 +68,7 @@ ds9
       ~ds9.set
       ~ds9.set_iraf_display
       ~ds9.set_region
-      ~ds9.show_commands
+      ~ds9.show_xpa_commands
       ~ds9.showme
       ~ds9.showpix
       ~ds9.snapsave
@@ -104,8 +107,10 @@ ds9
    .. automethod:: get_filename
    .. automethod:: get_frame_info
    .. automethod:: get_header
+   .. automethod:: get_image
    .. automethod:: get_slice_info
    .. automethod:: get_viewer_info
+   .. automethod:: grab
    .. automethod:: grid
    .. automethod:: hideme
    .. automethod:: iscube
@@ -121,6 +126,7 @@ ds9
    .. automethod:: panto_image
    .. automethod:: panto_wcs
    .. automethod:: readcursor
+   .. automethod:: reopen
    .. automethod:: rotate
    .. automethod:: run_inet_ds9
    .. automethod:: save_regions
@@ -129,7 +135,7 @@ ds9
    .. automethod:: set
    .. automethod:: set_iraf_display
    .. automethod:: set_region
-   .. automethod:: show_commands
+   .. automethod:: show_xpa_commands
    .. automethod:: showme
    .. automethod:: showpix
    .. automethod:: snapsave

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>imexam.imexamine &mdash; imexam v0.5.3dev</title>
+    <title>imexam.imexamine &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../../_static/copybutton.js"></script>
@@ -56,7 +56,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">imexam v0.5.3dev</a>
+	<a href="../../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
@@ -72,52 +72,76 @@
           <div class="body" role="main">
             
   <h1>Source code for imexam.imexamine</h1><div class="highlight"><pre>
-<span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst.</span>
 
-<span class="sd">&quot;&quot;&quot;This class implements IRAF/imexamine type capabilities&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;This class implements IRAF/imexamine type capabilities</span>
+
+<span class="sd">    However, the power of this class is that it is essential a library</span>
+<span class="sd">    of plotting and analysis routines which can be directed towards</span>
+<span class="sd">    any viewer. It can also be used without connecting to any viewer</span>
+<span class="sd">    since the calls take only data,x,y information. This means that</span>
+<span class="sd">    given a data array and a list of x,y positions you can creates</span>
+<span class="sd">    plots without havin to interact with the viewers.</span>
+
+<span class="sd">    Users can also register a custom function with the class</span>
+<span class="sd">    and have it available for use in either case.</span>
+
+<span class="sd">    The plots which are made are fully customizable</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span>  <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
-<span class="c1"># turn on interactive mode for plotting</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
-
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">math_helper</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">imexam_defpars</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">PY3</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">PY3</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="c1"># turn on interactive mode for plotting</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
 
 <span class="c1"># enable display plot in iPython notebook</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">cString</span> <span class="kn">import</span> <span class="n">StringIO</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">photutils</span>
     <span class="n">photutils_installed</span> <span class="o">=</span> <span class="bp">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span>
-        <span class="s2">&quot;photutils not installed, photometry functionality in imexam() not available&quot;</span><span class="p">)</span>
+        <span class="s2">&quot;photutils not installed, photometry functionality </span><span class="se">\</span>
+<span class="s2">        in imexam() not available&quot;</span><span class="p">)</span>
     <span class="n">photutils_installed</span> <span class="o">=</span> <span class="bp">False</span>
-
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">math_helper</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">imexam_defpars</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Imexamine&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Imexamine"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine">[docs]</a><span class="k">class</span> <span class="nc">Imexamine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The imexamine class controls plotting and other functions.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; do imexamine like routines on the current frame</span>
+        <span class="sd">&quot;&quot;&quot;do imexamine like routines on the current frame.</span>
 
 <span class="sd">        read the returned cursor key value to decide what to do</span>
 
 <span class="sd">        region_size is the default radius or side of the square for stat info</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">set_option_funcs</span><span class="p">()</span>  <span class="c1"># define the dictionary of keys and functions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># the data array</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_datafile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># the file from which the data came</span>
@@ -131,10 +155,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span> <span class="o">=</span> <span class="s2">&quot;imexam&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">]</span>  <span class="c1"># not to be changed with user funcs</span>
 
 <div class="viewcode-block" id="Imexamine.set_option_funcs"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_option_funcs">[docs]</a>    <span class="k">def</span> <span class="nf">set_option_funcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Define the dictionary which maps imexam option keys to their functions</span>
-
+        <span class="sd">&quot;&quot;&quot;Define the dictionary which maps imexam keys to their functions.</span>
 
 <span class="sd">         Notes</span>
 <span class="sd">         -----</span>
@@ -143,34 +167,33 @@
 <span class="sd">         the second item in the tuple is the description of what the function</span>
 <span class="sd">         does when that key is pressed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aper_phot</span><span class="p">,</span> <span class="s1">&#39;aperture sum, with radius region_size &#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;j&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line_fit</span><span class="p">,</span> <span class="s1">&#39;1D [gaussian|moffat] line fit &#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;k&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_fit</span><span class="p">,</span> <span class="s1">&#39;1D [gaussian|moffat] column fit&#39;</span><span class="p">),</span>
-                                    <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_stat</span><span class="p">,</span> <span class="s1">&#39;square region stats, in [region_size],defayult is median&#39;</span><span class="p">),</span>
+                                    <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_stat</span><span class="p">,</span> <span class="s1">&#39;square region stats, in [region_size],default is median&#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_xy_coords</span><span class="p">,</span> <span class="s1">&#39;return x,y,value of pixel&#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_xy_coords</span><span class="p">,</span> <span class="s1">&#39;return x,y,value of pixel&#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;l&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_line</span><span class="p">,</span> <span class="s1">&#39;return line plot&#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_column</span><span class="p">,</span> <span class="s1">&#39;return column plot&#39;</span><span class="p">),</span>
-                                    <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_plot</span><span class="p">,</span> <span class="s1">&#39;return curve of growth plot&#39;</span><span class="p">),</span>
-                                    <span class="s1">&#39;r&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_plot</span><span class="p">,</span> <span class="s1">&#39;return the radial profile plot&#39;</span><span class="p">),</span>
-                                    <span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s1">&#39;return a histogram in the region around the cursor&#39;</span><span class="p">),</span>
-                                    <span class="s1">&#39;e&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour_plot</span><span class="p">,</span> <span class="s1">&#39;return a contour plot in a region around the cursor&#39;</span><span class="p">),</span>
+                                    <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth</span><span class="p">,</span> <span class="s1">&#39;return curve of growth plot&#39;</span><span class="p">),</span>
+                                    <span class="s1">&#39;r&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile</span><span class="p">,</span> <span class="s1">&#39;return the radial profile plot&#39;</span><span class="p">),</span>
+                                    <span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram</span><span class="p">,</span> <span class="s1">&#39;return a histogram in the region around the cursor&#39;</span><span class="p">),</span>
+                                    <span class="s1">&#39;e&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour</span><span class="p">,</span> <span class="s1">&#39;return a contour plot in a region around the cursor&#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_figure</span><span class="p">,</span> <span class="s1">&#39;save current figure to disk as [plot_name]&#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">,</span> <span class="s1">&#39;return the gauss fit center of the object&#39;</span><span class="p">),</span>
-                                    <span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_plot</span><span class="p">,</span> <span class="s1">&#39;display a surface plot around the cursor location&#39;</span><span class="p">),</span>
+                                    <span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface</span><span class="p">,</span> <span class="s1">&#39;display a surface plot around the cursor location&#39;</span><span class="p">),</span>
                                     <span class="s1">&#39;2&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_plot_window</span><span class="p">,</span> <span class="s1">&#39;make the next plot in a new window&#39;</span><span class="p">),</span>
                                     <span class="p">}</span></div>
 
 <div class="viewcode-block" id="Imexamine.print_options"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.print_options">[docs]</a>    <span class="k">def</span> <span class="nf">print_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;print the imexam options to screen&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;print the imexam options to screen.&quot;&quot;&quot;</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_options</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_descrip</span><span class="p">(</span><span class="n">key</span><span class="p">)))</span>
         <span class="k">print</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Imexamine.do_option"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.do_option">[docs]</a>    <span class="k">def</span> <span class="nf">do_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;run the option</span>
+        <span class="sd">&quot;&quot;&quot;run the imexam option.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -189,13 +212,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Imexamine.get_options"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.get_options">[docs]</a>    <span class="k">def</span> <span class="nf">get_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the imexam options as a key list&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return the imexam options as a key list.&quot;&quot;&quot;</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">keys</span></div>
 
 <div class="viewcode-block" id="Imexamine.option_descrip"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.option_descrip">[docs]</a>    <span class="k">def</span> <span class="nf">option_descrip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the looked up dictionary of options</span>
-
+        <span class="sd">&quot;&quot;&quot;return the looked up dictionary of options.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -203,26 +225,23 @@
 <span class="sd">            The key which was pressed, it relates to the function to call</span>
 
 <span class="sd">        field: int</span>
-<span class="sd">            This tells where in the option dictionary the function name can be found</span>
-
-
+<span class="sd">            This tells where in the option dictionary the function name</span>
+<span class="sd">            can be found</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">field</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_data"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
-        <span class="sd">&quot;&quot;&quot;initialize the data that imexamine uses&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;initialize the data that imexamine uses.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_plot_name"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_plot_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_plot_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set the default plot name for the &quot;s&quot; key</span>
+        <span class="sd">&quot;&quot;&quot;set the default plot name for the &quot;s&quot; key.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename: string</span>
-<span class="sd">            The name which is used to save the current plotting window to a file</span>
-<span class="sd">            The extension on the name decides which file type is used</span>
-
-
+<span class="sd">          The name which is used to save the current plotting window to a file</span>
+<span class="sd">          The extension on the name decides which file type is used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No filename provided&quot;</span><span class="p">)</span>
@@ -230,12 +249,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">plot_name</span> <span class="o">=</span> <span class="n">filename</span></div>
 
 <div class="viewcode-block" id="Imexamine.get_plot_name"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.get_plot_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the default plot name&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return the default plot name.&quot;&quot;&quot;</span>
         <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_name</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_define_default_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set all pars to their defaults which are stored in a file with dicts&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set all pars to their defaults, stored in a file with dicts.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aperphot_def_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">aperphot_pars</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_def_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">radial_profile_pars</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_def_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">curve_of_growth_pars</span>
@@ -253,8 +271,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_define_local_pars</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_define_local_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set a copy of the default pars that users can alter&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set a copy of the default pars that users can alter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aperphot_def_pars</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_def_pars</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_def_pars</span><span class="p">)</span>
@@ -270,32 +287,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">report_stat_pars</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report_stat_def_pars</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Imexamine.unlearn_all"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.unlearn_all">[docs]</a>    <span class="k">def</span> <span class="nf">unlearn_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;reset the default parameters for all functions</span>
+        <span class="sd">&quot;&quot;&quot;reset the default parameters for all functions.</span>
 
 <span class="sd">        Haven&#39;t decided how to reset the parameters for just one function yet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_define_local_pars</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Imexamine.new_plot_window"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.new_plot_window">[docs]</a>    <span class="k">def</span> <span class="nf">new_plot_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;make the next plot in a new plot window</span>
-
+<div class="viewcode-block" id="Imexamine.new_plot_window"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.new_plot_window">[docs]</a>    <span class="k">def</span> <span class="nf">new_plot_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;make the next plot in a new plot window.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        x,y, data, are not used here, but the calls are setup to take them</span>
-<span class="sd">        for all imexam options. Is there a better way to do the calls in general?</span>
-<span class="sd">        Once the new plotting window is open all plots will be directed towards it</span>
-<span class="sd">        The old window cannot be used again.</span>
+<span class="sd">        for all imexam options. Is there a better way to do the calls in</span>
+<span class="sd">        general? Once the new plotting window is open all plots will be</span>
+<span class="sd">        directed towards it. The old window cannot be used again.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
         <span class="n">counter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span> <span class="o">=</span> <span class="s2">&quot;imexam&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_windows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Plots now directed towards {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Imexamine.plot_line"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_line">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;line plot of data at point x&quot;&quot;&quot;</span>
-
+<div class="viewcode-block" id="Imexamine.plot_line"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_line">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;line plot of data at point x.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
@@ -324,11 +343,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="p">:])</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.plot_column"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_column">[docs]</a>    <span class="k">def</span> <span class="nf">plot_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;column plot of data at point y&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Imexamine.plot_column"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.plot_column">[docs]</a>    <span class="k">def</span> <span class="nf">plot_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;column plot of data at point y.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
@@ -358,21 +382,30 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="n">x</span><span class="p">])</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.show_xy_coords"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.show_xy_coords">[docs]</a>    <span class="k">def</span> <span class="nf">show_xy_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;print the x,y,value to the screen&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Imexamine.show_xy_coords"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.show_xy_coords">[docs]</a>    <span class="k">def</span> <span class="nf">show_xy_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;print the x,y,value to the screen.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
         <span class="n">info</span> <span class="o">=</span> <span class="s2">&quot;{0} {1}  {2}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">[(</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">)])</span>
         <span class="k">print</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">info</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.report_stat"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.report_stat">[docs]</a>    <span class="k">def</span> <span class="nf">report_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;report the median of values in a box with side region_size&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Imexamine.report_stat"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.report_stat">[docs]</a>    <span class="k">def</span> <span class="nf">report_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;report the median of values in a box with side region_size.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
         <span class="n">region_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_stat_pars</span><span class="p">[</span><span class="s2">&quot;region_size&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">resolve</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_stat_pars</span><span class="p">[</span><span class="s2">&quot;stat&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">stat</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_stat_pars</span><span class="p">[</span><span class="s2">&quot;stat&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">stat</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">np</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid stat specified&quot;</span><span class="p">)</span>
             <span class="n">resolve</span> <span class="o">=</span> <span class="bp">False</span>
@@ -383,12 +416,18 @@
             <span class="n">ymin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">dist</span><span class="p">)</span>
             <span class="n">ymax</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">dist</span><span class="p">)</span>
             <span class="n">pstr</span> <span class="o">=</span> <span class="s2">&quot;[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">func_name</span><span class="p">,</span> <span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">])))</span>
+              <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">])))</span>
             <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.save_figure"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.save_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;save the figure that&#39;s currently displayed&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Imexamine.save_figure"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.save_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save to file the figure that&#39;s currently displayed.</span>
+
+<span class="sd">        this is used for the imexam loop, because there is a standard api</span>
+<span class="sd">        for the loop</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_name</span><span class="p">)</span>
@@ -396,10 +435,30 @@
         <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.aper_phot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.aper_phot">[docs]</a>    <span class="k">def</span> <span class="nf">aper_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform aperture photometry, uses photutils functions, photutils must be available</span>
+<div class="viewcode-block" id="Imexamine.save"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save to file the figure that&#39;s currently displayed.</span>
 
+<span class="sd">        this is used for the standalone plotting</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_plot_name</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_plot_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span> <span class="o">+</span> <span class="s2">&quot;.pdf&quot;</span><span class="p">)</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_name</span><span class="p">)</span>
+        <span class="n">pstr</span> <span class="o">=</span> <span class="s2">&quot;plot saved to {0:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_name</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Imexamine.aper_phot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.aper_phot">[docs]</a>    <span class="k">def</span> <span class="nf">aper_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform aperture photometry.</span>
+
+<span class="sd">        uses photutils functions, photutils must be available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># no centering</span>
         <span class="n">amp</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># no centering</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
@@ -436,8 +495,9 @@
                     <span class="n">data</span><span class="p">,</span>
                     <span class="n">annulus_apertures</span><span class="p">)</span>
 
-                <span class="c1"># to calculate the mean local background, divide the circular annulus aperture sums</span>
-                <span class="c1"># by the area fo the circular annulus. The bkg sum with the circular aperture is then</span>
+                <span class="c1"># to calculate the mean local background, divide the circular</span>
+                <span class="c1"># annulus aperture sums by the area fo the circular annulus.</span>
+                <span class="c1"># The bkg sum with the circular aperture is then</span>
                 <span class="c1"># then mean local background tims the circular apreture area.</span>
                 <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
                 <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">annulus_apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
@@ -471,9 +531,9 @@
             <span class="k">print</span><span class="p">(</span><span class="n">pheader</span> <span class="o">+</span> <span class="n">pstr</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pheader</span> <span class="o">+</span> <span class="n">pstr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.line_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.line_fit">[docs]</a>    <span class="k">def</span> <span class="nf">line_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">genplot</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;compute the 1d  fit to the line of data using the specified form</span>
-
+<div class="viewcode-block" id="Imexamine.line_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.line_fit">[docs]</a>    <span class="k">def</span> <span class="nf">line_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">genplot</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;compute the 1d  fit to the line of data using the specified form.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -482,7 +542,7 @@
 <span class="sd">            Currently gaussian or moffat</span>
 
 <span class="sd">        subsample: int</span>
-<span class="sd">            used to draw the fitted function on a finer scale than the data</span>
+<span class="sd">            used to draw the fitted function on a finer scale than the data;</span>
 <span class="sd">            delta is the range of data values to use around the x,y location</span>
 <span class="sd">            form is the functional form to use</span>
 
@@ -490,9 +550,11 @@
 <span class="sd">        -----</span>
 <span class="sd">        The background is currently ignored</span>
 
-<span class="sd">        If centering is True in the parameter set, then the center is fit with a 2d gaussian</span>
-
+<span class="sd">        If centering is True in the parameter set, then the center</span>
+<span class="sd">        is fit with a 2d gaussian</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
         <span class="n">amp</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="p">:</span>
@@ -500,6 +562,7 @@
 
         <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s2">&quot;rplot&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
+        <span class="c1"># fit the center with a 2d gaussian</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">popt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># an error occurred in centering</span>
@@ -521,7 +584,8 @@
         <span class="n">xline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
         <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
             <span class="n">form</span><span class="p">,</span> <span class="n">xline</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="p">[</span><span class="n">argmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
-            
+
+
         <span class="c1"># do these so that it fits the real pixel range of the data</span>
         <span class="n">fitx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xline</span><span class="p">),</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">subsample</span><span class="p">)</span>
         <span class="n">fity</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">fitx</span><span class="p">,</span> <span class="o">*</span><span class="n">popt</span><span class="p">)</span>
@@ -561,28 +625,24 @@
 
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;{0:s}  mean = {1:s}, fwhm= {2:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">fitmean</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">fwhm</span><span class="p">)))</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">fitx</span> <span class="o">+</span>
-                <span class="n">x</span> <span class="o">-</span>
-                <span class="n">delta</span><span class="p">,</span>
-                <span class="n">fity</span><span class="p">,</span>
-                <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
-                <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
-                    <span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span>
-                <span class="s2">&quot; fit&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">fitx</span> <span class="o">+</span> <span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">,</span> <span class="n">fity</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span><span class="s2">&quot; fit&quot;</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">fitx</span><span class="o">+</span><span class="n">x</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span><span class="n">fity</span><span class="p">,</span><span class="n">popt</span><span class="p">)</span>
-            
+
         <span class="n">pstr</span> <span class="o">=</span> <span class="s2">&quot;({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">fitmean</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span></div>
-        
 
-<div class="viewcode-block" id="Imexamine.column_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.column_fit">[docs]</a>    <span class="k">def</span> <span class="nf">column_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+
+<div class="viewcode-block" id="Imexamine.column_fit"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.column_fit">[docs]</a>    <span class="k">def</span> <span class="nf">column_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subsample</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;compute the 1d  fit to the column of data</span>
 
 <span class="sd">        Parameters</span>
@@ -597,10 +657,12 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        delta is the range of data values to use around the x,y location</span>
-<span class="sd">        The background is currently ignored</span>
-<span class="sd">        if centering is True, then the center is fit with a 2d gaussian</span>
+<span class="sd">        The background is currently ignored if centering is True, then</span>
+<span class="sd">        the center is fit with a 2d gaussian.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
         <span class="n">sigma</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">amp</span> <span class="o">=</span> <span class="mi">0</span>
@@ -669,24 +731,19 @@
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;{0:s}  mean = {1:s}, fwhm= {2:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">column_fit_pars</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">fitmean</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">fwhm</span><span class="p">)))</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-            <span class="n">fitx</span> <span class="o">+</span>
-            <span class="n">y</span> <span class="o">-</span>
-            <span class="n">delta</span><span class="p">,</span>
-            <span class="n">fity</span><span class="p">,</span>
-            <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
-                <span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span>
-            <span class="s2">&quot; fit&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">fitx</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">,</span> <span class="n">fity</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span> <span class="n">form</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span> <span class="o">+</span><span class="s2">&quot; fit&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
         <span class="n">pstr</span> <span class="o">=</span> <span class="s2">&quot;({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">fitmean</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pstr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.gauss_center"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.gauss_center">[docs]</a>    <span class="k">def</span> <span class="nf">gauss_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.gauss_center"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.gauss_center">[docs]</a>    <span class="k">def</span> <span class="nf">gauss_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return the 2d gaussian fit center</span>
 
 <span class="sd">        Parameters</span>
@@ -695,13 +752,10 @@
 <span class="sd">            The range of data values to use around the x,y location for calculating the center</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">chunk</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span>
-            <span class="n">y</span> <span class="o">-</span>
-            <span class="n">delta</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span>
-            <span class="n">delta</span><span class="p">,</span>
-            <span class="n">x</span> <span class="o">-</span>
-            <span class="n">delta</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span>
-            <span class="n">delta</span><span class="p">]</span>  <span class="c1"># flipped from xpa</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+        <span class="n">chunk</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span> <span class="n">y</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">y</span> <span class="o">+</span> <span class="n">delta</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">delta</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="n">delta</span><span class="p">]</span>  <span class="c1"># flipped from xpa</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">amp</span><span class="p">,</span> <span class="n">ycenter</span><span class="p">,</span> <span class="n">xcenter</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">math_helper</span><span class="o">.</span><span class="n">gauss_center</span><span class="p">(</span>
                 <span class="n">chunk</span><span class="p">)</span>
@@ -715,28 +769,27 @@
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Warning: {0:s}, returning zeros for fit&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
             <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.radial_profile_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.radial_profile_plot">[docs]</a>    <span class="k">def</span> <span class="nf">radial_profile_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.radial_profile"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.radial_profile">[docs]</a>    <span class="k">def</span> <span class="nf">radial_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display the radial profile plot (intensity vs radius) for the object</span>
-<span class="sd">        </span>
 <span class="sd">        Background may be subtracted and centering can be done with a 2dgauss fit</span>
-<span class="sd"> </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Install photutils to enable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
 
+            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
             <span class="n">amp</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">sigma</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="p">:</span>
                 <span class="n">form</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">math_helper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;fittype&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            
+
             <span class="n">getdata</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;getdata&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">subtract_background</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-            
-            <span class="c1">#cut the data down to size </span>
+
+            <span class="c1">#cut the data down to size</span>
             <span class="n">datasize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;rplot&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span>
-            
 
             <span class="n">delta</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># chunk size to find center</span>
             <span class="n">subpixels</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># for line fit later</span>
@@ -757,10 +810,10 @@
                 <span class="n">centerx</span> <span class="o">=</span> <span class="n">x</span>
             <span class="n">icenterx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">centerx</span><span class="p">)</span>
             <span class="n">icentery</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">centery</span><span class="p">)</span>
-            
+
             <span class="c1">#just grab the data box we want from the image</span>
-            <span class="n">data_chunk</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">icentery</span><span class="o">-</span><span class="n">datasize</span><span class="p">:</span><span class="n">icentery</span><span class="o">+</span><span class="n">datasize</span><span class="p">,</span><span class="n">icenterx</span><span class="o">-</span><span class="n">datasize</span><span class="p">:</span><span class="n">icenterx</span><span class="o">+</span><span class="n">datasize</span><span class="p">]</span> 
-            
+            <span class="n">data_chunk</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">icentery</span><span class="o">-</span><span class="n">datasize</span><span class="p">:</span><span class="n">icentery</span><span class="o">+</span><span class="n">datasize</span><span class="p">,</span><span class="n">icenterx</span><span class="o">-</span><span class="n">datasize</span><span class="p">:</span><span class="n">icenterx</span><span class="o">+</span><span class="n">datasize</span><span class="p">]</span>
+
             <span class="n">y</span><span class="p">,</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">((</span><span class="n">data_chunk</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">datasize</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">datasize</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
@@ -772,12 +825,11 @@
             <span class="k">if</span> <span class="n">subtract_background</span><span class="p">:</span>
                 <span class="n">inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;skyrad&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                
                 <span class="n">annulus_apertures</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">CircularAnnulus</span><span class="p">(</span>
                         <span class="p">(</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">),</span> <span class="n">r_in</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span> <span class="n">r_out</span><span class="o">=</span><span class="n">inner</span><span class="o">+</span><span class="n">width</span><span class="p">)</span>
                 <span class="n">bkgflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
                     <span class="n">annulus_apertures</span><span class="p">)</span>
-                
+
                 <span class="c1"># to calculate the mean local background, divide the circular annulus aperture sums</span>
                 <span class="c1"># by the area fo the circular annulus. The bkg sum with the circular aperture is then</span>
                 <span class="c1"># then mean local background tims the circular apreture area.</span>
@@ -786,7 +838,7 @@
                 <span class="n">tbin</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span> <span class="o">*</span> <span class="n">sky_per_pix</span>
                 <span class="k">if</span> <span class="n">getdata</span><span class="p">:</span>
                     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Sky per pixel: {0} using(rad={1}-&gt;{2})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sky_per_pix</span><span class="p">,</span><span class="n">inner</span><span class="p">,</span><span class="n">inner</span><span class="o">+</span><span class="n">width</span><span class="p">))</span>
-           
+
             <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
             <span class="n">fig</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
@@ -801,31 +853,37 @@
                     <span class="nb">int</span><span class="p">(</span><span class="n">centerx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">centery</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">nr</span><span class="p">,</span> <span class="n">tbin</span><span class="p">)</span>
                 <span class="k">print</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-                
-            <span class="c1">#finish the plot    </span>
+
+            <span class="c1">#finish the plot</span>
             <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;pointmode&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">tbin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;marker&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nr</span><span class="p">,</span><span class="n">tbin</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
-            
+
             <span class="c1">#over plot a gaussian fit to the data</span>
             <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span><span class="p">[</span><span class="s2">&quot;fitplot&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Fit overlay not yet implemented&quot;</span><span class="p">)</span>
 
-            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Imexamine.curve_of_growth_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.curve_of_growth_plot">[docs]</a>    <span class="k">def</span> <span class="nf">curve_of_growth_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Imexamine.curve_of_growth"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.curve_of_growth">[docs]</a>    <span class="k">def</span> <span class="nf">curve_of_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        display the curve of growth plot for the object</span>
-
+<span class="sd">        display the curve of growth plot;  the object</span>
+<span class="sd">        photometry is from photutils</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Install photutils to enable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
             <span class="n">delta</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># chunk size to find center</span>
             <span class="n">subpixels</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># for line fit later</span>
@@ -867,12 +925,14 @@
             <span class="n">rapert</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">router</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="k">for</span> <span class="n">rad</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rapert</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">aper_flux</span><span class="p">,</span> <span class="n">annulus_sky</span><span class="p">,</span> <span class="n">skysub_flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aperture_phot</span><span class="p">(</span>
-                    <span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">sky_inner</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span> <span class="n">skywidth</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;exact&quot;</span><span class="p">,</span><span class="n">subpixels</span><span class="o">=</span><span class="n">subpixels</span><span class="p">)</span>
+                    <span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">sky_inner</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span>
+                    <span class="n">skywidth</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;exact&quot;</span><span class="p">,</span> <span class="n">subpixels</span><span class="o">=</span><span class="n">subpixels</span><span class="p">)</span>
                 <span class="n">radius</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">inner</span> <span class="o">&lt;</span> <span class="n">router</span><span class="p">:</span>
                         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                            <span class="s2">&quot;Your sky annulus is inside your photometry radius rplot&quot;</span><span class="p">)</span>
+                            <span class="s2">&quot;Your sky annulus is inside your </span><span class="se">\</span>
+<span class="s2">                            photometry radius rplot&quot;</span><span class="p">)</span>
                     <span class="n">flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skysub_flux</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">flux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aper_flux</span><span class="p">)</span>
@@ -884,12 +944,18 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_aperture_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                       <span class="n">sky_inner</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">skywidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;subpixel&quot;</span><span class="p">,</span> <span class="n">subpixels</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform sky subtracted aperture photometry, uses photutils functions, photutil must be installed</span>
+    <span class="k">def</span> <span class="nf">_aperture_phot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">radsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="n">sky_inner</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">skywidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                       <span class="n">method</span><span class="o">=</span><span class="s2">&quot;subpixel&quot;</span><span class="p">,</span> <span class="n">subpixels</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform sky subtracted aperture photometry.</span>
+
+<span class="sd">        uses photutils functions, photutil must be installed</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -910,12 +976,15 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">           background is taken from sky annulus pixels, check into masking bad pixels</span>
-
+<span class="sd">        background is taken from sky annulus pixels, check into</span>
+<span class="sd">        masking bad pixels</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">photutils_installed</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Install photutils to enable&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
             <span class="n">apertures</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radsize</span><span class="p">)</span>
             <span class="n">rawflux_table</span> <span class="o">=</span> <span class="n">photutils</span><span class="o">.</span><span class="n">aperture_photometry</span><span class="p">(</span>
@@ -931,8 +1000,10 @@
                 <span class="n">data</span><span class="p">,</span>
                 <span class="n">annulus_apertures</span><span class="p">)</span>
 
-            <span class="c1"># to calculate the mean local background, divide the circular annulus aperture sums</span>
-            <span class="c1"># by the area of the circular annulus. The bkg sum within the circular aperture is then</span>
+            <span class="c1"># to calculate the mean local background, divide the circular</span>
+            <span class="c1"># annulus aperture sums</span>
+            <span class="c1"># by the area of the circular annulus. The bkg sum within the</span>
+            <span class="c1"># circular aperture is then</span>
             <span class="c1"># then mean local background times the circular apreture area.</span>
             <span class="n">aperture_area</span> <span class="o">=</span> <span class="n">apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
             <span class="n">annulus_area</span> <span class="o">=</span> <span class="n">annulus_apertures</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
@@ -946,8 +1017,10 @@
             <span class="k">return</span> <span class="p">(</span>
                 <span class="nb">float</span><span class="p">(</span><span class="n">rawflux_table</span><span class="p">[</span><span class="s1">&#39;aperture_sum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">bkg_sum</span><span class="p">,</span> <span class="n">skysub_flux</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Imexamine.histogram_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.histogram_plot">[docs]</a>    <span class="k">def</span> <span class="nf">histogram_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;plot a histogram of the pixel values in a region around the specified location&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Imexamine.histogram"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.histogram">[docs]</a>    <span class="k">def</span> <span class="nf">histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;plot a histogram of the pixel values.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
@@ -993,13 +1066,19 @@
         <span class="n">num_bins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span><span class="p">[</span><span class="s2">&quot;nbins&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
-            <span class="n">flat_data</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">],</span> <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+                <span class="n">flat_data</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">],</span> <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;hist with {0} bins&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_bins</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.contour_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.contour_plot">[docs]</a>    <span class="k">def</span> <span class="nf">contour_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;plot contours in a region around the specified location&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Imexamine.contour"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.contour">[docs]</a>    <span class="k">def</span> <span class="nf">contour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;plot contours in a region around the specified location.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
@@ -1021,7 +1100,7 @@
         <span class="n">lsty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s2">&quot;linestyle&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">deltax</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span> <span class="o">-</span> <span class="n">deltax</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
-                           <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">deltay</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>  <span class="c1"># check this</span>
+                           <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">deltay</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="n">deltay</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">data_cut</span><span class="p">,</span> <span class="n">ncont</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">75</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
         <span class="n">C</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
             <span class="n">X</span><span class="p">,</span>
@@ -1033,22 +1112,20 @@
             <span class="n">linestyle</span><span class="o">=</span><span class="n">lsty</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%5.3f</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Imexamine.surface_plot"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.surface_plot">[docs]</a>    <span class="k">def</span> <span class="nf">surface_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;plot a surface around the specified location</span>
+        <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
-<span class="sd">                       &quot;ncolumns&quot;:[21,&quot;Number of columns&quot;],</span>
-<span class="sd">                       &quot;nlines&quot;:[21,&quot;Number of lines&quot;],</span>
-<span class="sd">                       &quot;angh&quot;:[-33.,&quot;Horizontal viewing angle in degrees&quot;],</span>
-<span class="sd">                       &quot;angv&quot;:[25.,&quot;Vertical viewing angle in degrees&quot;],</span>
-<span class="sd">                       &quot;floor&quot;:[None,&quot;Minimum value to be contoured&quot;],</span>
-<span class="sd">                       &quot;ceiling&quot;:[None,&quot;Maximum value to be contoured&quot;],</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
+<div class="viewcode-block" id="Imexamine.surface"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.surface">[docs]</a>    <span class="k">def</span> <span class="nf">surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;plot a surface around the specified location.&quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
         <span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">LinearLocator</span><span class="p">,</span> <span class="n">FormatStrFormatter</span>
+
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_name</span><span class="p">)</span>
@@ -1082,10 +1159,12 @@
         <span class="n">stride</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s2">&quot;stride&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">fancy</span><span class="p">:</span>
             <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span>
-                <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+                <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span>
-                                   <span class="s2">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">antialiased</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span>
+                            <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">antialiased</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">zaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">LinearLocator</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">zaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">FormatStrFormatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.0f</span><span class="s1">&#39;</span><span class="p">))</span>
@@ -1119,23 +1198,26 @@
         <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s2">&quot;azim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">view_init</span><span class="p">(</span><span class="n">elev</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">azim</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span><span class="p">[</span><span class="s2">&quot;azim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="s1">&#39;nbagg&#39;</span> <span class="ow">in</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Imexamine.register"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_funcs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;register a new imexamine function made by the user so that it becomes an option</span>
+        <span class="sd">&quot;&quot;&quot;register a new imexamine function made by the user as an option.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        user_funcs: dict</span>
-<span class="sd">            Contains a dictionary where each key is the binding for the (function,description) tuple</span>
+<span class="sd">            Contains a dictionary where each key is the binding for the</span>
+<span class="sd">            (function,description) tuple</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        The new binding will be added to the dictionary of imexamine functions as long as the key is unique</span>
-<span class="sd">        The new functions do not have to have default dictionaries associated with them</span>
-<span class="sd">        imexam_option_funcs = {&#39;a&#39;: (self.aper_phot, &#39;aperture sum, with radius region_size &#39;) -&gt;tuple example</span>
-
+<span class="sd">        The new binding will be added to the dictionary of imexamine functions</span>
+<span class="sd">        as long as the key is unique. The new functions do not have to have</span>
+<span class="sd">        default dictionaries associated with them.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_funcs</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="nb">dict</span><span class="p">())):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Your input needs to be a dictionary&quot;</span><span class="p">)</span>
@@ -1154,17 +1236,19 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">imexam_option_funcs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">func_name</span><span class="p">),</span> <span class="n">user_funcs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
                 <span class="k">print</span><span class="p">(</span>
-                    <span class="s2">&quot;User function: {0:s} added to imexam options with key {1:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span></div>
+                    <span class="s2">&quot;User function: {0:s} added to imexam options with \key {1:s}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_add_user_function</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">types</span>
-        <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">cls</span><span class="p">))</span>
-
-    <span class="c1"># Some boilderplate to display matplotlib plots in notebook</span>
-    <span class="c1"># If QT GUI could interact nicely with --pylab=inline we wouldn&#39;t need this</span>
+        <span class="k">if</span> <span class="n">PY3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">cls</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                           <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">cls</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Imexamine.showplt"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.showplt">[docs]</a>    <span class="k">def</span> <span class="nf">showplt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the plot.&quot;&quot;&quot;</span>
         <span class="n">buf</span> <span class="o">=</span> <span class="n">StringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()),</span>
@@ -1173,70 +1257,50 @@
         <span class="k">return</span> <span class="n">img</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_aperphot_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_aperphot_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_aperphot_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;the user may supply a dictionary of par settings&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;the user may supply a dictionary of par settings.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">user_dict</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">aperphot_pars</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">aperphot_pars</span> <span class="o">=</span> <span class="n">user_dict</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_radial_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_radial_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_radial_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; set parameters for radial profile plots&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set parameters for radial profile plots.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radial_profile_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">radial_profile_pars</span></div>
-                
 
 <div class="viewcode-block" id="Imexamine.set_curve_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_curve_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_curve_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for curve of growth plots&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set parameters for curve of growth plots.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">curve_of_growth_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">curve_of_growth_pars</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_surface_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_surface_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_surface_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for surface plots&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set parameters for surface plots.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">surface_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">surface_pars</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_line_fit_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_line_fit_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_line_fit_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for 1D line fit plots&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set parameters for 1D line fit plots.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">line_fit_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">line_fit_pars</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_column_fit_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_column_fit_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_column_fit_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for 1D line fit plots&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set parameters for 1D line fit plots.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">column_fit_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">column_fit_pars</span></div>
 
-    <span class="k">def</span> <span class="nf">set_contour_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for contour plots&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Imexamine.set_contour_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_contour_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_contour_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set parameters for contour plots.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">contour_pars</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">contour_pars</span>
-
-    <span class="k">def</span> <span class="nf">set_histogram_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for histogram plots&quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">histogram_pars</span>
+<div class="viewcode-block" id="Imexamine.set_histogram_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_histogram_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_histogram_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set parameters for histogram plots.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">histogram_pars</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_lineplot_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_lineplot_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_lineplot_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for line plots&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set parameters for line plots.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lineplot_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">lineplot_pars</span></div>
 
 <div class="viewcode-block" id="Imexamine.set_colplot_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_colplot_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_colplot_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for column plots&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot;set parameters for column plots.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">colplot_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">colplot_pars</span></div>
 
-<div class="viewcode-block" id="Imexamine.set_histogram_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_histogram_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_histogram_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for histogram plots&quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">histogram_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">histogram_pars</span></div>
-
-<div class="viewcode-block" id="Imexamine.set_contour_pars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.set_contour_pars">[docs]</a>    <span class="k">def</span> <span class="nf">set_contour_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set parameters for histogram plots&quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">contour_pars</span> <span class="o">=</span> <span class="n">imexam_defpars</span><span class="o">.</span><span class="n">contour_pars</span></div>
-
 <div class="viewcode-block" id="Imexamine.reset_defpars"><a class="viewcode-back" href="../../api/imexam.imexamine.Imexamine.html#imexam.imexamine.Imexamine.reset_defpars">[docs]</a>    <span class="k">def</span> <span class="nf">reset_defpars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set all pars to their defaults&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;set all pars to their defaults.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_define_pars</span><span class="p">()</span></div></div>
 </pre></div>
 
@@ -1257,7 +1321,7 @@
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 23 Mar 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

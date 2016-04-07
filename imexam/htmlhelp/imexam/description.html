@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &mdash; imexam v0.5.3dev</title>
+    <title>Introduction &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../index.html" />
     <link rel="up" title="Imexam User Documentation" href="index.html" />
     <link rel="next" title="The imexam() method" href="imexam_command.html" />
     <link rel="prev" title="Imexam User Documentation" href="index.html" />
@@ -69,7 +69,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">imexam v0.5.3dev</a>
+	<a href="../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       <li><a href="index.html" accesskey="U">Imexam User Documentation</a> &raquo;</li>
@@ -87,7 +87,8 @@
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python.</p>
-<p>It currently provides display support with a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using the matplotlib backend is also available for viewing images and arrays. The package is designed so that it may accept other display devices in the future.</p>
+<p>Imexam currently provides display support two viewers. The first is a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using an HTML5 backend is also available as a viewer. The package is designed so that it may accept other display devices in the future.</p>
+<p>The imexam library can be used standalone, without a viewer, to create the plots which are available in the interactive sessions by just importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots are saved inside the notebook in conjunction with the nbAgg matplotlib backend.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">For DS9, it is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File-&gt;Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory.</p>
@@ -107,8 +108,9 @@
 </div>
 <p>If you want to have access to the photometry features of the imexam analysis, download and install photutils - one of the astropy associated packages. It can be found here: <a class="reference external" href="https://github.com/astropy">https://github.com/astropy</a></p>
 <p>If photutils is not installed, imexam should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop which requires photutils to render a result.</p>
-<p>imexam displays plots using matplotlib, if you find that no windows are popping up after installation it&#8217;s probably the backend that was loaded. One quick way to get things started is to start ipython with the &#8211;pylab option, this will make sure the proper display backend loads when matplotlib is imported:</p>
-<div class="highlight-python"><div class="highlight"><pre>ipython --pylab
+<p>imexam displays plots using matplotlib, if you find that no windows are popping up after installation it&#8217;s probably the backend that was loaded. One quick way to get things started is to start ipython  and use the %matplotlib magic, this will make sure the proper display backend loads when matplotlib is imported:</p>
+<div class="highlight-python"><div class="highlight"><pre>&gt;ipython
+&gt;%matplotlib
 &gt;import imexam
 </pre></div>
 </div>
@@ -116,7 +118,7 @@
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>imexam is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated.</p>
+<p>imexam is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relavent information about the window and data with which it is associated.</p>
 <p>For example, in order to open a new DS9 window and use the object &#8220;viewer&#8221; to control it, you would issue the commmand:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
@@ -142,11 +144,11 @@ Where target is the name of the ds9 window that is already running, path is the 
 <div class="highlight-python"><div class="highlight"><pre><span class="n">imexam</span><span class="o">.</span><span class="n">list_active_ds9</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>If you are using the Ginga widget, the interaction with the imexam code stays the same, you simply specify that you would like to use Ginga in the call to connect:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s1">&#39;ginga_mp&#39;</span><span class="p">)</span>
+<p>If you are using the Ginga  widget, the interaction with the imexam code stays the same, you simply specify that you would like to use Ginga in the call to connect:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">=</span><span class="n">imexam</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">viewer</span><span class="o">=</span><span class="s1">&#39;ginga&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>&#8220;ginga_mp&#8221; tells imexam that you&#8217;d like to use the Ginga widget with the matplotlib background. Future support for the Ginga QT widget will be added at a later date.</p>
+<p>&#8220;ginga&#8221; tells imexam that you&#8217;d like to use the Ginga widget with the HTML5 background.</p>
 <p>In order to turn logging to a file on, issue the command: window.setlog(). The log will be saved to the default filename imexam_session.log in the current directory unless you give it another filename to use.
 Here&#8217;s an example of how that might work:</p>
 <div class="highlight-python"><div class="highlight"><pre>import imexam
@@ -249,7 +251,7 @@ problem, send email to the developers or open an issue in github.</p>
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 15 Feb 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>

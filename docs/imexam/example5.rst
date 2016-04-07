@@ -4,7 +4,9 @@ Example 5
 Use the imexamine library standalone to create plots without viewing
 --------------------------------------------------------------------
 
-It's possible to use the imexamine library of plotting functions without loading an image into the viewer. All of the functions take 3 inputs: the x, y, and data array. In order to access the function, first create an imexamine object:
+It's possible to use the imexamine library of plotting functions without loading
+an image into the viewer. All of the functions take 3 inputs: the x, y, and data
+array. In order to access the function, first create an imexamine object:
 
 ::
 

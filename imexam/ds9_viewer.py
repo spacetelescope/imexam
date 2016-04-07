@@ -1720,17 +1720,18 @@ class ds9(object):
         Parameters
         ----------
         par: string
-            it can be a number (ranging 0 to 8 effectively), and successive
-                calls continue zooming in the same direction
-            it can be two numbers '4 2', which specify zoom on different axis
-            if can be to a specific value 'to 8' or 'to fit'
-            it can be 'open' to open the dialog box
-            it can be 'close' to close the dialog box (only valid if the box
-                is already open)
+            - it can be a number (ranging 0 to 8 effectively), and successive
+                    calls continue zooming in the same direction
+            - it can be two numbers '4 2', which specify zoom on different axis
+            - if can be to a specific value 'to 8' or 'to fit'
+            - it can be 'open' to open the dialog box
+            - it can be 'close' to close the dialog box (only valid if the box
+                    is already open)
+
 
         Examples
         --------
-        zoom("0.1")
+        zoom('0.1')
 
         """
         try:
@@ -1740,7 +1741,7 @@ class ds9(object):
                 "XPA problem with zoom (probably your zoom \
                 window is already closed)")
 
-    def show_commands(self):
+    def show_xpa_commands(self):
         """print the available XPA commands."""
         print(self.get())  # with no arguments supplied, XPA returns options
 

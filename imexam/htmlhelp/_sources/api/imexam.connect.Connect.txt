@@ -42,8 +42,10 @@ Connect
       ~Connect.get_data_filename
       ~Connect.get_frame_info
       ~Connect.get_header
+      ~Connect.get_image
       ~Connect.get_viewer_info
       ~Connect.gimexam
+      ~Connect.grab
       ~Connect.grid
       ~Connect.hideme
       ~Connect.himexam
@@ -65,12 +67,14 @@ Connect
       ~Connect.panto_wcs
       ~Connect.plotname
       ~Connect.readcursor
+      ~Connect.reopen
       ~Connect.rimexam
       ~Connect.rotate
       ~Connect.save_header
       ~Connect.save_regions
       ~Connect.save_rgb
       ~Connect.scale
+      ~Connect.set_plot_pars
       ~Connect.set_region
       ~Connect.setlog
       ~Connect.show_window_commands
@@ -116,8 +120,10 @@ Connect
    .. automethod:: get_data_filename
    .. automethod:: get_frame_info
    .. automethod:: get_header
+   .. automethod:: get_image
    .. automethod:: get_viewer_info
    .. automethod:: gimexam
+   .. automethod:: grab
    .. automethod:: grid
    .. automethod:: hideme
    .. automethod:: himexam
@@ -139,12 +145,14 @@ Connect
    .. automethod:: panto_wcs
    .. automethod:: plotname
    .. automethod:: readcursor
+   .. automethod:: reopen
    .. automethod:: rimexam
    .. automethod:: rotate
    .. automethod:: save_header
    .. automethod:: save_regions
    .. automethod:: save_rgb
    .. automethod:: scale
+   .. automethod:: set_plot_pars
    .. automethod:: set_region
    .. automethod:: setlog
    .. automethod:: show_window_commands

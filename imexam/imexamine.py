@@ -347,10 +347,10 @@ class Imexamine(object):
             logging.info(pstr)
 
     def save_figure(self, x, y, data=None):
-        """save to file the figure that's currently displayed.
+        """Save to file the figure that's currently displayed.
 
-           this is used for the imexam loop, because there is a standard api
-           for the loop
+        this is used for the imexam loop, because there is a standard api
+        for the loop
         """
         if data is None:
             data = self._data
@@ -362,9 +362,9 @@ class Imexamine(object):
         logging.info(pstr)
 
     def save(self, filename=None):
-        """save to file the figure that's currently displayed.
+        """Save to file the figure that's currently displayed.
 
-            this is used for the standalone plotting
+        this is used for the standalone plotting
         """
         if filename:
             self.set_plot_name(filename)

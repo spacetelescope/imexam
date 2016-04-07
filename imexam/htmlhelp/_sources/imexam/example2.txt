@@ -12,7 +12,7 @@ Aperture Photometry
 Method 1
 ^^^^^^^^
 
-Assuming we've already connected to the DS9 window where the data is displayed with the object called "ds9";
+Assuming we've already connected to the  window where the data is displayed with the object called "ds9";
 
 * This method first uses the "a" key to check out the aperture photometry with the default settings
 * Display a profile plot around the start we choose
@@ -44,7 +44,8 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
         k	1D [gaussian|moffat] column fit
         l	return line plot
         m	square region stats, in [region_size],defayult is median
-        r	return curve of growth plot *
+        r	return radial profile plot
+        g   curve of growth
         s	save current figure to disk as [plot_name]
         w	display a surface plot around the cursor location
         x	return x,y coords of pixel
@@ -68,7 +69,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
          'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
 
-        ds.imexam() #lets look at a curve of growth for the star in question
+        ds9.imexam() #lets look at a curve of growth for the star in question
 
         xc=813.109250	yc=706.687612 <--printed because centering is turned on
         radii:[1 2 3 4 5 6 7 8]
@@ -87,13 +88,13 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
         Let's alter the defaults for the aperture photometry, get some new values and then make a nicer curve of growth.
 
 
-        viewer.exam.aperphot_pars["radius"][0]=10
-        viewer.exam.aperphot_pars["skyrad"][0]=20 #it looks like there are some nearby spoilers
-        viewer.exam.aperphot_pars["width"][0]=10  #maybe we should just give the sky some more space (haha)
+        viewer.set_plot_pars('a','radius',10)
+        viewer.set_plot_pars('a','skyrad',20) #it looks like there are some nearby spoilers
+        viewer.set_plot_pars('a','width',10)  #maybe we should just give the sky some more space (haha)
 
         We'll update the curve of growth plot to match those:
 
-        viewer.exam.curve_of_growth_pars
+        viewer.gimexam()
 
         {'function': ['curve_of_growth_plot'],
         'center': [True, 'Solve for center using 2d Gaussian? [bool]'],
@@ -113,10 +114,10 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
         'getdata': [True, 'return the plotted data values']}
 
 
-        viewer.exam.curve_of_growth_pars["buffer"][0]=20
-        viewer.exam.curve_of_growth_pars["rplot"][0]=15 #we'll go a little farther than the aperture photometry
-        viewer.exam.curve_of_growth_pars["width"][0]=10
-        viewer.exam.curve_of_growth_pars["title"][0]="My favorite star at 813,706"
+        viewer.set_plot_pars('g','buffer',20)
+        viewer.set_plot_pars('g','rplot',15)  #we'll go a little farther than the aperture photometry
+        viewer.set_plot_pars('g','width',10)
+        viewer.set_plot_pars('g','title','My favorite star at 813,706)
 
         xc=813.109250	yc=706.437612
         radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]
@@ -187,15 +188,15 @@ Here a picture of the area I'm looking at in my DS9 window ( created with viewer
             'width': [5, 'Width of sky annulus in pixels'],
             'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
-        viewer.exam.aperphot_pars["radius"][0]=9
+        viewer.set_plot_pars('a','radius',9)
 
         viewer.imexam() #use the "a" key
 
-        viewer.exam.aperphot_pars["radius"][0]=10
+        viewer.set_plot_pars('a','radius',10)
 
         viewer.imexam() #use the "a" key
 
-        viewer.exam.aperphot_pars["radius"][0]=11
+        viewer.set_plot_pars('a','radius',11)
 
         viewer.imexam() #use the "a" key
 

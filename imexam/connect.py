@@ -12,10 +12,9 @@ import os
 
 
 from .util import set_logging
-from . import xpa
 from .ds9_viewer import ds9
 try:
-    from .ginga_viewer import *
+    from .ginga_viewer import ginga
     have_ginga = True
 except ImportError:
     have_ginga = False
@@ -26,10 +25,7 @@ __all__ = ["Connect"]
 
 
 class Connect(object):
-
-    """Connect to a display device
-
-       to look at and examine images that are  displayed within
+    """Connect to a display device to look at and examine images.
 
     The control features below are a basic set that should be available
     in all display tools.
@@ -67,8 +63,8 @@ class Connect(object):
     """
 
     def __init__(self, target=None, path=None, viewer="ds9",
-                 wait_time=10, quit_window=True,port=None):
-
+                 wait_time=10, quit_window=True, port=None):
+        """Initialize the imexam control object."""
         # better dynamic way so people can add their own viewers?
         _possible_viewers = ["ds9"]
 
@@ -94,10 +90,9 @@ class Connect(object):
             # the viewer will track imexam with callbacks
             self._event_driven_exam = True
 
-            # alter the exam.imexam_option_funcs{} here through the viewer code if you want to
-            # change key+function associations
+            # alter the exam.imexam_option_funcs{} here through the viewer code
+            # if you want to change key+function associations
             # self.window._reassign_keys(imexam_dict)
-
 
         self.logfile = 'imexam_log.txt'
         self.log = None  # points to the package logger
@@ -105,18 +100,21 @@ class Connect(object):
         self._current_frame = None
 
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
-        """turn on and off imexam logging to the a file"""
+        """turn on and off imexam logging to the a file."""
         if filename:
             self.logfile = filename
 
         self.log = set_logging(self.logfile, on, level)
 
     def close(self):
-        """ close the window and end connection"""
+        """ close the window and end connection."""
         self.window.close()
 
     def imexam(self):
-        """run imexamine with user interaction. At a minimum it requires a copy of the data array"""
+        """Run imexamine with user interaction.
+
+        At a minimum it requires a copy of the data array
+        """
         if self.valid_data_in_viewer():
             if self._event_driven_exam:
                 self._run_event_imexam()
@@ -126,63 +124,64 @@ class Connect(object):
             warnings.warn("No valid image loaded in viewer")
 
     def _run_event_imexam(self):
-        """ let the viewer run an event driven imexam
+        """Let the viewer run an event driven imexam.
 
         pass the key binding dictionary in for it to attach to?
-
         """
         if not self._event_driven_exam:
             warnings.warn("Event driven imexam not implemented for viewer")
         else:
             self.exam.print_options()
-            print(
-                "\nPress the i key in the graphics window for access to imexam keys, or q to exit\n")
+            print("\nPress the i key in the graphics window for access \
+                 to imexam keys, or q to exit\n")
 
     def reopen(self):
-        """
-        reopen a display window closed by the user but not exited
-        """
+        """Reopen a display window closed by the user but not exited."""
         self.window.reopen()
 
     def grab(self):
-        """display a snapshop of the current image in the browser window"""
+        """Display a snapshop of the current image in the browser window."""
         self.window.grab()
 
     def get_data_filename(self):
-        """return the filename for the data in the current window"""
+        """Return the filename for the data in the current window."""
         return self.window.get_filename()
 
     def valid_data_in_viewer(self):
-        """return True if a valid file or array is loaded in the current viewing frame"""
+        """Return True if a valid file or array is loaded."""
         return self.window.valid_data_in_viewer()
 
     def get_frame_info(self):
-        """return more explicit information about the data displayed in the current frame"""
+        """Return explicit information about the data displayed."""
         return self.window.get_frame_info()
 
     def get_viewer_info(self):
-        """Return a dictionary which has information about all frames loaded with data"""
+        """Return a dictionary with information about all frames with data."""
         return self.window.get_viewer_info()
 
     def _run_imexam(self):
-        """start imexam analysis loop for non event driven viewers
+        """Start imexam analysis loop for non event driven viewers.
 
         Notes
         -----
-        The data displayed in the current frame is grabbed .The catch is that the user can change the data
-        that is displayed using the gui menus in DS9, so during the imexam loop the display needs to be
-        checked after each key stroke.
+        The data displayed in the current frame is grabbed .The catch is that
+        the user can change the data that is displayed using the gui menus in
+        DS9, so during the imexam loop the display needs to be checked after
+        each key stroke.
 
-        This function will track the user changing the frame number using the gui display
-        for  images and update the data array.
+        This function will track the user changing the frame number using the
+        gui display for  images and update the data array.
 
         TODO
-        ds9 returns 1-based, figure out how to deal with this better so that other viewers can be implemented,
-        the problem comes with  printing the coordinates and visual comparison with what's displayed
-        in the gui. The gui display seems to round up integer pixels at some zoom factors. Verify this to some level
-        by looking at the pixel returned and using the pixel table window in DS9 to look at surrounding values.
-        imexamine() returns the value at the integer pixel location.
+        ds9 returns 1-based, figure out how to deal with this better so that
+        other viewers can be implemented, the problem comes with  printing the
+        coordinates and visual comparison with what's displayed in the gui.
+        The gui display seems to round up integer pixels at some zoom factors.
 
+        Verify this to some level by looking at the pixel returned and using
+        the pixel table window in DS9 to look at surrounding values.
+
+        imexamine() returns the value at the integer pixel location.
         """
 
         print("\nPress 'q' to quit\n")
@@ -426,7 +425,7 @@ class Connect(object):
 
     def show_window_commands(self):
         """Print the available commands for the selected display window."""
-        self.window.show_commands()
+        return [k for k in dir(self.window) if "_" not in k]
 
     def snapsave(self, *args, **kwargs):
         """Create a snap shot of the current window.

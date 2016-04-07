@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example 3 &mdash; imexam v0.5.3dev</title>
+    <title>Example 3 &mdash; imexam v0.6dev</title>
     
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
-    <link rel="top" title="imexam v0.5.3dev" href="../index.html" />
+    <link rel="top" title="imexam v0.6dev" href="../index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
@@ -55,7 +55,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../index.html">imexam v0.5.3dev</a>
+	<a href="../index.html">imexam v0.6dev</a>
 	 &raquo;
       </li>
       
@@ -72,7 +72,7 @@
   <div class="section" id="example-3">
 <h1>Example 3<a class="headerlink" href="#example-3" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="advanced-usage-interact-with-daophot-and-astropy">
-<h2>Advanced Usage - Interact with Daophot and astropy<a class="headerlink" href="#advanced-usage-interact-with-daophot-and-astropy" title="Permalink to this headline">¶</a></h2>
+<h2>Advanced Usage - Interact with Daophot and Astropy<a class="headerlink" href="#advanced-usage-interact-with-daophot-and-astropy" title="Permalink to this headline">¶</a></h2>
 <p>While the original intent for the imexam module was to replicate the realtime interaction of the old IRAF imexamine interface with data, there are other posibilities for data analysis which this module can support.
 One such example, performing more advanced interaction which can be scripted, is outlined below.</p>
 <p>If you have  a  list of source identifications, perhaps prepared by SExtractor, DAOFind, Starfind or a similar program, you can use imexam to display the science image and overlay apertures for all their locations. From there you can do some visual examination and cleaning up of the list with a combination of region manipulation and useful imexam methods.</p>
@@ -135,7 +135,6 @@ iraf.daophot.datapars.datamin=0.
 iraf.daophot.datapars.gain=&quot;ccdgain&quot;
 iraf.daophot.datapars.exposure=&quot;exptime&quot;
 iraf.daophot.datapars.sigma=105.
-
 
 
 #assume the science extension and find some stars
@@ -246,9 +245,8 @@ photfile.print()
 </pre></div>
 </div>
 <p>You can even pop this up in your web browser if that&#8217;s a good format for you: photfile.show_in_browser().
-imexam has several functions to help display regions on the DS9 window. Since we have this data loaded into memory, the one we will use here is mark_region_from_array().
-Let&#8217;s make an array that the method will accept, namely a list of tuples which contain the (x,y,comment) that we want marked to the display. It will also accept a single
-tuple, or a string containing &#8220;x,y,comment&#8221;.</p>
+imexam has several functions to help display regions on the DS9 window. Since we have this data loaded into memory, the one we will use here is mark_region_from_array().</p>
+<p>Let&#8217;s make an array that the method will accept, namely a list of tuples which contain the (x,y,comment) that we want marked to the display. It will also accept any iterator containing a tuple of (x,y,comment).</p>
 <div class="highlight-python"><div class="highlight"><pre>#lets make a list of our locations as a tuple of x,y,comment
 #we&#39;ll cut the list to a smaller area and only include those points whose mag is &lt; -4.
 locations=list()
@@ -271,7 +269,7 @@ Out[91]: (807.57500000000005, 2.4449999999999998, 16)
 <a class="reference internal image-reference" href="../_images/iab_locations.png"><img alt="subsection of image being examined" src="../_images/iab_locations.png" style="width: 600px; height: 400px;" /></a>
 <p>Now we can get rid of some of the stars by hand and save a new file of locations we like. I did this arbitrarily because I decided I didn&#8217;t like stars in this part of space. Click on the regions you don&#8217;t want and delete them from the screen. You can even add more regions of your own choosing.</p>
 <a class="reference internal image-reference" href="../_images/iab_badstars.png"><img alt="subsection of image being examined" src="../_images/iab_badstars.png" style="width: 600px; height: 400px;" /></a>
-<p>Now you can save these new regions to a DS9 style region file, either through DS9 or imexam</p>
+<p>You can save these new regions to a DS9 style region file, either through DS9 or imexam</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">save_regions</span><span class="p">(</span><span class="s1">&#39;badstars.reg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -308,7 +306,7 @@ imexam.list_active_ds9()
 
 viewer=imexam.connect(&#39;82a7e75f:53892&#39;)
 
-#A little unsure this is the corrent window? Let&#39;s check by asking what image is loaded. The image I&#39;m working with is iabf01bzq_flt.fits
+#A little unsure this is the correct window? Let&#39;s check by asking what image is loaded. The image I&#39;m working with is iabf01bzq_flt.fits
 
 viewer.get_data_filename()
 
@@ -331,9 +329,7 @@ for point in range(0,len(photfile[&#39;XCENTER&#39;]),1):
         locations.append((photfile[&#39;XCENTER&#39;][point],photfile[&#39;YCENTER&#39;][point],photfile[&#39;ID&#39;][point])) &lt;-- appending tuple to the list
 </pre></div>
 </div>
-<p>Take your list of locations and cycle through each one, displaying a zoomed in section on the DS9 window and starting imexam for each coordinate.
-I&#8217;m just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition
-in conjuection with the viewer.readcursor()</p>
+<p>Take your list of locations and cycle through each one, displaying a zoomed in section on the DS9 window and starting imexam for each coordinate. I&#8217;m just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition in conjunction with the viewer.readcursor()</p>
 <p>I&#8217;ll also mark the object we&#8217;re interested in on the display for reference</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="n">locations</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">110</span><span class="p">]:</span>
@@ -353,7 +349,7 @@ in conjuection with the viewer.readcursor()</p>
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Example 3</a><ul>
-<li><a class="reference internal" href="#advanced-usage-interact-with-daophot-and-astropy">Advanced Usage - Interact with Daophot and astropy</a></li>
+<li><a class="reference internal" href="#advanced-usage-interact-with-daophot-and-astropy">Advanced Usage - Interact with Daophot and Astropy</a></li>
 <li><a class="reference internal" href="#advanced-usage-ii-cycle-through-objects-from-a-list">Advanced Usage II - Cycle through objects from a list</a></li>
 </ul>
 </li>
@@ -372,7 +368,7 @@ in conjuection with the viewer.readcursor()</p>
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 15 Feb 2016. <br/>
+    Last built 06 Apr 2016. <br/>
   </p>
 </footer>
   </body>
