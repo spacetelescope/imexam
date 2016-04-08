@@ -117,9 +117,9 @@ eimexam(): return dict of current parameters for contour plots
 
 himexam(): return dict current parameters for histogram plots
 
-jimexam(): return dict current parameters for 1D gaussian line plots
+jimexam(): return dict current parameters for 1D line plots
 
-kimexam(): return dict of current parameters for 1D gaussian column plots
+kimexam(): return dict of current parameters for 1D column plots
 
 limexam(): return dict of current parameters for  line plots
 
@@ -168,7 +168,7 @@ mimexam(): return dict of current parameters for area statistics
 <p>Currently, the calculation which is performed is similar to the &#8221;,&#8221; IRAF key. It is circular aperture photometry, centered on the mouse location at the time the key is pressed, with a background annulus subtraction for the sky. The radius of the aperture is set with the regsion_size keyword (default to 5 pixels). The annulus size is also set to the width, and taken a distance of skyrad pixels from the center. The pixels used to calculate the enclosed flux are those whose centers fall inside the radius distance, in the same way that IRAF imexamine computes the flux.</p>
 <p>These are the default parameters for aperture photometry. They live in a dictionary in the exam object:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">viewer</span><span class="o">.</span><span class="n">exam</span><span class="o">.</span><span class="n">aperphot_pars</span><span class="o">=</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:[</span><span class="s2">&quot;aperphot&quot;</span><span class="p">,],</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:[</span><span class="bp">True</span><span class="p">,</span><span class="s2">&quot;Center the object location using a 2d gaussian fit&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;center&quot;</span><span class="p">:[</span><span class="bp">True</span><span class="p">,</span><span class="s2">&quot;Center the object location using a Gaussian2D fit&quot;</span><span class="p">],</span>
                 <span class="s2">&quot;width&quot;</span><span class="p">:[</span><span class="mi">5</span><span class="p">,</span><span class="s2">&quot;Width of sky annulus in pixels&quot;</span><span class="p">],</span>
                 <span class="s2">&quot;subsky&quot;</span><span class="p">:[</span><span class="bp">True</span><span class="p">,</span><span class="s2">&quot;Subtract a sky background?&quot;</span><span class="p">],</span>
                 <span class="s2">&quot;skyrad&quot;</span><span class="p">:[</span><span class="mi">15</span><span class="p">,</span><span class="s2">&quot;Distance to start sky annulus is pixels&quot;</span><span class="p">],</span>
@@ -192,8 +192,8 @@ b   return the gauss fit center of the object
 c   return column plot
 e   return a contour plot in a region around the cursor
 h   return a histogram in the region around the cursor
-j   1D [gaussian|moffat] line fit
-k   1D [gaussian|moffat] column fit
+j   1D [see available] line fit
+k   1D [see available] column fit
 l   return line plot
 m   square region stats, in [region_size],defayult is median
 r   return curve of growth plot
@@ -208,14 +208,14 @@ x              y              radius         flux           mag(zpt=25.00) sky  
 576.86         634.91         10             2191284.53     9.15           10998.89       5.58
 </pre></div>
 </div>
-<p>xc = xcenter, yc=ycenter; these were found using a 2d gaussian fit centered on the pixel location of the mouse. You can turn the fit off by setting the &#8220;center&#8221; parameter to &#8220;False&#8221;.</p>
+<p>xc = xcenter, yc=ycenter; these were found using a Gaussian2D fit centered on the pixel location of the mouse. You can turn the fit off by setting the &#8220;center&#8221; parameter to &#8220;False&#8221;.</p>
 </div>
-<div class="section" id="d-gaussian-or-moffat-profile">
-<h2>1D Gaussian or Moffat profile<a class="headerlink" href="#d-gaussian-or-moffat-profile" title="Permalink to this headline">¶</a></h2>
-<p>If you press the &#8220;j&#8221; or &#8220;k&#8221; keys, a 1D gaussian profile is fit to the data in either the line or column of the current pointer location. A plot of both the data and the fit + parameters is displayed.
+<div class="section" id="gaussian1d-moffat1d-mexicanhat1d-profiles">
+<h2>Gaussian1D, Moffat1D, MexicanHat1D profiles<a class="headerlink" href="#gaussian1d-moffat1d-mexicanhat1d-profiles" title="Permalink to this headline">¶</a></h2>
+<p>If you press the &#8220;j&#8221; or &#8220;k&#8221; keys, a 1D profile is fit to the data in either the line or column of the current pointer location. A plot of both the data and the fit + parameters is displayed.
 If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">line_fit_pars</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:[</span><span class="s2">&quot;line_fit&quot;</span><span class="p">,],</span>
-               <span class="s2">&quot;func&quot;</span><span class="p">:[</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span><span class="s2">&quot;function for fitting [gaussian|moffat]&quot;</span><span class="p">],</span>
+               <span class="s2">&quot;func&quot;</span><span class="p">:[</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span><span class="s2">&quot;function for fitting [see available]&quot;</span><span class="p">],</span>
                <span class="s2">&quot;title&quot;</span><span class="p">:[</span><span class="s2">&quot;Fit 1D line plot&quot;</span><span class="p">,</span><span class="s2">&quot;Title of the plot&quot;</span><span class="p">],</span>
                <span class="s2">&quot;xlabel&quot;</span><span class="p">:[</span><span class="s2">&quot;Line&quot;</span><span class="p">,</span><span class="s2">&quot;The string for the xaxis label&quot;</span><span class="p">],</span>
                <span class="s2">&quot;ylabel&quot;</span><span class="p">:[</span><span class="s2">&quot;Flux&quot;</span><span class="p">,</span><span class="s2">&quot;The string for the yaxis label&quot;</span><span class="p">],</span>
@@ -232,7 +232,7 @@ If the centering option is True, then the center of the flux is computed by fitt
 </div>
 <p>The column fit parameters are similar:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">column_fit_pars</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:[</span><span class="s2">&quot;column_fit&quot;</span><span class="p">,],</span>
-                 <span class="s2">&quot;func&quot;</span><span class="p">:[</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span><span class="s2">&quot;function for fitting [gaussian|moffat]&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;func&quot;</span><span class="p">:[</span><span class="s2">&quot;Gaussian1D&quot;</span><span class="p">,</span><span class="s2">&quot;function for fitting [see available]&quot;</span><span class="p">],</span>
                  <span class="s2">&quot;title&quot;</span><span class="p">:[</span><span class="s2">&quot;Fit 1D column plot&quot;</span><span class="p">,</span><span class="s2">&quot;Title of the plot&quot;</span><span class="p">],</span>
                  <span class="s2">&quot;xlabel&quot;</span><span class="p">:[</span><span class="s2">&quot;Column&quot;</span><span class="p">,</span><span class="s2">&quot;The string for the xaxis label&quot;</span><span class="p">],</span>
                  <span class="s2">&quot;ylabel&quot;</span><span class="p">:[</span><span class="s2">&quot;Flux&quot;</span><span class="p">,</span><span class="s2">&quot;The string for the yaxis label&quot;</span><span class="p">],</span>
@@ -248,9 +248,9 @@ If the centering option is True, then the center of the flux is computed by fitt
 </pre></div>
 </div>
 <p>This is the resulting line fit:</p>
-<a class="reference internal image-reference" href="../_images/fit_line.png"><img alt="Plot of gaussian profile fit to data" src="../_images/fit_line.png" style="width: 600px; height: 400px;" /></a>
+<a class="reference internal image-reference" href="../_images/fit_line.png"><img alt="Plot of Gaussian1D profile fit to data" src="../_images/fit_line.png" style="width: 600px; height: 400px;" /></a>
 <p>and the corresponding column fit:</p>
-<a class="reference internal image-reference" href="../_images/fit_column.png"><img alt="Plot of gaussian profile fit to data" src="../_images/fit_column.png" style="width: 600px; height: 400px;" /></a>
+<a class="reference internal image-reference" href="../_images/fit_column.png"><img alt="Plot of Gaussian1D profile fit to data" src="../_images/fit_column.png" style="width: 600px; height: 400px;" /></a>
 </div>
 <div class="section" id="median-square-region-stats">
 <h2>Median square region stats<a class="headerlink" href="#median-square-region-stats" title="Permalink to this headline">¶</a></h2>
@@ -289,14 +289,14 @@ The user can map the function to any reasonable numpy function, it&#8217;s set t
 <div class="section" id="radial-profile-plot">
 <h2>Radial Profile Plot<a class="headerlink" href="#radial-profile-plot" title="Permalink to this headline">¶</a></h2>
 <p>Pressing the &#8220;r&#8221; key displays a radial profile plot for the flux around the current pointer location.
-If centering is on, the center is computed close to the star using a 2d gaussian fit.</p>
+If centering is on, the center is computed close to the star using a Gaussian2D fit.</p>
 <p>The available parameters are</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">radial_profile_pars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;radial_profile_plot&quot;</span><span class="p">,</span> <span class="p">],</span>
             <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Radial Profile&quot;</span><span class="p">,</span> <span class="s2">&quot;Title of the plot&quot;</span><span class="p">],</span>
             <span class="s2">&quot;xlabel&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Radius&quot;</span><span class="p">,</span> <span class="s2">&quot;The string for the xaxis label&quot;</span><span class="p">],</span>
             <span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Summed Pixel Value&quot;</span><span class="p">,</span> <span class="s2">&quot;The string for the yaxis label&quot;</span><span class="p">],</span>
             <span class="s2">&quot;fitplot&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span><span class="s2">&quot;Overplot profile fit?&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;fittype&quot;</span><span class="p">:[</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span><span class="s2">&quot;Profile type to fit (gaussian)&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;fittype&quot;</span><span class="p">:[</span><span class="s2">&quot;Gaussian1D&quot;</span><span class="p">,</span><span class="s2">&quot;Profile type to fit (gaussian)&quot;</span><span class="p">],</span>
             <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="s2">&quot;Solve for center using 2d Gaussian? [bool]&quot;</span><span class="p">],</span>
             <span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="s2">&quot;Subtract background? [bool]&quot;</span><span class="p">],</span>
             <span class="s2">&quot;skyrad&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="s2">&quot;Background inner radius in pixels, from center of object&quot;</span><span class="p">],</span>
@@ -507,7 +507,7 @@ flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.707623
 <ul>
 <li><a class="reference internal" href="#">The imexam() method</a><ul>
 <li><a class="reference internal" href="#circular-apterture-photometry">Circular Apterture Photometry</a></li>
-<li><a class="reference internal" href="#d-gaussian-or-moffat-profile">1D Gaussian or Moffat profile</a></li>
+<li><a class="reference internal" href="#gaussian1d-moffat1d-mexicanhat1d-profiles">Gaussian1D, Moffat1D, MexicanHat1D profiles</a></li>
 <li><a class="reference internal" href="#median-square-region-stats">Median square region stats</a></li>
 <li><a class="reference internal" href="#pixel-coordinates-and-value">Pixel Coordinates and Value</a></li>
 <li><a class="reference internal" href="#line-or-column-plots">Line or Column plots</a></li>
@@ -535,7 +535,7 @@ flux:[134294.19631173008, 521208.13904411002, 1017231.0442446949, 1297592.707623
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 06 Apr 2016. <br/>
+    Last built 08 Apr 2016. <br/>
   </p>
 </footer>
   </body>

@@ -3,7 +3,7 @@ Example 3
 
 Advanced Usage - Interact with Daophot and Astropy
 --------------------------------------------------
-While the original intent for the imexam module was to replicate the realtime interaction of the old IRAF imexamine interface with data, there are other posibilities for data analysis which this module can support.
+While the original intent for the imexam module was to replicate the realtime interaction of the old IRAF imexamine interface with data, there are other possibilities for data analysis which this module can support.
 One such example, performing more advanced interaction which can be scripted, is outlined below.
 
 If you have  a  list of source identifications, perhaps prepared by SExtractor, DAOFind, Starfind or a similar program, you can use imexam to display the science image and overlay apertures for all their locations. From there you can do some visual examination and cleaning up of the list with a combination of region manipulation and useful imexam methods.
