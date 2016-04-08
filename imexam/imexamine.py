@@ -23,11 +23,14 @@ import warnings
 import matplotlib.pyplot as plt
 import sys
 import logging
+import tempfile
+from astropy.io import fits
 from copy import deepcopy
 import inspect
 from matplotlib import get_backend
 from scipy.optimize import curve_fit
 from IPython.display import Image
+from astropy.modeling import models, fitting
 
 from . import math_helper
 from . import imexam_defpars
@@ -94,8 +97,8 @@ class Imexamine(object):
          does when that key is pressed
         """
         self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
-                                    'j': (self.line_fit, '1D [gaussian|moffat] line fit '),
-                                    'k': (self.column_fit, '1D [gaussian|moffat] column fit'),
+                                    'j': (self.line_fit, '1D [Gaussian1D|Moffat1D] line fit '),
+                                    'k': (self.column_fit, '1D [Gaussian1D|Moffat1D] column fit'),
                                     'm': (self.report_stat, 'square region stats, in [region_size],default is median'),
                                     'x': (self.show_xy_coords, 'return x,y,value of pixel'),
                                     'y': (self.show_xy_coords, 'return x,y,value of pixel'),
@@ -106,9 +109,10 @@ class Imexamine(object):
                                     'h': (self.histogram, 'return a histogram in the region around the cursor'),
                                     'e': (self.contour, 'return a contour plot in a region around the cursor'),
                                     's': (self.save_figure, 'save current figure to disk as [plot_name]'),
-                                    'b': (self.gauss_center, 'return the gauss fit center of the object'),
+                                    'b': (self.gauss_center, 'return the 2d gauss fit center of the object'),
                                     'w': (self.surface, 'display a surface plot around the cursor location'),
                                     '2': (self.new_plot_window, 'make the next plot in a new window'),
+                                    't': (self.cutout, 'make a fits image cutout using pointer location')
                                     }
 
     def print_options(self):
@@ -134,7 +138,7 @@ class Imexamine(object):
             The key which was pressed
 
         """
-        print("pressed: {0}".format(key))
+        print("pressed: {0}, {1:s}".format(key,self.imexam_option_funcs[key][0].__name__))
         self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
@@ -193,7 +197,7 @@ class Imexamine(object):
         self.histogram_def_pars = imexam_defpars.histogram_pars
         self.contour_def_pars = imexam_defpars.contour_pars
         self.report_stat_def_pars = imexam_defpars.report_stat_pars
-
+        self.cutout_def_pars = imexam_defpars.cutout_pars
         self._define_local_pars()
 
     def _define_local_pars(self):
@@ -211,6 +215,7 @@ class Imexamine(object):
         self.histogram_pars = deepcopy(self.histogram_def_pars)
         self.contour_pars = deepcopy(self.contour_def_pars)
         self.report_stat_pars = deepcopy(self.report_stat_def_pars)
+        self.cutout_pars = deepcopy(self.cutout_def_pars)
 
     def unlearn_all(self):
         """reset the default parameters for all functions.
@@ -385,20 +390,14 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-        sigma = 0.  # no centering
-        amp = 0.  # no centering
+
         if not photutils_installed:
             print("Install photutils to enable")
         else:
             if self.aperphot_pars["center"][0]:
                 center = True
                 delta = 10
-                popt = self.gauss_center(x, y, data, delta=delta)
-                if 5 > popt.count(0) > 1:  # an error occurred in centering
-                    warnings.warn(
-                        "Problem fitting center, using original coordinates")
-                else:
-                    amp, x, y, sigma, offset = popt
+                amp, x, y, sigma, sigmay = self.gauss_center(x, y, data, delta=delta)
 
             radius = int(self.aperphot_pars["radius"][0])
             width = int(self.aperphot_pars["width"][0])
@@ -445,32 +444,33 @@ class Imexamine(object):
             mag = magzero - 2.5 * (np.log10(total_flux))
 
             pheader = (
-                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky\t".format(magzero)).expandtabs(15)
+                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\
+                 \tsky\t".format(magzero)).expandtabs(15)
             if center:
                 pheader += ("fwhm")
-                pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(
-                    x + 1, y + 1, radius, total_flux, mag, sky_per_pix, math_helper.gfwhm(sigma)).expandtabs(15)
+                pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\
+                        \t{5:0.2f}\t{6:0.2f}".format(x + 1, y + 1, radius,
+                                                     total_flux, mag,
+                                                     sky_per_pix,
+                                                     math_helper.gfwhm(sigma)[0]).expandtabs(15)
             else:
-                pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(
-                    x + 1, y + 1, radius, total_flux, mag, sky_per_pix,).expandtabs(15)
+                pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\
+                        \t{4:0.2f}\t{5:0.2f}".format(x + 1, y + 1, radius,
+                                                     total_flux, mag,
+                                                     sky_per_pix,).expandtabs(15)
 
             print(pheader + pstr)
             logging.info(pheader + pstr)
 
-    def line_fit(self, x, y, data=None, form=None, subsample=4,
+    def line_fit(self, x, y, data=None, form=None,
                  fig=None, genplot=True):
-        """compute the 1d  fit to the line of data using the specified form.
+        """compute the 1D fit to the line of data using the specified form.
 
         Parameters
         ----------
         form: string
             This is the functional form specified  line fit parameters
-            Currently gaussian or moffat
-
-        subsample: int
-            used to draw the fitted function on a finer scale than the data;
-            delta is the range of data values to use around the x,y location
-            form is the functional form to use
+            Currently Gaussian1D or Moffat1D
 
         Notes
         -----
@@ -481,42 +481,39 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-        amp = 0
-        sigma = 0
+
         if not form:
-            form = getattr(math_helper, self.line_fit_pars["func"][0])
+            form = getattr(models, self.line_fit_pars["func"][0])
 
         delta = self.line_fit_pars["rplot"][0]
+        if delta >= len(data)/4:  # help with small data arrays and defaults
+            delta = int(delta/2)
+
+        # the form the fit will take
+        fitform = self.line_fit_pars["func"][0]
 
         # fit the center with a 2d gaussian
         if self.line_fit_pars["center"][0]:
-            popt = self.gauss_center(x, y, data, delta=delta)
-            if popt.count(0) > 1:  # an error occurred in centering
-                centerx = x
-                centery = y
-                warnings.warn(
-                    "Problem fitting center, using original coordinates")
-            else:
-                amp, x, y, sigma, offset = popt
+            amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
+                                                         delta=delta)
+        xx = int(x)
+        yy = int(y)
+        line = data[yy, :]
+        chunk = line[xx - delta: xx + delta]
 
-        line = data[y, :]
-        chunk = line[x - delta:x + delta]
+        # fit model to data
+        if fitform is "Gaussian1D":
+            fitted = math_helper.fit_gauss_1d(chunk)
+            fitted.mean.value += (xx-delta)
+        elif fitform is "Moffat1D":
+            fitted = math_helper.fit_moffat_1d(chunk)
+            fitted.x_0.value += (xx-delta)
+        else:
+            print("{0:s} not implemented".format(fitform))
+            return
 
-        # use x location as the first estimate for the mean, use 20 pixel
-        # distance to guess center
-        argmap = {'a': amp, 'mu': len(chunk) / 2, 'sigma': sigma, 'b': 0}
-        args = inspect.getargspec(form)[0][1:]  # get rid of "self"
+        xline = np.arange(len(chunk)) + xx - delta
 
-        xline = np.arange(len(chunk))
-        popt, pcov = curve_fit(
-            form, xline, chunk, [argmap.get(arg, 1) for arg in args])
-
-
-        # do these so that it fits the real pixel range of the data
-        fitx = np.arange(len(xline), step=1. / subsample)
-        fity = form(fitx, *popt)
-
-        # calculate the std about the mean
         # make a plot
         if genplot:
             if fig is None:
@@ -532,26 +529,39 @@ class Imexamine(object):
                 ax.set_yscale("log")
 
             if bool(self.line_fit_pars["pointmode"][0]):
-                ax.plot(xline + x - delta, chunk, 'o', label="data")
+                ax.plot(xline, chunk, 'o', label="data")
             else:
-                ax.plot(xline + x - delta, chunk, label="data", linestyle='-')
+                ax.plot(xline, chunk, label="data", linestyle='-')
 
-            if self.line_fit_pars["func"][0] == "gaussian":
-                sigma = np.abs(popt[2])
-                fwhm = math_helper.gfwhm(sigma)
-                fitmean = popt[1] + x - delta
-            elif self.line_fit_pars["func"][0] == "moffat":
-                alpha = popt[0]
-                beta = popt[1]
-                fwhm = math_helper.mfwhm(alpha, beta)
-                fitmean = popt[2] + x - delta
+
+            if fitform is "Gaussian1D":
+                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
+                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
+                    self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmx))
+
+                fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
+                yfit = fitted(fline)
+                ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
+                pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
+                    int(x + 1), int(y + 1), fitted.mean.value, fwhmx)
+                print(pstr)
+                logging.info(pstr)
+            elif fitform is "Moffat1D":
+                mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
+                ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
+                    self.line_fit_pars["title"][0], fitted.amplitude.value, mfwhm))
+
+                fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
+                yfit = fitted(fline)
+                ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
+                pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
+                    int(x + 1), int(y + 1), fitted.amplitude.value, mfwhm)
+                print(pstr)
+                logging.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
                 raise ValueError
 
-            ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
-                self.line_fit_pars["title"][0], str(fitmean), str(fwhm)))
-            ax.plot( fitx + x - delta, fity, c='r', label=str(form.__name__) +" fit")
             plt.legend()
             if 'nbagg' in get_backend().lower():
                 fig.canvas.draw()
@@ -559,146 +569,141 @@ class Imexamine(object):
                 plt.draw()
                 plt.pause(0.001)
         else:
-            return (fitx+x-delta,fity,popt)
+            return fitted
 
-        pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.3f}".format(
-            int(x + 1), int(y + 1), fitmean, fwhm)
-        print(pstr)
-        logging.info(pstr)
-
-
-
-    def column_fit(self, x, y, data=None, form=None, subsample=4, fig=None):
-        """compute the 1d  fit to the column of data
+    def column_fit(self, x, y, data=None, form=None,
+                   fig=None, genplot=True):
+        """Compute the 1d  fit to the column of data.
 
         Parameters
         ----------
         form: string
             This is the functional form specified  line fit parameters
-            Currently gaussian or moffat
-
-        subsample: int
-            used to draw the fitted gaussian
+        data: numpy array
+            overrides the object data or for use with no viz windows
+        genplot: int
+            produce the plot or return the fit model
 
         Notes
         -----
         delta is the range of data values to use around the x,y location
-        The background is currently ignored if centering is True, then
-        the center is fit with a 2d gaussian.
 
+        The background is currently ignored
+
+        if centering is True, then the center is fit with a 2d gaussian.
         """
         if data is None:
             data = self._data
 
-        sigma = 0
-        amp = 0
         if not form:
-            form = getattr(math_helper, self.line_fit_pars["func"][0])
+            form = getattr(models, self.column_fit_pars["func"][0])
 
         delta = self.column_fit_pars["rplot"][0]
+        if delta >= len(data)/4:
+            delta = int(delta/2)
 
+        # fit the center with a 2d gaussian
         if self.column_fit_pars["center"][0]:
-            popt = self.gauss_center(x, y, data, delta=delta)
-            if popt.count(0) > 1:  # an error occurred in centering
-                centerx = x
-                centery = y
-                warnings.warn(
-                    "Problem fitting center, using original coordinates")
-            else:
-                amp, x, y, sigma, offset = popt
+            amp, x, y, sigmax, sigma = self.gauss_center(x, y, data, delta=delta)
 
-        line = data[:, x]
-        chunk = line[y - delta:y + delta]
+        xx = int(x)
+        yy = int(y)
+        line = data[:, xx]
+        chunk = line[yy - delta:yy + delta]
 
-        # use y location as the first estimate for the mean, use 20 pixel
-        # distance to guess center
-        argmap = {'a': amp, 'mu': len(chunk) / 2, 'sigma': sigma, 'b': 0}
-        args = inspect.getargspec(form)[0][1:]  # get rid of "self"
-
-        yline = np.arange(len(chunk))
-        popt, pcov = curve_fit(
-            form, yline, chunk, [
-                argmap.get(
-                    arg, 1) for arg in args])
-
-        # do these so that it fits the real pixel range of the data
-        fitx = np.arange(len(yline), step=1. / subsample)
-        fity = form(fitx, *popt)
+        # fit model to data
+        fitted = math_helper.fit_gauss_1d(chunk)
+        yline = np.arange(len(chunk)) + yy - delta
+        fitted.mean.value += (yy-delta)
 
         # calculate the std about the mean
         # make a plot
-        if fig is None:
-            fig = plt.figure(self._figure_name)
-        fig.clf()
-        fig.add_subplot(111)
-        ax = fig.gca()
-        ax.set_xlabel(self.column_fit_pars["xlabel"][0])
-        ax.set_ylabel(self.column_fit_pars["ylabel"][0])
-        if self.column_fit_pars["logx"][0]:
-            ax.set_xscale("log")
-        if self.column_fit_pars["logy"][0]:
-            ax.set_yscale("log")
+        if genplot:
+            if fig is None:
+                fig = plt.figure(self._figure_name)
+            fig.clf()
+            fig.add_subplot(111)
+            ax = fig.gca()
+            ax.set_xlabel(self.column_fit_pars["xlabel"][0])
+            ax.set_ylabel(self.column_fit_pars["ylabel"][0])
+            if self.column_fit_pars["logx"][0]:
+                ax.set_xscale("log")
+            if self.column_fit_pars["logy"][0]:
+                ax.set_yscale("log")
 
-        if bool(self.column_fit_pars["pointmode"][0]):
-            ax.plot(yline + y - delta, chunk, 'o', label="data")
-        else:
-            ax.plot(yline + y - delta, chunk, linestyle='-', label="data")
+            if bool(self.column_fit_pars["pointmode"][0]):
+                ax.plot(yline, chunk, 'o', label="data")
+            else:
+                ax.plot(yline, chunk, linestyle='-', label="data")
 
-        if self.column_fit_pars["func"][0] == "gaussian":
-            sigma = np.abs(popt[2])
-            fwhm = math_helper.gfwhm(sigma)
-            fitmean = popt[1] + y - delta
-        elif self.column_fit_pars["func"][0] == "moffat":
-            fwhm = math_helper.mfwhm(popt[0], popt[1])
-            fitmean = popt[2] + y - delta
-        else:
-            warnings.warn("Unsupported functional form used in column_fit")
-            raise ValueError
+            if self.column_fit_pars["func"][0] == "Gaussian1D":
+                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
+                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
+                    self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmy))
 
-        ax.set_title("{0:s}  mean = {1:s}, fwhm= {2:s}".format(
-            self.column_fit_pars["title"][0], str(fitmean), str(fwhm)))
-        ax.plot( fitx + y - delta, fity, c='r', label=str( form.__name__) +" fit")
-        plt.legend()
-        if 'nbagg' in get_backend().lower():
-            fig.canvas.draw()
+                fline = np.linspace(yline[0], yline[-1], 100)  # finer sample
+                yfit = fitted(fline)
+                ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
+                pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
+                    int(x + 1), int(y + 1), fitted.mean.value, fwhmy)
+                print(pstr)
+                logging.info(pstr)
+            else:
+                warnings.warn("Unsupported functional form used in column_fit")
+                raise ValueError
+
+            plt.legend()
+            if 'nbagg' in get_backend().lower():
+                fig.canvas.draw()
+            else:
+                plt.draw()
+                plt.pause(0.001)
         else:
-            plt.draw()
-            plt.pause(0.001)
-        pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
-            int(x + 1), int(y + 1), fitmean, fwhm)
-        print(pstr)
-        logging.info(pstr)
+            return fitted
 
     def gauss_center(self, x, y, data=None, delta=10):
-        """return the 2d gaussian fit center
+        """Return the 2d gaussian fit center of the data.
 
         Parameters
         ----------
         delta: int
-            The range of data values to use around the x,y location for calculating the center
+            The range of data values (bounding box) to use around the x,y
+            location for calculating the center
 
         """
         if data is None:
             data = self._data
 
-        chunk = data[ y - delta:y + delta, x - delta:x + delta]  # flipped from xpa
+        # reset delta for small arrays
+        if delta >= len(data)/4:
+            delta = delta/2
+
+        #  flipped from xpa
+        chunk = data[y - delta:y + delta, x - delta:x + delta]
         try:
-            amp, ycenter, xcenter, sigma, offset = math_helper.gauss_center(
-                chunk)
+            fit = math_helper.gauss_center(chunk)
+            amp = fit.amplitude.value
+            xcenter = fit.x_mean.value
+            ycenter = fit.y_mean.value
+            xsigma = fit.x_stddev.value
+            ysigma = fit.y_stddev.value
+
             pstr = "xc={0:4f}\tyc={1:4f}".format(
-                (xcenter + x - delta + 1), (ycenter + y - delta + 1))
+                (xcenter + x - delta + 1),
+                (ycenter + y - delta + 1))
             print(pstr)
             logging.info(pstr)
-            return amp, (xcenter + x - delta), (ycenter +
-                                                y - delta), sigma, offset
+            return amp, xcenter + x - delta, ycenter + y - delta, xsigma, ysigma
+
         except (RuntimeError, UserWarning) as e:
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
     def radial_profile(self, x, y, data=None, form=None, fig=None):
-        """
-        Display the radial profile plot (intensity vs radius) for the object
-        Background may be subtracted and centering can be done with a 2dgauss fit
+        """Display the radial profile plot (intensity vs radius) for the object.
+
+        Background may be subtracted and centering can be done with a
+        2D Gaussian fit
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -706,64 +711,60 @@ class Imexamine(object):
 
             if data is None:
                 data = self._data
-            amp = 0
-            sigma = 0
+
             if not form:
-                form = getattr(math_helper, self.radial_profile_pars["fittype"][0])
+                form = getattr(models,
+                               self.radial_profile_pars["fittype"][0])
 
             getdata = bool(self.radial_profile_pars["getdata"][0])
-            subtract_background=bool(self.radial_profile_pars["background"][0])
+            subtract_background = bool(self.radial_profile_pars["background"][0])
 
-            #cut the data down to size
-            datasize=int(self.radial_profile_pars["rplot"][0])-1
-
-            delta = 10  # chunk size to find center
-            subpixels = 10  # for line fit later
+            # cut the data down to size
+            datasize = int(self.radial_profile_pars["rplot"][0])-1
+            delta = 10  # chunk size in pixels to find center
 
             # center on image using a 2d gaussian
             if self.radial_profile_pars["center"][0]:
-                # pull out a small chunk
-                popt = self.gauss_center(x, y, data, delta=delta)
-                if popt.count(0) > 1:  # an error occurred in centering
-                    centerx = x
-                    centery = y
-                    warnings.warn(
-                        "Problem fitting center, using original coordinates")
-                else:
-                    amp, centerx, centery, sigma, offset = popt
+                # pull out a small chunk to get the center defined
+                amp, centerx, centery, sigma, sigmay = self.gauss_center(x, y, data, delta=delta)
             else:
                 centery = y
                 centerx = x
             icenterx = int(centerx)
             icentery = int(centery)
 
-            #just grab the data box we want from the image
-            data_chunk=data[icentery-datasize:icentery+datasize,icenterx-datasize:icenterx+datasize]
+            # just grab the data box we want from the image
+            data_chunk = data[icentery-datasize:icentery+datasize,
+                              icenterx-datasize:icenterx+datasize]
 
-            y,x = np.indices((data_chunk.shape))
+            y, x = np.indices((data_chunk.shape))
             r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
             r = r.astype(np.int)
-            #add up the flux in integer bins
+            # add up the flux in integer bins
             tbin = np.bincount(r.ravel(), data_chunk.ravel())
             nr = np.arange(len(tbin))
 
-            #Get a background measurement
+            # Get a background measurement
             if subtract_background:
                 inner = self.radial_profile_pars["skyrad"][0]
                 width = self.radial_profile_pars["width"][0]
                 annulus_apertures = photutils.CircularAnnulus(
                         (centerx, centery), r_in=inner, r_out=inner+width)
                 bkgflux_table = photutils.aperture_photometry(data,
-                    annulus_apertures)
+                                                      annulus_apertures)
 
-                # to calculate the mean local background, divide the circular annulus aperture sums
-                # by the area fo the circular annulus. The bkg sum with the circular aperture is then
+                # to calculate the mean local background, divide the circular
+                # annulus aperture sums by the area fo the circular annulus.
+                # The bkg sum with the circular aperture is then
                 # then mean local background tims the circular apreture area.
                 annulus_area = annulus_apertures.area()
-                sky_per_pix = float(bkgflux_table['aperture_sum'] /annulus_area)
+                sky_per_pix = float(bkgflux_table['aperture_sum'] /
+                                    annulus_area)
                 tbin -= np.bincount(r.ravel()) * sky_per_pix
                 if getdata:
-                    print("Sky per pixel: {0} using(rad={1}->{2})".format(sky_per_pix,inner,inner+width))
+                    print("Sky per pixel: {0} using\
+                         (rad={1}->{2})".format(sky_per_pix,
+                                                inner, inner+width))
 
             if fig is None:
                 fig = plt.figure(self._figure_name)
@@ -798,11 +799,10 @@ class Imexamine(object):
                 plt.draw()
                 plt.pause(0.001)
 
-
     def curve_of_growth(self, x, y, data=None, fig=None):
-        """
-        display the curve of growth plot;  the object
-        photometry is from photutils
+        """Display a curve of growth plot.
+
+        the object photometry is from photutils
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -817,14 +817,7 @@ class Imexamine(object):
             # center using a 2d gaussian
             if self.curve_of_growth_pars["center"][0]:
                 # pull out a small chunk
-                popt = self.gauss_center(x, y, data, delta=delta)
-                if popt.count(0) > 1:  # an error occurred in centering
-                    centerx = x
-                    centery = y
-                    warnings.warn(
-                        "Problem fitting center, using original coordinates")
-                else:
-                    amp, centerx, centery, sigma, offset = popt
+                amp, centerx, centery, sigma, sigmay = self.gauss_center(x, y, data, delta=delta)
             else:
                 centery = y
                 centerx = x
@@ -1130,6 +1123,17 @@ class Imexamine(object):
             plt.draw()
             plt.pause(0.001)
 
+    def cutout(self, x, y, data=None, fig=None, size=20):
+        """Make a cutout around the pointer location and save a fits file."""
+        cutout = data[y-size:y+size, x-size:x+size]
+        prefix = "cutout_{0}_{1}_".format(int(x), int(y))
+        fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")
+        hdu = fits.PrimaryHDU(cutout)
+        hdulist = fits.HDUList([hdu])
+        hdulist[0].header['EXTEND'] = False
+        hdulist.writeto(fname)
+        print("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname))
+
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
 
@@ -1162,7 +1166,8 @@ class Imexamine(object):
                 self.imexam_option_funcs[key] = (
                     self.__getattribute__(func_name), user_funcs[key][1])
                 print(
-                    "User function: {0:s} added to imexam options with \key {1:s}".format(func_name, key))
+                    "User function: {0:s} added to imexam options with \
+                          key {1:s}".format(func_name, key))
 
     @classmethod
     def _add_user_function(cls, func):
@@ -1224,6 +1229,10 @@ class Imexamine(object):
     def set_colplot_pars(self):
         """set parameters for column plots."""
         self.colplot_pars = imexam_defpars.colplot_pars
+
+    def set_cutout_pars(self):
+        """set parameters for cutout images."""
+        self.cutout_pars = imexam_defpars.cutout_pars
 
     def reset_defpars(self):
         """set all pars to their defaults."""

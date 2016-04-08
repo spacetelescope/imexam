@@ -8,7 +8,7 @@ resets the dictionaries themselves, or we could create a method to let them set
 from a json or text file maybe
 """
 
-#aperture photometry parameters
+# aperture photometry parameters
 aperphot_pars = {"function": ["aperphot", ],
                  "center": [True, "Center the object location using a 2d gaussian fit"],
                  "width": [5, "Width of sky annulus in pixels"],
@@ -19,19 +19,19 @@ aperphot_pars = {"function": ["aperphot", ],
                  }
 
 
-#box statistics
+# box statistics
 report_stat_pars = {"function": ["report_stat", ],
                     "stat": ["median", "which numpy stat to return [median,min,max...must map to a numpy func]"],
                     "region_size": [5, "region size in pixels to use"],
                     }
 
-#radial profile plots
+# radial profile plots
 radial_profile_pars = {"function": ["radial_profile", ],
                         "title": ["Radial Profile", "Title of the plot"],
                         "xlabel": ["Radius", "The string for the xaxis label"],
                         "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
                         "fitplot": [False,"Overplot profile fit?"],
-                        "fittype":["gaussian","Profile type to fit (gaussian)"],
+                        "fittype":["Gaussian2D","Profile type to fit (Gaussian2D)"],
                         "center": [True, "Solve for center using 2d Gaussian? [bool]"],
                         "background": [True, "Subtract background? [bool]"],
                         "skyrad": [10., "Background inner radius in pixels, from center of object"],
@@ -44,7 +44,7 @@ radial_profile_pars = {"function": ["radial_profile", ],
                         "getdata": [True, "return the plotted data values"]
                         }
 
-#curve of growth
+# curve of growth
 curve_of_growth_pars = {"function": ["curve_of_growth", ],
                         "title": ["Curve of growth", "Title of the plot"],
                         "xlabel": ["radius", "The string for the xaxis label"],
@@ -63,7 +63,7 @@ curve_of_growth_pars = {"function": ["curve_of_growth", ],
                         "getdata": [True, "return the plotted data values"]
                         }
 
-#surface plots
+# surface plots
 surface_pars = {"function": ["surface", ],
                 "title": [None, "Title of the plot"],
                 "xlabel": ["X", "The string for the xaxis label"],
@@ -79,26 +79,26 @@ surface_pars = {"function": ["surface", ],
                 "fancy": [True, "This aint your grandpas iraf"],
                 }
 
-#fit of line in image using model
+# fit of line in image using model
 line_fit_pars = {"function": ["line_fit", ],
-                 "func": ["gaussian", "function for fitting [gaussian|moffat]"],
-                 "title": ["Fit 1D line plot", "Title of the plot"],
+                 "func": ["Gaussian1D", "function for fitting [Gaussian1D|Moffat1D]"],
+                 "title": ["Fit line", "Title of the plot"],
                  "xlabel": ["Column", "The string for the xaxis label"],
                  "ylabel": ["Flux", "The string for the yaxis label"],
                  "background": [False, "Solve for background? [bool]"],
                  "width": [10.0, "Background  width in pixels"],
                  "xorder": [0, "Background terms to fit, 0=median"],
-                 "rplot": [20., "Plotting radius in pixels"],
+                 "rplot": [15, "Plotting radius in pixels"],
                  "pointmode": [True, "plot points instead of lines? [bool]"],
                  "logx": [False, "log scale x-axis?"],
                  "logy": [False, "log scale y-axis?"],
                  "center": [True, "Recenter around the local max"],
                  }
 
-#fit of column in image using model
+# fit of column in image using model
 column_fit_pars = {"function": ["column_fit", ],
-                   "func": ["gaussian", "function for fitting [gaussian|moffat]"],
-                   "title": ["Fit 1D column plot", "Title of the plot"],
+                   "func": ["Gaussian1D", "function for fitting [Gaussian1D|Moffat1D]"],
+                   "title": ["Fit 1D to the column", "Title of the plot"],
                    "xlabel": ["Line", "The string for the xaxis label"],
                    "ylabel": ["Flux", "The string for the yaxis label"],
                    "background": [False, "Solve for background? [bool]"],
@@ -111,7 +111,7 @@ column_fit_pars = {"function": ["column_fit", ],
                    "center": [True, "Recenter around the local max"],
                    }
 
-#contour plots
+# contour plots
 contour_pars = {"function": ["contour", ],
                 "title": ["Contour plot in region around pixel location", "Title of the plot"],
                 "xlabel": ["x", "The string for the xaxis label"],
@@ -126,7 +126,7 @@ contour_pars = {"function": ["contour", ],
                 "cmap": ["RdBu", "Colormap (matplotlib style) for image"],
                 }
 
-#histogram of values contained in a box
+# histogram of values contained in a box
 histogram_pars = {"function": ["histogram", ],
                   "title": ["Histogram", "Title of the plot"],
                   "xlabel": ["Flux (bin)", "The string for the xaxis label"],
@@ -143,7 +143,7 @@ histogram_pars = {"function": ["histogram", ],
                   }
 
 
-#plots the values in a line
+# plots the values in a line
 lineplot_pars = {"function": ["linefit", ],
                  "title": ["Data values for selected line", "Title of the plot"],
                  "xlabel": ["Column", "The string for the xaxis label"],
@@ -157,7 +157,7 @@ lineplot_pars = {"function": ["linefit", ],
                  "ymin": [0, "yaxis min value"],
                  "ymax": [None, "yaxis max value"],
                  }
-#plot the values in a column
+# plot the values in a column
 colplot_pars = {"function": ["colfit", ],
                 "title": ["Data values for selected column", "Title of the plot"],
                 "xlabel": ["Line", "The string for the xaxis label"],
@@ -171,3 +171,8 @@ colplot_pars = {"function": ["colfit", ],
                 "ymin": [0, "yaxis min value"],
                 "ymax": [None, "yaxis max value"],
                 }
+
+# cut out a smaller image user the pointer location
+cutout_pars = {"function": ["cutout", ],
+               "size": [20, "size of the image to cutout"],
+               }
