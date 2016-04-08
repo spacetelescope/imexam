@@ -40,8 +40,8 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
         c	return column plot
         e	return a contour plot in a region around the cursor
         h	return a histogram in the region around the cursor
-        j	1D [gaussian|moffat] line fit
-        k	1D [gaussian|moffat] column fit
+        j	1D [see defaults] line fit
+        k	1D [see defaults] column fit
         l	return line plot
         m	square region stats, in [region_size],defayult is median
         r	return radial profile plot
@@ -61,7 +61,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
 
 
         {'function': ['aperphot'],
-         'center': [True, 'Center the object location using a 2d gaussian fit'],
+         'center': [True, 'Center the object location using a 2D gaussian fit'],
          'subsky': [True, 'Subtract a sky background?'],
          'width': [5, 'Width of sky annulus in pixels'],
          'radius': [5, 'Radius of aperture for star flux'],
@@ -97,7 +97,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
         viewer.gimexam()
 
         {'function': ['curve_of_growth_plot'],
-        'center': [True, 'Solve for center using 2d Gaussian? [bool]'],
+        'center': [True, 'Solve for center using 2D Gaussian? [bool]'],
         'pointmode': [True, 'plot points instead of lines? [bool]'],
         'title': ['Curve of Growth', 'Title of the plot'],
         'buffer': [25.0, 'Background inner radius in pixels,from center of star'],
@@ -137,7 +137,7 @@ Below are the final curve of growth plot as well as the the gaussian fit to the 
 .. image:: column_fit_phot_examp.png
     :height: 400
     :width: 600
-    :alt: gaussian fit column profile of star
+    :alt: Gaussian1D fit column profile of star
 
 
 
@@ -180,7 +180,7 @@ Here a picture of the area I'm looking at in my DS9 window ( created with viewer
 
         Lets get some more aperture photometry at larger radii by resetting some of the "a" key values and saving the results to the log
 
-            {'center': [True, 'Center the object location using a 2d gaussian fit'],
+            {'center': [True, 'Center the object location using a 2D gaussian fit'],
             'function': ['aperphot'],
             'radius': [5, 'Radius of aperture for star flux'],
             'skyrad': [15, 'Distance to start sky annulus is pixels'],

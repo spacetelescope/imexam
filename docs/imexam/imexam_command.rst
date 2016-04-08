@@ -34,9 +34,9 @@ This is the main method which allows live interaction with the image display whe
 
          himexam(): return dict current parameters for histogram plots
 
-         jimexam(): return dict current parameters for 1D gaussian line plots
+         jimexam(): return dict current parameters for 1D line plots
 
-         kimexam(): return dict of current parameters for 1D gaussian column plots
+         kimexam(): return dict of current parameters for 1D column plots
 
          limexam(): return dict of current parameters for  line plots
 
@@ -106,7 +106,7 @@ These are the default parameters for aperture photometry. They live in a diction
 
 
     viewer.exam.aperphot_pars= {"function":["aperphot",],
-                    "center":[True,"Center the object location using a 2d gaussian fit"],
+                    "center":[True,"Center the object location using a Gaussian2D fit"],
                     "width":[5,"Width of sky annulus in pixels"],
                     "subsky":[True,"Subtract a sky background?"],
                     "skyrad":[15,"Distance to start sky annulus is pixels"],
@@ -130,8 +130,8 @@ This is what the return looks like when you do photometry, where I've asked for 
     c	return column plot
     e	return a contour plot in a region around the cursor
     h	return a histogram in the region around the cursor
-    j	1D [gaussian|moffat] line fit
-    k	1D [gaussian|moffat] column fit
+    j	1D [see available] line fit
+    k	1D [see available] column fit
     l	return line plot
     m	square region stats, in [region_size],defayult is median
     r	return curve of growth plot
@@ -145,17 +145,17 @@ This is what the return looks like when you do photometry, where I've asked for 
     x              y              radius         flux           mag(zpt=25.00) sky            fwhm
     576.86         634.91         10             2191284.53     9.15           10998.89       5.58
 
-xc = xcenter, yc=ycenter; these were found using a 2d gaussian fit centered on the pixel location of the mouse. You can turn the fit off by setting the "center" parameter to "False".
+xc = xcenter, yc=ycenter; these were found using a Gaussian2D fit centered on the pixel location of the mouse. You can turn the fit off by setting the "center" parameter to "False".
 
 
-1D Gaussian or Moffat profile
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you press the "j" or "k" keys, a 1D gaussian profile is fit to the data in either the line or column of the current pointer location. A plot of both the data and the fit + parameters is displayed.
+Gaussian1D, Moffat1D, MexicanHat1D profiles
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you press the "j" or "k" keys, a 1D profile is fit to the data in either the line or column of the current pointer location. A plot of both the data and the fit + parameters is displayed.
 If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data. ::
 
 
     line_fit_pars={"function":["line_fit",],
-                   "func":["gaussian","function for fitting [gaussian|moffat]"],
+                   "func":["gaussian","function for fitting [see available]"],
                    "title":["Fit 1D line plot","Title of the plot"],
                    "xlabel":["Line","The string for the xaxis label"],
                    "ylabel":["Flux","The string for the yaxis label"],
@@ -173,7 +173,7 @@ If the centering option is True, then the center of the flux is computed by fitt
 The column fit parameters are similar::
 
     column_fit_pars={"function":["column_fit",],
-                     "func":["gaussian","function for fitting [gaussian|moffat]"],
+                     "func":["Gaussian1D","function for fitting [see available]"],
                      "title":["Fit 1D column plot","Title of the plot"],
                      "xlabel":["Column","The string for the xaxis label"],
                      "ylabel":["Flux","The string for the yaxis label"],
@@ -192,7 +192,7 @@ This is the resulting line fit:
 .. image:: fit_line.png
     :height: 400
     :width: 600
-    :alt: Plot of gaussian profile fit to data
+    :alt: Plot of Gaussian1D profile fit to data
 
 
 and the corresponding column fit:
@@ -200,7 +200,7 @@ and the corresponding column fit:
 .. image:: fit_column.png
     :height: 400
     :width: 600
-    :alt: Plot of gaussian profile fit to data
+    :alt: Plot of Gaussian1D profile fit to data
 
 
 
@@ -257,7 +257,7 @@ Radial Profile Plot
 ^^^^^^^^^^^^^^^^^^^
 
 Pressing the "r" key displays a radial profile plot for the flux around the current pointer location.
-If centering is on, the center is computed close to the star using a 2d gaussian fit.
+If centering is on, the center is computed close to the star using a Gaussian2D fit.
 
 The available parameters are ::
 
@@ -266,7 +266,7 @@ The available parameters are ::
                         "xlabel": ["Radius", "The string for the xaxis label"],
                         "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
                         "fitplot": [False,"Overplot profile fit?"],
-                        "fittype":["gaussian","Profile type to fit (gaussian)"],
+                        "fittype":["Gaussian1D","Profile type to fit (gaussian)"],
                         "center": [True, "Solve for center using 2d Gaussian? [bool]"],
                         "background": [True, "Subtract background? [bool]"],
                         "skyrad": [10., "Background inner radius in pixels, from center of object"],

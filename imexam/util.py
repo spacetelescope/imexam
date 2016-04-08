@@ -87,7 +87,7 @@ def display_help():
     from . import htmlhelp
     location = (htmlhelp.__file__).split("/")
     location.pop()
-    location.append("index.html")
+    location.append("imexam/index.html")
     url = "file://" + "/".join(location)
     webbrowser.open(url)
 

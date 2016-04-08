@@ -89,20 +89,20 @@
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.aper_phot" title="imexam.imexamine.Imexamine.aper_phot"><code class="xref py py-obj docutils literal"><span class="pre">aper_phot</span></code></a>(x,&nbsp;y[,&nbsp;data])</td>
 <td>Perform aperture photometry.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.column_fit" title="imexam.imexamine.Imexamine.column_fit"><code class="xref py py-obj docutils literal"><span class="pre">column_fit</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;form,&nbsp;subsample,&nbsp;fig])</td>
-<td>compute the 1d  fit to the column of data</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.column_fit" title="imexam.imexamine.Imexamine.column_fit"><code class="xref py py-obj docutils literal"><span class="pre">column_fit</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;form,&nbsp;fig,&nbsp;genplot])</td>
+<td>Compute the 1d  fit to the column of data.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.contour" title="imexam.imexamine.Imexamine.contour"><code class="xref py py-obj docutils literal"><span class="pre">contour</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;fig])</td>
 <td>plot contours in a region around the specified location.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.curve_of_growth" title="imexam.imexamine.Imexamine.curve_of_growth"><code class="xref py py-obj docutils literal"><span class="pre">curve_of_growth</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;fig])</td>
-<td>display the curve of growth plot;  the object</td>
+<td>Display a curve of growth plot.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.do_option" title="imexam.imexamine.Imexamine.do_option"><code class="xref py py-obj docutils literal"><span class="pre">do_option</span></code></a>(x,&nbsp;y,&nbsp;key)</td>
 <td>run the imexam option.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.gauss_center" title="imexam.imexamine.Imexamine.gauss_center"><code class="xref py py-obj docutils literal"><span class="pre">gauss_center</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;delta])</td>
-<td>return the 2d gaussian fit center</td>
+<td>Return the 2d gaussian fit center of the data.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.get_options" title="imexam.imexamine.Imexamine.get_options"><code class="xref py py-obj docutils literal"><span class="pre">get_options</span></code></a>()</td>
 <td>return the imexam options as a key list.</td>
@@ -113,8 +113,8 @@
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.histogram" title="imexam.imexamine.Imexamine.histogram"><code class="xref py py-obj docutils literal"><span class="pre">histogram</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;fig])</td>
 <td>plot a histogram of the pixel values.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.line_fit" title="imexam.imexamine.Imexamine.line_fit"><code class="xref py py-obj docutils literal"><span class="pre">line_fit</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;form,&nbsp;subsample,&nbsp;fig,&nbsp;...])</td>
-<td>compute the 1d  fit to the line of data using the specified form.</td>
+<tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.line_fit" title="imexam.imexamine.Imexamine.line_fit"><code class="xref py py-obj docutils literal"><span class="pre">line_fit</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;form,&nbsp;fig,&nbsp;genplot])</td>
+<td>compute the 1D fit to the line of data using the specified form.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.new_plot_window" title="imexam.imexamine.Imexamine.new_plot_window"><code class="xref py py-obj docutils literal"><span class="pre">new_plot_window</span></code></a>(x,&nbsp;y[,&nbsp;data])</td>
 <td>make the next plot in a new plot window.</td>
@@ -132,7 +132,7 @@
 <td>print the imexam options to screen.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.radial_profile" title="imexam.imexamine.Imexamine.radial_profile"><code class="xref py py-obj docutils literal"><span class="pre">radial_profile</span></code></a>(x,&nbsp;y[,&nbsp;data,&nbsp;form,&nbsp;fig])</td>
-<td>Display the radial profile plot (intensity vs radius) for the object</td>
+<td>Display the radial profile plot (intensity vs radius) for the object.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#imexam.imexamine.Imexamine.register" title="imexam.imexamine.Imexamine.register"><code class="xref py py-obj docutils literal"><span class="pre">register</span></code></a>(user_funcs)</td>
 <td>register a new imexamine function made by the user as an option.</td>
@@ -212,29 +212,32 @@
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.column_fit">
-<code class="descname">column_fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data=None</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.column_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.column_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>compute the 1d  fit to the column of data</p>
+<code class="descname">column_fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data=None</em>, <em>form=None</em>, <em>fig=None</em>, <em>genplot=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.column_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.column_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the 1d  fit to the column of data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form: string</strong></p>
 <blockquote>
-<div><p>This is the functional form specified  line fit parameters
-Currently gaussian or moffat</p>
+<div><p>This is the functional form specified column fit parameters</p>
 </div></blockquote>
-<p><strong>subsample: int</strong></p>
+<p><strong>data: numpy array</strong></p>
+<blockquote>
+<div><p>overrides the object data or for use with no viz windows</p>
+</div></blockquote>
+<p><strong>genplot: int</strong></p>
 <blockquote class="last">
-<div><p>used to draw the fitted gaussian</p>
+<div><p>produce the plot or return the fit model</p>
 </div></blockquote>
 </td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>delta is the range of data values to use around the x,y location
-The background is currently ignored if centering is True, then
-the center is fit with a 2d gaussian.</p>
+<p>delta is the range of data values to use around the x,y location</p>
+<p>The background is currently ignored</p>
+<p>if centering is True, then the center is fit with a 2d gaussian.</p>
 </dd></dl>
 
 <dl class="method">
@@ -246,8 +249,8 @@ the center is fit with a 2d gaussian.</p>
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.curve_of_growth">
 <code class="descname">curve_of_growth</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data=None</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.curve_of_growth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.curve_of_growth" title="Permalink to this definition">¶</a></dt>
-<dd><p>display the curve of growth plot;  the object
-photometry is from photutils</p>
+<dd><p>Display a curve of growth plot.</p>
+<p>the object photometry is from photutils</p>
 </dd></dl>
 
 <dl class="method">
@@ -279,14 +282,15 @@ photometry is from photutils</p>
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.gauss_center">
 <code class="descname">gauss_center</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data=None</em>, <em>delta=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.gauss_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.gauss_center" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the 2d gaussian fit center</p>
+<dd><p>Return the 2d gaussian fit center of the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>delta: int</strong></p>
 <blockquote class="last">
-<div><p>The range of data values to use around the x,y location for calculating the center</p>
+<div><p>The range of data values (bounding box) to use around the x,y
+location for calculating the center</p>
 </div></blockquote>
 </td>
 </tr>
@@ -314,22 +318,16 @@ photometry is from photutils</p>
 
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.line_fit">
-<code class="descname">line_fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data=None</em>, <em>form=None</em>, <em>subsample=4</em>, <em>fig=None</em>, <em>genplot=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.line_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.line_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>compute the 1d  fit to the line of data using the specified form.</p>
+<code class="descname">line_fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data=None</em>, <em>form=None</em>, <em>fig=None</em>, <em>genplot=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.line_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.line_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>compute the 1D fit to the line of data using the specified form.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form: string</strong></p>
-<blockquote>
-<div><p>This is the functional form specified  line fit parameters
-Currently gaussian or moffat</p>
-</div></blockquote>
-<p><strong>subsample: int</strong></p>
 <blockquote class="last">
-<div><p>used to draw the fitted function on a finer scale than the data;
-delta is the range of data values to use around the x,y location
-form is the functional form to use</p>
+<div><p>This is the functional form specified  line fit parameters
+Currently Gaussian1D or Moffat1D or MexicanHat1D</p>
 </div></blockquote>
 </td>
 </tr>
@@ -396,8 +394,9 @@ can be found</p>
 <dl class="method">
 <dt id="imexam.imexamine.Imexamine.radial_profile">
 <code class="descname">radial_profile</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>data=None</em>, <em>form=None</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/imexam/imexamine.html#Imexamine.radial_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imexam.imexamine.Imexamine.radial_profile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display the radial profile plot (intensity vs radius) for the object
-Background may be subtracted and centering can be done with a 2dgauss fit</p>
+<dd><p>Display the radial profile plot (intensity vs radius) for the object.</p>
+<p>Background may be subtracted and centering can be done with a
+2D Gaussian fit</p>
 </dd></dl>
 
 <dl class="method">
@@ -598,7 +597,7 @@ The extension on the name decides which file type is used</p>
   <p>
     &copy; Copyright 2016, Megan Sosey.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5. &nbsp;
-    Last built 06 Apr 2016. <br/>
+    Last built 08 Apr 2016. <br/>
   </p>
 </footer>
   </body>
