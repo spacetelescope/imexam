@@ -7,21 +7,8 @@ from __future__ import print_function, division
 import numpy as np
 import warnings
 from astropy.modeling import models, fitting
-from astropy.modeling.models import custom_model
 
 
-@custom_model
-def sum_of_gaussians(x, amplitude1=1., mean1=-1., sigma1=1.,
-                     amplitude2=1., mean2=1., sigma2=1.):
-    """Custom astropy model for the sum of 2 gaussians."""
-    return (amplitude1 * np.exp(-0.5 * ((x - mean1) / sigma1)**2) +
-            amplitude2 * np.exp(-0.5 * ((x - mean2) / sigma2)**2))
-
-
-@custom_model
-def exponential(x, a, b, c):
-    """Custom astropy model for an exponential function."""
-    return a * np.exp(-b * x) - c
 
 
 def gfwhm(sigmax, sigmay=None):
@@ -88,7 +75,7 @@ def fit_moffat_1d(data, gamma=2., alpha=1.):
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Gaussian1D
+    # Moffat1D
     model = models.Moffat1D(amplitude=max(data), x_0=ldata/2, gamma=gamma, alpha=alpha)
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
@@ -145,4 +132,51 @@ def gauss_center(data, sigma=3., theta=0.):
         results = fit(model, xx, yy, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
+    return results
+
+
+def fit_mex_hat_1d(data):
+    """Fit a 1D Mexican Hat function to the data."""
+    ldata = len(data)
+    x = np.arange(ldata)
+    fixed_pars = {"x_0": True}
+
+    # Fit model to data
+    fit = fitting.LevMarLSQFitter()
+
+    # Mexican Hat 1D
+    model = models.MexicanHat1D(amplitude=np.max(data),
+                                x_0=ldata/2, sigma=2., fixed=fixed_pars)
+    with warnings.catch_warnings():
+        # Ignore model linearity warning from the fitter
+        warnings.simplefilter('ignore')
+        results = fit(model, x, data)
+
+    # previous yield amp, ycenter, xcenter, sigma, offset
+    return results
+
+
+def fit_airy_2d(data, x=None, y=None):
+    """Fit an AiryDisk2D model to the data."""
+    delta = int(len(data) / 2)  # guess the center
+    ldata = len(data)
+
+    if not x:
+        x = delta
+    if not y:
+        y = delta
+    fixed_pars = {"x_0": True, "y_0": True}  # hold these constant
+    yy, xx = np.mgrid[:ldata, :ldata]
+
+    # fit model to the data
+    fit = fitting.LevMarLSQFitter()
+
+    # AiryDisk2D(amplitude, x_0, y_0, radius)
+    model = models.AiryDisk2D(np.max(data), x_0=x, y_0=y, radius=delta,
+                              fixed=fixed_pars)
+    with warnings.catch_warnings():
+            # Ignore model warnings for new_plot_window
+            warnings.simplefilter('ignore')
+            results = fit(model, xx, yy, data)
+
     return results

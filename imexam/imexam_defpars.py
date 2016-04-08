@@ -81,7 +81,7 @@ surface_pars = {"function": ["surface", ],
 
 # fit of line in image using model
 line_fit_pars = {"function": ["line_fit", ],
-                 "func": ["Gaussian1D", "function for fitting [Gaussian1D|Moffat1D]"],
+                 "func": ["Gaussian1D", "function for fitting (see available)"],
                  "title": ["Fit line", "Title of the plot"],
                  "xlabel": ["Column", "The string for the xaxis label"],
                  "ylabel": ["Flux", "The string for the yaxis label"],
@@ -97,7 +97,7 @@ line_fit_pars = {"function": ["line_fit", ],
 
 # fit of column in image using model
 column_fit_pars = {"function": ["column_fit", ],
-                   "func": ["Gaussian1D", "function for fitting [Gaussian1D|Moffat1D]"],
+                   "func": ["Gaussian1D", "function for fitting (see available)"],
                    "title": ["Fit 1D to the column", "Title of the plot"],
                    "xlabel": ["Line", "The string for the xaxis label"],
                    "ylabel": ["Flux", "The string for the yaxis label"],

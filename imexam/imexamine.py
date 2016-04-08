@@ -85,6 +85,12 @@ class Imexamine(object):
 
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
+        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
+
+    def show_fit_models(self):
+        """Print the available astropy models for plot fits."""
+        print("The available astropy models for fitting\
+              are: {}".format(self._fit_models))
 
     def set_option_funcs(self):
         """Define the dictionary which maps imexam keys to their functions.
@@ -97,8 +103,8 @@ class Imexamine(object):
          does when that key is pressed
         """
         self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
-                                    'j': (self.line_fit, '1D [Gaussian1D|Moffat1D] line fit '),
-                                    'k': (self.column_fit, '1D [Gaussian1D|Moffat1D] column fit'),
+                                    'j': (self.line_fit, '1D [Gaussian1D default] line fit '),
+                                    'k': (self.column_fit, '1D [Gaussian1D default] column fit'),
                                     'm': (self.report_stat, 'square region stats, in [region_size],default is median'),
                                     'x': (self.show_xy_coords, 'return x,y,value of pixel'),
                                     'y': (self.show_xy_coords, 'return x,y,value of pixel'),
@@ -470,7 +476,7 @@ class Imexamine(object):
         ----------
         form: string
             This is the functional form specified  line fit parameters
-            Currently Gaussian1D or Moffat1D
+            Currently Gaussian1D or Moffat1D or MexicanHat1D
 
         Notes
         -----
@@ -508,11 +514,16 @@ class Imexamine(object):
         elif fitform is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
             fitted.x_0.value += (xx-delta)
+        elif fitform is "MexicanHat1D":
+            fitted = math_helper.fit_mex_hat_1d(chunk)
+            fitted.x_0.value += (xx-delta)
         else:
             print("{0:s} not implemented".format(fitform))
             return
 
         xline = np.arange(len(chunk)) + xx - delta
+        fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
+        yfit = fitted(fline)
 
         # make a plot
         if genplot:
@@ -533,15 +544,10 @@ class Imexamine(object):
             else:
                 ax.plot(xline, chunk, label="data", linestyle='-')
 
-
             if fitform is "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
                     self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmx))
-
-                fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
-                yfit = fitted(fline)
-                ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
                     int(x + 1), int(y + 1), fitted.mean.value, fwhmx)
                 print(pstr)
@@ -550,19 +556,23 @@ class Imexamine(object):
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     self.line_fit_pars["title"][0], fitted.amplitude.value, mfwhm))
-
-                fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
-                yfit = fitted(fline)
-                ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x + 1), int(y + 1), fitted.amplitude.value, mfwhm)
+                print(pstr)
+                logging.info(pstr)
+            elif fitform is "MexicanHat1D":
+                ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
+                    self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.sigma.value))
+                pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
+                    int(x + 1), int(y + 1), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
                 logging.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
                 raise ValueError
-
+            ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
             plt.legend()
+
             if 'nbagg' in get_backend().lower():
                 fig.canvas.draw()
             else:
@@ -578,7 +588,7 @@ class Imexamine(object):
         Parameters
         ----------
         form: string
-            This is the functional form specified  line fit parameters
+            This is the functional form specified column fit parameters
         data: numpy array
             overrides the object data or for use with no viz windows
         genplot: int
@@ -602,6 +612,9 @@ class Imexamine(object):
         if delta >= len(data)/4:
             delta = int(delta/2)
 
+        # the form the fit will take
+        fitform = self.column_fit_pars["func"][0]
+
         # fit the center with a 2d gaussian
         if self.column_fit_pars["center"][0]:
             amp, x, y, sigmax, sigma = self.gauss_center(x, y, data, delta=delta)
@@ -612,11 +625,22 @@ class Imexamine(object):
         chunk = line[yy - delta:yy + delta]
 
         # fit model to data
-        fitted = math_helper.fit_gauss_1d(chunk)
-        yline = np.arange(len(chunk)) + yy - delta
-        fitted.mean.value += (yy-delta)
+        if fitform is "Gaussian1D":
+            fitted = math_helper.fit_gauss_1d(chunk)
+            fitted.mean.value += (yy-delta)
+        elif fitform is "Moffat1D":
+            fitted = math_helper.fit_moffat_1d(chunk)
+            fitted.x_0.value += (yy-delta)
+        elif fitform is "MexicanHat1D":
+            fitted = math_helper.fit_mex_hat_1d(chunk)
+            fitted.x_0.value += (yy-delta)
+        else:
+            print("{0:s} not implemented".format(fitform))
+            return
 
-        # calculate the std about the mean
+        yline = np.arange(len(chunk)) + yy - delta
+        fline = np.linspace(yline[0], yline[-1], 100)  # finer sample
+        yfit = fitted(fline)
         # make a plot
         if genplot:
             if fig is None:
@@ -636,22 +660,34 @@ class Imexamine(object):
             else:
                 ax.plot(yline, chunk, linestyle='-', label="data")
 
-            if self.column_fit_pars["func"][0] == "Gaussian1D":
+            if fitform == "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmy))
-
-                fline = np.linspace(yline[0], yline[-1], 100)  # finer sample
-                yfit = fitted(fline)
-                ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
+                    self.column_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmy))
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
                     int(x + 1), int(y + 1), fitted.mean.value, fwhmy)
+                print(pstr)
+                logging.info(pstr)
+            elif fitform is "Moffat1D":
+                mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
+                ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
+                    self.column_fit_pars["title"][0], fitted.amplitude.value, mfwhm))
+                pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
+                    int(x + 1), int(y + 1), fitted.amplitude.value, mfwhm)
+                print(pstr)
+                logging.info(pstr)
+            elif fitform is "MexicanHat1D":
+                ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
+                    self.column_fit_pars["title"][0], fitted.amplitude.value, fitted.sigma.value))
+                pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
+                    int(x + 1), int(y + 1), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
                 logging.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in column_fit")
                 raise ValueError
 
+            ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
             plt.legend()
             if 'nbagg' in get_backend().lower():
                 fig.canvas.draw()
@@ -1127,7 +1163,7 @@ class Imexamine(object):
         """Make a cutout around the pointer location and save a fits file."""
         cutout = data[y-size:y+size, x-size:x+size]
         prefix = "cutout_{0}_{1}_".format(int(x), int(y))
-        fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")
+        fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
         hdu = fits.PrimaryHDU(cutout)
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
