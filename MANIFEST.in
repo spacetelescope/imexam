@@ -12,10 +12,9 @@ recursive-include cextern *
 recursive-include scripts *
 recursive-include wrappers *
 recursive-include imexam/htmlhelp *
+recursive-include cython *
 
-exclude *.pyc *.o
+global-exclude *.pyc *.o
 prune docs/build
 prune build
 prune dist
-
-

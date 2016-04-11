@@ -74,7 +74,7 @@ class Connect(object):
             _possible_viewers.append('ginga')
 
         if self._viewer not in _possible_viewers:
-            warnings.warn("**Unsupported viewer**\n")
+            warnings.warn("**Unsupported viewer, check your installed packages**\n")
             raise NotImplementedError
 
         # init sets empty data array until we can load or check viewer
@@ -218,11 +218,7 @@ class Connect(object):
                             current_key = None
                         else:
                             self.exam.do_option(
-                                x -
-                                1,
-                                y -
-                                1,
-                                current_key)  # ds9 returns 1 based array
+                                x, y, current_key) 
                 except KeyError:
                     print(
                         "Invalid key, use\n: {0}".format(

@@ -1,6 +1,5 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""Licensed under a 3-clause BSD style license - see LICENSE.rst.
 
-"""
 This class supports communication with a Ginga-based viewer.
 
 For default key and mouse shortcuts in a Ginga window, see:
@@ -317,7 +316,7 @@ class ginga_general(object):
                     break
 
         # ginga is returning 0 based indexes
-        return x + 1, y + 1, k
+        return x , y, k
 
     def _define_cmaps(self):
         """setup the default color maps which are available"""

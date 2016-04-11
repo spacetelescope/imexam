@@ -1,6 +1,6 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 """
+Licensed under a 3-clause BSD style license - see LICENSE.rst
+
 This class supports communication with DS9 through the XPA
 
 
@@ -696,7 +696,7 @@ class ds9(object):
         k, x, y = xpa_string.split()
 
         # ds9 is returning 1 based array
-        return float(x), float(y), str(k)
+        return float(x)-1, float(y)-1, str(k)
 
     def alignwcs(self, on=True):
         """align wcs.

@@ -1,20 +1,20 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst.
+"""Licensed under a 3-clause BSD style license - see LICENSE.rst.
 
-"""This class implements IRAF/imexamine type capabilities
+   This class implements IRAF/imexamine type capabilities
 
-    However, the power of this class is that it is essential a library
-    of plotting and analysis routines which can be directed towards
-    any viewer. It can also be used without connecting to any viewer
-    since the calls take only data,x,y information. This means that
-    given a data array and a list of x,y positions you can creates
-    plots without havin to interact with the viewers.
+   However, the power of this class is that it is essential a library
+   of plotting and analysis routines which can be directed towards
+   any viewer. It can also be used without connecting to any viewer
+   since the calls take only data,x,y information. This means that
+   given a data array and a list of x,y positions you can creates
+   plots without havin to interact with the viewers.
 
-    Users can also register a custom function with the class
-    and have it available for use in either case.
+   Users can also register a custom function with the class
+   and have it available for use in either case.
 
-    The plots which are made are fully customizable
+   The plots which are made are fully customizable
 
-"""
+ """
 
 from __future__ import print_function, division, absolute_import
 
@@ -26,9 +26,7 @@ import logging
 import tempfile
 from astropy.io import fits
 from copy import deepcopy
-import inspect
 from matplotlib import get_backend
-from scipy.optimize import curve_fit
 from IPython.display import Image
 from astropy.modeling import models, fitting
 
@@ -249,7 +247,18 @@ class Imexamine(object):
         print("Plots now directed towards {0:s}".format(self._figure_name))
 
     def plot_line(self, x, y, data=None, fig=None):
-        """line plot of data at point x."""
+        """line plot of data at point x.
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
+        """
         if data is None:
             data = self._data
         if fig is None:
@@ -258,9 +267,8 @@ class Imexamine(object):
         fig.add_subplot(111)
         ax = fig.gca()
         ax.set_title(
-            "{0:s}  line={1:d}".format(
-                self.lineplot_pars["title"][0], int(
-                    y + 1)))
+            "{0:s} line={1:d}".format(
+                self.lineplot_pars["title"][0], int(y)))
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
@@ -287,7 +295,19 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def plot_column(self, x, y, data=None, fig=None):
-        """column plot of data at point y."""
+        """column plot of data at point y.
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
+
+        """
         if data is None:
             data = self._data
 
@@ -298,8 +318,7 @@ class Imexamine(object):
         ax = fig.gca()
         ax.set_title(
             "{0:s}  column={1:d}".format(
-                self.colplot_pars["title"][0], int(
-                    x + 1)))
+                self.colplot_pars["title"][0], int(x)))
         ax.set_xlabel(self.colplot_pars["xlabel"][0])
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
@@ -326,15 +345,38 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def show_xy_coords(self, x, y, data=None):
-        """print the x,y,value to the screen."""
+        """print the x,y,value to the screen.
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
+
+        """
         if data is None:
             data = self._data
-        info = "{0} {1}  {2}".format(x + 1, y + 1, data[(y), (x)])
+        info = "{0} {1}  {2}".format(x, y, data[(y), (x)])
         print(info)
         logging.info(info)
 
     def report_stat(self, x, y, data=None):
-        """report the median of values in a box with side region_size."""
+        """report the median of values in a box with side region_size.
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
+        """
         if data is None:
             data = self._data
 
@@ -362,6 +404,16 @@ class Imexamine(object):
 
         this is used for the imexam loop, because there is a standard api
         for the loop
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
         """
         if data is None:
             data = self._data
@@ -376,6 +428,13 @@ class Imexamine(object):
         """Save to file the figure that's currently displayed.
 
         this is used for the standalone plotting
+
+        Parameters
+        ----------
+        filename: string
+            Name of the file the plot will be saved to. The extension
+            on the filename determines the filetype
+
         """
         if filename:
             self.set_plot_name(filename)
@@ -393,6 +452,16 @@ class Imexamine(object):
         """Perform aperture photometry.
 
         uses photutils functions, photutils must be available
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
         """
         if data is None:
             data = self._data
@@ -455,13 +524,13 @@ class Imexamine(object):
             if center:
                 pheader += ("fwhm")
                 pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\
-                        \t{5:0.2f}\t{6:0.2f}".format(x + 1, y + 1, radius,
+                        \t{5:0.2f}\t{6:0.2f}".format(x, y, radius,
                                                      total_flux, mag,
                                                      sky_per_pix,
                                                      math_helper.gfwhm(sigma)[0]).expandtabs(15)
             else:
                 pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\
-                        \t{4:0.2f}\t{5:0.2f}".format(x + 1, y + 1, radius,
+                        \t{4:0.2f}\t{5:0.2f}".format(x, y, radius,
                                                      total_flux, mag,
                                                      sky_per_pix,).expandtabs(15)
 
@@ -474,9 +543,17 @@ class Imexamine(object):
 
         Parameters
         ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
         form: string
             This is the functional form specified  line fit parameters
             Currently Gaussian1D or Moffat1D or MexicanHat1D
+        genplot: bool
+            produce the plot or return the fit
 
         Notes
         -----
@@ -493,7 +570,8 @@ class Imexamine(object):
 
         delta = self.line_fit_pars["rplot"][0]
         if delta >= len(data)/4:  # help with small data arrays and defaults
-            delta = int(delta/2)
+            delta = delta/2
+        delta = int(delta)
 
         # the form the fit will take
         fitform = self.line_fit_pars["func"][0]
@@ -549,7 +627,7 @@ class Imexamine(object):
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
                     self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    int(x + 1), int(y + 1), fitted.mean.value, fwhmx)
+                    int(x), int(y), fitted.mean.value, fwhmx)
                 print(pstr)
                 logging.info(pstr)
             elif fitform is "Moffat1D":
@@ -557,14 +635,14 @@ class Imexamine(object):
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     self.line_fit_pars["title"][0], fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
-                    int(x + 1), int(y + 1), fitted.amplitude.value, mfwhm)
+                    int(x), int(y), fitted.amplitude.value, mfwhm)
                 print(pstr)
                 logging.info(pstr)
             elif fitform is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
-                    int(x + 1), int(y + 1), fitted.amplitude.value, fitted.sigma.value)
+                    int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
                 logging.info(pstr)
             else:
@@ -587,10 +665,14 @@ class Imexamine(object):
 
         Parameters
         ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
         form: string
             This is the functional form specified column fit parameters
-        data: numpy array
-            overrides the object data or for use with no viz windows
         genplot: int
             produce the plot or return the fit model
 
@@ -665,7 +747,7 @@ class Imexamine(object):
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
                     self.column_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmy))
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
-                    int(x + 1), int(y + 1), fitted.mean.value, fwhmy)
+                    int(x), int(y), fitted.mean.value, fwhmy)
                 print(pstr)
                 logging.info(pstr)
             elif fitform is "Moffat1D":
@@ -673,14 +755,14 @@ class Imexamine(object):
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     self.column_fit_pars["title"][0], fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
-                    int(x + 1), int(y + 1), fitted.amplitude.value, mfwhm)
+                    int(x), int(y), fitted.amplitude.value, mfwhm)
                 print(pstr)
                 logging.info(pstr)
             elif fitform is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     self.column_fit_pars["title"][0], fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
-                    int(x + 1), int(y + 1), fitted.amplitude.value, fitted.sigma.value)
+                    int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
                 logging.info(pstr)
             else:
@@ -702,6 +784,12 @@ class Imexamine(object):
 
         Parameters
         ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
         delta: int
             The range of data values (bounding box) to use around the x,y
             location for calculating the center
@@ -714,6 +802,7 @@ class Imexamine(object):
         if delta >= len(data)/4:
             delta = delta/2
 
+        delta = int(delta)
         #  flipped from xpa
         chunk = data[y - delta:y + delta, x - delta:x + delta]
         try:
@@ -740,6 +829,18 @@ class Imexamine(object):
 
         Background may be subtracted and centering can be done with a
         2D Gaussian fit
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+        form: string
+            The string name of the form of the fit to use
+
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -813,7 +914,7 @@ class Imexamine(object):
 
             if getdata:
                 info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
-                    int(centerx + 1), int(centery + 1), nr, tbin)
+                    int(centerx), int(centery), nr, tbin)
                 print(info)
                 logging.info(info)
 
@@ -839,6 +940,16 @@ class Imexamine(object):
         """Display a curve of growth plot.
 
         the object photometry is from photutils
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
         """
         if not photutils_installed:
             print("Install photutils to enable")
@@ -894,7 +1005,7 @@ class Imexamine(object):
             if getdata:
                 rapert = np.arange(1, rapert, 1)
                 info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
-                    int(centerx + 1), int(centery + 1), rapert, flux)
+                    int(centerx), int(centery), rapert, flux)
                 print(info)
                 logging.info(info)
             ax.plot(radius, flux, 'o')
@@ -914,18 +1025,20 @@ class Imexamine(object):
 
         Parameters
         ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
         radsize: int
             Size of the radius
-
         sky_inner: int
             Inner radius of the sky annulus
-
         skywidth: int
             Width of the sky annulus
-
         method: string
             Pixel sampling method to use
-
         subpixels: int
             How many subpixels to use
 
@@ -973,7 +1086,18 @@ class Imexamine(object):
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
     def histogram(self, x, y, data=None, fig=None):
-        """plot a histogram of the pixel values."""
+        """plot a histogram of the pixel values.
+
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+        """
         if data is None:
             data = self._data
 
@@ -1031,7 +1155,17 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def contour(self, x, y, data=None, fig=None):
-        """plot contours in a region around the specified location."""
+        """plot contours in a region around the specified location.
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+        """
         if data is None:
             data = self._data
 
@@ -1075,7 +1209,18 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def surface(self, x, y, data=None, fig=None):
-        """plot a surface around the specified location."""
+        """plot a surface around the specified location.
+
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+
+        """
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
@@ -1097,11 +1242,17 @@ class Imexamine(object):
         deltax = self.surface_pars["ncolumns"][0]
         deltay = self.surface_pars["nlines"][0]
 
-        X = np.arange(x - deltax, x + deltax, 1)
-        Y = np.arange(y - deltay, y + deltay, 1)
+        minx = x - deltax if x - deltax > 0 else 0
+        miny = y - deltay if y - deltay > 0 else 0
+        maxx = x + deltax if x + deltax < data.shape[-1] else data.shape[0]
+        maxy = y + deltay if y + deltay < data.shape[0] else data.shape[0]
+
+
+        X = np.arange(minx, maxx, 1)
+        Y = np.arange(miny, maxy, 1)
 
         X, Y = np.meshgrid(X, Y)
-        Z = data[y - deltay:y + deltay, x - deltax:x + deltax]
+        Z = data[miny:maxy, minx:maxx]
         if self.surface_pars["floor"][0]:
             zmin = float(self.surface_pars["floor"][0])
         else:
@@ -1126,8 +1277,8 @@ class Imexamine(object):
         ax.set_zlim(zmin, zmax)
 
         if fancy:
-            xmin = x - deltax
-            ymax = y + deltay
+            xmin = minx
+            ymax = maxy
             cset = ax.contour(
                 X,
                 Y,
@@ -1160,10 +1311,24 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def cutout(self, x, y, data=None, fig=None, size=20):
-        """Make a cutout around the pointer location and save a fits file."""
-        cutout = data[y-size:y+size, x-size:x+size]
+        """Make a fits cutout around the pointer location.
+
+        This makes a simple fits cutout with no wcs information
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+        size: int
+            The radius of the cutout region
+
+        """
         prefix = "cutout_{0}_{1}_".format(int(x), int(y))
         fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
+        cutout = data[y-size:y+size, x-size:x+size]
         hdu = fits.PrimaryHDU(cutout)
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
