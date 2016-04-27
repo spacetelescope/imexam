@@ -695,7 +695,8 @@ class ds9(object):
 
         k, x, y = xpa_string.split()
 
-        # ds9 is returning 1 based array
+        # ds9 is returning 1 based array, set to 0-based since
+        # imexamine uses numpy for array crunching
         return float(x)-1, float(y)-1, str(k)
 
     def alignwcs(self, on=True):

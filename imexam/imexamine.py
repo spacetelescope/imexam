@@ -71,7 +71,7 @@ class Imexamine(object):
         """
         self.set_option_funcs()  # define the dictionary of keys and functions
         self._data = np.zeros(0)  # the data array
-        self._datafile = ""  # the file from which the data came
+        self._datafile = "numpy array"  # the file from which the data came
         # read from imexam_defpars which contains dicts
         self._define_default_pars()
         # default plot name saved with "s" key
@@ -100,23 +100,23 @@ class Imexamine(object):
          the second item in the tuple is the description of what the function
          does when that key is pressed
         """
-        self.imexam_option_funcs = {'a': (self.aper_phot, 'aperture sum, with radius region_size '),
+        self.imexam_option_funcs = {'a': (self.aper_phot, 'Aperture sum, with radius region_size '),
                                     'j': (self.line_fit, '1D [Gaussian1D default] line fit '),
                                     'k': (self.column_fit, '1D [Gaussian1D default] column fit'),
-                                    'm': (self.report_stat, 'square region stats, in [region_size],default is median'),
-                                    'x': (self.show_xy_coords, 'return x,y,value of pixel'),
-                                    'y': (self.show_xy_coords, 'return x,y,value of pixel'),
-                                    'l': (self.plot_line, 'return line plot'),
-                                    'c': (self.plot_column, 'return column plot'),
-                                    'g': (self.curve_of_growth, 'return curve of growth plot'),
-                                    'r': (self.radial_profile, 'return the radial profile plot'),
-                                    'h': (self.histogram, 'return a histogram in the region around the cursor'),
-                                    'e': (self.contour, 'return a contour plot in a region around the cursor'),
-                                    's': (self.save_figure, 'save current figure to disk as [plot_name]'),
-                                    'b': (self.gauss_center, 'return the 2d gauss fit center of the object'),
-                                    'w': (self.surface, 'display a surface plot around the cursor location'),
-                                    '2': (self.new_plot_window, 'make the next plot in a new window'),
-                                    't': (self.cutout, 'make a fits image cutout using pointer location')
+                                    'm': (self.report_stat, 'Square region stats, in [region_size],default is median'),
+                                    'x': (self.show_xy_coords, 'Return x,y,value of pixel'),
+                                    'y': (self.show_xy_coords, 'Return x,y,value of pixel'),
+                                    'l': (self.plot_line, 'Return line plot'),
+                                    'c': (self.plot_column, 'Return column plot'),
+                                    'g': (self.curve_of_growth, 'Return curve of growth plot'),
+                                    'r': (self.radial_profile, 'Return the radial profile plot'),
+                                    'h': (self.histogram, 'Return a histogram in the region around the cursor'),
+                                    'e': (self.contour, 'Return a contour plot in a region around the cursor'),
+                                    's': (self.save_figure, 'Save current figure to disk as [plot_name]'),
+                                    'b': (self.gauss_center, 'Return the 2D gauss fit center of the object'),
+                                    'w': (self.surface, 'Display a surface plot around the cursor location'),
+                                    '2': (self.new_plot_window, 'Make the next plot in a new window'),
+                                    't': (self.cutout, 'Make a fits image cutout using pointer location')
                                     }
 
     def print_options(self):
@@ -167,6 +167,7 @@ class Imexamine(object):
     def set_data(self, data=np.zeros(0)):
         """initialize the data that imexamine uses."""
         self._data = data
+        
 
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key.
@@ -241,8 +242,7 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-        counter = len(self._plot_windows) + 1
-        self._figure_name = "imexam" + str(counter)
+        self._figure_name = "imexam" + str(len(self._plot_windows) + 1)
         self._plot_windows.append(self._figure_name)
         print("Plots now directed towards {0:s}".format(self._figure_name))
 
@@ -266,9 +266,8 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title(
-            "{0:s} line={1:d}".format(
-                self.lineplot_pars["title"][0], int(y)))
+        if self.lineplot_pars["title"][0] is None:
+            ax.set_title( "{0:s} line at {1:d}".format(self._datafile, int(y)))
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
@@ -316,9 +315,10 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title(
-            "{0:s}  column={1:d}".format(
-                self.colplot_pars["title"][0], int(x)))
+        if self.colplot_pars["title"][0] is None:
+            ax.set_title("{0:s} column at {1:d}".format(self._datafile, int(x)))
+        else:
+            ax.set_title(self.colplot_pars["title"][0])
         ax.set_xlabel(self.colplot_pars["xlabel"][0])
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
@@ -365,8 +365,10 @@ class Imexamine(object):
         logging.info(info)
 
     def report_stat(self, x, y, data=None):
-        """report the median of values in a box with side region_size.
+        """report the statisic of values in a box with side region_size.
 
+        The statistic can be any numpy function
+        
         Parameters
         ----------
         x: int
@@ -604,6 +606,11 @@ class Imexamine(object):
         yfit = fitted(fline)
 
         # make a plot
+        if self.line_fit_pars["title"][0] is None:
+            title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
+        else:
+            title = self.line_fit_pars["title"][0]
+            
         if genplot:
             if fig is None:
                 fig = plt.figure(self._figure_name)
@@ -625,7 +632,7 @@ class Imexamine(object):
             if fitform is "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmx))
+                    title, fitted.amplitude.value, fitted.mean.value, fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmx)
                 print(pstr)
@@ -633,14 +640,14 @@ class Imexamine(object):
             elif fitform is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
-                    self.line_fit_pars["title"][0], fitted.amplitude.value, mfwhm))
+                    title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
                 print(pstr)
                 logging.info(pstr)
             elif fitform is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
-                    self.line_fit_pars["title"][0], fitted.amplitude.value, fitted.sigma.value))
+                    title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
@@ -723,6 +730,12 @@ class Imexamine(object):
         yline = np.arange(len(chunk)) + yy - delta
         fline = np.linspace(yline[0], yline[-1], 100)  # finer sample
         yfit = fitted(fline)
+        
+        if self.column_fit_pars["title"][0] is None:
+            title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
+        else:
+            title = self.column_fit_pars["title"][0]
+            
         # make a plot
         if genplot:
             if fig is None:
@@ -745,7 +758,7 @@ class Imexamine(object):
             if fitform == "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    self.column_fit_pars["title"][0], fitted.amplitude.value, fitted.mean.value, fwhmy))
+                    title, fitted.amplitude.value, fitted.mean.value, fwhmy))
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmy)
                 print(pstr)
@@ -753,14 +766,14 @@ class Imexamine(object):
             elif fitform is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
-                    self.column_fit_pars["title"][0], fitted.amplitude.value, mfwhm))
+                    title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
                 print(pstr)
                 logging.info(pstr)
             elif fitform is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
-                    self.column_fit_pars["title"][0], fitted.amplitude.value, fitted.sigma.value))
+                    title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
@@ -908,7 +921,11 @@ class Imexamine(object):
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
-            title = self.radial_profile_pars["title"][0]
+            if self.radial_profile_pars["title"][0] is None:
+                title = "{0}: {1} {2}".format(self._datafile, icenterx, icentery)
+            else:
+                title = self.radial_profile_pars["title"][0]
+                
             ax.set_xlabel(self.radial_profile_pars["xlabel"][0])
             ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
 
@@ -982,7 +999,11 @@ class Imexamine(object):
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
-            title = self.curve_of_growth_pars["title"][0]
+            if self.curve_of_growth_pars["title"][0] is None:
+                title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
+            else:
+                title = self.curve_of_growth_pars["title"][0] 
+                
             ax.set_xlabel(self.curve_of_growth_pars["xlabel"][0])
             ax.set_ylabel(self.curve_of_growth_pars["ylabel"][0])
 
@@ -1106,17 +1127,23 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title(self.histogram_pars["title"][0])
+        if self.histogram_pars["title"][0] is None:
+            title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
+        else:
+            title = self.histogram_pars["title"][0]
+        ax.set_title(title)
         ax.set_xlabel(self.histogram_pars["xlabel"][0])
         ax.set_ylabel(self.histogram_pars["ylabel"][0])
         if self.histogram_pars["logx"][0]:
             ax.set_xscale("log")
         if self.histogram_pars["logy"][0]:
             ax.set_yscale("log")
-        deltax = np.ceil(self.histogram_pars["ncolumns"][0] / 2.)
-        deltay = np.ceil(self.histogram_pars["nlines"][0] / 2.)
-
-        data_cut = data[y - deltay:y + deltay, x - deltax:x + deltax]
+        deltax = int(self.histogram_pars["ncolumns"][0] / 2.)
+        deltay = int(self.histogram_pars["nlines"][0] / 2.)
+        yf=int(y)
+        xf=int(x)
+        
+        data_cut = data[yf - deltay:yf + deltay, xf - deltax:xf + deltax]
 
         # mask data for min and max intensity specified
         if self.histogram_pars["z1"][0]:
@@ -1174,12 +1201,16 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
-        ax.set_title(self.contour_pars["title"][0])
+        if self.contour_pars["title"][0] is None:
+            title = "{0} {1} {2}".format(self._datafile,int(x),int(y))
+        else:
+            title = self.contour_pars["title"][0]
+        ax.set_title(title)
         ax.set_xlabel(self.contour_pars["xlabel"][0])
         ax.set_ylabel(self.contour_pars["ylabel"][0])
 
-        deltax = np.ceil(self.contour_pars["ncolumns"][0] / 2.)
-        deltay = np.ceil(self.contour_pars["nlines"][0] / 2.)
+        deltax = int(self.contour_pars["ncolumns"][0] / 2.)
+        deltay = int(self.contour_pars["nlines"][0] / 2.)
         data_cut = data[y - deltay:y + deltay, x - deltax:x + deltax]
 
         plt.rcParams['xtick.direction'] = 'out'
@@ -1232,8 +1263,9 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
-        if self.surface_pars["title"][0]:
-            ax.set_title(self.surface_pars["title"][0])
+        if self.surface_pars["title"][0] is None:
+            title="{0}: {1} {2}".format(self._datafile,int(x),int(y))
+            ax.set_title(title)
         ax.set_xlabel(self.surface_pars["xlabel"][0])
         ax.set_ylabel(self.surface_pars["ylabel"][0])
         if self.surface_pars["zlabel"][0]:

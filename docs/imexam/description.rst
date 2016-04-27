@@ -2,15 +2,15 @@
 Introduction
 ************
 
-imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the power and flexibility of python.
+imexam is meant as a replacement for the IRAF imexamine task. You should be able to perform all of the important functions that imexamine provided in IRAF, but you also gain the flexibility of python. The real power of imexam comes as a library which provides common plotting and data analysis regardless of the viewer you choose to use, or even with no viewer at all. All the functions may be accessed without connecting to a display, the user may also attach their own functions to the imexam loop.
 
-Imexam currently provides display support two viewers. The first is a DS9 window, either one you already have open, or one that imexam explicitly opens. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using an HTML5 backend is also available as a viewer. The package is designed so that it may accept other display devices in the future.
+Imexam currently provides display support two viewers. The first is a DS9 window, either one you already have open, or one that imexam explicitly opens. The default is for imexam to start up it's own DS9 process. It communicates with the DS9 window through the XPA messaging system. A Ginga widget using an HTML5 backend is also available as a viewer. The package is designed so that it may easily accept other display devices in the future.
 
-The imexam library can be used standalone, without a viewer, to create the plots which are available in the interactive sessions by just importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots are saved inside the notebook in conjunction with the nbAgg matplotlib backend.
+The imexam library can be used standalone, without a viewer, to create the plots which are available in the interactive sessions by importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots are saved inside the notebook in conjunction with the nbAgg matplotlib backend.
 
 .. note:: For DS9, it is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then imexam will still work, but you should either start the DS9 window after importing imexam through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the XPA_METHOD address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established. As a convenience, a full installation of the XPA software is packaged with this module. You may choose whether or not to make use of this. There are lines in the setup.py file which are commented out, removing these will compile the XPA software during the full imexam installation and place a copy of the xpans executable in your scripts directory.
 
-In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in the package documentation: http://ginga.readthedocs.org/en/latest/
+In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in the package documentation: http://ginga.readthedocs.org/en/latest/. If you are using Python 3 you should also install Pillow which will aid in the image display. 
 
 You can access this help file on your locally installed copy of the package by using the imexam.display_help() call after import. This will display the help in your web browser.
 
@@ -38,6 +38,8 @@ imexam displays plots using matplotlib, if you find that no windows are popping 
     >%matplotlib
     >import imexam
 
+Matplotlib magic should also be used inside the Jupyter notebook or proper interaction with the plots. 
+
 If you install Ginga you will have access to another display tool for your images and data. You can find the source code on GitHub, but you can also install it with pip or conda.
 
 
@@ -64,7 +66,9 @@ The following is an exaple of connecting to an already active DS9 window which w
     viewer=imexam.connect("my_window_title")
 
 
-When imexam starts up a DS9 window itself, it will create a local socket by default, even though the default socket type for DS9 is INET. However, imexam will first check to see if XPA_METHOD was set in your environment and default to that option. If you are experiencing problems, or you don't have an internet connection (the two might be related because the XPA structures INET sockets with an ip address), you can set your environment variable XPA_METHOD to 'local' or 'localhost'. This will cause imexam to start a local(unix) socket which will show an "XPA_METHOD" that is a filename on your computer. imexam defaults to a local socket connection to allow for users who do not have the XPA installed on their machine or available on their PATH. The full XPA source code is available in the imexam package. If you don't have the XPA on your path, simply point it to that location, or copy the xpans executable to the location of your choice, and make sure you update your PATH. Any time DS9 is started it will start up the xpa nameserver automatically. Then all the xpans query options will be available through imexam (such as imexam.list_active_ds9()).  imexam itself uses Cython wrappers around the get and set methods from the XPA for it's communication which is why the fully installed XPA is not necessary.
+When imexam starts up a DS9 window itself, it will create a local socket by default, even though the default socket type for DS9 is INET. However, imexam will first check to see if XPA_METHOD was set in your environment and default to that option. If you are experiencing problems, or you don't have an internet connection (the two might be related because the XPA structures INET sockets with an ip address), you can set your environment variable XPA_METHOD to 'local' or 'localhost'. This will cause imexam to start a local(unix) socket which will show an "XPA_METHOD" that is a filename on your computer. imexam defaults to a local socket connection to allow for users who do not have the XPA installed on their machine or available on their PATH.
+
+The full XPA source code is bundled with the imexam package. If you don't have the XPA on your path, simply point it to that location, or copy the xpans executable to the location of your choice, and make sure you update your PATH. Any time DS9 is started it will start up the xpa nameserver automatically. Then all the xpans query options will be available through imexam (such as imexam.list_active_ds9()).  imexam itself uses Cython wrappers around the get and set methods from the XPA for it's communication which is why the fully installed XPA is not necessary.
 
 If you wish to open multiple DS9 windows outside of imexam, then it's recommended that you give each a unique name. If you've forgotten which window had which name, you can look in the same XPA info menu and use the "XPA_NAME" specified there. If you haven't given them a unique name, you can list the available windows using imexam.list_active_ds9() (as long as xpans is running) and specify their unique address.
 
@@ -76,6 +80,14 @@ imexam will attempt to find the current location of the DS9 executable by defaul
     imexam.connect(target="",path=None,viewer="ds9",wait_time=10)
 
     Where target is the name of the ds9 window that is already running, path is the location of the ds9 executable, viewer is the name of the viewer to use (ds9 is the only one which is currently activated), and wait_time is the time to wait to establish a connection to the socket before exiting the process.
+
+If it seems like the ds9 window is opening or hanging, there could be few things going on:
+
+
+    * imexam will default to a local unix connection for the XPA to help with users who are not connected to the internet. The default DS9 connection is inet. However, it will first check your environment variable "XPA_METHOD" and preferably use that instead. If you don't have an internet connection, check this environment variable.
+    * If things seem in order, it's possible that your machine is waiting for X11 to start up, give it time to start, or when you call imexam increase the wait time sufficiently; you can do this by specifying "wait_time=60" when you open your viewing object with connect(). The 60 here is an example of the number of seconds imexam should wait before returning a connection error.
+    * Next, check that the path to the DS9 executable is somewhere on your path and that it has not been aliased to something else. You can check this from any terminal window by trying to start ds9. You can also use the unix "which ds9" command to return the full path to the executable, as well as "ls -al ds9" to return the full path and any soft links which might have been established.
+
 
 
 In order to return a list of the current DS9 windows that are running, issue the command:

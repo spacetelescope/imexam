@@ -26,6 +26,7 @@ from ginga.BaseImage import BaseImage
 from ginga import cmap
 from ginga.util import paths
 from ginga.util import wcsmod
+
 wcsmod.use('AstropyWCS')
 
 
@@ -911,7 +912,7 @@ class ginga(ginga_general):
         # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
         from ginga.web.pgw import ipg
         if not self._port:
-            self._port=9904 #still working on autoport
+            self._port = 9904 #still working on autoport
 
         self._server = ipg.make_server(host=self._host,
                                  port=self._port,
@@ -919,17 +920,17 @@ class ginga(ginga_general):
                                  numthreads=self._threads)
 
         backend=get_backend().lower()
+        ioloop=False  # works best with qtconsole
         if 'nbagg' in backend:
-            self._server.start(no_ioloop=True) #assume in notebook
-        elif 'tkagg' in backend:
-            self._server.start(no_ioloop=False)
+             no_ioloop = True  # assume in notebook       
         elif "pylab" in backend:
             raise NotImplementedError
         elif "qt4agg" in backend:
             raise NotImplementedError
-        else:
-            print("not designed to work with {0:s}".format(backend))
-            raise NotImplementedError
+        elif "tkagg" in backend:
+            print("If you aren't in the notebook and have problems with graphics, try switching to jupyter console")
+                  
+        self._server.start(no_ioloop=no_ioloop)
 
     def close(self):
         """ close the window"""

@@ -27,7 +27,7 @@ report_stat_pars = {"function": ["report_stat", ],
 
 # radial profile plots
 radial_profile_pars = {"function": ["radial_profile", ],
-                        "title": ["Radial Profile", "Title of the plot"],
+                        "title": [None, "Title of the plot"],
                         "xlabel": ["Radius", "The string for the xaxis label"],
                         "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
                         "fitplot": [False,"Overplot profile fit?"],
@@ -46,7 +46,7 @@ radial_profile_pars = {"function": ["radial_profile", ],
 
 # curve of growth
 curve_of_growth_pars = {"function": ["curve_of_growth", ],
-                        "title": ["Curve of growth", "Title of the plot"],
+                        "title": [None, "Title of the plot"],
                         "xlabel": ["radius", "The string for the xaxis label"],
                         "ylabel": ["Flux", "The string for the yaxis label"],
                         "center": [True, "Solve for center using 2d Gaussian? [bool]"],
@@ -82,7 +82,7 @@ surface_pars = {"function": ["surface", ],
 # fit of line in image using model
 line_fit_pars = {"function": ["line_fit", ],
                  "func": ["Gaussian1D", "function for fitting (see available)"],
-                 "title": ["Fit line", "Title of the plot"],
+                 "title": [None, "Title of the plot"],
                  "xlabel": ["Column", "The string for the xaxis label"],
                  "ylabel": ["Flux", "The string for the yaxis label"],
                  "background": [False, "Solve for background? [bool]"],
@@ -98,7 +98,7 @@ line_fit_pars = {"function": ["line_fit", ],
 # fit of column in image using model
 column_fit_pars = {"function": ["column_fit", ],
                    "func": ["Gaussian1D", "function for fitting (see available)"],
-                   "title": ["Fit 1D to the column", "Title of the plot"],
+                   "title": [None, "Title of the plot"],
                    "xlabel": ["Line", "The string for the xaxis label"],
                    "ylabel": ["Flux", "The string for the yaxis label"],
                    "background": [False, "Solve for background? [bool]"],
@@ -113,7 +113,7 @@ column_fit_pars = {"function": ["column_fit", ],
 
 # contour plots
 contour_pars = {"function": ["contour", ],
-                "title": ["Contour plot in region around pixel location", "Title of the plot"],
+                "title": [None, "Title of the plot"],
                 "xlabel": ["x", "The string for the xaxis label"],
                 "ylabel": ["y", "The string for the yaxis label"],
                 "ncolumns": [15, "Number of columns"],
@@ -128,7 +128,7 @@ contour_pars = {"function": ["contour", ],
 
 # histogram of values contained in a box
 histogram_pars = {"function": ["histogram", ],
-                  "title": ["Histogram", "Title of the plot"],
+                  "title": [None, "Title of the plot"],
                   "xlabel": ["Flux (bin)", "The string for the xaxis label"],
                   "ylabel": ["Count", "The string for the yaxis label"],
                   "ncolumns": [21, "Number of columns"],
@@ -145,7 +145,7 @@ histogram_pars = {"function": ["histogram", ],
 
 # plots the values in a line
 lineplot_pars = {"function": ["linefit", ],
-                 "title": ["Data values for selected line", "Title of the plot"],
+                 "title": [None, "Title of the plot"],
                  "xlabel": ["Column", "The string for the xaxis label"],
                  "ylabel": ["Pixel Value", "The string for the yaxis label"],
                  "pointmode": [False, "plot points instead of lines? [bool]"],
@@ -159,7 +159,7 @@ lineplot_pars = {"function": ["linefit", ],
                  }
 # plot the values in a column
 colplot_pars = {"function": ["colfit", ],
-                "title": ["Data values for selected column", "Title of the plot"],
+                "title": [None, "Title of the plot"],
                 "xlabel": ["Line", "The string for the xaxis label"],
                 "ylabel": ["Pixel Value", "The string for the yaxis label"],
                 "pointmode": [False, "plot points instead of lines? [bool]"],

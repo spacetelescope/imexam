@@ -9,7 +9,7 @@ from __future__ import print_function, division, absolute_import
 import warnings
 import logging
 import os
-
+import astropy
 
 from .util import set_logging
 from .ds9_viewer import ds9
@@ -336,6 +336,10 @@ class Connect(object):
 
     def load_fits(self, *args, **kwargs):
         """Convenience function to load fits image to current frame."""
+        if 'fname' in kwargs.keys():
+            self.exam._datafile = kwargs['fname']
+        else:
+            self.exam._datafile=args[0]
         self.window.load_fits(*args, **kwargs)
 
     def load_region(self, *args, **kwargs):
@@ -432,8 +436,16 @@ class Connect(object):
         self.window.snapsave(*args, **kwargs)
 
     def view(self, *args, **kwargs):
-        """Display numpy image array."""
-        self.window.view(*args, **kwargs)
+        """Display numpy or nddata image array. 
+        
+        If an astropy NDData object is passed without a reference to the data
+        one will be added. I haven't tested this yet for multiarray data
+        """
+        self.exam._datafile = "array"
+        if isinstance(args[0],astropy.nddata.nddata.NDData):
+            self.window.view(args[0].data)  # when not specified
+        else:
+            self.window.view(*args, **kwargs)
 
     def zoom(self, *args, **kwargs):
         """Zoom to parameter which can be any recognized string."""
