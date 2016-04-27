@@ -42,7 +42,7 @@ URL = metadata.get('url', 'http://astropy.org')
 VERSION = metadata.get('version', '')
 CLASSIFIERS = metadata.get('classifier', '')
 CYTHON_SOURCE = "wrappers/xpa.c"  # cython file
-XPALIB_DIR = "cextern/xpa-2.1.15"
+XPALIB_DIR = "cextern/xpa/"
 CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
 # Indicates if this version is a release version
@@ -80,19 +80,6 @@ class my_clean(clean):
         print("cleaning")
 
 
-class build_ext_with_configure(build_ext):
-    """Special build."""
-
-    def build_extensions(self):
-        """build source with configure."""
-        import subprocess
-        subprocess.call(["make", "-f", "Makefile", "clean"],
-                        cwd=XPALIB_DIR)
-        subprocess.call(["sh", "./configure"], cwd=XPALIB_DIR)
-        subprocess.call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
-        build_ext.build_extensions(self)
-        print("building with configure")
-
 
 xpalib_files = """acl.c
                   client.c
@@ -117,6 +104,20 @@ xpalib_defines = [("HAVE_CONFIG_H", "1")]
 
 ext_modules = []  # xpa_module to build
 if use_cython:
+
+    class build_ext_with_configure(build_ext):
+        """Special build."""
+
+        def build_extensions(self):
+            """build source with configure."""
+            import subprocess
+            subprocess.call(["make", "-f", "Makefile", "clean"],
+                            cwd=XPALIB_DIR)
+            subprocess.call(["sh", "./configure"], cwd=XPALIB_DIR)
+            subprocess.call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
+            build_ext.build_extensions(self)
+            print("building with configure")
+
     ext_modules += [
         Extension("imexam.xpa",
                   sources=xpa_sources,

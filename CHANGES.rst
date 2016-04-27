@@ -2,7 +2,11 @@ version 0.6dev (unreleased)
 ---------------------------
 - Ginga viewer support for images in matplotlib and QT backend removed, but replaced with HTML5 canvas viewer which is faster and simpler for users to both use and install. 
 - replaced custom fits with astropy.modeling, enabling Gaussian2d, Gaussian1d, Moffat1D and MexicanHat1D fits for lines and centering
-- General bug fixes and documentation updates
+- General bug fixes and documentation updates, including example jupyter notebooks
+- Updated the default title display on plots to use the image name or specify an array was used
+- added astropy_helpers as a submodule
+- made xpa a submodule
+
 
 version 0.5.3dev (unreleased)
 -----------------------------
