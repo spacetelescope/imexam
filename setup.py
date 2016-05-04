@@ -66,11 +66,13 @@ scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
 XPALIB_DIR = "cextern/xpa-2.1.15"
 CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
+# Output from Cythonizing
+CYTHON_SOURCE = "wrappers/xpa.c"
+
 # check if cython is available.
 try:
     from Cython.Build import cythonize
     cythonize("wrappers/xpa.pyx")
-    CYTHON_SOURCE = "wrappers/xpa.c"
     have_cython=True
 except ImportError:
     print("Unable to load Cython")
@@ -148,7 +150,7 @@ setup(
     author_email=AUTHOR_EMAIL,
     license=LICENSE,
     long_description=LONG_DESCRIPTION,
-    setup_requires=['d2to1>=0.2.7'],
+    setup_requires=['cython', 'd2to1>=0.2.7'],
     d2to1=True,
     use_2to3=False,
     zip_safe=False,
