@@ -1,8 +1,9 @@
 """Licensed under a 3-clause BSD style license - see LICENSE.rst.
 
    This class implements IRAF/imexamine type capabilities
+   for providing powerful diagnostic quick-look tools.
 
-   However, the power of this class is that it is essential a library
+   However, the power of this python tool is that it is essentially a library
    of plotting and analysis routines which can be directed towards
    any viewer. It can also be used without connecting to any viewer
    since the calls take only data,x,y information. This means that
@@ -20,6 +21,7 @@ from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import warnings
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import sys
 import logging
@@ -60,7 +62,7 @@ __all__ = ["Imexamine"]
 
 
 class Imexamine(object):
-    """The imexamine class controls plotting and other functions."""
+    """The imexamine class controls plotting and analysis functions."""
 
     def __init__(self):
         """do imexamine like routines on the current frame.
@@ -84,6 +86,11 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
         self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
+
+    def _close_plots(self):
+        """Make sure to release plot memory at end of exam loop."""
+        for name in self._plot_windows:
+            plt.close()
 
     def show_fit_models(self):
         """Print the available astropy models for plot fits."""
@@ -120,14 +127,14 @@ class Imexamine(object):
                                     }
 
     def print_options(self):
-        """print the imexam options to screen."""
+        """Print the imexam options to screen."""
         keys = self.get_options()
         for key in keys:
             print("%s\t%s" % (key, self.option_descrip(key)))
         print()
 
     def do_option(self, x, y, key):
-        """run the imexam option.
+        """Run the imexam option.
 
         Parameters
         ----------
@@ -146,12 +153,12 @@ class Imexamine(object):
         self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
-        """return the imexam options as a key list."""
+        """Return the imexam options as a key list."""
         keys = sorted(self.imexam_option_funcs.keys())
         return keys
 
     def option_descrip(self, key, field=1):
-        """return the looked up dictionary of options.
+        """Return the looked up dictionary of options.
 
         Parameters
         ----------
@@ -167,7 +174,7 @@ class Imexamine(object):
     def set_data(self, data=np.zeros(0)):
         """initialize the data that imexamine uses."""
         self._data = data
-        
+
 
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key.
@@ -311,7 +318,7 @@ class Imexamine(object):
             data = self._data
 
         if fig is None:
-            fig = plt.figure(self._figure_name)
+            fig = mplfigure.Figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -368,7 +375,7 @@ class Imexamine(object):
         """report the statisic of values in a box with side region_size.
 
         The statistic can be any numpy function
-        
+
         Parameters
         ----------
         x: int
@@ -610,7 +617,7 @@ class Imexamine(object):
             title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
         else:
             title = self.line_fit_pars["title"][0]
-            
+
         if genplot:
             if fig is None:
                 fig = plt.figure(self._figure_name)
@@ -730,12 +737,12 @@ class Imexamine(object):
         yline = np.arange(len(chunk)) + yy - delta
         fline = np.linspace(yline[0], yline[-1], 100)  # finer sample
         yfit = fitted(fline)
-        
+
         if self.column_fit_pars["title"][0] is None:
             title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
         else:
             title = self.column_fit_pars["title"][0]
-            
+
         # make a plot
         if genplot:
             if fig is None:
@@ -925,7 +932,7 @@ class Imexamine(object):
                 title = "{0}: {1} {2}".format(self._datafile, icenterx, icentery)
             else:
                 title = self.radial_profile_pars["title"][0]
-                
+
             ax.set_xlabel(self.radial_profile_pars["xlabel"][0])
             ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
 
@@ -1002,8 +1009,8 @@ class Imexamine(object):
             if self.curve_of_growth_pars["title"][0] is None:
                 title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
             else:
-                title = self.curve_of_growth_pars["title"][0] 
-                
+                title = self.curve_of_growth_pars["title"][0]
+
             ax.set_xlabel(self.curve_of_growth_pars["xlabel"][0])
             ax.set_ylabel(self.curve_of_growth_pars["ylabel"][0])
 
@@ -1142,7 +1149,7 @@ class Imexamine(object):
         deltay = int(self.histogram_pars["nlines"][0] / 2.)
         yf=int(y)
         xf=int(x)
-        
+
         data_cut = data[yf - deltay:yf + deltay, xf - deltax:xf + deltax]
 
         # mask data for min and max intensity specified
@@ -1343,9 +1350,8 @@ class Imexamine(object):
             plt.pause(0.001)
 
     def cutout(self, x, y, data=None, fig=None, size=20):
-        """Make a fits cutout around the pointer location.
+        """Make a fits cutout around the pointer location without wcs.
 
-        This makes a simple fits cutout with no wcs information
         Parameters
         ----------
         x: int

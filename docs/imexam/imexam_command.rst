@@ -52,9 +52,9 @@ This is the main method which allows live interaction with the image display whe
 .. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers
 
 
-The imexam key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which map to your own
+The ``imexam`` key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which map to your own
 
-Users may also add their own imexam keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.
+Users may also add their own ``imexam`` keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.
 
 
 For all the examples below I will use the following session::
@@ -69,7 +69,7 @@ For all the examples below I will use the following session::
     viewer.zoom(3)
 
 
-.. image:: imexam_command_example.png
+.. image:: ../_static/imexam_command_example.png
     :height: 400
     :width: 400
     :alt: Data used for imexam command examples
@@ -89,14 +89,14 @@ This will use Ginga for the viewer::
     viewer.zoom(3)
 
 
-.. image:: imexam_command_example_ginga.png
+.. image:: ../_static/imexam_command_example_ginga.png
     :height: 400
     :width: 400
     :alt: Data used for imexam command examples
 
 
 Circular Apterture Photometry
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 Aperture photometry is performed when you press the "a" key. It is implemented using the `~photutils` python package, an affiliated package of astropy that is still in development.
 
@@ -149,7 +149,7 @@ xc = xcenter, yc=ycenter; these were found using a Gaussian2D fit centered on th
 
 
 Gaussian1D, Moffat1D, MexicanHat1D profiles
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------
 If you press the "j" or "k" keys, a 1D profile is fit to the data in either the line or column of the current pointer location. A plot of both the data and the fit + parameters is displayed.
 If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data. ::
 
@@ -189,7 +189,7 @@ The column fit parameters are similar::
 
 This is the resulting line fit:
 
-.. image:: fit_line.png
+.. image:: ../_static/fit_line.png
     :height: 400
     :width: 600
     :alt: Plot of Gaussian1D profile fit to data
@@ -197,7 +197,7 @@ This is the resulting line fit:
 
 and the corresponding column fit:
 
-.. image:: fit_column.png
+.. image:: ../_static/fit_column.png
     :height: 400
     :width: 600
     :alt: Plot of Gaussian1D profile fit to data
@@ -206,7 +206,7 @@ and the corresponding column fit:
 
 
 Median square region stats
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 If you press the "m" key, the  pixel values around the pointer location are calculated inside a box which has a side equal to the region_size, defaulted to 5 pixels, and using the statistical function chosen.
 The user can map the function to any reasonable numpy function, it's set to numpy.median by default
 
@@ -231,30 +231,33 @@ You can make a quick comparison of the max reported above with the line fit grap
 
 
 Pixel Coordinates and Value
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 Hitting the 'x' or 'y' will return the x,y coordinate and pixel value under the mouse pointer.::
 
     576.0 633.66667  55271.0
 
 
+When not inside the imexam() loop, you can also set the location of the pointer using
+the wcs or pixel location you wish to view.
+
 
 Line or Column plots
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 Pressing the "l" or "c" keys will display a plot of the points through either the line or column closest to the cursor location.
 
 
-.. image:: column_plot.png
+.. image:: ../_static/column_plot.png
     :height: 400
     :width: 600
     :alt: Column plot
 
-.. image:: line_plot.png
+.. image:: ../_static/line_plot.png
     :height: 400
     :width: 600
     :alt: Line plot
 
 Radial Profile Plot
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 Pressing the "r" key displays a radial profile plot for the flux around the current pointer location.
 If centering is on, the center is computed close to the star using a Gaussian2D fit.
@@ -280,14 +283,14 @@ The available parameters are ::
                         }
 
 
-.. image:: radial_profile_plot.png
+.. image:: ../_static/radial_profile_plot.png
     :height: 400
     :width: 600
     :alt: Curve of growth  plot around star
 
 
 Curve of Growth plot
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 Pressing the "r" key displays a curve of growth for the flux around the current pointer location in successively larger radii.
 If centering is on, the center is computed close to the star using a 2d gaussian fit.
 
@@ -311,7 +314,7 @@ The available parameters are ::
                           }
 
 
-.. image:: curve_of_growth.png
+.. image:: ../_static/curve_of_growth.png
     :height: 400
     :width: 600
     :alt: Curve of growth  plot around star
@@ -330,7 +333,7 @@ Returned to the screen is the data information from the plot, the (x,y) location
 
 
 Histogram Plots
-^^^^^^^^^^^^^^^
+---------------
 
 Pressing the "h" key will display a histogram of pixel values around the pixel location under the mouse pointer. ::
 
@@ -350,7 +353,7 @@ Pressing the "h" key will display a histogram of pixel values around the pixel l
                     }
 
 
-.. image:: histogram_plot.png
+.. image:: ../_static/histogram_plot.png
     :height: 400
     :width: 600
     :alt: histogram plot
@@ -359,7 +362,7 @@ Pressing the "h" key will display a histogram of pixel values around the pixel l
 
 
 Contour Plots
-^^^^^^^^^^^^^
+-------------
 
 Pressing the "e" key will display  a contour plot around the clicked pixel location. ::
 
@@ -378,7 +381,7 @@ Pressing the "e" key will display  a contour plot around the clicked pixel locat
                        }
 
 
-.. image:: contour_plot.png
+.. image:: ../_static/contour_plot.png
     :height: 400
     :width: 600
     :alt: contour plot
@@ -391,7 +394,7 @@ Here's what it looks like if we change some of the default parameters::
     viewer.set_plot_pars('e', "floor", 0)
 
 
-.. image:: contour_plot2.png
+.. image:: ../_static/contour_plot2.png
     :height: 400
     :width: 600
     :alt: contour plot
@@ -401,7 +404,7 @@ Here's what it looks like if we change some of the default parameters::
 
 
 Surface Plots
-^^^^^^^^^^^^^
+-------------
 
 Pressing the "s" key will display a 3D surface plot of pixel values around the mouse pointer location::
 
@@ -421,23 +424,23 @@ Pressing the "s" key will display a 3D surface plot of pixel values around the m
                        }
 
 
-.. image:: surface_plot.png
+.. image:: ../_static/surface_plot.png
     :height: 600
     :width: 800
     :alt: surface plot
 
 Or, if you'd like to get fancy and add some nice contours:
 
-.. image:: fancy_surface.png
+.. image:: ../_static/fancy_surface.png
     :height: 600
     :width: 800
     :alt: fancy surface plot
 
 
 User Specified Functions
-^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------
 
-Users may code their own functions and bind them to keys by registering them with the imexam dictionary through the register method.
+Users may code their own functions and bind them to keys by registering them with the ``imexam`` dictionary through the register method.
 The new binding will be added to the dictionary of imexamine functions as long as the key is unique.
 The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new
 instantiations of imexam.connect() will not have the new function unless the user specifically registers them.
@@ -461,7 +464,7 @@ Here's all the code for a function which makes a cutout around the clicked pixel
 
 Now, import that into your python session, file, or here I'll just copy paste the definition to the session. This is an important step becuase
 the function reference is what you are going to send to the registration method. The registration method wants you to supply a dictionary which
-contains the key you want to assign that function to during the imexam loop, and a tuple with the function name and description::
+contains the key you want to assign that function to during the imexam() loop, and a tuple with the function name and description::
 
     my_dict = {'t': (cutout, 'Cut out an image stamp from under the mouse and save it')}
 
@@ -471,7 +474,7 @@ contains the key you want to assign that function to during the imexam loop, and
 
 Okay, so let's try out our new function! We should be able to see it in the list of available options.
 
-.. image:: user_func_1.png
+.. image:: ../_static/user_func_1.png
     :height: 400
     :width: 600
     :alt: user function 1
@@ -486,17 +489,20 @@ Okay, I went to the star I like and pressed "t". Let's verify that we got what w
 
 And the resulting frame view?
 
-.. image:: user_func_2.png
+.. image:: ../_static/user_func_2.png
     :height: 400
     :width: 400
     :alt: user function 1
 
 
-Sweet.
+Sweet. Because this is a often used function I've made it a part of the standard
+selection set. If you wish to use the astropy 2D cutout method, you can create
+your own function which will also pass in the WCS object for the data so that
+the cutout retains it's WCS information.
 
 
 Plot Multiple Windows
-^^^^^^^^^^^^^^^^^^^^^
+---------------------
 
 During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the "2"  key. This will save the current plotting window on your desktop and send the next plot to a new window.Here's what that might look like::
 
@@ -523,7 +529,7 @@ During a single viewer.imexam() session, you can choose to send your plots to mu
 
 This is what the workspace could look like with DS9 as the viewer:
 
-.. image:: multiple_plots.png
+.. image:: ../_static/multiple_plots.png
     :height: 650
     :width: 800
     :alt: multiple plots in DS9 with imexam
@@ -531,7 +537,7 @@ This is what the workspace could look like with DS9 as the viewer:
 
 As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:
 
-.. image:: contour_zoom.png
+.. image:: ../_static/contour_zoom.png
     :height: 600
     :width: 800
     :alt: contour zoom plot

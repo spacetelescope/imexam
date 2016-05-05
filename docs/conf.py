@@ -30,7 +30,16 @@ import os
 import sys
 
 # Load all of the global Astropy configuration
+try:
+    import astropy_helpers
+except ImportError:
+    if os.path.basename(os.getcwd()) == 'docs':
+        a_h_path = os.path.abspath(os.path.join('..','astropy_helpers'))
+        if os.path.isdir(a_h_path):
+            sys.path.insert(1,a_h_path)
+
 from astropy_helpers.sphinx.conf import *
+from astropy.extern import six
 
 # Get configuration information from setup.cfg
 from distutils import config
@@ -42,6 +51,11 @@ setup_cfg = dict(conf.items('metadata'))
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.1'
+del intersphinx_mapping['h5py']
+
+# Extend astropy intersphinx_mapping with packages we use here
+intersphinx_mapping['ginga'] = ('http://ginga.readthedocs.io/en/latest/', None)
+
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -50,6 +64,7 @@ exclude_patterns.append('_templates')
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
 rst_epilog += """
+.. _Imexam: high-level_API.html
 """
 
 # -- Project information ------------------------------------------------------
@@ -104,6 +119,7 @@ html_title = '{0} v{1}'.format(project, version)
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
 
+html_logo = '_static/imexam_logo_trans.png'
 
 # -- Options for LaTeX output --------------------------------------------------
 
@@ -112,6 +128,7 @@ htmlhelp_basename = project + 'doc'
 latex_documents = [('index', project + '.tex', project + u' Documentation',
                     author, 'manual')]
 
+latex_logo = '_static/imexam_logo.pdf'
 
 # -- Options for manual page output --------------------------------------------
 

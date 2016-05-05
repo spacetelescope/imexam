@@ -1,3 +1,4 @@
+=========
 Example 5
 =========
 
@@ -44,7 +45,7 @@ To create a plot:
 
 produces the following plot:
 
-.. image:: imexamine_library_lineplot.png
+.. image:: ../_static/imexamine_library_lineplot.png
     :height: 400
     :width: 400
     :alt: line plot generated without viewing

@@ -6,12 +6,17 @@ version 0.6dev (unreleased)
 - Updated the default title display on plots to use the image name or specify an array was used
 - added astropy_helpers as a submodule
 - made xpa a submodule
+- if users pass an nddata object to view()  without a data reference it assumes one, but you can always specify which extension 
+- added better user access function for changing plotting/function parameters used to make plots
+- updated to Read The Docs new site name
+- replaced ipython dependency in the docs build with jupyter
+- removed local copy of doc build, referenced to RTD instead, users should make PDF copy for offline work
 
 
 version 0.5.3dev (unreleased)
 -----------------------------
 - show with blocking deprecatedin matplotlib, changed the calls to pause
-- added a radial profil plot under the r key, the curve of growth plot was moved to g
+- added a radial profile plot under the r key, the curve of growth plot was moved to g
 
 
 version 0.5.2 (released)
