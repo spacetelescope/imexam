@@ -11,8 +11,7 @@ from astropy.io import fits
 from astropy import log
 from . import xpa
 from xpa import XpaException
-
-import codecs
+from .version import version as __version__
 
 __all__ = [
     "find_ds9",
@@ -79,6 +78,8 @@ def display_help():
     url = "http://imexam.readthedocs.io/"
     try:
         import webbrowser
+        # grab the version that's installed
+        url+="en/{0:s}/".format(__version__)
         webbrowser.open(url)
     except ImportError:
         warnings.warn(

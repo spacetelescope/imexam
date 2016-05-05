@@ -7,7 +7,7 @@
 ``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight
 library which enables users to explore data from a command line interface,
 through a Jupyter notebook or through a Jupyter console. It can be used with multiple
-viewers, such as DS9 or Ginga, or as a simple library to make plots and grab quick
+viewers, such as DS9 or Ginga, or without a viewer as a simple library to make plots and grab quick
 photometry information.
 
 The power of this python tool is that it is essentially a library of plotting
