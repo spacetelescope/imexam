@@ -76,20 +76,14 @@ def list_ds9_ids():
 
 def display_help():
     """ display local html help in a browser window"""
+    url = "http://imexam.readthedocs.io/"
     try:
         import webbrowser
+        webbrowser.open(url)
     except ImportError:
         warnings.warn(
-            "webbrowser module not installed, see the installed doc directory for the HTML help pages")
+            "webbrowser module not installed, see {0:s} for help".format(url))
         raise ImportError
-
-    # get the user installed location of the html docs, better way?
-    from . import htmlhelp
-    location = (htmlhelp.__file__).split("/")
-    location.pop()
-    location.append("imexam/index.html")
-    url = "file://" + "/".join(location)
-    webbrowser.open(url)
 
 
 # Set up logging ability for the user
