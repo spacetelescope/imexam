@@ -7,6 +7,7 @@ omit =
     imexam/*tests/*
     imexam/version*
     imexam/cextern/*
+    imexam/wrappers/*
 
 [report]
 exclude_lines =

@@ -879,8 +879,8 @@ class Imexamine(object):
             ysigma = fit.y_stddev.value
 
             pstr = "xc={0:4f}\tyc={1:4f}".format(
-                (xcenter + x - delta + 1),
-                (ycenter + y - delta + 1))
+                (xcenter + x - delta),
+                (ycenter + y - delta))
             print(pstr)
             logging.info(pstr)
             return amp, xcenter + x - delta, ycenter + y - delta, xsigma, ysigma
@@ -889,7 +889,8 @@ class Imexamine(object):
             print("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def radial_profile(self, x, y, data=None, form=None, fig=None):
+    def radial_profile(self, x, y, data=None, form=None,
+                       fig=None, genplot=True):
         """Display the radial profile plot (intensity vs radius) for the object.
 
         Background may be subtracted and centering can be done with a
@@ -905,9 +906,11 @@ class Imexamine(object):
             The data array to work on
         form: string
             The string name of the form of the fit to use
-
+        genplot: bool
+            Generate the plot or return the fit
         """
-        if not photutils_installed:
+        subtract_background = bool(self.radial_profile_pars["background"][0])
+        if not photutils_installed and subtract_background:
             print("Install photutils to enable")
         else:
 
@@ -919,7 +922,6 @@ class Imexamine(object):
                                self.radial_profile_pars["fittype"][0])
 
             getdata = bool(self.radial_profile_pars["getdata"][0])
-            subtract_background = bool(self.radial_profile_pars["background"][0])
 
             # cut the data down to size
             datasize = int(self.radial_profile_pars["rplot"][0])-1
@@ -928,7 +930,8 @@ class Imexamine(object):
             # center on image using a 2d gaussian
             if self.radial_profile_pars["center"][0]:
                 # pull out a small chunk to get the center defined
-                amp, centerx, centery, sigma, sigmay = self.gauss_center(x, y, data, delta=delta)
+                amp, centerx, centery, sigma, sigmay = \
+                    self.gauss_center(x, y, data, delta=delta)
             else:
                 centery = y
                 centerx = x
@@ -953,7 +956,7 @@ class Imexamine(object):
                 annulus_apertures = photutils.CircularAnnulus(
                         (centerx, centery), r_in=inner, r_out=inner+width)
                 bkgflux_table = photutils.aperture_photometry(data,
-                                                      annulus_apertures)
+                                                              annulus_apertures)
 
                 # to calculate the mean local background, divide the circular
                 # annulus aperture sums by the area fo the circular annulus.
@@ -967,45 +970,48 @@ class Imexamine(object):
                     print("Sky per pixel: {0} using\
                          (rad={1}->{2})".format(sky_per_pix,
                                                 inner, inner+width))
-
-            if fig is None:
-                fig = plt.figure(self._figure_name)
-            fig.clf()
-            fig.add_subplot(111)
-            ax = fig.gca()
-            if self.radial_profile_pars["title"][0] is None:
-                title = "{0}: {1} {2}".format(self._datafile, icenterx, icentery)
-            else:
-                title = self.radial_profile_pars["title"][0]
-
-            ax.set_xlabel(self.radial_profile_pars["xlabel"][0])
-            ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
-
             if getdata:
                 info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
                     int(centerx), int(centery), nr, tbin)
                 print(info)
                 logging.info(info)
 
-            #finish the plot
-            if bool(self.radial_profile_pars["pointmode"][0]):
-                ax.plot(nr, tbin, self.radial_profile_pars["marker"][0])
+            # finish the plot
+            if genplot:
+                if fig is None:
+                    fig = plt.figure(self._figure_name)
+                fig.clf()
+                fig.add_subplot(111)
+                ax = fig.gca()
+                if self.radial_profile_pars["title"][0] is None:
+                    title = "{0}: {1} {2}".format(self._datafile,
+                                                  icenterx, icentery)
+                else:
+                    title = self.radial_profile_pars["title"][0]
+
+                ax.set_xlabel(self.radial_profile_pars["xlabel"][0])
+                ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
+
+                if bool(self.radial_profile_pars["pointmode"][0]):
+                    ax.plot(nr, tbin, self.radial_profile_pars["marker"][0])
+                else:
+                    ax.plot(nr, tbin)
+                ax.set_title(title)
+                ax.set_ylim(0,)
+
+                # over plot a gaussian fit to the data
+                if bool(self.radial_profile_pars["fitplot"][0]):
+                    print("Fit overlay not yet implemented")
+
+                if 'nbagg' in get_backend().lower():
+                    fig.canvas.draw()
+                else:
+                    plt.draw()
+                    plt.pause(0.001)
             else:
-                ax.plot(nr,tbin)
-            ax.set_title(title)
-            ax.set_ylim(0,)
+                return nr, tbin
 
-            #over plot a gaussian fit to the data
-            if bool(self.radial_profile_pars["fitplot"][0]):
-                print("Fit overlay not yet implemented")
-
-            if 'nbagg' in get_backend().lower():
-                fig.canvas.draw()
-            else:
-                plt.draw()
-                plt.pause(0.001)
-
-    def curve_of_growth(self, x, y, data=None, fig=None):
+    def curve_of_growth(self, x, y, data=None, fig=None, genplot=True):
         """Display a curve of growth plot.
 
         the object photometry is from photutils
@@ -1033,7 +1039,8 @@ class Imexamine(object):
             # center using a 2d gaussian
             if self.curve_of_growth_pars["center"][0]:
                 # pull out a small chunk
-                amp, centerx, centery, sigma, sigmay = self.gauss_center(x, y, data, delta=delta)
+                amp, centerx, centery, sigma, sigmay = \
+                    self.gauss_center(x, y, data, delta=delta)
             else:
                 centery = y
                 centerx = x
@@ -1081,13 +1088,16 @@ class Imexamine(object):
                     int(centerx), int(centery), rapert, flux)
                 print(info)
                 logging.info(info)
-            ax.plot(radius, flux, 'o')
-            ax.set_title(title)
-            if 'nbagg' in get_backend().lower():
-                fig.canvas.draw()
+            if genplot:
+                ax.plot(radius, flux, 'o')
+                ax.set_title(title)
+                if 'nbagg' in get_backend().lower():
+                    fig.canvas.draw()
+                else:
+                    plt.draw()
+                    plt.pause(0.001)
             else:
-                plt.draw()
-                plt.pause(0.001)
+                return rapert, flux
 
     def _aperture_phot(self, x, y, data=None, radsize=1,
                        sky_inner=5, skywidth=5,
