@@ -493,7 +493,7 @@ class Connect(object):
             return
         else:
             current_dict[item][0] = value
-            print("set {} to {}".format(item, value))
+            print("set {0}: {1} to {2}".format(parname, item, value))
             return
 
     def aimexam(self, get_name=False):

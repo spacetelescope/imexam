@@ -8,9 +8,8 @@ import logging
 import warnings
 from astropy.io import fits
 
-from astropy import log
-from . import xpa
-from xpa import XpaException
+from imexam.xpa_wrap import XPA as xpa
+from imexam.xpa import XpaException
 from .version import version as __version__
 
 __all__ = [
@@ -18,7 +17,8 @@ __all__ = [
     "list_active_ds9",
     "display_help",
     "list_ds9_ids",
-    "find_xpans"]
+    "find_xpans",
+    "set_logging"]
 
 
 def find_ds9():
@@ -70,7 +70,7 @@ def list_active_ds9():
 
 def list_ds9_ids():
     """return just the list of ds9 XPA_METHOD ids which are registered"""
-    return xpa.nslookup()
+    return nslookup()
 
 
 def display_help():

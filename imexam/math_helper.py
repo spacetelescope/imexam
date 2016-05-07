@@ -180,3 +180,22 @@ def fit_airy_2d(data, x=None, y=None):
             results = fit(model, xx, yy, data)
 
     return results
+
+
+def fit_poly_n(data, x=None, y=None, deg=1):
+    """Fit a Polynomial 1D model to the data."""
+
+    # define the model
+    poly = models.Polynomial1D(deg)
+
+    # set the axis range for fitting
+    ax = np.arange(len(data))
+
+    # define the fitter
+    fit = fitting.LinearLSQFitter()
+    try:
+        result = fit(poly, ax, data)
+    except:
+        ValueError
+        result = None
+    return result

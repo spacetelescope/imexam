@@ -21,7 +21,6 @@ from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import warnings
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import sys
 import logging
@@ -30,7 +29,7 @@ from astropy.io import fits
 from copy import deepcopy
 from matplotlib import get_backend
 from IPython.display import Image
-from astropy.modeling import models, fitting
+from astropy.modeling import models
 
 from . import math_helper
 from . import imexam_defpars
@@ -318,7 +317,7 @@ class Imexamine(object):
             data = self._data
 
         if fig is None:
-            fig = mplfigure.Figure(self._figure_name)
+            fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -481,7 +480,8 @@ class Imexamine(object):
             if self.aperphot_pars["center"][0]:
                 center = True
                 delta = 10
-                amp, x, y, sigma, sigmay = self.gauss_center(x, y, data, delta=delta)
+                amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
+                                                             delta=delta)
 
             radius = int(self.aperphot_pars["radius"][0])
             width = int(self.aperphot_pars["width"][0])
@@ -529,7 +529,7 @@ class Imexamine(object):
 
             pheader = (
                 "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\
-                 \tsky\t".format(magzero)).expandtabs(15)
+                 sky\t".format(magzero)).expandtabs(15)
             if center:
                 pheader += ("fwhm")
                 pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\
@@ -559,8 +559,8 @@ class Imexamine(object):
         data: numpy array
             The data array to work on
         form: string
-            This is the functional form specified  line fit parameters
-            Currently Gaussian1D or Moffat1D or MexicanHat1D
+            This is the functional form specified in the line fit parameters
+            Currently Gaussian1D, Moffat1D, MexicanHat1D, Polynomial1D
         genplot: bool
             produce the plot or return the fit
 
@@ -569,43 +569,57 @@ class Imexamine(object):
         The background is currently ignored
 
         If centering is True in the parameter set, then the center
-        is fit with a 2d gaussian
+        is fit with a 2d gaussian, not performed for Polynomial1D
         """
         if data is None:
             data = self._data
 
-        if not form:
-            form = getattr(models, self.line_fit_pars["func"][0])
+        if form is None:
+            fitform = getattr(models, self.line_fit_pars["func"][0])
+        else:
+            fitform = getattr(models, form)
 
-        delta = self.line_fit_pars["rplot"][0]
+        # Used for Polynomial1D fitting
+        degree = int(self.line_fit_pars["order"][0])
+
+        delta = int(self.line_fit_pars["rplot"][0])
         if delta >= len(data)/4:  # help with small data arrays and defaults
             delta = delta/2
         delta = int(delta)
 
-        # the form the fit will take
-        fitform = self.line_fit_pars["func"][0]
-
-        # fit the center with a 2d gaussian
-        if self.line_fit_pars["center"][0]:
-            amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
-                                                         delta=delta)
         xx = int(x)
         yy = int(y)
+        # fit the center with a 2d gaussian
+        if self.line_fit_pars["center"][0]:
+            if fitform.name is not "Polynomial1D":
+                amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
+                                                                   delta=delta)
+                if (xout < 0 or yout < 0 or xout > data.shape[1] or
+                   yout > data.shape[0]):
+                        print("Problem with centering, using pixel coords")
+                else:
+                    xx = int(xout)
+                    yy = int(yout)
+
         line = data[yy, :]
         chunk = line[xx - delta: xx + delta]
 
         # fit model to data
-        if fitform is "Gaussian1D":
+        if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
             fitted.mean.value += (xx-delta)
-        elif fitform is "Moffat1D":
+        elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
             fitted.x_0.value += (xx-delta)
-        elif fitform is "MexicanHat1D":
+        elif fitform.name is "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk)
             fitted.x_0.value += (xx-delta)
+        elif fitform.name is "Polynomial1D":
+            fitted = math_helper.fit_poly_n(chunk, deg=degree)
+            if fitted is None:
+                raise ValueError("Problem with the Poly1D fit")
         else:
-            print("{0:s} not implemented".format(fitform))
+            print("{0:s} not implemented".format(fitform.name))
             return
 
         xline = np.arange(len(chunk)) + xx - delta
@@ -614,7 +628,7 @@ class Imexamine(object):
 
         # make a plot
         if self.line_fit_pars["title"][0] is None:
-            title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
+            title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
         else:
             title = self.line_fit_pars["title"][0]
 
@@ -636,7 +650,7 @@ class Imexamine(object):
             else:
                 ax.plot(xline, chunk, label="data", linestyle='-')
 
-            if fitform is "Gaussian1D":
+            if fitform.name is "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
                     title, fitted.amplitude.value, fitted.mean.value, fwhmx))
@@ -644,7 +658,7 @@ class Imexamine(object):
                     int(x), int(y), fitted.mean.value, fwhmx)
                 print(pstr)
                 logging.info(pstr)
-            elif fitform is "Moffat1D":
+            elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     title, fitted.amplitude.value, mfwhm))
@@ -652,17 +666,24 @@ class Imexamine(object):
                     int(x), int(y), fitted.amplitude.value, mfwhm)
                 print(pstr)
                 logging.info(pstr)
-            elif fitform is "MexicanHat1D":
+            elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
                 logging.info(pstr)
+            elif fitform.name is "Polynomial1D":
+                ax.set_title("{0:s} degree={1:d}".format(title, degree))
+                pstr = "({0:d},{1:d}) degree={2:d}".format(
+                          int(x), int(y), degree)
+                print(pstr)
+                print(fitted.parameters)
+                logging.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
                 raise ValueError
-            ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
+            ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             plt.legend()
 
             if 'nbagg' in get_backend().lower():
@@ -686,7 +707,7 @@ class Imexamine(object):
         data: numpy array
             The data array to work on
         form: string
-            This is the functional form specified column fit parameters
+            This is the functional form specified in the column fit parameters
         genplot: int
             produce the plot or return the fit model
 
@@ -696,42 +717,60 @@ class Imexamine(object):
 
         The background is currently ignored
 
-        if centering is True, then the center is fit with a 2d gaussian.
+        if centering is True, then the center is fit with a 2d gaussian,
+        but this is currently not done for Polynomial1D
         """
         if data is None:
             data = self._data
 
-        if not form:
-            form = getattr(models, self.column_fit_pars["func"][0])
+        if form is None:
+            fitform = getattr(models, self.column_fit_pars["func"][0])
+        else:
+            fitform = getattr(models, form)
 
-        delta = self.column_fit_pars["rplot"][0]
+
+        # Used for Polynomial1D fitting
+        degree = int(self.column_fit_pars["order"][0])
+
+        delta = int(self.column_fit_pars["rplot"][0])
         if delta >= len(data)/4:
             delta = int(delta/2)
 
-        # the form the fit will take
-        fitform = self.column_fit_pars["func"][0]
 
         # fit the center with a 2d gaussian
-        if self.column_fit_pars["center"][0]:
-            amp, x, y, sigmax, sigma = self.gauss_center(x, y, data, delta=delta)
-
         xx = int(x)
         yy = int(y)
+        # fit the center with a 2d gaussian
+        if self.column_fit_pars["center"][0]:
+            if fitform.name is not "Polynomial1D":
+                amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
+                                                                   delta=delta)
+                if (xout < 0 or yout < 0 or xout > data.shape[1] or
+                    yout > data.shape[0]):
+                        print("Problem with centering, using pixel coords")
+                else:
+                    xx = int(xout)
+                    yy = int(yout)
+
         line = data[:, xx]
         chunk = line[yy - delta:yy + delta]
 
         # fit model to data
-        if fitform is "Gaussian1D":
+        if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
             fitted.mean.value += (yy-delta)
-        elif fitform is "Moffat1D":
+        elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
             fitted.x_0.value += (yy-delta)
-        elif fitform is "MexicanHat1D":
+        elif fitform.name is "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk)
             fitted.x_0.value += (yy-delta)
+        elif fitform.name is "Polynomial1D":
+            fitted = math_helper.fit_poly_n(chunk, deg=degree)
+            if fitted is None:
+                raise ValueError("Problem with the Poly1D fit")
         else:
-            print("{0:s} not implemented".format(fitform))
+            print("{0:s} not implemented".format(fitform.name))
             return
 
         yline = np.arange(len(chunk)) + yy - delta
@@ -739,7 +778,7 @@ class Imexamine(object):
         yfit = fitted(fline)
 
         if self.column_fit_pars["title"][0] is None:
-            title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
+            title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
         else:
             title = self.column_fit_pars["title"][0]
 
@@ -762,7 +801,7 @@ class Imexamine(object):
             else:
                 ax.plot(yline, chunk, linestyle='-', label="data")
 
-            if fitform == "Gaussian1D":
+            if fitform.name == "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
                     title, fitted.amplitude.value, fitted.mean.value, fwhmy))
@@ -770,7 +809,7 @@ class Imexamine(object):
                     int(x), int(y), fitted.mean.value, fwhmy)
                 print(pstr)
                 logging.info(pstr)
-            elif fitform is "Moffat1D":
+            elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     title, fitted.amplitude.value, mfwhm))
@@ -778,18 +817,24 @@ class Imexamine(object):
                     int(x), int(y), fitted.amplitude.value, mfwhm)
                 print(pstr)
                 logging.info(pstr)
-            elif fitform is "MexicanHat1D":
+            elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
                 print(pstr)
                 logging.info(pstr)
+            elif fitform.name is "Polynomial1D":
+                ax.set_title("{0:s} degree={1:d}".format(title, degree))
+                pstr = "({0:d},{1:d}) degree={2:d}".format(
+                          int(x), int(y), degree)
+                print(pstr)
+                print(fitted)
             else:
                 warnings.warn("Unsupported functional form used in column_fit")
                 raise ValueError
 
-            ax.plot(fline, yfit, c='r', label=str(form.__name__) + " fit")
+            ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             plt.legend()
             if 'nbagg' in get_backend().lower():
                 fig.canvas.draw()
