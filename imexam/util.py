@@ -16,7 +16,6 @@ __all__ = [
     "find_ds9",
     "list_active_ds9",
     "display_help",
-    "list_ds9_ids",
     "find_xpans",
     "set_logging"]
 
