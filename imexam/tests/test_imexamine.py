@@ -16,6 +16,12 @@ try:
 except ImportError:
     HAS_MATPLOTLIB = False
 
+try:
+    import photutils
+    HAS_PHOTUTILS = True
+except ImportError:
+    HAS_PHOTUTILS = False
+
 
 # make some data to test with
 test_data = np.zeros((100, 100), dtype=np.float)
@@ -33,7 +39,7 @@ def test_column_plot():
     f = plt.gca()
     xplot, yplot = f.lines[0].get_xydata().T
     assert_equal(yplot, test_data[50, :])
-    f.close()
+    plt.close()
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
 def test_line_plot():
@@ -42,7 +48,8 @@ def test_line_plot():
     f = plt.gca()
     xplot, yplot = f.lines[0].get_xydata().T
     assert_equal(yplot, test_data[:, 50])
-    f.close()
+    plt.close()
+
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
 def test_xy_coords(capsys):
@@ -54,6 +61,7 @@ def test_xy_coords(capsys):
 
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
+@pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_aper_phot(capsys):
     """Make sure aper phot executes and returns expected text."""
     out_text = """xc=49.500000	yc=49.500000
@@ -78,7 +86,6 @@ def test_line_fit():
     assert_allclose(amp, fit.amplitude, 1e-6)
     assert_allclose(mean, fit.mean, 1e-6)
     assert_allclose(stddev, fit.stddev, 1e-6)
-
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
 def test_column_fit():
