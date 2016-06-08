@@ -1053,19 +1053,6 @@ class Imexamine(object):
             router = self.curve_of_growth_pars["rplot"][0]
             getdata = bool(self.curve_of_growth_pars["getdata"][0])
 
-            if fig is None:
-                fig = plt.figure(self._figure_name)
-            fig.clf()
-            fig.add_subplot(111)
-            ax = fig.gca()
-            if self.curve_of_growth_pars["title"][0] is None:
-                title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
-            else:
-                title = self.curve_of_growth_pars["title"][0]
-
-            ax.set_xlabel(self.curve_of_growth_pars["xlabel"][0])
-            ax.set_ylabel(self.curve_of_growth_pars["ylabel"][0])
-
             radius = list()
             flux = list()
             rapert = int(router) + 1
@@ -1089,6 +1076,18 @@ class Imexamine(object):
                 print(info)
                 logging.info(info)
             if genplot:
+                if fig is None:
+                    fig = plt.figure(self._figure_name)
+                fig.clf()
+                fig.add_subplot(111)
+                ax = fig.gca()
+                if self.curve_of_growth_pars["title"][0] is None:
+                    title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
+                else:
+                    title = self.curve_of_growth_pars["title"][0]
+
+                ax.set_xlabel(self.curve_of_growth_pars["xlabel"][0])
+                ax.set_ylabel(self.curve_of_growth_pars["ylabel"][0])
                 ax.plot(radius, flux, 'o')
                 ax.set_title(title)
                 if 'nbagg' in get_backend().lower():

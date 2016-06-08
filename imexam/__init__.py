@@ -4,10 +4,10 @@ A package to help perform image examination through a viewing tool, like DS9
 This is an Astropy affiliated package
 """
 
+# import high level functions into the imexam namespace
+from .util import *
 from . import connect as _connect
 connect = _connect.Connect
-
-from .util import *
 
 try:
     import astropy

@@ -21,6 +21,7 @@ python:
     - 2.7
     - 3.3
     - 3.4
+    - 3.5
 
 env:
     global:
@@ -37,23 +38,35 @@ env:
 matrix:
     include:
 
+        # Do a coverage test in Python 2. This requires the latest
+        # development version of Astropy, which fixes some issues with
+        # coverage testing in affiliated packages.
+        - python: 2.7
+          env: ASTROPY_VERSION=development SETUP_CMD='test --coverage'
+
+        # Do a coverage test in Python 3. This requires the latest
+        # development version of Astropy, which fixes some issues with
+        # coverage testing in affiliated packages.
+        - python: 3.5
+          env: ASTROPY_VERSION=development SETUP_CMD='test --coverage'
+
         #CHECK SPHINX DOC WARNINGS
         - python: 2.7
           env: SETUP_CMD='build_sphinx -w'
-        - python: 3.4
+        - python: 3.5
           env: SETUP_CMD='build_sphinx -w'
 
         #CHECK ASTROPY
         - python: 2.7
           env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w'
-        - python: 3.3
+        - python: 3.5
           env: ASTROPY_VERSION=development SETUP_CMD='build_sphinx -w's
 
         #CHECK NUMPY
         - python: 2.7
         - python: 3.3
         - python: 3.4
-        - python: 2.7
+        - python: 3.5
           env: NUMPY_VERSION=1.8
         - python: 2.7
           env: NUMPY_VERSION=1.7
@@ -65,7 +78,8 @@ matrix:
           env: INSTALL_OPTIONAL=false
         - python: 3.4
           env: INSTALL_OPTIONAL=false
-
+        - python: 3.5
+          env: INSTALL_OPTIONAL=false         
 
 
 before_install:
@@ -114,7 +128,15 @@ install:
     # build_sphinx needs sphinx and matplotlib (for plot_directive).
     - if [[ $SETUP_CMD == build_sphinx* ]]; then $CONDA_INSTALL -n test numpy=$NUMPY_VERSION Sphinx matplotlib; fi
 
+before_script: # configure a headless display to test plot generation
+    - "export DISPLAY=:99.0"
+    - "sh -e /etc/init.d/xvfb start"
+    - sleep 3 # give xvfb some time to start
+
 
 script:
-   - python setup.py install
+    - python setup.py install
+
+after_success:
+    - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls --rcfile='imexam/tests/coveragerc'; fi
 

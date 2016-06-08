@@ -6,15 +6,26 @@ include ez_setup.py
 include setup.py
 include setup.cfg
 
+recursive-include imexam *
 recursive-include docs *
 recursive-include licenses *
-recursive-include cextern *
 recursive-include scripts *
 recursive-include wrappers *
-recursive-include imexam/htmlhelp *
-recursive-include cython *
+recursive-include astropy_helpers *
+recursive-include cextern *
+include tests
 
+
+exclude astropy_helpers/.git
+exclude astropy_helpers/.gitignore
+exclude cextern/xpa/.git
+exclude cextern/xpa/.gitignore
 global-exclude *.pyc *.o
+
+
+prune astropy_helpers/build
+prune astropy_helpers/astropy_helpers/tests
 prune docs/build
+prune docs/api
 prune build
 prune dist

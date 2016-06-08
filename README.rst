@@ -12,7 +12,7 @@ imexam
 imexam is an `AstroPy`_ affiliated package  meant for quick image analysis, much like the IRAF imexamine task. 
 Image display is currently supported with either DS9 or a Ginga widget from a python session.
 
-For more information please see the `online documentation <http://imexam.readthedocs.io/imexam/index.html>`_
+For more information please see the `online documentation <http://imexam.readthedocs.io/>`_
 
 You can also display the docs locally after install, import imexam and then issue the following command to display the help docs in your local browser: 
 

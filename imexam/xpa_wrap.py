@@ -6,24 +6,30 @@ from imexam.xpa import xpa
 import sys
 
 
+
 class XPA(xpa):
     """Interface with the xpa for ds9."""
 
-    def __init__(self, template):
-        xpa.__init__(self, template.encode('utf-8'))
+    def __init__(self, template="imexam"):
+        super(XPA, self).__init__(template.encode("utf-8"))
+        self._template = template
 
-    def get(self, param=None):
+    def get(self, param=""):
         """Get information from the xpa."""
-        if int(sys.version[0]) < 3:
-            r = xpa.get(self, param.encode('utf-8'))
+        if sys.version_info.major > 2:
+            r = super(XPA, self).get(param.encode("utf-8"))
             return r.decode()
         else:
-            return xpa.get(self, param.encode('utf-8')).decode()
+            r = super(XPA, self).get(param.encode("utf-8"))
+            if r is None:
+                return r
+            else:
+                return r.decode()
+        return None
 
-    def set(self, param=None, buf=None):
+    def set(self, param="", buf=None):
         """send information to the xpa."""
-        xpa.set(self, param.encode(), buf)
-
-    def nslookup(self):
-        """Return a list of access point ids."""
-        return xpa.nslookup()
+        if sys.version_info.major > 2:
+            super(XPA, self).set(param.encode("utf-8"), buf)
+        else:
+            super(XPA, self).set(param, buf)

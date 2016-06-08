@@ -8,10 +8,10 @@ import logging
 import warnings
 from astropy.io import fits
 
-from imexam.xpa_wrap import XPA as xpa
-from imexam.xpa import XpaException
+import imexam.xpa as _xpa
 from .version import version as __version__
 
+# To guide any import *
 __all__ = [
     "find_ds9",
     "list_active_ds9",
@@ -56,21 +56,19 @@ def list_active_ds9():
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
         try:
-            sessions=xpa.get('xpans')
+            sessions = _xpa.get('xpans')
+            if sessions is None:
+                print("No active sessions")
             if len(sessions) < 1:
                 print("No active sessions")
             else:
                 print(sessions)
-        except XpaException:
+        except _xpa.XpaException:
             print("No active sessions registered")
+
     else:
-        print(
-            "XPA nameserver not installed or not on PATH, function unavailable")
-
-
-def list_ds9_ids():
-    """return just the list of ds9 XPA_METHOD ids which are registered"""
-    return nslookup()
+        print("XPA nameserver not installed or not on PATH, \
+               function unavailable")
 
 
 def display_help():
@@ -79,7 +77,7 @@ def display_help():
     try:
         import webbrowser
         # grab the version that's installed
-        url+="en/{0:s}/".format(__version__)
+        url += "en/{0:s}/".format(__version__)
         webbrowser.open(url)
     except ImportError:
         warnings.warn(

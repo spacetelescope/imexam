@@ -39,7 +39,8 @@ from matplotlib import get_backend
 import atexit
 from subprocess import call
 
-import imexam.xpa_wrap as xpa
+# The XPA class controls interaction with DS9
+from .xpa_wrap import XPA
 from imexam.xpa import XpaException
 
 from . import util
@@ -196,6 +197,7 @@ class ds9(object):
         # installation issues
         self._xpa_method = "local"
         self._xpa_name = ""
+        
         # only used for DS9 windows started from this module
         self._ds9_process = None
         self._ds9_path = None
@@ -230,7 +232,7 @@ class ds9(object):
             self._xpa_name = target
 
         # xpa_name sets the template for the get and set commands
-        self.xpa = xpa.XPA(self._xpa_name)
+        self.xpa = XPA(self._xpa_name)
         if 'local' in self._xpa_method:
             self._set_frameinfo()  # initial load
         self._define_cmaps()  # dictionary of color maps
@@ -409,10 +411,8 @@ class ds9(object):
         # see if the user has loaded a file by hand or changed frames in the
         # gui
         frame = self.frame()
-        if frame != self._current_frame:
-            self._set_frameinfo()
-        else:
-            return self._viewer[frame]['filename']
+        self._set_frameinfo()
+        return self._viewer[frame]['filename']
 
     def get_frame_info(self):
         """return more explicit information about the data displayed."""
