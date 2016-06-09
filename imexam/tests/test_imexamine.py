@@ -122,6 +122,7 @@ def test_gauss_center():
     assert_allclose(ysig, ys, 0.01)
 
 
+@pytest.mark.skipif('not HAS_PHOTUTILS')
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
 def test_radial_profile():
     """Test the radial profile function."""
@@ -141,6 +142,7 @@ def test_radial_profile():
 
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
+@pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_curve_of_growth():
     """Test the cog function."""
     from astropy.convolution import Gaussian2DKernel
