@@ -1,3 +1,5 @@
+# cython:  c_string_encoding=utf8
+
 cdef extern from "stdio.h":
     pass
 
@@ -81,6 +83,7 @@ def nslookup(template="*"):
     return l
 
 
+
 cdef _get(XPARec *xpa, char *template, char *param):
     cdef int  i, got
     cdef size_t  lens[1]
@@ -106,12 +109,10 @@ cdef _get(XPARec *xpa, char *template, char *param):
             free(names[0])
         if( bufs[0] ):
             free(bufs[0])
-
         raise XpaException(mesg)
-
     return buf
 
-def get(template="*", param=""):
+def get(template=b"*", param=b""):
     return _get(NULL, template, param)
 
 
@@ -120,6 +121,7 @@ cdef _set(XPARec *xpa, char *template, char *param, buf):
     cdef int  length
     cdef char *names[1]
     cdef char *messages[1]
+
 
     if buf:
         length = PyBytes_Size(buf)
@@ -144,7 +146,7 @@ cdef _set(XPARec *xpa, char *template, char *param, buf):
         raise XpaException(mesg)
 
 
-def set(template="*", param="", buf=None):
+def set(template=b"*", param=b"", buf=None):
     _set(NULL, template, param, buf)
 
 

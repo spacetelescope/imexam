@@ -55,13 +55,13 @@ def list_active_ds9():
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
         try:
-            sessions = _xpa.get('xpans')
+            sessions = _xpa.get(b"xpans")
             if sessions is None:
                 print("No active sessions")
             if len(sessions) < 1:
                 print("No active sessions")
             else:
-                print(sessions)
+                print(sessions.decode())
         except _xpa.XpaException:
             print("No active sessions registered")
 
