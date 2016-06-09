@@ -169,5 +169,3 @@ setup(
     **package_info
 )
 
-# add this back into the setup command if you want to build the full XPA
-# cmdclass={'build_ext':build_ext_with_configure,'clean':my_clean},
