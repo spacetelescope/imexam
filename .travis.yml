@@ -26,7 +26,7 @@ env:
         # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='Cython matplotlib'
+        - CONDA_DEPENDENCIES='Cython matplotlib ipython ginga'
         - PIP_DEPENDENCIES='photutils'
         - SETUP_CMD='test'
 
@@ -72,9 +72,9 @@ matrix:
 
         # Try with optional dependencies disabled
         - python: 2.7
-          env: CONDA_DEPENDENCIES='matplotlib' PIP_DEPENDENCIES=''
+          env: CONDA_DEPENDENCIES='matplotlib ipython' PIP_DEPENDENCIES=''
         - python: 3.5
-          env: CONDA_DEPENDENCIES='matplotlib' PIP_DEPENDENCIES=''
+          env: CONDA_DEPENDENCIES='matplotlib ipython' PIP_DEPENDENCIES=''
 
         # Try older numpy versions
         - python: 2.7
@@ -105,6 +105,8 @@ before_install:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
     - sleep 3
+    - uname -a
+    - python --version
 
     # We now use the ci-helpers package to set up our testing environment.
     # This is done by using Miniconda and then using conda and pip to install
@@ -132,6 +134,7 @@ before_install:
 
 script:
     - python setup.py $SETUP_CMD
+    - cd $TRAVIS_BUILD_DIR/..
 
 after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls --rcfile='imexam/tests/coveragerc'; fi

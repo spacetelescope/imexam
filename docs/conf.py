@@ -73,14 +73,23 @@ rst_epilog += """
 project = setup_cfg['package_name']
 package = setup_cfg['package_name']
 author = setup_cfg['author']
-version = setup_cfg['version']
 copyright = '{0}, {1}'.format(datetime.datetime.now().year, author)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
 
+__import__(setup_cfg['package_name'])
+package = sys.modules[setup_cfg['package_name']]
+
+# The short X.Y version.
+version = package.__version__.split('-', 1)[0]
+# The full version, including alpha/beta/rc tags.
+release = package.__version__
 
 # -- Options for HTML output ---------------------------------------------------
 
