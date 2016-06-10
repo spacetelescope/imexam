@@ -1,5 +1,5 @@
 [run]
-source = photutils
+source = imexam
 
 omit =
     imexam/*__init__*

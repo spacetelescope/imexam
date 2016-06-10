@@ -25,7 +25,7 @@ env:
         # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='Cython matplotlib ipython'
+        - CONDA_DEPENDENCIES='Cython matplotlib scipy ipython'
         - PIP_DEPENDENCIES='photutils'
         - SETUP_CMD='test'
 
@@ -48,9 +48,9 @@ matrix:
         # Check for sphinx doc build warnings - we do this first because
         # it may run for a long time
         - python: 2.7
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython matplotlib ginga jupyter'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga jupyter'
         - python: 3.5
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython matplotlib ginga jupyter'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga jupyter'
 
 
        # Try Astropy development and LTS versions
@@ -63,9 +63,9 @@ matrix:
 
         # Try with optional dependencies disabled
         - python: 2.7
-          env: CONDA_DEPENDENCIES='matplotlib ipython' PIP_DEPENDENCIES=''
+          env: CONDA_DEPENDENCIES='matplotlib scipy ipython' PIP_DEPENDENCIES=''
         - python: 3.5
-          env: CONDA_DEPENDENCIES='matplotlib ipython' PIP_DEPENDENCIES=''
+          env: CONDA_DEPENDENCIES='matplotlib scipy ipython' PIP_DEPENDENCIES=''
 
         # Try older numpy versions
         - python: 2.7

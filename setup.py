@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from glob import glob
 import sys
 import os
 
-
+import ah_bootstrap
 from setuptools import setup
 from distutils.extension import Extension
 from distutils.command.clean import clean
 
-import ah_bootstrap
 from astropy_helpers.setup_helpers import (
-    register_commands, adjust_compiler, get_debug_option, get_package_info)
+    register_commands, get_debug_option, get_package_info)
 from astropy_helpers.git_helpers import get_git_devstr
 from astropy_helpers.version_helpers import generate_version_py
 
@@ -32,6 +30,7 @@ if sys.version_info[0] >= 3:
     import builtins
 else:
     import __builtin__ as builtins
+builtins._ASTROPY_SETUP_ = True
 
 # Get some values from the setup.cfg
 try:
@@ -40,12 +39,10 @@ except ImportError:
     from configparser import ConfigParser
 
 conf = ConfigParser()
-
 conf.read(['setup.cfg'])
 
 # Get some values from the setup.cfg
 metadata = dict(conf.items('metadata'))
-
 PACKAGENAME = metadata.get('package_name', 'packagename')
 DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
 LONG_DESCRIPTION = metadata.get('long_description', 'A package to help perform \
@@ -54,8 +51,12 @@ AUTHOR = metadata.get('author', '')
 AUTHOR_EMAIL = metadata.get('author_email', '')
 LICENSE = metadata.get('license', 'unknown')
 URL = metadata.get('url', 'http://astropy.org')
+HOMEPAGE = metadata.get('homepage', '')
 
-builtins._ASTROPY_SETUP_ = True
+# Store the package name in a built-in variable so it's easy
+# to get from other parts of the setup infrastructure
+builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
+
 
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
 VERSION = '0.6.dev'
@@ -75,17 +76,24 @@ cmdclass = register_commands(PACKAGENAME, VERSION, RELEASE)
 generate_version_py(PACKAGENAME, VERSION, RELEASE,
                     get_debug_option(PACKAGENAME))
 
+
 # Get configuration information from all of the various subpackages.
 # See the docstring for setup_helpers.update_package_files for more
 # details.
 package_info = get_package_info()
 
-# Store the package name in a built-in variable so it's easy
-# to get from other parts of the setup infrastructure
-builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
 
 # Add the project-global data
 package_info['package_data'].setdefault(PACKAGENAME, [])
+
+# Define entry points for command-line scripts
+entry_points = {'console_scripts': []}
+
+entry_point_list = conf.items('entry_points')
+for entry_point in entry_point_list:
+    entry_points['console_scripts'].append('{0} = {1}'.format(entry_point[0],
+                                                              entry_point[1]))
+
 
 XPALIB_DIR = "cextern/xpa/"
 CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
@@ -127,6 +135,7 @@ if use_cython:
                             cwd=XPALIB_DIR)
             if os.access(CONF_H_NAME, os.F_OK):
                 os.remove(CONF_H_NAME)
+            os.remove("wrappers/xpa.c")
             clean.run(self)
             print("cleaning")
 
@@ -146,7 +155,6 @@ else:
 
 
 package_info['ext_modules'] = ext
-package_info['packages'] = ['imexam', 'xpa']
 
 setup(
     name=PACKAGENAME,
@@ -163,5 +171,6 @@ setup(
     use_2to3=False,
     zip_safe=False,
     cmdclass=cmdclass,
+    entry_points=entry_points,
     **package_info
 )

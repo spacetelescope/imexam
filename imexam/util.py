@@ -41,7 +41,7 @@ def find_xpans():
 
 
 def list_active_ds9():
-    """Display information about the DS9 windows currently registered with XPA and runnning
+    """Display information about the DS9 windows currently registered with XPA.
 
     Notes
     -----
