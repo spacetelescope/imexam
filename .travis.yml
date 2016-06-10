@@ -1,7 +1,7 @@
 language: python
 
-python:
 
+python:
     - 2.7
     - 3.3
     - 3.4
@@ -9,6 +9,7 @@ python:
 
 # Setting sudo to false opts in to Travis-CI container-based builds.
 sudo: false
+
 
 # The apt packages below are needed for sphinx builds, which can no longer
 # be installed with sudo apt-get.
@@ -29,7 +30,7 @@ env:
         - PIP_DEPENDENCIES='photutils'
         - SETUP_CMD='test'
 
-   matrix:
+    matrix:
         # make sure that egg_info works without dependencies
         - SETUP_CMD='egg_info'
         # Try all python versions with the latest numpy
