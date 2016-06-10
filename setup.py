@@ -9,7 +9,6 @@ import os
 from setuptools import setup
 from distutils.extension import Extension
 from distutils.command.clean import clean
-from distutils import config
 
 import ah_bootstrap
 from astropy_helpers.setup_helpers import (
@@ -28,7 +27,7 @@ except ImportError:
     print("Building without Cython")
     CYTHON_SOURCE = "wrappers/xpa.c"
 
-#A dirty hack to get around some early import/configurations ambiguities
+# A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:
     import builtins
 else:
@@ -88,7 +87,6 @@ builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
 # Add the project-global data
 package_info['package_data'].setdefault(PACKAGENAME, [])
 
-
 XPALIB_DIR = "cextern/xpa/"
 CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
@@ -113,7 +111,7 @@ XPA_SOURCES = [os.path.join(XPALIB_DIR, c) for c in XPA_FILES]
 XPALIB_DEFINES = [("HAVE_CONFIG_H", "1")]
 XPA_SOURCES.append(CYTHON_SOURCE)
 
-xpa_module = Extension("imexam.xpa",
+xpa_module = Extension("xpa",
                        sources=XPA_SOURCES,
                        include_dirs=[XPALIB_DIR],
                        define_macros=XPALIB_DEFINES,
@@ -141,7 +139,6 @@ if use_cython:
             subprocess.call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
             build_ext.build_extensions(self)
 
-
     cmdclass.update({'build_ext': build_ext_with_configure, 'clean': my_clean})
 
 else:
@@ -149,7 +146,7 @@ else:
 
 
 package_info['ext_modules'] = ext
-
+package_info['packages'] = ['imexam', 'xpa']
 
 setup(
     name=PACKAGENAME,
@@ -168,4 +165,3 @@ setup(
     cmdclass=cmdclass,
     **package_info
 )
-

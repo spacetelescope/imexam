@@ -7,7 +7,6 @@ from __future__ import (absolute_import, division, print_function,
 import pytest
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal, assert_array_equal
-from numpy.testing import assert_array_max_ulp
 from imexam.imexamine import Imexamine
 
 try:
@@ -86,6 +85,7 @@ def test_line_fit():
     assert_allclose(amp, fit.amplitude, 1e-6)
     assert_allclose(mean, fit.mean, 1e-6)
     assert_allclose(stddev, fit.stddev, 1e-6)
+
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
 def test_column_fit():

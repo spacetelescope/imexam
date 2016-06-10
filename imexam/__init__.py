@@ -5,7 +5,11 @@ This is an Astropy affiliated package
 """
 
 # import high level functions into the imexam namespace
-from .util import *
+from .util import find_ds9
+from .util import list_active_ds9
+from .util import display_help
+from .util import find_xpans
+from .util import set_logging
 from . import connect as _connect
 connect = _connect.Connect
 
