@@ -41,7 +41,7 @@ from subprocess import call
 
 # The XPA class controls interaction with DS9
 from .xpa_wrap import XPA
-from imexam.xpa import XpaException
+from .xpa import XpaException
 
 from . import util
 from astropy.io import fits
@@ -197,7 +197,7 @@ class ds9(object):
         # installation issues
         self._xpa_method = "local"
         self._xpa_name = ""
-        
+
         # only used for DS9 windows started from this module
         self._ds9_process = None
         self._ds9_path = None

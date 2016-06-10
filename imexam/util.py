@@ -8,7 +8,7 @@ import logging
 import warnings
 from astropy.io import fits
 
-import imexam.xpa as _xpa
+from . import xpa as _xpa
 from .version import version as __version__
 
 # To guide any import *
