@@ -153,7 +153,7 @@ if use_cython:
 else:
     ext = [xpa_module]
 
-
+package_info['package_data'][PACKAGENAME].extend(XPA_FILES)
 package_info['ext_modules'] = ext
 
 setup(

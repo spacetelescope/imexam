@@ -8,7 +8,7 @@ import logging
 import warnings
 from astropy.io import fits
 
-import xpa as _xpa
+import xpa
 from .version import version as __version__
 
 # To guide any import *
@@ -55,14 +55,14 @@ def list_active_ds9():
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
         try:
-            sessions = _xpa.get(b"xpans")
+            sessions = xpa.get(b"xpans")
             if sessions is None:
                 print("No active sessions")
             if len(sessions) < 1:
                 print("No active sessions")
             else:
                 print(sessions.decode())
-        except _xpa.XpaException:
+        except xpa.XpaException:
             print("No active sessions registered")
 
     else:

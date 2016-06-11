@@ -134,11 +134,11 @@ def test_radial_profile():
     rad = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     flux = [4.53542348e-02,   3.00703719e-01,   3.54889792e-01,
             1.95806071e-01,   7.56662018e-02,   2.46976310e-02,
-            2.54073324e-03,   1.51802470e-04,   1.08322069e-06,
-            3.60555076e-10]
+            2.54073324e-03,   1.51802506e-04,   1.08323362e-06,
+            3.65945812e-10]
 
     assert_array_equal(rad, x)
-    assert_allclose(flux, y, 1e-6)
+    assert_allclose(flux, y, 1e-4)
 
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
