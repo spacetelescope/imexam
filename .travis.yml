@@ -63,9 +63,9 @@ matrix:
 
         # Try with optional dependencies disabled
         - python: 2.7
-          env: CONDA_DEPENDENCIES='matplotlib scipy ipython' PIP_DEPENDENCIES=''
+          env: PIP_DEPENDENCIES=''
         - python: 3.5
-          env: CONDA_DEPENDENCIES='matplotlib scipy ipython' PIP_DEPENDENCIES=''
+          env: PIP_DEPENDENCIES=''
 
         # Try older numpy versions
         - python: 2.7

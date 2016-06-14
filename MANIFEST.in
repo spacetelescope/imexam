@@ -13,13 +13,15 @@ recursive-include scripts *
 recursive-include wrappers *
 recursive-include astropy_helpers *
 recursive-include cextern *
-include tests
 
 
 exclude astropy_helpers/.git
 exclude astropy_helpers/.gitignore
 exclude cextern/xpa/.git
 exclude cextern/xpa/.gitignore
+exclude cextern/xpa/man
+exclude cextern/xpa/doc
+exclude cextern/xpa/notes
 global-exclude *.pyc *.o
 
 
