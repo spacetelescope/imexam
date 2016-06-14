@@ -30,7 +30,7 @@ env:
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='Cython matplotlib scipy ipython'
         - PIP_DEPENDENCIES='photutils'
-        - MAIN_CMD='python seutp.py'
+        - MAIN_CMD='python setup.py'
         - SETUP_CMD='test'
 
     matrix:
