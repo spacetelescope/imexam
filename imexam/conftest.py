@@ -7,6 +7,7 @@ from astropy.tests.pytest_plugins import *
 # Uncomment the following lines to display the version number of the
 # package rather than the version number of Astropy in the top line when
 # running the tests.
+
 import os
 
 # Uncomment the following line to treat all DeprecationWarnings as
