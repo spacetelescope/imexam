@@ -183,7 +183,6 @@ setup(
         'Topic :: Scientific/Engineering :: Astronomy',
         'Topic :: Software Development :: Libraries :: Python Modules',
         ],
-    d2to1=True,
     use_2to3=False,
     zip_safe=False,
     cmdclass=cmdclass,
