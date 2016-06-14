@@ -1,5 +1,12 @@
-language: python
+language: c
 
+os:
+    - linux
+    - osx
+    
+compiler:
+    - gcc
+    - clang
 
 python:
     - 2.7
@@ -27,39 +34,44 @@ env:
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='Cython matplotlib scipy ipython'
         - PIP_DEPENDENCIES='photutils'
+        - MAIN_CMD='python seutp.py'
         - SETUP_CMD='test'
 
     matrix:
         # make sure that egg_info works without dependencies
         - SETUP_CMD='egg_info'
         # Try all python versions with the latest numpy
-        - SETUP_CMD='test'
+        - SETUP_CMD='test -v'
 
 
 matrix:
-    include:
 
-        # Do a coverage test in Python 2. This requires the latest
-        # development version of Astropy, which fixes some issues with
-        # coverage testing in affiliated packages.
-        - python: 2.7
-          env: SETUP_CMD='test --coverage'
+    # Don't wait for allowed failures
+    fast_finish: true
+
+    include:
 
         # Check for sphinx doc build warnings - we do this first because
         # it may run for a long time
         - python: 2.7
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga jupyter'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib'
         - python: 3.5
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga jupyter'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib'
+
+        # Try building in MacOS X
+        - os: osx
+          python: 2.7
 
 
        # Try Astropy development and LTS versions
-        - python: 3.5
+        - python: 2.7
           env: ASTROPY_VERSION=development
         - python: 2.7
           env: ASTROPY_VERSION=lts
         - python: 3.5
           env: ASTROPY_VERSION=lts
+        - python: 3.5
+          env: ASTROPY_VERSION=development
 
         # Try with optional dependencies disabled
         - python: 2.7
@@ -76,10 +88,27 @@ matrix:
           env: NUMPY_VERSION=1.8
         - python: 2.7
           env: NUMPY_VERSION=1.7
+          
+        - python: 3.5
+          env: NUMPY_VERSION=1.10
+        - python: 3.5
+          env: NUMPY_VERSION=1.9
+
 
         # Try numpy pre-release
         - python: 3.5
           env: NUMPY_VERSION=prerelease
+
+        # Do a coverage test in Python 2. This requires the latest
+        # development version of Astropy, which fixes some issues with
+        # coverage testing in affiliated packages.
+        - python: 2.7
+          env: SETUP_CMD='test --coverage' ASTROPY_VERSION=development
+
+
+        # Do a pep8 test
+        - python: 3.5
+          env: SETUP_CMD='test --pep8 -k pep8
 
     allow_failures:
         # The build with numpy v1.11.1rc1 halts in the middle without
@@ -94,6 +123,8 @@ before_install:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
     - sleep 3
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install graphviz; fi
     - uname -a
     - python --version
 
@@ -123,7 +154,8 @@ install:
 
 
 script:
-    - python setup.py $SETUP_CMD
-
+    - $MAIN_CMD  $SETUP_CMD
+    
+    
 after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls --rcfile='imexam/tests/coveragerc'; fi

@@ -10,24 +10,25 @@ viewing tool, like DS9
 from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
+if not _ASTROPY_SETUP_:
+    # import high level functions into the imexam namespace
+    from .util import list_active_ds9
+    from .util import display_help
+    from .util import set_logging
+    from . import connect as _connect
+    connect = _connect.Connect
 
-# import high level functions into the imexam namespace
-from .util import list_active_ds9
-from .util import display_help
-from .util import set_logging
-from . import connect as _connect
-connect = _connect.Connect
+    try:
+        import astropy
+    except ImportError:
+        raise ImportError("astropy required but not found")
 
-try:
-    import astropy
-except ImportError:
-    raise ImportError("astropy required but not found")
 
-try:
-    from .version import version as __version__
-except ImportError:
-    __version__ = ''
-try:
-    from .version import githash as __githash__
-except ImportError:
-    __githash__ = ''
+    try:
+        from .version import version as __version__
+    except ImportError:
+        __version__ = ''
+    try:
+        from .version import githash as __githash__
+    except ImportError:
+        __githash__ = ''
