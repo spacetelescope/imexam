@@ -1,8 +1,5 @@
 language: python
 
-os:
-    - linux
-    
     
 python:
     - 2.7
@@ -50,9 +47,9 @@ matrix:
         # Check for sphinx doc build warnings - we do this first because
         # it may run for a long time
         - python: 2.7
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga'
         - python: 3.5
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga'
 
 
        # Try Astropy development and LTS versions
@@ -75,12 +72,7 @@ matrix:
         - python: 2.7
           env: NUMPY_VERSION=1.10
         - python: 2.7
-          env: NUMPY_VERSION=1.9
-        - python: 2.7
-          env: NUMPY_VERSION=1.8
-        - python: 2.7
-          env: NUMPY_VERSION=1.7
-          
+          env: NUMPY_VERSION=1.9           
         - python: 3.5
           env: NUMPY_VERSION=1.10
         - python: 3.5
@@ -117,7 +109,7 @@ before_install:
     - sleep 3
     - uname -a
     - python --version
-
+    
     # We now use the ci-helpers package to set up our testing environment.
     # This is done by using Miniconda and then using conda and pip to install
     # dependencies. Which dependencies are installed using conda and pip is
@@ -133,7 +125,8 @@ before_install:
 install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
-
+    - pip install pytest-pep8
+    
     # As described above, using ci-helpers, you should be able to set up an
     # environment with dependencies installed using conda and pip, but in some
     # cases this may not provide enough flexibility in how to install a
