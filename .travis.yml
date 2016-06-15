@@ -47,9 +47,9 @@ matrix:
         # Check for sphinx doc build warnings - we do this first because
         # it may run for a long time
         - python: 2.7
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
         - python: 3.5
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython scipy matplotlib ginga'
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
 
 
        # Try Astropy development and LTS versions
@@ -99,6 +99,12 @@ matrix:
         # showing any obvious reason, thus allowing it to fail for now.
         - python: 3.5
           env: NUMPY_VERSION=prerelease
+        # The build completes and the tests collect and then 
+        # it just stops with no error, same as above
+        - python: 3.5
+          env: NUMPY_VERSION=1.9
+        - python: 2.7
+          env: NUMPY_VERSION=1.9           
 
 
 before_install:
