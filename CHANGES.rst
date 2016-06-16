@@ -1,12 +1,22 @@
 version 0.6dev (unreleased)
 ---------------------------
 - Ginga viewer support for images in matplotlib and QT backend removed, but replaced with HTML5 canvas viewer which is faster and simpler for users to both use and install. 
-- General bug fixes and documentation updates
+- replaced custom fits with astropy.modeling, enabling Gaussian2d, Gaussian1d, Moffat1D and MexicanHat1D fits for lines and centering
+- General bug fixes and documentation updates, including example jupyter notebooks
+- Updated the default title display on plots to use the image name or specify an array was used
+- added astropy_helpers as a submodule
+- made xpa a submodule
+- if users pass an nddata object to view()  without a data reference it assumes one, but you can always specify which extension 
+- added better user access function for changing plotting/function parameters used to make plots
+- updated to Read The Docs new site name
+- replaced ipython dependency in the docs build with jupyter
+- removed local copy of doc build, referenced to RTD instead, users should make PDF copy for offline work
+
 
 version 0.5.3dev (unreleased)
 -----------------------------
 - show with blocking deprecatedin matplotlib, changed the calls to pause
-- added a radial profil plot under the r key, the curve of growth plot was moved to g
+- added a radial profile plot under the r key, the curve of growth plot was moved to g
 
 
 version 0.5.2 (released)

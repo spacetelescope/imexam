@@ -1,4 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""Licensed under a 3-clause BSD style license - see LICENSE.rst."""
 
 from __future__ import print_function, division
 
@@ -8,18 +8,16 @@ import logging
 import warnings
 from astropy.io import fits
 
-from astropy import log
-from . import xpa
-from xpa import XpaException
+import xpa
+from .version import version as __version__
 
-import codecs
-
+# To guide any import *
 __all__ = [
     "find_ds9",
     "list_active_ds9",
     "display_help",
-    "list_ds9_ids",
-    "find_xpans"]
+    "find_xpans",
+    "set_logging"]
 
 
 def find_ds9():
@@ -43,7 +41,7 @@ def find_xpans():
 
 
 def list_active_ds9():
-    """Display information about the DS9 windows currently registered with XPA and runnning
+    """Display information about the DS9 windows currently registered with XPA.
 
     Notes
     -----
@@ -57,39 +55,33 @@ def list_active_ds9():
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
         try:
-            sessions=xpa.get('xpans')
+            sessions = xpa.get(b"xpans")
+            if sessions is None:
+                print("No active sessions")
             if len(sessions) < 1:
                 print("No active sessions")
             else:
-                print(sessions)
-        except XpaException:
+                print(sessions.decode())
+        except xpa.XpaException:
             print("No active sessions registered")
+
     else:
-        print(
-            "XPA nameserver not installed or not on PATH, function unavailable")
-
-
-def list_ds9_ids():
-    """return just the list of ds9 XPA_METHOD ids which are registered"""
-    return xpa.nslookup()
+        print("XPA nameserver not installed or not on PATH, \
+               function unavailable")
 
 
 def display_help():
     """ display local html help in a browser window"""
+    url = "http://imexam.readthedocs.io/imexam/"
     try:
         import webbrowser
+        # grab the version that's installed
+        url += "en/{0:s}/".format(__version__)
+        webbrowser.open(url)
     except ImportError:
         warnings.warn(
-            "webbrowser module not installed, see the installed doc directory for the HTML help pages")
+            "webbrowser module not installed, see {0:s} for help".format(url))
         raise ImportError
-
-    # get the user installed location of the html docs, better way?
-    from . import htmlhelp
-    location = (htmlhelp.__file__).split("/")
-    location.pop()
-    location.append("imexam/index.html")
-    url = "file://" + "/".join(location)
-    webbrowser.open(url)
 
 
 # Set up logging ability for the user

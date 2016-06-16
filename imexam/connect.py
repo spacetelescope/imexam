@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """This is the main controlling class, it allows the user to connect to
-(at least) ds9 and the imexamine classes
+the viewer and the imexamine classes
 """
 
 from __future__ import print_function, division, absolute_import
@@ -9,7 +9,7 @@ from __future__ import print_function, division, absolute_import
 import warnings
 import logging
 import os
-
+import astropy
 
 from .util import set_logging
 from .ds9_viewer import ds9
@@ -45,8 +45,7 @@ class Connect(object):
         absolute path to the viewers executable
 
     viewer: string, optional
-        The name of the image viewer you want to use, currently only
-        DS9 is supported
+        The name of the image viewer you want to use, DS9 is the default
 
     wait_time: int, optional
         The time to wait for a connection to be eastablished before quitting
@@ -74,7 +73,7 @@ class Connect(object):
             _possible_viewers.append('ginga')
 
         if self._viewer not in _possible_viewers:
-            warnings.warn("**Unsupported viewer**\n")
+            warnings.warn("**Unsupported viewer, check your installed packages**\n")
             raise NotImplementedError
 
         # init sets empty data array until we can load or check viewer
@@ -100,18 +99,18 @@ class Connect(object):
         self._current_frame = None
 
     def setlog(self, filename=None, on=True, level=logging.DEBUG):
-        """turn on and off imexam logging to the a file."""
+        """Turn on and off imexam logging to the a file."""
         if filename:
             self.logfile = filename
 
         self.log = set_logging(self.logfile, on, level)
 
     def close(self):
-        """ close the window and end connection."""
+        """Close the window and end connection."""
         self.window.close()
 
     def imexam(self):
-        """Run imexamine with user interaction.
+        """Run imexamine loop with user interaction.
 
         At a minimum it requires a copy of the data array
         """
@@ -124,10 +123,7 @@ class Connect(object):
             warnings.warn("No valid image loaded in viewer")
 
     def _run_event_imexam(self):
-        """Let the viewer run an event driven imexam.
-
-        pass the key binding dictionary in for it to attach to?
-        """
+        """Let the viewer run an event driven imexam."""
         if not self._event_driven_exam:
             warnings.warn("Event driven imexam not implemented for viewer")
         else:
@@ -172,11 +168,11 @@ class Connect(object):
         This function will track the user changing the frame number using the
         gui display for  images and update the data array.
 
-        TODO
-        ds9 returns 1-based, figure out how to deal with this better so that
-        other viewers can be implemented, the problem comes with  printing the
+        ds9 returns 1-based, the problem comes with  printing the
         coordinates and visual comparison with what's displayed in the gui.
         The gui display seems to round up integer pixels at some zoom factors.
+        I've set ds9 to return the 0 indexed location so that the numpy array
+        is always correct.
 
         Verify this to some level by looking at the pixel returned and using
         the pixel table window in DS9 to look at surrounding values.
@@ -216,13 +212,10 @@ class Connect(object):
                     else:
                         if 'q' in current_key:
                             current_key = None
+                            self.exam._close_plots()
                         else:
                             self.exam.do_option(
-                                x -
-                                1,
-                                y -
-                                1,
-                                current_key)  # ds9 returns 1 based array
+                                x, y, current_key)
                 except KeyError:
                     print(
                         "Invalid key, use\n: {0}".format(
@@ -253,52 +246,52 @@ class Connect(object):
     #  Implement the following functions in your viewer class
 
     def readcursor(self):
-        """return image coordinate postion and key pressed.
+        """Return the image coordinate postion and key pressed.
 
         in the form of x,y,str with array offset
         """
         return self.window.readcursor()
 
     def alignwcs(self, **kwargs):
-        """align frames with wcs."""
+        """Align frames with wcs."""
         self.window.alignwcs(**kwargs)
 
     def blink(self, **kwargs):
-        """blink windows if available."""
+        """Blink windows if available."""
         self.window.blink(**kwargs)
 
     def clear_contour(self):
-        """clear contours on window if available."""
+        """Clear contours on window if available."""
         self.window.clear_contour()
 
     def cmap(self, **kwargs):
         """Set the color map table to something else.
 
-        will verify with a defined list of options
+        Should verify with a defined list of options
         """
         self.window.cmap(**kwargs)
 
     def colorbar(self, **kwargs):
-        """turn the colorbar on the screen on and off."""
+        """Turn the colorbar on the screen on and off."""
         self.window.colorbar(**kwargs)
 
     def contour(self, **kwargs):
-        """show contours on the window."""
+        """Show contours on the window."""
         self.window.contour(**kwargs)
 
     def contour_load(self, *args):
-        """load contours from a file."""
+        """Load contours from a file."""
         self.window.contour_load(*args)
 
     def crosshair(self, **kwargs):
         """Control the current position of the crosshair in the current frame.
 
-        crosshair mode is turned on
+        crosshair mode is turned on by default
         """
         self.window.crosshair(**kwargs)
 
     def cursor(self, **kwargs):
-        """move the cursor in the current frame to the specified image pixel.
+        """Move the cursor in the current frame to the specified image pixel.
 
         it will also move selected regions
         """
@@ -309,7 +302,7 @@ class Connect(object):
         self.window.disp_header()
 
     def frame(self, *args, **kwargs):
-        """Move to a difference frame."""
+        """Move to a different frame."""
         return self.window.frame(*args, **kwargs)
 
     def get_data(self):
@@ -328,7 +321,7 @@ class Connect(object):
         return self.window.get_header()
 
     def grid(self, *args, **kwargs):
-        """Convenience to turn the grid on and off.
+        """Convenience method to turn the grid on and off.
 
         grid can be flushed with many more options
         """
@@ -340,10 +333,14 @@ class Connect(object):
 
     def load_fits(self, *args, **kwargs):
         """Convenience function to load fits image to current frame."""
+        if 'fname' in kwargs.keys():
+            self.exam._datafile = kwargs['fname']
+        else:
+            self.exam._datafile=args[0]
         self.window.load_fits(*args, **kwargs)
 
     def load_region(self, *args, **kwargs):
-        """Load regions from a file which uses ds9 standard formatting."""
+        """Load regions from a file which uses standard formatting."""
         self.window.load_region(*args, **kwargs)
 
     def load_mef_as_cube(self, *args, **kwargs):
@@ -355,7 +352,7 @@ class Connect(object):
         self.window.load_mef_as_multi(*args, **kwargs)
 
     def make_region(self, *args, **kwargs):
-        """make an input reg file with  [x,y,comment] to a DS9 reg file.
+        """Make an input reg file with [x,y,comment] to a standard reg file.
 
         the input file should contains lines with x,y,comment
         """
@@ -370,13 +367,13 @@ class Connect(object):
         self.window.match(**kwargs)
 
     def nancolor(self, **kwargs):
-        """Set the not-a-number color, default is red."""
+        """Set the not-a-number (NaN) color."""
         self.window.nancolor(**kwargs)
 
     def panto_image(self, *args, **kwargs):
         """Convenience function to change to x,y images coordinates.
 
-        using ra,dec x, y in image coord
+        using ra,dec, x, y in image coord
         """
         self.window.panto_image(*args, **kwargs)
 
@@ -436,8 +433,16 @@ class Connect(object):
         self.window.snapsave(*args, **kwargs)
 
     def view(self, *args, **kwargs):
-        """Display numpy image array."""
-        self.window.view(*args, **kwargs)
+        """Display numpy or nddata image array.
+
+        If an astropy NDData object is passed without a reference to the data
+        one will be added. I haven't tested this yet for multiarray data
+        """
+        self.exam._datafile = "array"
+        if isinstance(args[0],astropy.nddata.nddata.NDData):
+            self.window.view(args[0].data)  # when not specified
+        else:
+            self.window.view(*args, **kwargs)
 
     def zoom(self, *args, **kwargs):
         """Zoom to parameter which can be any recognized string."""
@@ -446,12 +451,6 @@ class Connect(object):
     def zoomtofit(self):
         """Zoom the image to fit the display."""
         self.window.zoomtofit()
-
-    #  These are imexam parameters that the user can change for plotting
-
-    # seems easiest to return the parameter dictionaries here, then the user
-    # can catch it, edit it and reset the pars with self.set in the exam link
-    # or directly into the  imexamine object.
 
     def _get_function_name(self, key=None):
         """Return the function and parname associated with the key."""
@@ -469,7 +468,7 @@ class Connect(object):
         return fname, parname
 
     def set_plot_pars(self, key=None, item=None, value=None):
-        """set the chosen plot parameter with the provided value.
+        """Set the chosen plot parameter with the provided value.
 
         Parameters
         ----------
@@ -483,7 +482,6 @@ class Connect(object):
         value: float, string, int, bool
             What the parameters value should be set to
         """
-
         fname, parname = self._get_function_name(key)
         if parname:
             current_dict = self.exam.__getattribute__(parname)
@@ -495,11 +493,11 @@ class Connect(object):
             return
         else:
             current_dict[item][0] = value
-            print("set {} to {}".format(item, value))
+            print("set {0}: {1} to {2}".format(parname, item, value))
             return
 
     def aimexam(self, get_name=False):
-        """show current parameters for the 'a' key.
+        """Show the current parameters for the 'a' key.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -510,7 +508,7 @@ class Connect(object):
             return(self.exam.aperphot_pars)
 
     def cimexam(self, get_name=False):
-        """show current parameters for the 'c' key.
+        """Show the current parameters for the 'c' key.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -521,14 +519,14 @@ class Connect(object):
             return(self.exam.colplot_pars)
 
     def eimexam(self, get_name=False):
-        """show current parameters for the 'e' key, returns dict."""
+        """Show the current parameters for the 'e' key, returns dict."""
         if get_name:
             return self.exam.imexam_option_funcs['e'][0].__name__
         else:
             return(self.exam.contour_pars)
 
     def himexam(self, get_name=False):
-        """show current parameters for 'h' key, returns dict.
+        """Show the current parameters for 'h' key, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -539,7 +537,7 @@ class Connect(object):
             return(self.exam.histogram_pars)
 
     def jimexam(self, get_name=False):
-        """show current parameters for 1D fit line plots, returns dict.
+        """Show the current parameters for 1D fit line plots, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -550,7 +548,7 @@ class Connect(object):
             return(self.exam.line_fit_pars)
 
     def kimexam(self, get_name=False):
-        """show current parameters for 1D fit column plots, returns dict.
+        """Show the current parameters for 1D fit column plots, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -561,7 +559,7 @@ class Connect(object):
             return(self.exam.column_fit_pars)
 
     def limexam(self, get_name=False):
-        """show current parameters for  line plots, returns dict.
+        """Show the current parameters for  line plots, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -572,7 +570,7 @@ class Connect(object):
             return(self.exam.lineplot_pars)
 
     def mimexam(self, get_name=False):
-        """show current parameters for statistical regions, returns dict.
+        """Show the current parameters for statistical regions, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -583,7 +581,7 @@ class Connect(object):
             return(self.exam.report_stat_pars)
 
     def gimexam(self, get_name=False):
-        """show current parameters for curve of growth plots, returns dict.
+        """Show the current parameters for curve of growth plots, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -594,7 +592,7 @@ class Connect(object):
             return(self.exam.curve_of_growth_pars)
 
     def rimexam(self, get_name=False):
-        """show current parameters for curve of growth plots, returns dict.
+        """Show the current parameters for curve of growth plots, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -605,7 +603,7 @@ class Connect(object):
             return(self.exam.radial_profile_pars)
 
     def wimexam(self, get_name=False):
-        """show current parameters for surface plots, returns dict.
+        """Show the current parameters for surface plots, returns dict.
 
         Either returns the name of the function associated with the keyname
         Or it returns the dictionary of plotting parameters for that key
@@ -616,11 +614,11 @@ class Connect(object):
             return(self.exam.surface_pars)
 
     def unlearn(self):
-        """unlearn all the imexam parameters and reset to default."""
+        """Unlearn all the imexam parameters and reset to default."""
         self.exam.unlearn_all()
 
     def plotname(self, filename=None):
-        """change or show the default save plotname for imexamine."""
+        """Change or show the default save plotname for imexamine."""
         if not filename:
             self.exam.get_plot_name()  # show the current default
         else:

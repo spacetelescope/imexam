@@ -5,11 +5,11 @@ The following is a comparison of the outputs, returned values and user options f
 
 * All plot types are replicated between the codes, though they may be rendered differently. The images below are representative of the basic plots from each package.
 * The same user plot options, as in the rimexam, cimexam etc. type IRAF param files are replicated to their useful extent using python dictionaries for each imexamine key.
-* Colormaps and point styles for the matplotlib plots may be changed by the user through the imexam key default dictionaries
-* In imexam, once the plot is displayed on the screen, you can zoom in and out using the controls in the plotting window.
-* imexam allows users to register their own analysis functions
-* imexam does not attempt to replicate the colon command interaction, if users wish to change the plot settings they should exit the imexam() method, reset the options and call it again.
-* all of the imexam() functions in imexam can be called by themselves if you supply an x,y coordinate
+* Colormaps and point styles for the matplotlib plots may be changed by the user through the ``imexam`` key default dictionaries
+* In ``imexam``, once the plot is displayed on the screen, you can zoom in and out using the controls in the plotting window.
+* ``imexam`` allows users to register their own analysis functions
+* ``imexam`` does not attempt to replicate the colon command interaction, if users wish to change the plot settings they should exit the imexam() method, reset the options and call it again.
+* all of the imexam() functions in ``imexam`` can be called by themselves if you supply an x,y coordinate
 
 How do the numerical results compare with the IRAF version? This is a little harder to judge with cursor centering.
 Visual comparison of the resulting plots shows good agreement, as well as some random checks of the photometry and statistical return methods.
@@ -35,7 +35,7 @@ imexam "m" key (with cursor location flooring):
     [583:588,695:700] median: 51458.000000
 
 
-imexam only shows one statistic at a time. The same function call may be used to show the results from  *any* valid numpy function, it will return an attribute error for invalid functions.
+``imexam`` only shows one statistic at a time. The same function call may be used to show the results from  *any* valid numpy function, it will return an attribute error for invalid functions.
 For example, if you edit the defaults dictionary for the "m" key:
 
 ::
@@ -74,7 +74,7 @@ IRAF "a" key:
         17.51   8.86 2.858E6  10840.  45443. 0.03  -64 8.32     5.23     7.10   5.83
 
 
-imexam "a" key (using the defaults):
+``imexam`` "a" key (using the defaults):
 
 ::
 
@@ -112,19 +112,19 @@ Radial Profile Plot
 
 The fit profile of the star out to the specified radius.
 Users can look at the fit profile of the star using the 1D gaussian option.
-By default, imexam prints the data point values to the screen.
+By default, ``imexam`` prints the data point values to the screen.
 
-.. image:: iraf_radial_plot.png
+.. image:: ../_static/iraf_radial_plot.png
     :height: 400
     :width: 600
     :alt: IRAF radial plot
 
-.. image:: radial_profile_plot.png
+.. image:: ../_static/radial_profile_plot.png
     :height: 400
     :width: 600
     :alt: imexam Radial Profile Plot
 
-imexam prints the plotted data to the screen
+``imexam`` prints the plotted data to the screen
 
 ::
 
@@ -144,12 +144,12 @@ Contour plot
 ^^^^^^^^^^^^
 Note the added availability in this package for labeling the contours
 
-.. image:: iraf_contour_plot.png
+.. image:: ../_static/iraf_contour_plot.png
     :height: 400
     :width: 600
     :alt: IRAF contour plot
 
-.. image:: contour_plot.png
+.. image:: ../_static/contour_plot.png
     :height: 400
     :width: 600
     :alt: contour plot
@@ -158,12 +158,12 @@ Note the added availability in this package for labeling the contours
 Column and Line plots
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: iraf_column_plot.png
+.. image:: ../_static/iraf_column_plot.png
     :height: 400
     :width: 600
     :alt: IRAF column plot
 
-.. image:: column_plot.png
+.. image:: ../_static/column_plot.png
     :height: 400
     :width: 600
     :alt: Column plot
@@ -171,7 +171,7 @@ Column and Line plots
 
 Keep in mind that python is 0-index and IRAF returns 1-index arrays, so the equivalent IRAF plot of 587 is really 588:
 
-.. image:: iraf_column_off1_plot.png
+.. image:: ../_static/iraf_column_off1_plot.png
     :height: 400
     :width: 600
     :alt: IRAF column off by 1 plot
@@ -181,7 +181,7 @@ Keep in mind that python is 0-index and IRAF returns 1-index arrays, so the equi
 
 An added benefit in the python package is that you can zoom in and out of the plots using the window controls, below is a zoomed in area of the column plot as it appears in the window:
 
-.. image:: column_zoom_plot.png
+.. image:: ../_static/column_zoom_plot.png
     :height: 400
     :width: 600
     :alt: Column plot zoomed
@@ -190,17 +190,17 @@ An added benefit in the python package is that you can zoom in and out of the pl
 Histogram plots
 ^^^^^^^^^^^^^^^
 
-.. image:: iraf_histogram_plot.png
+.. image:: ../_static/iraf_histogram_plot.png
     :height: 400
     :width: 600
     :alt: IRAF histogram plot
 
-.. image:: histogram_plot.png
+.. image:: ../_static/histogram_plot.png
     :height: 400
     :width: 600
     :alt: histogram plot
 
-imexam prints bin information to the screen
+``imexam`` prints bin information to the screen
 
 ::
 
@@ -213,18 +213,18 @@ imexam prints bin information to the screen
 
 These plots are representative for both the column and line versions
 
-.. image:: iraf_1dgaussian_plot.png
+.. image:: ../_static/iraf_1dgaussian_plot.png
     :height: 400
     :width: 600
     :alt: IRAF 1D Gaussian plot
 
-.. image:: fit_line.png
+.. image:: ../_static/fit_line.png
     :height: 400
     :width: 600
     :alt: Plot of gaussian profile fit to data
 
 
-imexam prints the fit information to the screen
+``imexam`` prints the fit information to the screen
 
 ::
 
@@ -235,14 +235,14 @@ Surface plots
 ^^^^^^^^^^^^^
 
 The default viewing angle for this package was set to that the axis are easiest to read, the user may choose a different azimuthal value as well.
-The most fancy imexam surface plot is displayed, the user can alter it with the available options.
+The most fancy ``imexam`` surface plot is displayed, the user can alter it with the available options.
 
-.. image:: iraf_surface_plot.png
+.. image:: ../_static/iraf_surface_plot.png
     :height: 400
     :width: 600
     :alt: IRAF surface plot
 
-.. image:: fancy_surface.png
+.. image:: ../_static/fancy_surface.png
     :height: 460
     :width: 650
     :alt: fancy surface plot

@@ -1,26 +1,19 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division, absolute_import
+"""Licensed under a 3-clause BSD style license - see LICENSE.rst."""
 
-from imexam.xpa import xpa
-import sys
+from __future__ import print_function, division, absolute_import
+from xpa import xpa
 
 
 class XPA(xpa):
+    """Interface with the xpa for ds9"""
 
-    def __init__(self, template):
-        xpa.__init__(self,template.encode('utf-8'))
+    def __init__(self, template="imexam"):
+        super(XPA, self).__init__(template.encode('utf-8', 'strict'))
 
-    # for all interaction with xpa user functions
-    def get(self, param=None):
-        if int(sys.version[0]) < 3:
-            r=xpa.get(self, param.encode('utf-8'))
-            return r.decode()
-        else:
-            return xpa.get(self,param.encode('utf-8')).decode()
+    def get(self, param=""):
+        """Get information from the xpa."""
+        return super(XPA, self).get(param.encode('utf-8', 'strict')).decode()
 
-    def set(self, param=None, buf=None):
-        xpa.set(self,param.encode(), buf)
-
-    # return a list of access point id's
-    def nslookup(self):
-        return xpa.nslookup()
+    def set(self, param="", buf=None):
+        """send information to the xpa."""
+        super(XPA, self).set(param.encode('utf-8', 'strict'), buf)

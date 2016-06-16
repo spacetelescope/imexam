@@ -1,3 +1,6 @@
+:orphan:
+
+=========
 Example 3
 =========
 
@@ -10,7 +13,7 @@ If you have  a  list of source identifications, perhaps prepared by SExtractor, 
 
 Here's our example image to work with, which is a subsection of a larger image:
 
-.. image:: photometry_subsection.png
+.. image:: ../_static/photometry_subsection.png
     :height: 400
     :width: 600
     :alt: subsection of image being examined
@@ -219,7 +222,7 @@ Let's open up a DS9 window (if you haven't already) and display your image. This
 
 
 
-.. image:: iab_locations.png
+.. image:: ../_static/iab_locations.png
     :height: 400
     :width: 600
     :alt: subsection of image being examined
@@ -228,7 +231,7 @@ Let's open up a DS9 window (if you haven't already) and display your image. This
 Now we can get rid of some of the stars by hand and save a new file of locations we like. I did this arbitrarily because I decided I didn't like stars in this part of space. Click on the regions you don't want and delete them from the screen. You can even add more regions of your own choosing.
 
 
-.. image:: iab_badstars.png
+.. image:: ../_static/iab_badstars.png
     :height: 400
     :width: 600
     :alt: subsection of image being examined

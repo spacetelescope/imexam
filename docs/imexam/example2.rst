@@ -1,3 +1,6 @@
+:orphan:
+
+=========
 Example 2
 =========
 
@@ -21,7 +24,7 @@ Assuming we've already connected to the  window where the data is displayed with
 
 Here a picture of the area I'm looking at in my ds9 window ( created with viewer.snapsave(filename='photometry_subsection.jpg') )
 
-.. image:: photometry_subsection.png
+.. image:: ../_static/photometry_subsection.png
     :height: 400
     :width: 600
     :alt: subsection of image being examined
@@ -76,7 +79,7 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
         flux:[131647.90413345056, 498482.2347664542, 914397.81480508228, 1132799.3621327095, 1329352.9123961448, 1519686.5943709521, 1608342.6952771661, 1677361.8581732502]
 
 
-.. image:: photometry_example_radplot.png
+.. image:: ../_static/photometry_example_radplot.png
     :height: 400
     :width: 600
     :alt: curve of growth plot with defaults
@@ -128,13 +131,13 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
 Below are the final curve of growth plot as well as the the gaussian fit to the columns of the same star:
 
 
-.. image:: photometry_example_growth2.png
+.. image:: ../_static/photometry_example_growth2.png
     :height: 400
     :width: 600
     :alt: curve of growth plot with alterations
 
 
-.. image:: column_fit_phot_examp.png
+.. image:: ../_static/column_fit_phot_examp.png
     :height: 400
     :width: 600
     :alt: Gaussian1D fit column profile of star
@@ -152,7 +155,7 @@ Assuming we've already connected to the DS9 window where the data is displayed w
 
 Here a picture of the area I'm looking at in my DS9 window ( created with viewer.snapsave(filename='photometry_subsection.jpg') )
 
-.. image:: photometry_subsection.png
+.. image:: ../_static/photometry_subsection.png
     :height: 400
     :width: 600
     :alt: subsection of image being examined

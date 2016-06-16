@@ -1,13 +1,13 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 """
+Licensed under a 3-clause BSD style license - see LICENSE.rst
+
 This class supports communication with DS9 through the XPA
 
 
 Some code in this class was adapted from pysao, which can be found
 at https://github.com/leejjoon/pysao. Specifically this package used the
 existing Cython implementation to the XPA  and extended the calls to the other
-available XPA executables so that more functionality is added. The same
+available XPA executables so that more functionality is added. The API
 information is available here:
 
 http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen
@@ -15,14 +15,12 @@ http://hea-www.harvard.edu/RD/xpa/client.html#xpaopen
 Using Cython will allow for broader development of the code and produce faster
 runtimes for large datasets with repeated calls to the display manager.
 
-XPA is licensed under LGPL, help can be found here:
+XPA is licensed under MIT, help can be found here:
 http://hea-www.cfa.harvard.edu/saord/xpa/help.html
 
 The current XPA can be downloaded from here:
 http://hea-www.harvard.edu/saord/xpa/
 
-DS9 also supports the SAMP protocol, but that has not been fully implemented
-in this package. http://ds9.si.edu/doc/ref/samp.html
 """
 
 from __future__ import print_function, division, absolute_import
@@ -41,8 +39,9 @@ from matplotlib import get_backend
 import atexit
 from subprocess import call
 
-import imexam.xpa_wrap as xpa
-from imexam.xpa import XpaException
+# The XPA class controls interaction with DS9
+from .xpa_wrap import XPA
+from xpa import XpaException
 
 from . import util
 from astropy.io import fits
@@ -59,10 +58,10 @@ __all__ = ['ds9']
 
 
 class ds9(object):
-    """Controls all interactions between the user and the ds9 window.
+    """Control all interactions between the user and the DS9 window.
 
     The ds9() contructor takes a ds9 target as its main argument.
-    If none is given, then a new window will be opened.
+    If none is given, then a new window and process will be started.
 
     DS9's xpa access points are documented in the reference manual,
     but the can also be returned to the user with a call to xpaset.
@@ -154,7 +153,8 @@ class ds9(object):
                 'int16': 16,
                 'int32': 32,
                 'int64': 64,
-                'uint8': 8}
+                'uint8': 8,
+                'uint16': 16}
 
     _tmp_dir = ""
     _process_list = list()
@@ -197,6 +197,7 @@ class ds9(object):
         # installation issues
         self._xpa_method = "local"
         self._xpa_name = ""
+
         # only used for DS9 windows started from this module
         self._ds9_process = None
         self._ds9_path = None
@@ -231,7 +232,7 @@ class ds9(object):
             self._xpa_name = target
 
         # xpa_name sets the template for the get and set commands
-        self.xpa = xpa.XPA(self._xpa_name)
+        self.xpa = XPA(self._xpa_name)
         if 'local' in self._xpa_method:
             self._set_frameinfo()  # initial load
         self._define_cmaps()  # dictionary of color maps
@@ -410,10 +411,8 @@ class ds9(object):
         # see if the user has loaded a file by hand or changed frames in the
         # gui
         frame = self.frame()
-        if frame != self._current_frame:
-            self._set_frameinfo()
-        else:
-            return self._viewer[frame]['filename']
+        self._set_frameinfo()
+        return self._viewer[frame]['filename']
 
     def get_frame_info(self):
         """return more explicit information about the data displayed."""
@@ -695,8 +694,9 @@ class ds9(object):
 
         k, x, y = xpa_string.split()
 
-        # ds9 is returning 1 based array
-        return float(x), float(y), str(k)
+        # ds9 is returning 1 based array, set to 0-based since
+        # imexamine uses numpy for array crunching
+        return float(x)-1, float(y)-1, str(k)
 
     def alignwcs(self, on=True):
         """align wcs.
@@ -1711,11 +1711,11 @@ class ds9(object):
                     into frame {1}".format(e, frame))
 
     def zoomtofit(self):
-        """convenience function for zoom."""
+        """Zoom to fit the image to the viewer."""
         self.zoom("to fit")
 
     def zoom(self, par="to fit"):
-        """zoom using the specified command in par.
+        """Zoom using the specified command.
 
         Parameters
         ----------
@@ -1742,12 +1742,12 @@ class ds9(object):
                 window is already closed)")
 
     def show_xpa_commands(self):
-        """print the available XPA commands."""
+        """Print the available XPA commands."""
         print(self.get())  # with no arguments supplied, XPA returns options
 
     def reopen(self):
-        """reopen a closed window."""
-        print("Not available for DS9, start a new object")
+        """Reopen a closed window."""
+        print("Not available for DS9, start a new object instead")
         raise NotImplementedError
 
 atexit.register(ds9._purge_tmp_dirs)

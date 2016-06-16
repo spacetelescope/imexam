@@ -1,7 +1,7 @@
-**************************
-imexam() User Methods
-**************************
-These are methods particular to the imexam package which are meant to aid users
+=====================
+imexam User Methods
+=====================
+These are methods particular to the ``imexam`` package which are meant to aid users
 in their image analysis. They are called from the main object you created
 with imexam.connect().
 
@@ -204,7 +204,7 @@ but not yet fully implemented should return an error to that affect.
 
 Now let's load the region file into our image:
 
-.. image:: make_region.png
+.. image:: ../_static/make_region.png
     :height: 600
     :width: 500
     :alt: image with regions plotted
@@ -237,7 +237,7 @@ Now let's load the region file into our image:
 
         viewer.mark_region_from_array(locations)
 
-.. image:: mark_region.png
+.. image:: ../_static/mark_region.png
     :height: 600
     :width: 500
     :alt: image with regions plotted
@@ -339,7 +339,7 @@ For example, in DS9::
     Zoom the image to fit the window
 
 **setlog**\ (self, filename=None, on=True, level=logging.DEBUG):
-    Turn on and off imexam logging to the a file. You can set the filename to
+    Turn on and off ``imexam`` logging to the a file. You can set the filename to
     something specific or let the package record to the default logfile.
     Once you give the object a logfile name, it will continue to use that
     file until you change it.
@@ -347,11 +347,11 @@ For example, in DS9::
     ::
 
         In [5]: viewer.setlog()
-        Saving imexam commands to imexam_log.txt
+        Saving ``imexam`` commands to imexam_log.txt
 
 This is what's displayed in the terminal when you use imexam():
 
-.. image:: setlog1.png
+.. image:: ../_static/setlog1.png
     :height: 500
     :width: 600
     :alt: log information to terminal
@@ -359,7 +359,7 @@ This is what's displayed in the terminal when you use imexam():
 
 and this is what shows up in the logfile:
 
-.. image:: setlog2.png
+.. image:: ../_static/setlog2.png
     :height: 500
     :width: 600
     :alt: log information to terminal
@@ -374,7 +374,7 @@ same file. You can toggle logging during a session too:
 
 
 **unlearn**\ ():
-    Reset all the imexam default function parameters
+    Reset all the ``imexam`` default function parameters
 
 
 

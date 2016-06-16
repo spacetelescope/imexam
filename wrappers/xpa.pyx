@@ -1,3 +1,5 @@
+# cython:  c_string_encoding=utf8
+
 cdef extern from "stdio.h":
     pass
 
@@ -6,7 +8,7 @@ cdef extern from "stdlib.h":
 
 cdef extern from "string.h":
     void *memcpy(void *s1, void *s2, int n)
- 
+
 cdef extern from "Python.h":
     object PyBytes_FromStringAndSize(char *s, int len)
     object PyBytes_FromString(char *s)
@@ -41,14 +43,14 @@ cdef extern from "xpa.h":
                char *template, char *paramlist, char *mode,
                char *buf, int len, char **names, char **messages,
                int n)
-                               
+
 
 class XpaException(Exception):
     pass
-    
+
 
 #this is the lookup only part of xpaaccess
-#it returns a list of the XPA_METHODS which are registered            
+#it returns a list of the XPA_METHODS which are registered
 def nslookup(template="*"):
     cdef char **classes
     cdef char **names
@@ -56,12 +58,12 @@ def nslookup(template="*"):
     cdef char **infos
     cdef int i, n
     cdef int iter
-    
+
     #first run
     n = XPANSLookup(NULL, template, "g", &classes, &names, &methods, &infos)
 
     l = []
-        
+
     for i from 0 <= i < n:
         #print "%s %s %s %s" % (classes[i], names[i], methods[i], infos[i])
         s = PyBytes_FromString(methods[i])
@@ -70,7 +72,7 @@ def nslookup(template="*"):
         free(names[i])
         free(methods[i])
         free(infos[i])
-            
+
     if n > 0:
         free(classes)
         free(names)
@@ -79,7 +81,6 @@ def nslookup(template="*"):
 
 
     return l
-
 
 
 
@@ -108,12 +109,10 @@ cdef _get(XPARec *xpa, char *template, char *param):
             free(names[0])
         if( bufs[0] ):
             free(bufs[0])
- 
         raise XpaException(mesg)
-
     return buf
-    
-def get(template="*", param=""):
+
+def get(template=b"*", param=b""):
     return _get(NULL, template, param)
 
 
@@ -123,12 +122,13 @@ cdef _set(XPARec *xpa, char *template, char *param, buf):
     cdef char *names[1]
     cdef char *messages[1]
 
+
     if buf:
         length = PyBytes_Size(buf)
     else:
         buf = b""
         length = 0
-        
+
     got = XPASet(xpa, template, param, NULL, buf, length, names, messages, 1)
 
     if got == 1 and messages[0] == NULL:
@@ -142,11 +142,11 @@ cdef _set(XPARec *xpa, char *template, char *param, buf):
 
         if ( names[0] ):
             free(names[0])
- 
+
         raise XpaException(mesg)
 
 
-def set(template="*", param="", buf=None):
+def set(template=b"*", param=b"", buf=None):
     _set(NULL, template, param, buf)
 
 
@@ -159,7 +159,7 @@ cdef class xpa:
         n = PyBytes_Size(template)
         self._template = <char *>PyMem_Malloc(n+1)
         memcpy(self._template, <char *>template, n+1)
-        
+
     def __init__(self, template):
         self._set_template(template)
         self._xpa = XPAOpen("")
@@ -167,12 +167,10 @@ cdef class xpa:
     def __del__(self):
         XPAClose(self._xpa)
         PyMem_Free(self._template)
-        
+
     def get(self, param=b""):
         return _get(self._xpa, self._template, param)
 
 
     def set(self, param=b"", buf=None):
         _set(self._xpa, self._template, param, buf)
-        
-        
