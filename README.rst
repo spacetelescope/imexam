@@ -3,14 +3,19 @@ imexam
 
 .. image:: https://travis-ci.org/spacetelescope/imexam.svg?branch=master
     :target: https://travis-ci.org/spacetelescope/imexam
+    :alt: CI Testing Status
 
 .. image:: https://readthedocs.org/projects/imexam/badge/?version=latest
     :target: https://readthedocs.org/projects/imexam/?badge=latest
     :alt: Documentation Status
 
+.. image:: https://coveralls.io/repos/github/spacetelescope/imexam/badge.svg?branch=master 
+    :target: https://coveralls.io/github/spacetelescope/imexam?branch=master
+    :alt: Test Coverage Status
 
-imexam is an `AstroPy`_ affiliated package  meant for quick image analysis, much like the IRAF imexamine task.
-Image display is currently supported with either DS9 or a Ginga widget from a python session.
+imexam is an `AstroPy`_ affiliated package  meant for quick image analysis, or plotting, much like the older IRAF imexamine task.
+Image display is currently supported with either DS9 or a Ginga widget from a python session, however it's also possible to use imexam
+as a library of functions which produce standardized plots from the command line given an image and a location. 
 
 For more information please see the `online documentation <http://imexam.readthedocs.io/imexam/>`_
 
@@ -83,6 +88,13 @@ Starting a new connection with no target specified will open a new DS9 window us
 ::
 
     a=imexam.connect()
+    
+Connecting to a DS9 window which was started from the system prompt:
+
+::
+
+    imexam.list_active_ds9() # will give you the INET address or names of the open session
+    a=imexam.connect('address from the above listing')
 
 
 Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Juppyter viewing:
@@ -99,13 +111,18 @@ You can also just load the plotting library and NOT connect to any viewer:
 
 ::
 
-    from imexam.imexamine import Imexamine
+    from imexam import Imexamine
     import numpy as np
 
     plots = Imexamine()
     data = np.random.rand(100,100) * np.ones((100,100))
     plots.plot_line(35,45,data) #shows a matplotlib window with a plot
     plots.save() #saves the current plot to file
+    
+    You can also set the data attribute of the plots object and then just call many plots without specifying the data again:
+    
+    plots.set_data(data)
+    plots.plot_line(35,45)
 
 
 License
