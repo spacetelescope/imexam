@@ -72,11 +72,12 @@ def list_active_ds9():
 
 def display_help():
     """ display local html help in a browser window"""
-    url = "http://imexam.readthedocs.io/imexam/"
+    url = "http://imexam.readthedocs.io/"
     try:
         import webbrowser
         # grab the version that's installed
-        url += "en/{0:s}/".format(__version__)
+        if "dev" not in __version__:
+            url += "en/{0:s}/".format(__version__)
         webbrowser.open(url)
     except ImportError:
         warnings.warn(

@@ -13,9 +13,8 @@ imexam
     :target: https://coveralls.io/github/spacetelescope/imexam?branch=master
     :alt: Test Coverage Status
 
-imexam is an `AstroPy`_ affiliated package  meant for quick image analysis, or plotting, much like the older IRAF imexamine task.
-Image display is currently supported with either DS9 or a Ginga widget from a python session, however it's also possible to use imexam
-as a library of functions which produce standardized plots from the command line given an image and a location. 
+
+imexam is an affiliated package of `AstroPy`_. It was designed to be a lightweight library which enables users to explore data from a command line interface, through a Jupyter notebook or through a Jupyter console. It can be used with multiple viewers, such as DS9 or Ginga, or without a viewer as a simple library to make plots and grab quick photometry information.
 
 For more information please see the `online documentation <http://imexam.readthedocs.io/>`_
 
