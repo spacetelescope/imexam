@@ -25,8 +25,16 @@ These are some tips on installing the package, or tracking down problems you mig
     python setup.py install
 
 
-If you want to have access to the photometry features of the ``imexam`` analysis, download and install ``photutils`` - another of the astropy associated packages. The full list of astropy packages can be found here: https://github.com/astropy
+``imexam`` can also be installed using pip or conda, and is included in the Astroconda distribution from STScI:
 
+    pip install imexam
+    pip install --upgrade imexam #if you already have an older version installed
+    
+    conda install imexam
+
+
+
+If you want to have access to the photometry features of the ``imexam`` analysis, download and install ``photutils`` - another of the astropy associated packages. The full list of astropy packages can be found here: https://github.com/astropy
 If ``photutils`` is not installed, ``imexam`` should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop which requires ``photutils`` to render a result.
 
 

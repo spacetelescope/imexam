@@ -52,7 +52,7 @@ Reporting Issues
 ================
 
 If you have found a bug in ``imexam`` please report it by creating a
-new issue on the ``imexam`` GitHub issue tracker
+new issue on the ``imexam`` `GitHub issue tracker
 <https://github.com/spacetelescope/imexam/issues>`_.
 
 Please include an example that demonstrates the issue that will allow
