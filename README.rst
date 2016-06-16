@@ -17,7 +17,7 @@ imexam is an `AstroPy`_ affiliated package  meant for quick image analysis, or p
 Image display is currently supported with either DS9 or a Ginga widget from a python session, however it's also possible to use imexam
 as a library of functions which produce standardized plots from the command line given an image and a location. 
 
-For more information please see the `online documentation <http://imexam.readthedocs.io/imexam/>`_
+For more information please see the `online documentation <http://imexam.readthedocs.io/>`_
 
 You can also display the docs locally after install, import imexam and then issue the following command to display the help docs in your local browser:
 
