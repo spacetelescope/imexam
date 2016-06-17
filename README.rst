@@ -96,14 +96,14 @@ Connecting to a DS9 window which was started from the system prompt:
     a=imexam.connect('address from the above listing')
 
 
-Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Juppyter viewing:
+Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Jupyter viewing:
 
 ::
 
     a=imexam.connect(viewer='ginga')
 
 
-Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser.
+Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser. You can also download the examply Jupyter notebooks available in the example_notebooks directory above.
 
 
 You can also just load the plotting library and NOT connect to any viewer:
