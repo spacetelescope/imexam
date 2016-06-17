@@ -1048,7 +1048,6 @@ class ds9(object):
                for the full object")
         self.get_data()
 
-
     def get_header(self):
         """Return the current fits header.
 
@@ -1094,6 +1093,10 @@ class ds9(object):
     def hideme(self):
         """lower the ds9 window."""
         self.set("lower")
+
+    def embed(self):
+        """Embed the viewer in a notebook."""
+        print("Not Implemented for DS9")
 
     def load_fits(self, fname="", extver=1, extname=None):
         """convenience function to load fits image to current frame.
@@ -1656,7 +1659,7 @@ class ds9(object):
                 fname = self.snapsave(format="png")
                 data = mpimage.imread(fname)
                 plt.clf()
-                plt.imshow(data,origin="upper")
+                plt.imshow(data, origin="upper")
         else:
             print("Not supported for {0:s}".format(backend))
 
