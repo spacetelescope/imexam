@@ -11,7 +11,7 @@ version 0.6dev (unreleased)
 - updated to Read The Docs new site name
 - replaced ipython dependency in the docs build with jupyter
 - removed local copy of doc build, referenced to RTD instead, users should make PDF copy for offline work
-
+- added the ginga embed functionality so that users can choose to embed the viewing window inside the notebook
 
 version 0.5.3dev (unreleased)
 -----------------------------

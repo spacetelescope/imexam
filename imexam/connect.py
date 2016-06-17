@@ -301,6 +301,9 @@ class Connect(object):
         """Display the header of the current image to a window."""
         self.window.disp_header()
 
+    def embed(self, **kwargs):
+        return self.window.embed(**kwargs)
+
     def frame(self, *args, **kwargs):
         """Move to a different frame."""
         return self.window.frame(*args, **kwargs)
@@ -336,7 +339,7 @@ class Connect(object):
         if 'fname' in kwargs.keys():
             self.exam._datafile = kwargs['fname']
         else:
-            self.exam._datafile=args[0]
+            self.exam._datafile = args[0]
         self.window.load_fits(*args, **kwargs)
 
     def load_region(self, *args, **kwargs):

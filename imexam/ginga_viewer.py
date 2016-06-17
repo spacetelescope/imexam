@@ -72,6 +72,8 @@ class ginga_general(object):
 
         """
         global _matplotlib_cmaps_added
+        if port is None:
+            port = 667
         self._port = port
         self.exam = exam
         self._close_on_del = close_on_del
@@ -183,7 +185,6 @@ class ginga_general(object):
         top_canvas.delete_object_by_tag("imexam-canvas")
         self.logger.debug("canvas deleted top=%s" % top_canvas.objects)
 
-
     def __str__(self):
         """Return viewer name."""
         return "<imexam viewer>"
@@ -269,7 +270,7 @@ class ginga_general(object):
             return self._viewer[frame]['filename']
 
     def get_frame_info(self):
-        """Return more explicit information about the data in the current frame."""
+        """Return more explicit information about the data in current frame."""
         return self._viewer[self.frame()]
 
     def get_viewer_info(self):
@@ -300,7 +301,7 @@ class ginga_general(object):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 # run event loop, so window can get a keystroke
-                #but only depending on context
+                # but only depending on context
                 if self.use_opencv():
                     self.canvas.start_event_loop(timeout=0.1)
 
@@ -308,11 +309,11 @@ class ginga_general(object):
                 # did we get a key event?
                 if len(self._keyvals) > 0:
                     (k, x, y) = self._keyvals
-                    print("key pressed:{0:s} on x:{1} y:{2}".format(k,x,y))
+                    print("key pressed:{0:s} on x:{1} y:{2}".format(k, x, y))
                     break
 
         # ginga is returning 0 based indexes
-        return x , y, k
+        return x, y, k
 
     def _define_cmaps(self):
         """Setup the default color maps which are available."""
@@ -332,7 +333,8 @@ class ginga_general(object):
 
         load: string, optional
             set to the filename which is a valid colormap lookup table
-            valid contrast values are from 0 to 10, and valid bias values are from 0 to 1
+            valid contrast values are from 0 to 10, and valid bias values are
+            from 0 to 1
 
         invert: bool, optional
             invert the colormap
@@ -405,7 +407,7 @@ class ginga_general(object):
                 return self._viewer[frame]['user_array']
             if isinstance(self._viewer[frame]['user_array'], BaseImage):
                 return self._viewer[frame]['user_array'].get_data()
-            if isinstance(self._viewer[frame]['image'],AstroImage):
+            if isinstance(self._viewer[frame]['image'], AstroImage):
                 return self._viewer[frame]['image'].get_data()
         else:
             return None
@@ -419,23 +421,21 @@ class ginga_general(object):
                 return self._viewer[frame]['user_array']
             if isinstance(self._viewer[frame]['user_array'], BaseImage):
                 return self._viewer[frame]['user_array']
-            if isinstance(self._viewer[frame]['image'],AstroImage):
+            if isinstance(self._viewer[frame]['image'], AstroImage):
                 return self._viewer[frame]['image']
         else:
             return None
 
-
     def contour_load(self):
         """Load a file with contour information."""
         raise NotImplementedError
-
 
     def disp_header(self):
         """Display the fits header for the current data."""
         self.get_header()
 
     def get_header(self):
-        """Return current fits header as a string or None if there's a problem."""
+        """Return current fits header as string or None if there's a problem."""
 
         # TODO return the simple header for arrays which are loaded
 
@@ -478,7 +478,7 @@ class ginga_general(object):
         data_x, data_y = self.ginga_view.get_last_data_xy()
 
         if "q" not in keyname:
-            print("read: {0:s} at {1}, {2}".format(keyname,data_x,data_y))
+            print("read: {0:s} at {1}, {2}".format(keyname, data_x, data_y))
 
         self.logger.debug("key %s pressed at data %f,%f" % (
             keyname, data_x, data_y))
@@ -533,13 +533,19 @@ class ginga_general(object):
 
             return True
 
+    def embed(self, width=600, height=650):
+        """Embed the current window into the notebook."""
+
+        return self.ginga_view.embed(width, height)
+
     def load_fits(self, fname="", extver=1, extname=None):
         """Load fits image to current frame.
 
         Parameters
         ----------
         fname: string, optional
-            The name of the file to be loaded. You can specify the full extension in the name, such as
+            The name of the file to be loaded. You can specify the full
+            extension in the name, such as
             filename_flt.fits[sci,1] or filename_flt.fits[1]
 
         extver: int, optional
@@ -607,7 +613,8 @@ class ginga_general(object):
         y: string
             The y location to move to
         system: string
-            The reference system that x and y were specified in, they should be understood by DS9
+            The reference system that x and y were specified in, they should be
+            understood by DS9
 
         """
         # this should be replaced by querying our own copy of the wcs
@@ -645,7 +652,8 @@ class ginga_general(object):
         flipy: boolean
             if True flip the Y axis, if False don't, if None leave current
         swapxy: boolean
-            if True swap the X and Y axes, if False don't, if None leave current
+            if True swap the X and Y axes, if False don't, if None leave
+            current
         """
         _flipx, _flipy, _swapxy = self.ginga_view.get_transform()
 
@@ -683,16 +691,15 @@ class ginga_general(object):
 
         """
 
-        if isinstance(scale,tuple):
+        if isinstance(scale, tuple):
             self.ginga_view.scale_to(scale)
 
-        elif isinstance(scale,str):
+        elif isinstance(scale, str):
             # setting the autocut method?
             mode_scale = self.ginga_view.get_autocut_methods()
 
             if scale in mode_scale:
                 self.ginga_view.set_autocut_params(scale)
-
 
             # setting the color distribution algorithm?
             color_dist = self.ginga_view.get_color_algorithms()
@@ -701,7 +708,6 @@ class ginga_general(object):
                 self.ginga_view.set_color_algorithm(scale)
         else:
             print("Unknown scale value")
-
 
     def view(self, img):
         """Display numpy image array in current frame
@@ -835,12 +841,12 @@ class ginga_general(object):
         raise NotImplementedError
 
     def show_window_commands(self):
-        """Print the available commands for the selected display application."""
+        """Print the available commands for the selected display."""
         raise NotImplementedError
 
     def grab(self):
-        if self.ginga_view:
-            self.ginga_view.show()
+        # if self.ginga_view:
+        self.ginga_view.show()
 
 
 class ginga(ginga_general):
@@ -866,6 +872,8 @@ class ginga(ginga_general):
         self.use_opencv = use_opencv
         self._host = host
         self._server = None
+        if port is None:
+            port = 9904
         self._port = port
 
         super(ginga, self).__init__(exam=exam, close_on_del=close_on_del,
@@ -913,10 +921,9 @@ class ginga(ginga_general):
     def _start_server(self):
         """Start up a viewing server."""
         # Start viewer server
-        # IMPORTANT: if running in an IPython/Jupyter notebook, use the no_ioloop=True option
+        # IMPORTANT: if running in an IPython/Jupyter notebook,
+        # use the no_ioloop=True option
         from ginga.web.pgw import ipg
-        if not self._port:
-            self._port = 9904  # still working on autoport
 
         self._server = ipg.make_server(host=self._host,
                                        port=self._port,
@@ -930,9 +937,10 @@ class ginga(ginga_general):
         elif "pylab" in backend:
             raise NotImplementedError
         elif "qt4agg" in backend:
-           raise NotImplementedError
+            raise NotImplementedError
         elif "tkagg" in backend:
-            print("If you aren't in the notebook and have problems with graphics, try switching to jupyter console")
+            print("If you aren't in the notebook and have problems with\
+                   graphics, try switching to jupyter console")
 
         self._server.start(no_ioloop=no_ioloop)
 
