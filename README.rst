@@ -127,6 +127,37 @@ You can also just load the plotting library and NOT connect to any viewer:
     plots.set_data(data)
     plots.plot_line(35,45)
 
+Contributing
+------------
+
+Please open a new issue or new pull request for bugs, feedback, or new features
+you would like to see.   If there is an issue you would like to work on, please
+leave a comment and we will be happy to assist.   New contributions and 
+contributors are very welcome!
+
+New to github or open source projects?  If you are unsure about where to start
+or haven't used github before, please feel free to contact `@sosey`. 
+Want more information about how to make a contribution?  Take a look at 
+the astropy `contributing`_ and `developer`_ documentation.
+
+Feedback and feature requests?   Is there something missing you would like 
+to see?  Please open an issue or send an email to  `@sosey`.
+
+imexam follows the `Astropy Code of Conduct`_ and strives to provide a 
+welcoming community to all of our users and contributors.  
+
+Note: There are two git submodules in this package. astropy_helpers has a bootstrap which 
+will automatically download the relevent code at build time. There is also a submodule
+for the xpa code that talks to DS9, if you are planning to work on developing new code or installing this
+package from a repo download, you need to pull the xpa code using the following command
+after you have cloned the repository and before you "python setup.py install"
+
+
+::
+
+    git submodule update --init -- cextern/xpa
+
+
 
 License
 -------
@@ -135,3 +166,5 @@ imexam is licensed under a 3-clause BSD style license (see the
 ``licenses/LICENSE.rst`` file).
 
 .. _AstroPy: http://www.astropy.org/
+.. _contributing: http://docs.astropy.org/en/stable/index.html#contributing
+.. _developer: http://docs.astropy.org/en/stable/index.html#developer-documentation
