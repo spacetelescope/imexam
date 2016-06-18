@@ -924,6 +924,11 @@ class ginga(ginga_general):
         # IMPORTANT: if running in an IPython/Jupyter notebook,
         # use the no_ioloop=True option
         from ginga.web.pgw import ipg
+        if not self._port:
+            import socket
+            socket.setdefaulttimeout(0.05)
+            ports = [p for p in range(5800, 6000) if socket.socket().connect_ex(('127.0.0.1', p)) != 10035]
+            self._port = ports.pop()
 
         self._server = ipg.make_server(host=self._host,
                                        port=self._port,
