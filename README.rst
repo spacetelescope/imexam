@@ -18,7 +18,7 @@ imexam
     :alt: Powered by Astropy Badge
     
 
-imexam is an affiliated package of `AstroPy`_. It was designed to be a lightweight library which enables users to explore data from a command line interface, through a Jupyter notebook or through a Jupyter console. It can be used with multiple viewers, such as DS9 or Ginga, or without a viewer as a simple library to make plots and grab quick photometry information.
+imexam is an affiliated package of `AstroPy`_. It was designed to be a lightweight library which enables users to explore data from a command line interface, through a Jupyter notebook or through a Jupyter console. It can be used with multiple viewers, such as DS9 or Ginga, or without a viewer as a simple library to make plots and grab quick photometry information. It has been designed so that other viewers may be easily attached in the future. 
 
 For more information please see the `online documentation <http://imexam.readthedocs.io/>`_
 
@@ -51,13 +51,24 @@ Try turning off the resume state:
     defaults write org.python.python ApplePersistenceIgnoreState NO
 
 
+Using the Ginga HTML5 Viewer
+----------------------------
+
+If you have installed Ginga, you can use the HSTML5 viewer for image display with either a python terminal, jupyter console, qtconsole or Jypyter notebook session. Make sure that you have installed the latest development version from the repository as it fixes a bug which was causing the python terminal to hang on exit. You can download the development code here: https://github.com/ejeschke/ginga
+
+Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Jupyter viewing:
+
+::
+
+    a=imexam.connect(viewer='ginga')
 
 
 
 Launching multiple DS9 windows
 ------------------------------
 
-You can launch multiple ds9 windows either from this package or the command line.
+You can launch multiple ds9 windows either from this package or the command line. DS9 can be used to view images and arrays from any of the python terminals, consoles or the Jupyter notebook.
+
 If you launch ds9 from outside the imexam package, you need supply the name of the window to imexam, this can be done in one of 2 ways:
 
 * launch ds9 with a unique title name:
@@ -100,13 +111,6 @@ Connecting to a DS9 window which was started from the system prompt:
     a=imexam.connect('address from the above listing')
 
 
-Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Jupyter viewing:
-
-::
-
-    a=imexam.connect(viewer='ginga')
-
-
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser. You can also download the examply Jupyter notebooks available in the example_notebooks directory above.
 
 
@@ -141,9 +145,7 @@ Want more information about how to make a contribution?  Take a look at
 the astropy `contributing`_ and `developer`_ documentation.
 
 Feedback and feature requests?   Is there something missing you would like 
-to see?  Please open an issue or send an email to  `@sosey`.
-
-imexam follows the `Astropy Code of Conduct`_ and strives to provide a 
+to see?  Please open an issue or send an email to  `@sosey`. imexam follows the `Astropy Code of Conduct`_ and strives to provide a 
 welcoming community to all of our users and contributors.  
 
 Note: There are two git submodules in this package. astropy_helpers has a bootstrap which 
