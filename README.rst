@@ -54,7 +54,7 @@ Try turning off the resume state:
 Using the Ginga HTML5 Viewer
 ----------------------------
 
-If you have installed Ginga, you can use the HSTML5 viewer for image display with either a python terminal, jupyter console, qtconsole or Jypyter notebook session. Make sure that you have installed the latest development version from the repository as it fixes a bug which was causing the python terminal to hang on exit. You can download the development code here: https://github.com/ejeschke/ginga
+If you have installed Ginga, you can use the HTML5 viewer for image display with either a python terminal, jupyter console, qtconsole or Jypyter notebook session. Make sure that you have installed the latest development version from the repository as it fixes a bug which was causing the python terminal to hang on exit. You can download the development code here: https://github.com/ejeschke/ginga
 
 Starting a connection to a Ginga widget, HTML5 canvas backend for browser and Jupyter viewing:
 
