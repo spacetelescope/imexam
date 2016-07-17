@@ -1,4 +1,4 @@
-"""Licensed under a 3-clause BSD style license - see LICENSE.rst.
+"""Licensed under a 3-clause BSD style license - see LICENSE.rst
 
    This class supports communication with a Ginga-based viewer.
    For default key and mouse shortcuts in a Ginga window, see:
@@ -12,7 +12,6 @@ import traceback
 import warnings
 import threading
 import numpy as np
-from matplotlib import get_backend
 
 from . import util
 from astropy.io import fits
@@ -24,8 +23,8 @@ from ginga import cmap
 from ginga.util import paths
 from ginga.util import wcsmod
 
-wcsmod.use('AstropyWCS')
 
+wcsmod.use('AstropyWCS')
 
 # module variables
 _matplotlib_cmaps_added = False
@@ -39,23 +38,23 @@ __all__ = ['ginga', 'ginga_general']
 class ginga_general(object):
 
     """ A base class which controls all interactions between the user and the
-    ginga widget
+    ginga widget.
 
-        The ginga contructor creates a new window using the
-        ginga backend.
+    The ginga contructor creates a new window using the
+    ginga backend.
 
-        Parameters
-        ----------
-        close_on_del : boolean, optional
-            If True, try to close the window when this instance is deleted.
+    Parameters
+    ----------
+    close_on_del : boolean, optional
+        If True, try to close the window when this instance is deleted.
 
 
-        Attributes
-        ----------
-        view: Ginga view object
-             The object instantiated from a Ginga view class
+    Attributes
+    ----------
+    view: Ginga view object
+         The object instantiated from a Ginga view class
 
-        exam: imexamine object
+    exam: imexamine object
     """
 
     def __init__(self, exam=None, close_on_del=True, logger=None, port=None):
@@ -65,15 +64,13 @@ class ginga_general(object):
         -----
         Ginga viewers all need a logger, if none is provided it will create one
 
-        the port option is for use in the Jupyter notebook since the server
+        The port option is for use in the Jupyter notebook since the server
         displays the image to a distict port. The user can choose to have
         multiple windows open at the same time as long as they have different
-        ports.
+        ports. If no port is specified, this class will choose an open port.
 
         """
         global _matplotlib_cmaps_added
-        if port is None:
-            port = 667
         self._port = port
         self.exam = exam
         self._close_on_del = close_on_del
@@ -435,7 +432,7 @@ class ginga_general(object):
         self.get_header()
 
     def get_header(self):
-        """Return current fits header as string or None if there's a problem."""
+        """Return current fits header as string, None if there's a problem."""
 
         # TODO return the simple header for arrays which are loaded
 
@@ -486,6 +483,7 @@ class ginga_general(object):
         if keyname == 'q':
             # temporarily switch to non-imexam mode
             self._release()
+            self.exam._close_plots()
             return True
 
         if keyname == 'backslash':
@@ -846,7 +844,7 @@ class ginga_general(object):
 
     def grab(self):
         # if self.ginga_view:
-        self.ginga_view.show()
+        return self.ginga_view.show()
 
 
 class ginga(ginga_general):
@@ -872,8 +870,6 @@ class ginga(ginga_general):
         self.use_opencv = use_opencv
         self._host = host
         self._server = None
-        if port is None:
-            port = 9904
         self._port = port
 
         super(ginga, self).__init__(exam=exam, close_on_del=close_on_del,
@@ -890,11 +886,12 @@ class ginga(ginga_general):
                 doc directory for the HTML help pages")
             print("Open a new browser window for: {}".format(self.ginga_view.url()))
 
-    def _create_viewer(self, bind_prefs, viewer_prefs, opencv=False, threads=1):
+    def _create_viewer(self, bind_prefs, viewer_prefs,
+                       opencv=False, threads=1):
         """Ginga setup for data display in an HTML5 browser."""
         from ginga.web.pgw import Widgets
 
-        # Set this to True if you have a non-buggy python OpenCv bindings
+        # Set opencv to True if you have a non-buggy python OpenCv bindings
         # --it greatly speeds up some operations
         self.use_opencv = opencv
         self._threads = threads
@@ -926,29 +923,33 @@ class ginga(ginga_general):
         from ginga.web.pgw import ipg
         if not self._port:
             import socket
+            import errno
             socket.setdefaulttimeout(0.05)
-            ports = [p for p in range(5800, 6000) if socket.socket().connect_ex(('127.0.0.1', p)) != 10035]
-            self._port = ports.pop()
+            ports = [p for p in range(8800, 9000) if
+                     socket.socket().connect_ex(('127.0.0.1', p)) not in
+                     (errno.EAGAIN, errno.EWOULDBLOCK)]
+            self._port = ports[-1]
 
         self._server = ipg.make_server(host=self._host,
                                        port=self._port,
                                        use_opencv=self.use_opencv,
                                        numthreads=self._threads)
 
-        backend = get_backend().lower()
-        no_ioloop = False  # works best with qtconsole
-        if 'nbagg' in backend:
-            no_ioloop = True  # assume in notebook
-        elif "pylab" in backend:
-            raise NotImplementedError
-        elif "qt4agg" in backend:
-            raise NotImplementedError
-        elif "tkagg" in backend:
-            print("If you aren't in the notebook and have problems with\
-                   graphics, try switching to jupyter console")
+        try:
+            backend_check = get_ipython().config
+        except NameError:
+            backend_check = []
+        no_ioloop = False  # ipython terminal
+        if 'IPKernelApp' in backend_check:
+            no_ioloop = True  # jupyter console and notebook
 
         self._server.start(no_ioloop=no_ioloop)
 
+    def _shutdown(self):
+        self._server.stop()  # stop accepting connections
+        print('Stopped http server')
+
+
     def close(self):
-        """Close the viewing window"""
-        print("You must close the image window by hand")
+        """Close the viewing window."""
+        self._shutdown()

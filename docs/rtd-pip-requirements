@@ -4,4 +4,4 @@ numpy
 matplotlib
 Cython
 ginga
-jupyter
+ipython

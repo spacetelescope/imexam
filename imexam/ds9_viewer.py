@@ -1048,10 +1048,11 @@ class ds9(object):
                for the full object")
         self.get_data()
 
-    def get_header(self):
+    def get_header(self, fitsobj=False):
         """Return the current fits header.
 
         The return value is the string or None if there's a problem
+        If fits is True  then a fits header object is returned instead
         """
         # TODO return the simple header for arrays which are loaded
 
@@ -1060,11 +1061,14 @@ class ds9(object):
             self._set_frameinfo()
 
         if self._viewer[frame]['filename']:
-            try:
-                header = self.get("fits header")
-            except XpaException as e:
-                print("XPA Exception getting header: {0}".format(e))
-                return None
+            if fitsobj:
+                header = fits.getheader(self._viewer[frame]['filename'])
+            else:
+                try:
+                    header = self.get("fits header")
+                except XpaException as e:
+                    print("XPA Exception getting header: {0}".format(e))
+                    return None
 
             return header
         else:
@@ -1098,7 +1102,7 @@ class ds9(object):
         """Embed the viewer in a notebook."""
         print("Not Implemented for DS9")
 
-    def load_fits(self, fname="", extver=1, extname=None):
+    def load_fits(self, fname="", extver=None, extname=None, mecube=False):
         """convenience function to load fits image to current frame.
 
         Parameters
@@ -1113,6 +1117,9 @@ class ds9(object):
 
         extname: string, optional
             The name (EXTNAME in the header) of the image to load
+        
+        mecube: bool, optional
+            If mecube is True, load the fits file as a cube into ds9
 
         Notes
         -----
@@ -1132,6 +1139,8 @@ class ds9(object):
         frame = self.frame()
         if not frame:
             frame = 1  # load into first frame
+        if not extver:
+            extver = 1
 
         if fname:
             # see if the image is MEF or Simple
@@ -1139,7 +1148,11 @@ class ds9(object):
 
             # strip the extensions for now
             shortname = fname.split("[")[0]
-            cstring = util.verify_filename(shortname, extver, extname)
+            if mecube:
+                cstring = "mecube {0:s}".format(shortname)
+            else:
+                cstring = util.verify_filename(shortname, extver, extname)
+                print(cstring)
             self.set(cstring)
             self._set_frameinfo()
             # make sure any previous reference is reset
@@ -1655,13 +1668,13 @@ class ds9(object):
         """Make a copy of the image view."""
         backend = get_backend().lower()
         supported = ["nbagg", "tkagg", "qt4agg"]
-        if backend in supported or "pylab" in backend:
-                fname = self.snapsave(format="png")
+        fname = self.snapsave(format="png")
+        if "nbagg" in backend:  # save inside the notebook
                 data = mpimage.imread(fname)
                 plt.clf()
-                plt.imshow(data, origin="upper")
+                return plt.imshow(data, origin="upper")
         else:
-            print("Not supported for {0:s}".format(backend))
+            print("Notebook embedding not supported for {0:s}".format(backend))
 
     def view(self, img):
         """Display numpy image array to current frame.
@@ -1703,7 +1716,7 @@ class ds9(object):
                 raise UnsupportedDatatypeException(e)
 
             option = "[xdim={0:d},ydim={1:d},bitpix={2:d}{3:s}]".format(xdim,
-                        ydim,bitpix, endianness)
+                            ydim, bitpix, endianness)
             try:
                 self.set("array " + option, arr_str)
                 self._set_frameinfo()
@@ -1752,6 +1765,7 @@ class ds9(object):
         """Reopen a closed window."""
         print("Not available for DS9, start a new object instead")
         raise NotImplementedError
+
 
 atexit.register(ds9._purge_tmp_dirs)
 atexit.register(ds9._stop_running_process)
