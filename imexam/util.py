@@ -147,7 +147,7 @@ def check_filetype(filename=None):
         return mef_file
 
 
-def verify_filename(fname="", extver=1, extname=None, getshort=False):
+def verify_filename(fname="", extver=None, extname=None, getshort=False):
     """
     Verify the filename exists and check to see if the
     user has given extension, extension name or some combination
@@ -164,12 +164,13 @@ def verify_filename(fname="", extver=1, extname=None, getshort=False):
 
             mef_file = check_filetype(shortname)
             if not mef_file or '[' in fname:
-                cstring = ('file fits {0:s}'.format(fname))
+                chunk = fname.split(",")
+                cstring = ('file fits {0:s} {1:s} {2:s}'.format(shortname, extver))
             elif extver and not extname:
-                cstring = ('file fits {0:s}[{1:d}]'.format(fname, extver))
+                cstring = ('file fits {0:s} {1:d}'.format(fname, extver))
             elif extver and extname:
                 cstring = (
-                    'file fits {0:s}[{1:s},{2:d}]'.format(
+                    'file fits {0:s} {1:s} {2:d}'.format(
                         fname,
                         extname,
                         extver))

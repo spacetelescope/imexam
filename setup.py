@@ -43,7 +43,7 @@ conf.read(['setup.cfg'])
 
 # Get some values from the setup.cfg
 metadata = dict(conf.items('metadata'))
-PACKAGENAME = metadata.get('package_name', 'packagename')
+PACKAGENAME = metadata.get('package_name', 'imexam')
 DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
 LONG_DESCRIPTION = metadata.get('long_description', 'A package to help perform \
                                 image examination and plotting')

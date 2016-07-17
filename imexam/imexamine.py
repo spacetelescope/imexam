@@ -88,7 +88,7 @@ class Imexamine(object):
 
     def _close_plots(self):
         """Make sure to release plot memory at end of exam loop."""
-        for name in self._plot_windows:
+        for plot in self._plot_windows:
             plt.close()
 
     def show_fit_models(self):
@@ -273,7 +273,7 @@ class Imexamine(object):
         fig.add_subplot(111)
         ax = fig.gca()
         if self.lineplot_pars["title"][0] is None:
-            ax.set_title( "{0:s} line at {1:d}".format(self._datafile, int(y)))
+            ax.set_title("{0:s} line at {1:d}".format(self._datafile, int(y)))
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
@@ -293,11 +293,11 @@ class Imexamine(object):
         else:
             ax.plot(data[y, :])
 
-        if 'nbagg' in get_backend().lower():
-            fig.canvas.draw()
-        else:
+        if 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
+        else:
+            fig.canvas.draw()
 
     def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y.
@@ -344,11 +344,11 @@ class Imexamine(object):
         else:
             ax.plot(data[:, x])
 
-        if 'nbagg' in get_backend().lower():
-            fig.canvas.draw()
-        else:
+        if 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
+        else:
+            fig.canvas.draw()
 
     def show_xy_coords(self, x, y, data=None):
         """print the x,y,value to the screen.
@@ -686,11 +686,11 @@ class Imexamine(object):
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             plt.legend()
 
-            if 'nbagg' in get_backend().lower():
-                fig.canvas.draw()
-            else:
+            if 'nbagg' not in get_backend().lower():
                 plt.draw()
                 plt.pause(0.001)
+            else:
+                fig.canvas.draw()
         else:
             return fitted
 
@@ -836,11 +836,11 @@ class Imexamine(object):
 
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             plt.legend()
-            if 'nbagg' in get_backend().lower():
-                fig.canvas.draw()
-            else:
+            if 'nbagg' not in get_backend().lower():
                 plt.draw()
                 plt.pause(0.001)
+            else:
+                fig.canvas.draw()
         else:
             return fitted
 
@@ -1003,11 +1003,11 @@ class Imexamine(object):
                 if bool(self.radial_profile_pars["fitplot"][0]):
                     print("Fit overlay not yet implemented")
 
-                if 'nbagg' in get_backend().lower():
-                    fig.canvas.draw()
-                else:
+                if 'nbagg' not in get_backend().lower():
                     plt.draw()
                     plt.pause(0.001)
+                else:
+                    fig.canvas.draw()
             else:
                 return nr, tbin
 
@@ -1236,11 +1236,11 @@ class Imexamine(object):
                 flat_data, num_bins, range=[mini, maxi], normed=False,
                 facecolor='green', alpha=0.5, histtype='bar')
         print("hist with {0} bins".format(num_bins))
-        if 'nbagg' in get_backend().lower():
-            fig.canvas.draw()
-        else:
+        if 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
+        else:
+            fig.canvas.draw()
 
     def contour(self, x, y, data=None, fig=None):
         """plot contours in a region around the specified location.
@@ -1263,7 +1263,7 @@ class Imexamine(object):
         fig.add_subplot(111)
         ax = fig.gca()
         if self.contour_pars["title"][0] is None:
-            title = "{0} {1} {2}".format(self._datafile,int(x),int(y))
+            title = "{0} {1} {2}".format(self._datafile, int(x), int(y))
         else:
             title = self.contour_pars["title"][0]
         ax.set_title(title)
@@ -1272,7 +1272,9 @@ class Imexamine(object):
 
         deltax = int(self.contour_pars["ncolumns"][0] / 2.)
         deltay = int(self.contour_pars["nlines"][0] / 2.)
-        data_cut = data[y - deltay:y + deltay, x - deltax:x + deltax]
+        xx=int(x)
+        yy=int(y)
+        data_cut = data[yy - deltay:yy + deltay, xx - deltax:xx + deltax]
 
         plt.rcParams['xtick.direction'] = 'out'
         plt.rcParams['ytick.direction'] = 'out'
@@ -1294,11 +1296,11 @@ class Imexamine(object):
         if self.contour_pars["label"][0]:
             plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
 
-        if 'nbagg' in get_backend().lower():
-            fig.canvas.draw()
-        else:
+        if 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
+        else:
+            fig.canvas.draw()
 
     def surface(self, x, y, data=None, fig=None):
         """plot a surface around the specified location.
@@ -1325,7 +1327,7 @@ class Imexamine(object):
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
         if self.surface_pars["title"][0] is None:
-            title="{0}: {1} {2}".format(self._datafile,int(x),int(y))
+            title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
             ax.set_title(title)
         ax.set_xlabel(self.surface_pars["xlabel"][0])
         ax.set_ylabel(self.surface_pars["ylabel"][0])
@@ -1335,11 +1337,10 @@ class Imexamine(object):
         deltax = self.surface_pars["ncolumns"][0]
         deltay = self.surface_pars["nlines"][0]
 
-        minx = x - deltax if x - deltax > 0 else 0
-        miny = y - deltay if y - deltay > 0 else 0
-        maxx = x + deltax if x + deltax < data.shape[-1] else data.shape[0]
-        maxy = y + deltay if y + deltay < data.shape[0] else data.shape[0]
-
+        minx = int(x - deltax) if x - deltax > 0 else 0
+        miny = int(y - deltay) if y - deltay > 0 else 0
+        maxx = int(x + deltax) if x + deltax < data.shape[-1] else data.shape[0]
+        maxy = int(y + deltay) if y + deltay < data.shape[0] else data.shape[0]
 
         X = np.arange(minx, maxx, 1)
         Y = np.arange(miny, maxy, 1)
@@ -1362,8 +1363,8 @@ class Imexamine(object):
                 cmap=self.surface_pars["cmap"][0], alpha=0.6)
         else:
             surf = ax.plot_surface(X, Y, Z, rstride=stride, cstride=stride,
-                            cmap=self.surface_pars["cmap"][0], linewidth=0,
-                            antialiased=False)
+                                   cmap=self.surface_pars["cmap"][0],
+                                   linewidth=0, antialiased=False)
 
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.0f'))
@@ -1397,11 +1398,12 @@ class Imexamine(object):
         fig.colorbar(surf, shrink=0.5, aspect=5)
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
-        if 'nbagg' in get_backend().lower():
-            fig.canvas.draw()
-        else:
+
+        if 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
+        else:
+            fig.canvas.draw()
 
     def cutout(self, x, y, data=None, fig=None, size=20):
         """Make a fits cutout around the pointer location without wcs.

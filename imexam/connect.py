@@ -107,6 +107,8 @@ class Connect(object):
 
     def close(self):
         """Close the window and end connection."""
+        # make sure all the plots are closed
+        self.exam._close_plots()
         self.window.close()
 
     def imexam(self):
@@ -137,7 +139,7 @@ class Connect(object):
 
     def grab(self):
         """Display a snapshop of the current image in the browser window."""
-        self.window.grab()
+        return self.window.grab()
 
     def get_data_filename(self):
         """Return the filename for the data in the current window."""
@@ -316,12 +318,12 @@ class Connect(object):
         """Return the full image object, not just the numpy array."""
         return self.window.get_image()
 
-    def get_header(self):
+    def get_header(self, **kwargs):
         """Return the current fits header as a string.
 
         None is returned if there's a problem
         """
-        return self.window.get_header()
+        return self.window.get_header(**kwargs)
 
     def grid(self, *args, **kwargs):
         """Convenience method to turn the grid on and off.
