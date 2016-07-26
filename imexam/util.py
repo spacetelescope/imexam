@@ -165,7 +165,7 @@ def verify_filename(fname="", extver=None, extname=None, getshort=False):
             mef_file = check_filetype(shortname)
             if not mef_file or '[' in fname:
                 chunk = fname.split(",")
-                cstring = ('file fits {0:s} {1:s} {2:s}'.format(shortname, extver))
+                cstring = ('file fits {0:s} {1:d}'.format(shortname, extver))
             elif extver and not extname:
                 cstring = ('file fits {0:s} {1:d}'.format(fname, extver))
             elif extver and extname:
