@@ -160,6 +160,11 @@ after you have cloned the repository and before you "python setup.py install"
     git submodule update --init -- cextern/xpa
 
 
+If you are cloneing the repository for the first time, you can do both steps at once using a recursive clone:
+
+::
+
+    git clone --recursive https://github.com/spacetelescope/imexam.git
 
 License
 -------
