@@ -252,6 +252,8 @@ class ds9(object):
         """Set the name and extension for the data displayed in current frame.
 
         also gather header information
+        It's possible the user has an array in the frame, for which there is no
+        header or filename information
 
         Notes
         -----
@@ -299,11 +301,13 @@ class ds9(object):
             # xpa returns '\n' for nothing loaded
             # get the current frame
             try:
-                filename_string = self.get('file')
-                if len(filename_string) > 1:
+                filename_string = self.get('file').strip()
+                if len(filename_string) > 1 and '\n' not in filename_string:
                     filename = str(filename_string.strip().split('[')[0])
                     self._viewer[frame]['filename'] = os.path.abspath(filename)
                     load_header = True
+                else:
+                    filename_string = ""
 
             except XpaException:
                 filename_string = ""
@@ -627,7 +631,7 @@ class ds9(object):
         -----
         For example, your pyraf commands will use this ds9 for display.
 
-        TODO: Not sure this is still needed.
+        TODO: Not sure this is still needed. Stop using IRAF.
         """
         os.environ["IMTDEV"] = "unix:{0:s}".format(self._ds9_unix_name)
 
@@ -1058,7 +1062,7 @@ class ds9(object):
 
         frame = self.frame()
         if frame != self._current_frame:
-            self._set_frameinfo()
+            self.rameinfo()
 
         if self._viewer[frame]['filename']:
             if fitsobj:
@@ -1117,7 +1121,7 @@ class ds9(object):
 
         extname: string, optional
             The name (EXTNAME in the header) of the image to load
-        
+
         mecube: bool, optional
             If mecube is True, load the fits file as a cube into ds9
 

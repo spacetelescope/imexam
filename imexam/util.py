@@ -118,7 +118,6 @@ def set_logging(filename=None, on=True, level=logging.DEBUG):
         root.addHandler(logging.NullHandler())
 
         print("Saving imexam commands to {0:s}".format(filename))
-        logging.disable(level)  # log above
         return root
 
     if not on:

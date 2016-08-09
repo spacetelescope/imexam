@@ -91,6 +91,10 @@ class Imexamine(object):
         for plot in self._plot_windows:
             plt.close()
 
+    def close(self):
+        """For use with the Imexamine object standalone."""
+        self._close_plots()
+
     def show_fit_models(self):
         """Print the available astropy models for plot fits."""
         print("The available astropy models for fitting\
@@ -1405,7 +1409,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
-    def cutout(self, x, y, data=None, fig=None, size=20):
+    def cutout(self, x, y, data=None, fig=None, size=None):
         """Make a fits cutout around the pointer location without wcs.
 
         Parameters
@@ -1420,6 +1424,12 @@ class Imexamine(object):
             The radius of the cutout region
 
         """
+        if data is None:
+            data = self._data
+
+        if size is None:
+            size = self.cutout_pars["size"][0]
+            
         prefix = "cutout_{0}_{1}_".format(int(x), int(y))
         fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
         cutout = data[y-size:y+size, x-size:x+size]
