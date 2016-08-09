@@ -303,6 +303,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
+
     def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y.
 
@@ -1306,6 +1307,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
+
     def surface(self, x, y, data=None, fig=None):
         """plot a surface around the specified location.
 
@@ -1429,7 +1431,7 @@ class Imexamine(object):
 
         if size is None:
             size = self.cutout_pars["size"][0]
-            
+
         prefix = "cutout_{0}_{1}_".format(int(x), int(y))
         fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
         cutout = data[y-size:y+size, x-size:x+size]

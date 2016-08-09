@@ -326,7 +326,7 @@ class ginga_general(object):
         Parameters
         ----------
         color: string
-            color must be set to one of the available DS9 color map names
+            color must be set to one of the available color map names
 
         load: string, optional
             set to the filename which is a valid colormap lookup table

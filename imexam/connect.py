@@ -220,6 +220,7 @@ class Connect(object):
                         else:
                             self.exam.do_option(
                                 x, y, current_key)
+                            
                 except KeyError:
                     print(
                         "Invalid key, use\n: {0}".format(

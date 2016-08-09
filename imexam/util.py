@@ -71,13 +71,25 @@ def list_active_ds9():
 
 
 def display_help():
-    """ display local html help in a browser window"""
+    """Display RTD html help in a browser window"""
     url = "http://imexam.readthedocs.io/"
     try:
         import webbrowser
         # grab the version that's installed
         if "dev" not in __version__:
             url += "en/{0:s}/".format(__version__)
+        webbrowser.open(url)
+    except ImportError:
+        warnings.warn(
+            "webbrowser module not installed, see {0:s} for help".format(url))
+        raise ImportError
+
+
+def display_xpa_help():
+    """Display help for XPA Acccess Points."""
+    url = "http://ds9.si.edu/doc/ref/xpa.html"
+    try:
+        import webbrowser
         webbrowser.open(url)
     except ImportError:
         warnings.warn(

@@ -13,7 +13,7 @@ from ._astropy_init import *
 if not _ASTROPY_SETUP_:
     # import high level functions into the imexam namespace
     from .util import list_active_ds9
-    from .util import display_help
+    from .util import display_help, display_xpa_help
     from .util import set_logging
     from . import connect as _connect
     connect = _connect.Connect
