@@ -1438,7 +1438,7 @@ class ds9(object):
             Y location in physical coords to pan to
 
         """
-        self.set("pan to {0:f} {0:f} image".format(x, y))
+        self.set("pan to {0:f} {1:f} image".format(x, y))
 
     def panto_wcs(self, x, y, system='fk5'):
         """pan to wcs location coordinates in image.
