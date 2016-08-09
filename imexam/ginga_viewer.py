@@ -326,7 +326,7 @@ class ginga_general(object):
         Parameters
         ----------
         color: string
-            color must be set to one of the available DS9 color map names
+            color must be set to one of the available color map names
 
         load: string, optional
             set to the filename which is a valid colormap lookup table
@@ -928,7 +928,7 @@ class ginga(ginga_general):
             ports = [p for p in range(8800, 9000) if
                      socket.socket().connect_ex(('127.0.0.1', p)) not in
                      (errno.EAGAIN, errno.EWOULDBLOCK)]
-            self._port = ports[-1]
+            self._port = ports[0]
 
         self._server = ipg.make_server(host=self._host,
                                        port=self._port,

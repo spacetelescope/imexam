@@ -172,7 +172,7 @@ colplot_pars = {"function": ["column_plot", ],
                 "ymax": [None, "yaxis max value"],
                 }
 
-# cut out a smaller image user the pointer location
+# cut out a smaller image with image coordinates
 cutout_pars = {"function": ["cutout", ],
                "size": [20, "size of the image to cutout"],
                }

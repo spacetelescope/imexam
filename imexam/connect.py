@@ -11,6 +11,7 @@ import logging
 import os
 import astropy
 
+
 from .util import set_logging
 from .ds9_viewer import ds9
 try:
@@ -197,7 +198,7 @@ class Connect(object):
         current_key = keys[0]  # q is not in the list of keys
 
         while current_key:
-            # ugly hack to suppress deprecation  by mpl
+            # ugly hack to suppress deprecation by mpl
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
 
@@ -211,6 +212,7 @@ class Connect(object):
                         self._check_slice()
                     if current_key not in keys and 'q' not in current_key:
                         print("Invalid key")
+                        self.exam._close_plots()
                     else:
                         if 'q' in current_key:
                             current_key = None
@@ -218,19 +220,29 @@ class Connect(object):
                         else:
                             self.exam.do_option(
                                 x, y, current_key)
+                            
                 except KeyError:
                     print(
                         "Invalid key, use\n: {0}".format(
                             self.exam.print_options()))
+                    self.exam._close_plots()
 
     def _check_frame(self):
-        """check if the user switched frames."""
+        """check if the user switched frames.
+
+        This can happen when using DS9 because the user has
+        access to the gui controls while the imexam loop is
+        running.
+        """
         frame = self.frame()
         if self._current_frame != frame:  # the user has changed window frames
             self.exam.set_data(self.window.get_data())
             self._current_frame = frame
-            cstring = "\nCurrent image {0:s}".format(
-                self.get_frame_info()['filename'],)
+            try:
+                cstring = "\nCurrent image {0:s}".format(
+                        self.get_frame_info()['filename'],)
+            except TypeError:
+                cstring = "\nuser array in frame"
             logging.info(cstring)
             print(cstring)
 
@@ -486,6 +498,15 @@ class Connect(object):
 
         value: float, string, int, bool
             What the parameters value should be set to
+
+        Example
+        -------
+        set_plot_par('j','func','MexicanHat1D')
+
+        where j is the key value during imexam
+        func is the parameter you want to edit
+        MexicanHat1D is the name of the astropy function to use
+
         """
         fname, parname = self._get_function_name(key)
         if parname:
@@ -617,6 +638,18 @@ class Connect(object):
             return self.exam.imexam_option_funcs['w'][0].__name__
         else:
             return(self.exam.surface_pars)
+
+    def timexam(self, get_name=False):
+        """Show current parameters for image cutouts,returns dict.
+
+        Either returns the name of the function associated with the keyname
+        Or it returns the dictionary of plotting parameters for that key
+        """
+        if get_name:
+            return self.exam.imexam_option_funcs['t'][0].__name__
+        else:
+            return(self.exam.cutout_pars)
+
 
     def unlearn(self):
         """Unlearn all the imexam parameters and reset to default."""
