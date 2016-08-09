@@ -1062,7 +1062,7 @@ class ds9(object):
 
         frame = self.frame()
         if frame != self._current_frame:
-            self.rameinfo()
+            self._set_frameinfo()
 
         if self._viewer[frame]['filename']:
             if fitsobj:
