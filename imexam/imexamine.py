@@ -898,8 +898,12 @@ class Imexamine(object):
                        fig=None, genplot=True):
         """Display the radial profile plot (intensity vs radius) for the object.
 
+        From the parameters Dictionary:
+        If pixel is True, then every pixel at each radius is plotted.
+        If pixel is False, then the sum of all pixels at each radius is plotted.
+
         Background may be subtracted and centering can be done with a
-        2D Gaussian fit
+        2D Gaussian fit. These options are read from the plot parameters dict.
 
         Parameters
         ----------
@@ -913,6 +917,7 @@ class Imexamine(object):
             The string name of the form of the fit to use
         genplot: bool
             Generate the plot or return the fit
+
         """
         subtract_background = bool(self.radial_profile_pars["background"][0])
         if not photutils_installed and subtract_background:
@@ -947,12 +952,18 @@ class Imexamine(object):
             data_chunk = data[icentery-datasize:icentery+datasize,
                               icenterx-datasize:icenterx+datasize]
 
-            y, x = np.indices((data_chunk.shape))
+            y, x = np.indices((data_chunk.shape))  # radii of all pixels
             r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
-            r = r.astype(np.int)
-            # add up the flux in integer bins
-            tbin = np.bincount(r.ravel(), data_chunk.ravel())
-            nr = np.arange(len(tbin))
+
+            if self.radial_profile_pars["pixels"][0]:
+                indices = np.argsort(r.flat)  # sorted indices
+                radius = r.flat[indices]
+                flux = data_chunk.flat[indices]
+
+            else:  # sum the flux in integer bins
+                r = r.astype(np.int)
+                flux = np.bincount(r.ravel(), data_chunk.ravel())
+                radius = np.arange(len(flux))
 
             # Get a background measurement
             if subtract_background:
@@ -970,15 +981,17 @@ class Imexamine(object):
                 annulus_area = annulus_apertures.area()
                 sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                     annulus_area)
-                tbin -= np.bincount(r.ravel()) * sky_per_pix
+                if self.radial_profile_pars["pixels"][0]:
+                    flux -= sky_per_pix
+                else:
+                    flux -= np.bincount(r.ravel()) * sky_per_pix
                 if getdata:
                     print("Sky per pixel: {0} using\
                          (rad={1}->{2})".format(sky_per_pix,
                                                 inner, inner+width))
             if getdata:
-                info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
-                    int(centerx), int(centery), nr, tbin)
-                print(info)
+                print("\nat (x,y)={0:f},{1:f}\n".format(centerx, centery))
+                print(radius, flux)
                 logging.info(info)
 
             # finish the plot
@@ -998,9 +1011,9 @@ class Imexamine(object):
                 ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
 
                 if bool(self.radial_profile_pars["pointmode"][0]):
-                    ax.plot(nr, tbin, self.radial_profile_pars["marker"][0])
+                    ax.plot(radius, flux, self.radial_profile_pars["marker"][0])
                 else:
-                    ax.plot(nr, tbin)
+                    ax.plot(radius, flux)
                 ax.set_title(title)
                 ax.set_ylim(0,)
 
@@ -1014,7 +1027,7 @@ class Imexamine(object):
                 else:
                     fig.canvas.draw()
             else:
-                return nr, tbin
+                return radius, flux
 
     def curve_of_growth(self, x, y, data=None, fig=None, genplot=True):
         """Display a curve of growth plot.
