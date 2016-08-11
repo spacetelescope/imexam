@@ -51,7 +51,18 @@ Try turning off the resume state:
     defaults write org.python.python ApplePersistenceIgnoreState NO
 
 
-If you are having display issues, some build problems may exist with the dependency packages which deal with backend graphics, try setting your matplotlib backend to Qt4Agg. You can set this in your .matplotlib/matplotlibrc file
+If you are having display issues, some build problems may exist with the dependency packages which deal with backend graphics, try setting your matplotlib backend to Qt4Agg. You can set this in your .matplotlib/matplotlibrc file. Also when using the Qt4Agg you can set your environment variable QT_API to pyqt.
+
+::
+
+
+from your shel environment:
+    export QT_API="pyqt"
+
+inside ~/.matplotlib/matplotlibrc:
+    backend: Qt4Agg 
+
+
 
 Using the Ginga HTML5 Viewer
 ----------------------------
