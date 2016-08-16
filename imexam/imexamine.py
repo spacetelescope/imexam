@@ -30,6 +30,10 @@ from copy import deepcopy
 from matplotlib import get_backend
 from IPython.display import Image
 from astropy.modeling import models
+try:
+    from scipy import stats
+except ImportError:
+    print("Scipy not installed, describe stat unavailable")
 
 from . import math_helper
 from . import imexam_defpars
@@ -72,7 +76,7 @@ class Imexamine(object):
         """
         self.set_option_funcs()  # define the dictionary of keys and functions
         self._data = np.zeros(0)  # the data array
-        self._datafile = "numpy array"  # the file from which the data came
+        self._datafile = ""  # the file from which the data came
         # read from imexam_defpars which contains dicts
         self._define_default_pars()
         # default plot name saved with "s" key
@@ -396,21 +400,32 @@ class Imexamine(object):
         region_size = self.report_stat_pars["region_size"][0]
         resolve = True
         name = self.report_stat_pars["stat"][0]
-        try:
-            stat = getattr(np, name)
-        except AttributeError:
-            warnings.warn("Invalid stat specified")
-            resolve = False
-        if resolve:
-            dist = region_size / 2
-            xmin = int(x - dist)
-            xmax = int(x + dist)
-            ymin = int(y - dist)
-            ymax = int(y + dist)
-            pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(
-              xmin, xmax, ymin, ymax, name, (stat(data[ymin:ymax, xmin:xmax])))
-            print(pstr)
-            logging.info(pstr)
+        dist = region_size / 2
+        xmin = int(x - dist)
+        xmax = int(x + dist)
+        ymin = int(y - dist)
+        ymax = int(y + dist)
+
+        if "describe" in name:
+            try:
+                stat = getattr(stats, "describe")
+                nobs, minmax, mean, var, skew, kurt=stat(data[ymin:ymax, xmin:xmax].flatten())
+                pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: \nnobs: {5}\nminamx: {6}\nmean {7}\nvariance: {8}\nskew: {9}\nkurtosis: {10}".format(
+                    ymin, ymax, xmin, xmax, name, nobs, minmax, mean, var, skew, kurt )
+            except AttributeError:
+                warnings.warn("Invalid stat specified")
+        else:
+            try:
+                stat = getattr(np, name)
+                pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5}".format(
+                       ymin, ymax, xmin, xmax, name,
+                       (stat(data[ymin:ymax, xmin:xmax])))
+            except AttributeError:
+                warnings.warn("Invalid stat specified")
+
+        print(pstr)
+        logging.info(pstr)
+
 
     def save_figure(self, x, y, data=None):
         """Save to file the figure that's currently displayed.
@@ -623,6 +638,12 @@ class Imexamine(object):
             fitted = math_helper.fit_poly_n(chunk, deg=degree)
             if fitted is None:
                 raise ValueError("Problem with the Poly1D fit")
+        elif fitform.name is "AiryDisk2D":
+            fitted = math_helper.fit_airy_2d(chunk)
+            if fitted is None:
+                raise ValueError("Problem with the AiryDisk2D fit")
+            fitted.x_0.value += (xx-delta)
+            fitted.y_0.value += (yy-delta)
         else:
             print("{0:s} not implemented".format(fitform.name))
             return
@@ -921,7 +942,8 @@ class Imexamine(object):
         """
         subtract_background = bool(self.radial_profile_pars["background"][0])
         if not photutils_installed and subtract_background:
-            print("Install photutils to enable")
+            print("Install photutils to enable background subtraction")
+            subtract_background = False
         else:
 
             if data is None:
@@ -953,7 +975,7 @@ class Imexamine(object):
                               icenterx-datasize:icenterx+datasize]
 
             y, x = np.indices((data_chunk.shape))  # radii of all pixels
-            r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
+            r = np.sqrt((x - datasize+(centerx-icenterx))**2 + (y - datasize + (centery-icentery))**2)
 
             if self.radial_profile_pars["pixels"][0]:
                 indices = np.argsort(r.flat)  # sorted indices
@@ -975,9 +997,9 @@ class Imexamine(object):
                                                               annulus_apertures)
 
                 # to calculate the mean local background, divide the circular
-                # annulus aperture sums by the area fo the circular annulus.
+                # annulus aperture sums by the area of the circular annulus.
                 # The bkg sum with the circular aperture is then
-                # then mean local background tims the circular apreture area.
+                # then mean local background times the circular apreture area.
                 annulus_area = annulus_apertures.area()
                 sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                     annulus_area)
@@ -990,7 +1012,7 @@ class Imexamine(object):
                          (rad={1}->{2})".format(sky_per_pix,
                                                 inner, inner+width))
             if getdata:
-                print("\nat (x,y)={0:f},{1:f}\n".format(centerx, centery))
+                info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
                 print(radius, flux)
                 logging.info(info)
 
