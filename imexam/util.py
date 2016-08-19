@@ -40,8 +40,22 @@ def find_xpans():
     return None
 
 
-def list_active_ds9():
-    """Display information about the DS9 windows currently registered with XPA.
+def list_active_ds9(verbose=True):
+    """
+    Display and/or return information about the DS9 windows currently registered
+    with XPA.
+
+    Parameters
+    ----------
+    verbose : bool
+        If True, prints out all the information about what ds9s are active.
+
+    Returns
+    -------
+    session_list : list
+        The list of sessions that have been registered.  Each entry in the list
+        is a list containing the information that xpans yields.  Typically the
+        fourth element in that tuple contains the actual target name.
 
     Notes
     -----
@@ -51,23 +65,31 @@ def list_active_ds9():
     That's if xpans is installed on the machine. Otherwise, no
     nameserver is running at all.
     """
+    session_list = []
 
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
         try:
             sessions = xpa.get(b"xpans")
-            if sessions is None:
+            if sessions is None and verbose:
                 print("No active sessions")
-            if len(sessions) < 1:
+            if len(sessions) < 1 and verbose:
                 print("No active sessions")
             else:
-                print(sessions.decode())
+                for line in sessions.decode().split('\n'):
+                    if line.strip() != '':
+                        session_list.append(sessions.decode().split())
+                if verbose:
+                    print(sessions.decode())
         except xpa.XpaException:
-            print("No active sessions registered")
+            if verbose:
+                print("No active sessions registered")
 
-    else:
+    elif verbose:
         print("XPA nameserver not installed or not on PATH, \
                function unavailable")
+
+    return session_list
 
 
 def display_help():
