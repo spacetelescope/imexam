@@ -48,7 +48,7 @@ def list_active_ds9(verbose=True):
     Parameters
     ----------
     verbose : bool
-        If True, prints out all the information about what ds9s are active.
+        If True, prints out all the information about what DS9 windows are active.
 
     Returns
     -------
@@ -63,33 +63,32 @@ def list_active_ds9(verbose=True):
     seeing it when I call this function. I think because it's only
     listening on the inet socket which starts by default in the OS.
     That's if xpans is installed on the machine. Otherwise, no
-    nameserver is running at all.
+    nameserver is running at all. This helps with object cont
     """
-    session_list = []
+    session_dict = {}
 
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
+        sessions = None
         try:
-            sessions = xpa.get(b"xpans")
-            if sessions is None and verbose:
-                print("No active sessions")
-            if len(sessions) < 1 and verbose:
+            sessions = xpa.get(b"xpans").decode().strip().split("\n")
+            if ((sessions is None or len(sessions) < 1) and verbose):
                 print("No active sessions")
             else:
-                for line in sessions.decode().split('\n'):
-                    if line.strip() != '':
-                        session_list.append(sessions.decode().split())
+                for line in sessions:
+                    classn, name, access, ids, user = tuple(line.split())
+                    session_dict[ids] = (name, user, classn, access)
                 if verbose:
-                    print(sessions.decode())
+                    for line in sessions:
+                        print(line)
         except xpa.XpaException:
-            if verbose:
                 print("No active sessions registered")
 
-    elif verbose:
+    else:
         print("XPA nameserver not installed or not on PATH, \
                function unavailable")
 
-    return session_list
+    return session_dict
 
 
 def display_help():
