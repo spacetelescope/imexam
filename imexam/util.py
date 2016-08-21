@@ -40,8 +40,22 @@ def find_xpans():
     return None
 
 
-def list_active_ds9():
-    """Display information about the DS9 windows currently registered with XPA.
+def list_active_ds9(verbose=True):
+    """
+    Display and/or return information about the DS9 windows currently registered
+    with XPA.
+
+    Parameters
+    ----------
+    verbose : bool
+        If True, prints out all the information about what DS9 windows are active.
+
+    Returns
+    -------
+    session_list : list
+        The list of sessions that have been registered.  Each entry in the list
+        is a list containing the information that xpans yields.  Typically the
+        fourth element in that tuple contains the actual target name.
 
     Notes
     -----
@@ -49,25 +63,32 @@ def list_active_ds9():
     seeing it when I call this function. I think because it's only
     listening on the inet socket which starts by default in the OS.
     That's if xpans is installed on the machine. Otherwise, no
-    nameserver is running at all.
+    nameserver is running at all. This helps with object cont
     """
+    session_dict = {}
 
     # only run if XPA/xpans is installed on the machine
     if find_xpans():
+        sessions = None
         try:
-            sessions = xpa.get(b"xpans")
-            if sessions is None:
-                print("No active sessions")
-            if len(sessions) < 1:
+            sessions = xpa.get(b"xpans").decode().strip().split("\n")
+            if ((sessions is None or len(sessions) < 1) and verbose):
                 print("No active sessions")
             else:
-                print(sessions.decode())
+                for line in sessions:
+                    classn, name, access, ids, user = tuple(line.split())
+                    session_dict[ids] = (name, user, classn, access)
+                if verbose:
+                    for line in sessions:
+                        print(line)
         except xpa.XpaException:
-            print("No active sessions registered")
+                print("No active sessions registered")
 
     else:
         print("XPA nameserver not installed or not on PATH, \
                function unavailable")
+
+    return session_dict
 
 
 def display_help():
