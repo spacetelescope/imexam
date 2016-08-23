@@ -600,6 +600,5 @@ As an aside, you can use the GUI tools on the bottom of the plot windows to move
 
 
 
-.. _astropy: http://github.com/astropy/
 .. _photutils: http://github.com/astropy/photutils/
 .. _scipy.stats.describe:  http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.describe.html
