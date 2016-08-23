@@ -935,7 +935,7 @@ class Imexamine(object):
         form: string
             The string name of the form of the fit to use
         genplot: bool
-            Generate the plot or return the fit
+            Generate the plot if True, else return the fit data
 
         """
         subtract_background = bool(self.radial_profile_pars["background"][0])
@@ -973,14 +973,16 @@ class Imexamine(object):
                               icenterx-datasize:icenterx+datasize]
 
             y, x = np.indices((data_chunk.shape))  # radii of all pixels
-            r = np.sqrt((x - datasize+(centerx-icenterx))**2 + (y - datasize + (centery-icentery))**2)
 
             if self.radial_profile_pars["pixels"][0]:
+                r = np.sqrt((x - datasize+(centerx-icenterx))**2 +
+                    (y - datasize + (centery-icentery))**2)
                 indices = np.argsort(r.flat)  # sorted indices
                 radius = r.flat[indices]
                 flux = data_chunk.flat[indices]
 
             else:  # sum the flux in integer bins
+                r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
                 r = r.astype(np.int)
                 flux = np.bincount(r.ravel(), data_chunk.ravel())
                 radius = np.arange(len(flux))
@@ -1001,6 +1003,7 @@ class Imexamine(object):
                 annulus_area = annulus_apertures.area()
                 sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                     annulus_area)
+                print("Background per pixel: {0:f}".format(sky_per_pix))
                 if self.radial_profile_pars["pixels"][0]:
                     flux -= sky_per_pix
                 else:
