@@ -499,8 +499,8 @@ class Connect(object):
         value: float, string, int, bool
             What the parameters value should be set to
 
-        Example
-        -------
+        Examples
+        --------
         set_plot_par('j','func','MexicanHat1D')
 
         where j is the key value during imexam
