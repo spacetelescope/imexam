@@ -203,7 +203,7 @@ class Imexamine(object):
 
     def _define_default_pars(self):
         """set all pars to their defaults, stored in a file with dicts."""
-        self.aperphot_def_pars = imexam_defpars.aperphot_pars
+        self.aper_phot_def_pars = imexam_defpars.aper_phot_pars
         self.radial_profile_def_pars = imexam_defpars.radial_profile_pars
         self.curve_of_growth_def_pars = imexam_defpars.curve_of_growth_pars
         self.surface_def_pars = imexam_defpars.surface_pars
@@ -221,7 +221,7 @@ class Imexamine(object):
 
     def _define_local_pars(self):
         """set a copy of the default pars that users can alter."""
-        self.aperphot_pars = deepcopy(self.aperphot_def_pars)
+        self.aper_phot_pars = deepcopy(self.aper_phot_def_pars)
         self.radial_profile_pars = deepcopy(self.radial_profile_def_pars)
         self.curve_of_growth_pars = deepcopy(self.curve_of_growth_def_pars)
         self.surface_pars = deepcopy(self.surface_def_pars)
@@ -398,7 +398,6 @@ class Imexamine(object):
             data = self._data
 
         region_size = self.report_stat_pars["region_size"][0]
-        resolve = True
         name = self.report_stat_pars["stat"][0]
         dist = region_size / 2
         xmin = int(x - dist)
@@ -409,7 +408,7 @@ class Imexamine(object):
         if "describe" in name:
             try:
                 stat = getattr(stats, "describe")
-                nobs, minmax, mean, var, skew, kurt=stat(data[ymin:ymax, xmin:xmax].flatten())
+                nobs, minmax, mean, var, skew, kurt = stat(data[ymin:ymax, xmin:xmax].flatten())
                 pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: \nnobs: {5}\nminamx: {6}\nmean {7}\nvariance: {8}\nskew: {9}\nkurtosis: {10}".format(
                     ymin, ymax, xmin, xmax, name, nobs, minmax, mean, var, skew, kurt )
             except AttributeError:
@@ -425,7 +424,6 @@ class Imexamine(object):
 
         print(pstr)
         logging.info(pstr)
-
 
     def save_figure(self, x, y, data=None):
         """Save to file the figure that's currently displayed.
@@ -497,16 +495,16 @@ class Imexamine(object):
         if not photutils_installed:
             print("Install photutils to enable")
         else:
-            if self.aperphot_pars["center"][0]:
+            if self.aper_phot_pars["center"][0]:
                 center = True
                 delta = 10
                 amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
                                                              delta=delta)
 
-            radius = int(self.aperphot_pars["radius"][0])
-            width = int(self.aperphot_pars["width"][0])
-            inner = int(self.aperphot_pars["skyrad"][0])
-            subsky = bool(self.aperphot_pars["subsky"][0])
+            radius = int(self.aper_phot_pars["radius"][0])
+            width = int(self.aper_phot_pars["width"][0])
+            inner = int(self.aper_phot_pars["skyrad"][0])
+            subsky = bool(self.aper_phot_pars["subsky"][0])
 
             outer = inner + width
 
@@ -544,7 +542,7 @@ class Imexamine(object):
                 total_flux = float(rawflux_table['aperture_sum'][0])
 
             # compute the magnitude of the sky corrected flux
-            magzero = float(self.aperphot_pars["zmag"][0])
+            magzero = float(self.aper_phot_pars["zmag"][0])
             mag = magzero - 2.5 * (np.log10(total_flux))
 
             pheader = (
@@ -1529,12 +1527,12 @@ class Imexamine(object):
         buf.close()
         return img
 
-    def set_aperphot_pars(self, user_dict=None):
+    def set_aper_phot_pars(self, user_dict=None):
         """the user may supply a dictionary of par settings."""
         if not user_dict:
-            self.aperphot_pars = imexam_defpars.aperphot_pars
+            self.aper_phot_pars = imexam_defpars.aper_phot_pars
         else:
-            self.aperphot_pars = user_dict
+            self.aper_phot_pars = user_dict
 
     def set_radial_pars(self):
         """set parameters for radial profile plots."""

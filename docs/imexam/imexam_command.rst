@@ -10,8 +10,8 @@ This is the main method which allows live interaction with the image display whe
 **Current recognized keys for use during imexam are** ::
 
          'a': 'aperture sum, with radius region_size, optional sky subtraction '
-         'j': '1D  line fit '
-         'k': '1D  column fit '
+         'j': '1D line fit '
+         'k': '1D column fit '
          'm': 'square region stats, in region_size square, default stat is median'
          'x': 'return x,y coords of pixel'
          'y': 'return x,y coords of pixel'
@@ -23,6 +23,7 @@ This is the main method which allows live interaction with the image display whe
          'e': 'return a contour plot in a region around the cursor'
          's': 'save current figure to plotname'
          'b': 'return the gauss fit center of the object'
+         't': 'Make a fits image cutout using pointer location'
          'w': 'display a surface plot around the cursor location'
          '2': 'make the next plot in a new window'
 
@@ -48,16 +49,18 @@ This is the main method which allows live interaction with the image display whe
 
          mimexam(): return dict of current parameters for area statistics
 
+         timexam(): return a dict of the current parameters for image cutouts
+
 
 .. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers
 
 
-The ``imexam`` key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which map to your own
+The ``imexam`` key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which maps to your own
 
-Users may also add their own ``imexam`` keys and associated functions by registering them with the connect.register(user_funct=dict()) method. The new binding will bew added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them.
+Users may also add their own ``imexam`` keys and associated functions by registering them with the register(user_funct=dict()) method. The new binding will be added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them, but users are free to create them.
 
 
-For all the examples below I will use the following session::
+For all the examples below I will use a session similar to the following example::
 
     #This will default to DS9 for the viewer
 
@@ -76,10 +79,9 @@ For all the examples below I will use the following session::
 
 
 
+This will use Ginga (instead of the default DS9) for the viewer::
 
-This will use Ginga for the viewer::
-
-    #Use Ginga for the image viewer
+    #Use Ginga for the image viewer, make sure it is installed
 
     import imexam
     viewer=imexam.connect(viewer='ginga')
@@ -98,9 +100,9 @@ This will use Ginga for the viewer::
 Circular Apterture Photometry
 -----------------------------
 
-Aperture photometry is performed when you press the "a" key. It is implemented using the `~photutils` python package, an affiliated package of astropy that is still in development.
+Aperture photometry is performed when you press the "a" key. It is implemented using the `photutils`_ python package, an affiliated package of astropy that is still in development.
 
-Currently, the calculation which is performed is similar to the "," IRAF key. It is circular aperture photometry, centered on the mouse location at the time the key is pressed, with a background annulus subtraction for the sky. The radius of the aperture is set with the regsion_size keyword (default to 5 pixels). The annulus size is also set to the width, and taken a distance of skyrad pixels from the center. The pixels used to calculate the enclosed flux are those whose centers fall inside the radius distance, in the same way that IRAF imexamine computes the flux.
+Currently, the calculation which is performed is similar to the "," or "a" IRAF imexamine keys. It is circular aperture photometry, centered on the mouse location at the time the key is pressed, with a background annulus subtraction for the sky. The radius of the aperture is set with the region_size keyword (default to 5 pixels). The annulus size is also set to the width, and taken a distance of skyrad pixels from the center. The pixels used to calculate the enclosed flux are those whose centers fall inside the radius distance, in the same way that IRAF imexamine computes the flux.
 
 These are the default parameters for aperture photometry. They live in a dictionary in the exam object::
 
@@ -150,8 +152,7 @@ xc = xcenter, yc=ycenter; these were found using a Gaussian2D fit centered on th
 
 Gaussian1D, Moffat1D, MexicanHat1D profiles
 -------------------------------------------
-If you press the "j" or "k" keys, a 1D profile is fit to the data in either the line or column of the current pointer location. A plot of both the data and the fit + parameters is displayed.
-If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data. ::
+If you press the "j" or "k" keys, a 1D profile is fit to the data in either the line or column of the current pointer location. An option to use a Polynomial1D fit is also available, although not something of use for looking at stellar profiles. A plot of both the data and the fit + parameters is displayed. If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data. ::
 
 
     line_fit_pars={"function":["line_fit",],
@@ -204,10 +205,10 @@ and the corresponding column fit:
 
 
 
-
-Median square region stats
+Square region statistics
 --------------------------
 If you press the "m" key, the  pixel values around the pointer location are calculated inside a box which has a side equal to the region_size, defaulted to 5 pixels, and using the statistical function chosen.
+
 The user can map the function to any reasonable numpy function, it's set to numpy.median by default
 
 ::
@@ -228,6 +229,23 @@ You can change the statistic reported by changing the "stat" parameter::
 
 
 You can make a quick comparison of the max reported above with the line fit graph in the 1D gaussian profile example.
+
+You can also choose to use the `scipy.stats.describe`_ function if you have scipy installed by changing the stat to "describe"; this will report the combined stats for the region:
+
+
+::
+
+
+    pressed: m, report_stat
+    [551:556,653:658] describe:
+    nobs: 25
+    minamx: (0.51326549, 0.85604763)
+    mean 0.6851165890693665
+    variance: 0.00780616095289588
+    skew: 0.05719175934791565
+    kurtosis: -0.47930471400886976
+
+
 
 
 Pixel Coordinates and Value
@@ -259,8 +277,7 @@ Pressing the "l" or "c" keys will display a plot of the points through either th
 Radial Profile Plot
 -------------------
 
-Pressing the "r" key displays a radial profile plot for the flux around the current pointer location.
-If centering is on, the center is computed close to the star using a Gaussian2D fit.
+Pressing the "r" key displays a radial profile plot for the flux around the current pointer location. If centering is on, the center is computed close to the star using a Gaussian2D fit. The default plot uses every pixel
 
 The available parameters are ::
 
@@ -268,6 +285,7 @@ The available parameters are ::
                         "title": ["Radial Profile", "Title of the plot"],
                         "xlabel": ["Radius", "The string for the xaxis label"],
                         "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
+                        'pixels': [True, 'Plot all pixels at each radius? (False bins the data)']
                         "fitplot": [False,"Overplot profile fit?"],
                         "fittype":["Gaussian1D","Profile type to fit (gaussian)"],
                         "center": [True, "Solve for center using 2d Gaussian? [bool]"],
@@ -283,10 +301,20 @@ The available parameters are ::
                         }
 
 
-.. image:: ../_static/radial_profile_plot.png
+Radial profile plot for all pixels around the location:
+
+.. image:: ../_static/radial_profile_points.png
     :height: 400
     :width: 600
-    :alt: Curve of growth  plot around star
+    :alt: Radial profile plot for all pixels around location
+
+
+Radial profile plot for all pixels, binned to integer radii:
+
+.. image:: ../_static/radial_profile_binned.png
+    :height: 400
+    :width: 600
+    :alt: Radial profile plot for all pixels, binned to integer radii
 
 
 Curve of Growth plot
@@ -437,42 +465,9 @@ Or, if you'd like to get fancy and add some nice contours:
     :alt: fancy surface plot
 
 
-User Specified Functions
-------------------------
+Cutout a Simple FITS Image
+---------------------------
 
-Users may code their own functions and bind them to keys by registering them with the ``imexam`` dictionary through the register method.
-The new binding will be added to the dictionary of imexamine functions as long as the key is unique.
-The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new
-instantiations of imexam.connect() will not have the new function unless the user specifically registers them.
-
-Here's all the code for a function which makes a cutout around the clicked pixel location and saves it to a fits file::
-
-
-    def cutout(self,x,y,data):
-        """Cut out an image from under the mouse and save it as a fits file"""
-        import tempfile
-        from astropy.io import fits
-        size=20 #pixels
-        cutout=data[y-size:y+size,x-size:x+size]
-        prefix="cutout_{0}_{1}_".format(int(x),int(y))
-        fname=tempfile.mktemp(prefix=prefix,suffix=".fits",dir="./")
-        hdu=fits.PrimaryHDU(cutout)
-        hdulist=fits.HDUList([hdu])
-        hdulist[0].header['EXTEND']=False
-        hdulist.writeto(fname)
-        print("Cutout at ({0},{1}) saved to {2:s}".format(x,y,fname))
-
-Now, import that into your python session, file, or here I'll just copy paste the definition to the session. This is an important step becuase
-the function reference is what you are going to send to the registration method. The registration method wants you to supply a dictionary which
-contains the key you want to assign that function to during the imexam() loop, and a tuple with the function name and description::
-
-    my_dict = {'t': (cutout, 'Cut out an image stamp from under the mouse and save it')}
-
-    viewer.exam.register(my_dict)
-    User function: cutout added to imexam options with key t
-
-
-Okay, so let's try out our new function! We should be able to see it in the list of available options.
 
 .. image:: ../_static/user_func_1.png
     :height: 400
@@ -499,6 +494,67 @@ Sweet. Because this is a often used function I've made it a part of the standard
 selection set. If you wish to use the astropy 2D cutout method, you can create
 your own function which will also pass in the WCS object for the data so that
 the cutout retains it's WCS information.
+
+
+User Specified functions
+------------------------
+Users may code their own functions and bind them to keys by registering them with the ``imexam`` dictionary through the register method that lives in the exam object. The new binding will be added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new instantiations of ``imexam.connect()`` will not have the new function unless the user specifically registers them.
+
+Here's all the code for a function which saves the cursor location to a file called 'test.list' when the user presses the 'p' key:
+
+::
+
+
+    def save_to_file(self,x,y,data):
+        """Save the cursor location only to a file"""
+        if data is None:
+          data = self._data
+        with open('test.list','a') as ofile:
+          ofile.write("{0}\t{1}\n".format(x,y))
+        print("Saved star to ",'test.list')
+
+
+Now, import that into your python session, file, or here I'll just copy paste the definition to the session. This is an important step because the function reference is what you are going to send to the registration method. The registration method wants you to supply a dictionary which contains the key you want to assign that function to during the imexam() loop, and a tuple with the function name and description::
+
+    my_dict = {'p': (save_to_file, 'Save cursor location to file')}
+
+    viewer.exam.register(my_dict)
+    User function: save_to_file added to imexam options with key p
+
+
+Okay, so let's try out our new function! We should be able to see it in the list of available options.
+
+::
+
+        In [18]: a.imexam()
+
+        Press 'q' to quit
+
+        2	Make the next plot in a new window
+        a	Aperture sum, with radius region_size
+        b	Return the 2D gauss fit center of the object
+        c	Return column plot
+        e	Return a contour plot in a region around the cursor
+        g	Return curve of growth plot
+        h	Return a histogram in the region around the cursor
+        j	1D [Gaussian1D default] line fit
+        k	1D [Gaussian1D default] column fit
+        l	Return line plot
+        m	Square region stats, in [region_size],default is median
+        p	Save cursor location to file
+        r	Return the radial profile plot
+        s	Save current figure to disk as [plot_name]
+        t	Make a fits image cutout using pointer location
+        w	Display a surface plot around the cursor location
+        x	Return x,y,value of pixel
+        y	Return x,y,value of pixel
+
+        Current image /Users/sosey/test_images/iacs01t4q_flt.fits
+        pressed: p, save_to_file
+        Saved star to  test.list
+
+        In [19]: !more test.list
+        463.0   376.75
 
 
 Plot Multiple Windows
@@ -535,9 +591,15 @@ This is what the workspace could look like with DS9 as the viewer:
     :alt: multiple plots in DS9 with imexam
 
 
-As an aside, you can use the gui tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the gui save button:
+As an aside, you can use the GUI tools on the bottom of the plot windows to move around the displayed data, such as zooming in and out, as shown below for the contour plot, which was also saved using the GUI save button:
 
 .. image:: ../_static/contour_zoom.png
     :height: 600
     :width: 800
     :alt: contour zoom plot
+
+
+
+.. _astropy: http://github.com/astropy/
+.. _photutils: http://github.com/astropy/photutils/
+.. _scipy.stats.describe:  http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.describe.html

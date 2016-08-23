@@ -9,7 +9,7 @@ from a json or text file maybe
 """
 
 # aperture photometry parameters
-aperphot_pars = {"function": ["aperphot", ],
+aper_phot_pars = {"function": ["aper_phot", ],
                  "center": [True, "Center the object location using a 2d gaussian fit"],
                  "width": [5, "Width of sky annulus in pixels"],
                  "subsky": [True, "Subtract a sky background?"],

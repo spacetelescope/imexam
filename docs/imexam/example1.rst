@@ -21,7 +21,8 @@ Start up a DS9 window (by default), a new DS9 window will be opened
 
     viewer=imexam.connect()
 
-If you already have a window running, you can ask for a list of windows
+If you already have a window running, you can ask for a list of windows; windows that you start from the imexam package will not show up, this is to keep control over their processes and prevent double assignments.
+
 ::
 
     imexam.list_active_ds9()
@@ -44,32 +45,36 @@ If you haven't given your windows unique names, then you must use the ip:port ad
 Usage with Ginga viewer
 -----------------------
 
-Start up a ginga window using the HTML5 backend
+Start up a ginga window using the HTML5 backend. Make sure that you have installed the most recent version of ginga, imexam will return an error that the viewer cannot be found otherwise.
+
+
 ::
 
     viewer=imexam.connect(viewer='ginga')
 
 
 
-All commands after the viewer is opened are the same
-----------------------------------------------------
+All commands after your chosen viewer is opened are the same
+-------------------------------------------------------------
 
 Load a fits image into the window
 ::
 
     viewer.load_fits('test.fits')
 
-Scale to default using zscale
+Scale the image to the default scaling, which uses zscale
 ::
 
-    viewer.scale()
+    viewer.scale() <-- uses zscale
+    viewer.scale('asinh')  <-- uses asinh
 
 Change to heat map colorscheme
 ::
 
     viewer.cmap(color='heat')
 
-Make some marks on the image and save the regions
+
+Make some marks on the image and save the regions using a DS9 style regions file
 ::
 
     viewer.save_regions('test.reg')
@@ -79,7 +84,7 @@ Delete all the regions you made, then load from file
 
     viewer.load_regions('test.reg')
 
-Plot stuff at cursor location, in a while loop. Type a key when the mouse is over your desired location and continue plotting with the available options
+Plot stuff at the cursor location, in a while loop. Type a key when the mouse is over your desired location and continue plotting with the available options
 ::
 
     viewer.imexam()

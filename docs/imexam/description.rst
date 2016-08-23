@@ -29,7 +29,7 @@ These are some tips on installing the package, or tracking down problems you mig
 
     pip install imexam
     pip install --upgrade imexam #if you already have an older version installed
-    
+
     conda install imexam
 
 
@@ -99,6 +99,9 @@ In order to return a list of the current DS9 windows that are running, issue the
     imexam.list_active_ds9()
 
 
+.. note:: More information on DS9 can be found at: http://ds9.si.edu/site/Home.html
+
+
 If you are using the Ginga  widget, the interaction with the ``imexam`` code stays the same, you simply specify that you would like to use Ginga in the call to connect:
 
 ::
@@ -157,8 +160,6 @@ The log will look something like this, you can see it contains a mention of the 
 More detailed examples can be found in the examples section of this documentation.
 
 
-.. note:: More information on DS9 can be found at: http://ds9.si.edu/site/Home.html
-
 
 Common Problems
 ---------------
@@ -178,20 +179,14 @@ You can first try using local unix sockets by setting your environment variable 
 
 
 That will create local unix file sockets for communication with ds9. If that doesn't solve the problem, see if your path includes the location of xpans, the XPA name server. If you have it installed, but it's not on your path, put it there.
-You can also compile and install the XPA software included with ``imexam`` by editing the setup.py file:
 
 
-    * Uncomment the section towards the bottom of the file which instructs you to uncomment to compile the full XPA
-    * Also uncomment the last line with CMDCLASS and add that line inside the parenthesis for the setup command just above.
-    * Now you can reinstall ``imexam`` the normal way and it will also build the XPA executables and store them in cextern/
-    * Make sure the path to the executables is on your system PATH
+If you are having display issues, some build problems may exist with the dependency packages which deal with backend graphics, try setting your ``matplotlib`` backend to "Qt4Agg". You can set this in your .matplotlib/matplotlibrc file. Also when using the Qt4Agg you can set your environment variable ``QT_API`` to "pyqt".
 
+from your shel environment:
 
-Now you can start an ipython window, import ``imexam`` and try starting a new DS9 connection. If this still doesn't solve your problem, send email to the developers or open an issue in github.
+  ::
 
-
-If you are using Ginga and the plotting window seems to block, check to see if you've specified the QT backend in any of your matplotlib defaults and try turning it off:
-
-::
-
-    matplotlib.use('Qt4Agg')  <-- remove this and see if it helps
+    > export QT_API="pyqt"
+    inside ~/.matplotlib/matplotlibrc:
+      backend: Qt4Agg
