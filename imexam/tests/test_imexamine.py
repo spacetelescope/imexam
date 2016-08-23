@@ -135,7 +135,7 @@ def test_radial_profile():
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     plots = Imexamine()
     plots.set_data(data.array)
-    #check the binned results
+    # check the binned results
     plots.radial_profile_pars['pixels'][0] = False
     x, y = plots.radial_profile(12, 12, genplot=False)
 
@@ -149,13 +149,34 @@ def test_radial_profile():
     assert_allclose(flux, y, 1e-7)
 
 
+@pytest.mark.skipif('not HAS_PHOTUTILS')
+def test_radial_profile_background():
+    """Test the radial profile function with background subtraction"""
+    from astropy.convolution import Gaussian2DKernel
+    data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
+    plots = Imexamine()
+    plots.set_data(data.array)
+    # check the binned results
+    plots.radial_profile_pars['pixels'][0] = False
+    plots.radial_profile_pars['background'][0] = True
+    x, y = plots.radial_profile(12, 12, genplot=False)
+
+    rad = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    flux = [4.535423e-02, 3.007037e-01, 3.548898e-01, 1.958061e-01,
+            7.566620e-02, 2.469763e-02, 2.540733e-03, 1.518025e-04,
+            1.083221e-06, 3.605551e-10]
+
+    assert_array_equal(rad, x)
+    assert_allclose(flux, y, 1e-6)
+
+
 def test_radial_profile_pixels():
     """Test the radial profile function without background subtraction"""
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     plots = Imexamine()
     plots.set_data(data.array)
-    # check the binned results
+    # check the unbinned results
     plots.radial_profile_pars['pixels'][0] = True
     x, y = plots.radial_profile(12, 12, genplot=False)
 
@@ -293,35 +314,13 @@ def test_radial_profile_pixels():
             7.81146217e-06,   1.82078162e-10,   1.82078162e-10,
             1.05716645e-06]
 
-
-    assert_array_equal(rad, x)
-    assert_allclose(flux, y, 1e-7)
-
-@pytest.mark.skipif('not HAS_PHOTUTILS')
-def test_radial_profile_background():
-    """Test the radial profile function with background subtraction"""
-    from astropy.convolution import Gaussian2DKernel
-    data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
-    plots = Imexamine()
-    plots.set_data(data.array)
-    #check the binned results
-    plots.radial_profile_pars['pixels'][0] = False
-    plots.radial_profile_pars['background'][0] = True
-    x, y = plots.radial_profile(12, 12, genplot=False)
-
-    rad = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    flux = [4.53542348e-02,   3.00703719e-01,   3.54889792e-01,
-            1.95806071e-01,   7.56662018e-02,   2.46976310e-02,
-            2.54073324e-03,   1.51802506e-04,   1.08323362e-06,
-            3.65945812e-10]
-
-    assert_array_equal(rad, x)
+    assert_allclose(rad, x, 1e-7)
     assert_allclose(flux, y, 1e-7)
 
 
 @pytest.mark.skipif('not HAS_PHOTUTILS')
-def test_wth():
-    """Test the cog function."""
+def test_curve_of_growth():
+    """Test the cog functionality."""
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     plots = Imexamine()
