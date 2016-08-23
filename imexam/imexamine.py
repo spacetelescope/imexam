@@ -30,6 +30,10 @@ from copy import deepcopy
 from matplotlib import get_backend
 from IPython.display import Image
 from astropy.modeling import models
+try:
+    from scipy import stats
+except ImportError:
+    print("Scipy not installed, describe stat unavailable")
 
 from . import math_helper
 from . import imexam_defpars
@@ -72,7 +76,7 @@ class Imexamine(object):
         """
         self.set_option_funcs()  # define the dictionary of keys and functions
         self._data = np.zeros(0)  # the data array
-        self._datafile = "numpy array"  # the file from which the data came
+        self._datafile = ""  # the file from which the data came
         # read from imexam_defpars which contains dicts
         self._define_default_pars()
         # default plot name saved with "s" key
@@ -199,7 +203,7 @@ class Imexamine(object):
 
     def _define_default_pars(self):
         """set all pars to their defaults, stored in a file with dicts."""
-        self.aperphot_def_pars = imexam_defpars.aperphot_pars
+        self.aper_phot_def_pars = imexam_defpars.aper_phot_pars
         self.radial_profile_def_pars = imexam_defpars.radial_profile_pars
         self.curve_of_growth_def_pars = imexam_defpars.curve_of_growth_pars
         self.surface_def_pars = imexam_defpars.surface_pars
@@ -217,7 +221,7 @@ class Imexamine(object):
 
     def _define_local_pars(self):
         """set a copy of the default pars that users can alter."""
-        self.aperphot_pars = deepcopy(self.aperphot_def_pars)
+        self.aper_phot_pars = deepcopy(self.aper_phot_def_pars)
         self.radial_profile_pars = deepcopy(self.radial_profile_def_pars)
         self.curve_of_growth_pars = deepcopy(self.curve_of_growth_def_pars)
         self.surface_pars = deepcopy(self.surface_def_pars)
@@ -394,23 +398,32 @@ class Imexamine(object):
             data = self._data
 
         region_size = self.report_stat_pars["region_size"][0]
-        resolve = True
         name = self.report_stat_pars["stat"][0]
-        try:
-            stat = getattr(np, name)
-        except AttributeError:
-            warnings.warn("Invalid stat specified")
-            resolve = False
-        if resolve:
-            dist = region_size / 2
-            xmin = int(x - dist)
-            xmax = int(x + dist)
-            ymin = int(y - dist)
-            ymax = int(y + dist)
-            pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5:f}".format(
-              xmin, xmax, ymin, ymax, name, (stat(data[ymin:ymax, xmin:xmax])))
-            print(pstr)
-            logging.info(pstr)
+        dist = region_size / 2
+        xmin = int(x - dist)
+        xmax = int(x + dist)
+        ymin = int(y - dist)
+        ymax = int(y + dist)
+
+        if "describe" in name:
+            try:
+                stat = getattr(stats, "describe")
+                nobs, minmax, mean, var, skew, kurt = stat(data[ymin:ymax, xmin:xmax].flatten())
+                pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: \nnobs: {5}\nminamx: {6}\nmean {7}\nvariance: {8}\nskew: {9}\nkurtosis: {10}".format(
+                    ymin, ymax, xmin, xmax, name, nobs, minmax, mean, var, skew, kurt )
+            except AttributeError:
+                warnings.warn("Invalid stat specified")
+        else:
+            try:
+                stat = getattr(np, name)
+                pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5}".format(
+                       ymin, ymax, xmin, xmax, name,
+                       (stat(data[ymin:ymax, xmin:xmax])))
+            except AttributeError:
+                warnings.warn("Invalid stat specified")
+
+        print(pstr)
+        logging.info(pstr)
 
     def save_figure(self, x, y, data=None):
         """Save to file the figure that's currently displayed.
@@ -482,16 +495,16 @@ class Imexamine(object):
         if not photutils_installed:
             print("Install photutils to enable")
         else:
-            if self.aperphot_pars["center"][0]:
+            if self.aper_phot_pars["center"][0]:
                 center = True
                 delta = 10
                 amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
                                                              delta=delta)
 
-            radius = int(self.aperphot_pars["radius"][0])
-            width = int(self.aperphot_pars["width"][0])
-            inner = int(self.aperphot_pars["skyrad"][0])
-            subsky = bool(self.aperphot_pars["subsky"][0])
+            radius = int(self.aper_phot_pars["radius"][0])
+            width = int(self.aper_phot_pars["width"][0])
+            inner = int(self.aper_phot_pars["skyrad"][0])
+            subsky = bool(self.aper_phot_pars["subsky"][0])
 
             outer = inner + width
 
@@ -529,7 +542,7 @@ class Imexamine(object):
                 total_flux = float(rawflux_table['aperture_sum'][0])
 
             # compute the magnitude of the sky corrected flux
-            magzero = float(self.aperphot_pars["zmag"][0])
+            magzero = float(self.aper_phot_pars["zmag"][0])
             mag = magzero - 2.5 * (np.log10(total_flux))
 
             pheader = (
@@ -623,6 +636,12 @@ class Imexamine(object):
             fitted = math_helper.fit_poly_n(chunk, deg=degree)
             if fitted is None:
                 raise ValueError("Problem with the Poly1D fit")
+        elif fitform.name is "AiryDisk2D":
+            fitted = math_helper.fit_airy_2d(chunk)
+            if fitted is None:
+                raise ValueError("Problem with the AiryDisk2D fit")
+            fitted.x_0.value += (xx-delta)
+            fitted.y_0.value += (yy-delta)
         else:
             print("{0:s} not implemented".format(fitform.name))
             return
@@ -898,8 +917,12 @@ class Imexamine(object):
                        fig=None, genplot=True):
         """Display the radial profile plot (intensity vs radius) for the object.
 
+        From the parameters Dictionary:
+        If pixel is True, then every pixel at each radius is plotted.
+        If pixel is False, then the sum of all pixels at each radius is plotted.
+
         Background may be subtracted and centering can be done with a
-        2D Gaussian fit
+        2D Gaussian fit. These options are read from the plot parameters dict.
 
         Parameters
         ----------
@@ -912,11 +935,13 @@ class Imexamine(object):
         form: string
             The string name of the form of the fit to use
         genplot: bool
-            Generate the plot or return the fit
+            Generate the plot if True, else return the fit data
+
         """
         subtract_background = bool(self.radial_profile_pars["background"][0])
         if not photutils_installed and subtract_background:
-            print("Install photutils to enable")
+            print("Install photutils to enable background subtraction")
+            subtract_background = False
         else:
 
             if data is None:
@@ -947,12 +972,20 @@ class Imexamine(object):
             data_chunk = data[icentery-datasize:icentery+datasize,
                               icenterx-datasize:icenterx+datasize]
 
-            y, x = np.indices((data_chunk.shape))
-            r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
-            r = r.astype(np.int)
-            # add up the flux in integer bins
-            tbin = np.bincount(r.ravel(), data_chunk.ravel())
-            nr = np.arange(len(tbin))
+            y, x = np.indices((data_chunk.shape))  # radii of all pixels
+
+            if self.radial_profile_pars["pixels"][0]:
+                r = np.sqrt((x - datasize+(centerx-icenterx))**2 +
+                    (y - datasize + (centery-icentery))**2)
+                indices = np.argsort(r.flat)  # sorted indices
+                radius = r.flat[indices]
+                flux = data_chunk.flat[indices]
+
+            else:  # sum the flux in integer bins
+                r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
+                r = r.astype(np.int)
+                flux = np.bincount(r.ravel(), data_chunk.ravel())
+                radius = np.arange(len(flux))
 
             # Get a background measurement
             if subtract_background:
@@ -964,21 +997,24 @@ class Imexamine(object):
                                                               annulus_apertures)
 
                 # to calculate the mean local background, divide the circular
-                # annulus aperture sums by the area fo the circular annulus.
+                # annulus aperture sums by the area of the circular annulus.
                 # The bkg sum with the circular aperture is then
-                # then mean local background tims the circular apreture area.
+                # then mean local background times the circular apreture area.
                 annulus_area = annulus_apertures.area()
                 sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                     annulus_area)
-                tbin -= np.bincount(r.ravel()) * sky_per_pix
+                print("Background per pixel: {0:f}".format(sky_per_pix))
+                if self.radial_profile_pars["pixels"][0]:
+                    flux -= sky_per_pix
+                else:
+                    flux -= np.bincount(r.ravel()) * sky_per_pix
                 if getdata:
                     print("Sky per pixel: {0} using\
                          (rad={1}->{2})".format(sky_per_pix,
                                                 inner, inner+width))
             if getdata:
-                info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
-                    int(centerx), int(centery), nr, tbin)
-                print(info)
+                info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
+                print(radius, flux)
                 logging.info(info)
 
             # finish the plot
@@ -998,9 +1034,9 @@ class Imexamine(object):
                 ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
 
                 if bool(self.radial_profile_pars["pointmode"][0]):
-                    ax.plot(nr, tbin, self.radial_profile_pars["marker"][0])
+                    ax.plot(radius, flux, self.radial_profile_pars["marker"][0])
                 else:
-                    ax.plot(nr, tbin)
+                    ax.plot(radius, flux)
                 ax.set_title(title)
                 ax.set_ylim(0,)
 
@@ -1014,7 +1050,7 @@ class Imexamine(object):
                 else:
                     fig.canvas.draw()
             else:
-                return nr, tbin
+                return radius, flux
 
     def curve_of_growth(self, x, y, data=None, fig=None, genplot=True):
         """Display a curve of growth plot.
@@ -1494,12 +1530,12 @@ class Imexamine(object):
         buf.close()
         return img
 
-    def set_aperphot_pars(self, user_dict=None):
+    def set_aper_phot_pars(self, user_dict=None):
         """the user may supply a dictionary of par settings."""
         if not user_dict:
-            self.aperphot_pars = imexam_defpars.aperphot_pars
+            self.aper_phot_pars = imexam_defpars.aper_phot_pars
         else:
-            self.aperphot_pars = user_dict
+            self.aper_phot_pars = user_dict
 
     def set_radial_pars(self):
         """set parameters for radial profile plots."""

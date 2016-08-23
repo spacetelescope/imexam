@@ -9,7 +9,7 @@ from a json or text file maybe
 """
 
 # aperture photometry parameters
-aperphot_pars = {"function": ["aperphot", ],
+aper_phot_pars = {"function": ["aper_phot", ],
                  "center": [True, "Center the object location using a 2d gaussian fit"],
                  "width": [5, "Width of sky annulus in pixels"],
                  "subsky": [True, "Subtract a sky background?"],
@@ -21,7 +21,7 @@ aperphot_pars = {"function": ["aperphot", ],
 
 # box statistics
 report_stat_pars = {"function": ["report_stat", ],
-                    "stat": ["median", "which numpy stat to return [median,min,max...must map to a numpy func]"],
+                    "stat": ["median", "which numpy stat to return [median, min, max]"],
                     "region_size": [5, "region size in pixels to use"],
                     }
 
@@ -29,9 +29,10 @@ report_stat_pars = {"function": ["report_stat", ],
 radial_profile_pars = {"function": ["radial_profile", ],
                         "title": [None, "Title of the plot"],
                         "xlabel": ["Radius", "The string for the xaxis label"],
-                        "ylabel": ["Summed Pixel Value", "The string for the yaxis label"],
-                        "fitplot": [False,"Overplot profile fit?"],
-                        "fittype":["Gaussian2D","Profile type to fit (Gaussian2D)"],
+                        "ylabel": ["Flux", "The string for the yaxis label"],
+                        "pixels": [True, "Plot all pixels at each radius? (False bins the data)"],
+                        "fitplot": [False, "Overplot profile fit?"],
+                        "fittype": ["Gaussian2D", "Profile type to fit (Gaussian2D)"],
                         "center": [True, "Solve for center using 2d Gaussian? [bool]"],
                         "background": [False, "Subtract background? [bool]"],
                         "skyrad": [10., "Background inner radius in pixels, from center of object"],
@@ -40,8 +41,7 @@ radial_profile_pars = {"function": ["radial_profile", ],
                         "rplot": [8., "Plotting radius in pixels"],
                         "pointmode": [True, "plot points instead of lines? [bool]"],
                         "marker": ["o", "The marker character to use, matplotlib style"],
-                        "minflux": [0., "only measure flux above this value"],
-                        "getdata": [True, "return the plotted data values"]
+                        "getdata": [False, "print the plotted data values"]
                         }
 
 # curve of growth

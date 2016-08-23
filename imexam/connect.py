@@ -220,7 +220,7 @@ class Connect(object):
                         else:
                             self.exam.do_option(
                                 x, y, current_key)
-                            
+
                 except KeyError:
                     print(
                         "Invalid key, use\n: {0}".format(
@@ -499,8 +499,8 @@ class Connect(object):
         value: float, string, int, bool
             What the parameters value should be set to
 
-        Example
-        -------
+        Examples
+        --------
         set_plot_par('j','func','MexicanHat1D')
 
         where j is the key value during imexam
@@ -531,7 +531,7 @@ class Connect(object):
         if get_name:
             return self.exam.imexam_option_funcs['a'][0].__name__
         else:
-            return(self.exam.aperphot_pars)
+            return(self.exam.aper_phot_pars)
 
     def cimexam(self, get_name=False):
         """Show the current parameters for the 'c' key.

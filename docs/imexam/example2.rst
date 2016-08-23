@@ -7,7 +7,7 @@ Example 2
 Aperture Photometry
 -------------------
 * Perform manual aperture photometry on supplied image
-* Make curve of growth plot
+* Make curve of growth and radial profile plots
 * Save the profile data and plot to files.
 
 
@@ -18,15 +18,16 @@ Method 1
 Assuming we've already connected to the  window where the data is displayed with the object called "ds9";
 
 * This method first uses the "a" key to check out the aperture photometry with the default settings
-* Display a profile plot around the start we choose
+* Display a radial profile plot around the start we choose
 * Fine tune default curve of growth plot according to the object we'd like to examine
 * Make a new profile plot, print the plotted points to the screen, and save a copy of the plotting window for reference
 
-Here a picture of the area I'm looking at in my ds9 window ( created with viewer.snapsave(filename='photometry_subsection.jpg') )
+
+Here a picture of the area I'm looking at in my ds9 window ( created with viewer.grab() )
 
 .. image:: ../_static/photometry_subsection.png
-    :height: 400
-    :width: 600
+    :height: 600
+    :width: 500
     :alt: subsection of image being examined
 
 
@@ -55,31 +56,36 @@ Here a picture of the area I'm looking at in my ds9 window ( created with viewer
         y	return x,y coords of pixel
 
 
-        xc=813.109250	yc=706.437612
-        x	    y	    radius	flux	       mag(zpt=25.00)  sky	     fwhm
-        813.11	706.44	5	    1299406.51	   9.72	           11429.80	 4.83
+        Current image /Users/sosey/test_images/iacs01t4q_flt.fits
+        pressed: a, aper_phot
+        xc=462.688220	yc=377.288640
+        x              y              radius         flux           mag(zpt=25.00)    sky           fwhm
+        462.69         377.29         5              1743.99        16.90             0.72           1.71
 
 
         viewer.aimexam() # print out the parameters for aperture photometry, returns a dictionary which you can save and edit
 
 
-        {'function': ['aperphot'],
-         'center': [True, 'Center the object location using a 2D gaussian fit'],
-         'subsky': [True, 'Subtract a sky background?'],
-         'width': [5, 'Width of sky annulus in pixels'],
+        {'center': [True, 'Center the object location using a 2d gaussian fit'],
+         'function': ['aper_phot'],
          'radius': [5, 'Radius of aperture for star flux'],
          'skyrad': [15, 'Distance to start sky annulus is pixels'],
+         'subsky': [True, 'Subtract a sky background?'],
+         'width': [5, 'Width of sky annulus in pixels'],
          'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
 
-        ds9.imexam() #lets look at a curve of growth for the star in question
+        viewer.imexam() #lets look at a curve of growth for the star in question
 
-        xc=813.109250	yc=706.687612 <--printed because centering is turned on
+        pressed: g, curve_of_growth
+        xc=462.938220	yc=377.538640
+
+        at (x,y)=462,377
         radii:[1 2 3 4 5 6 7 8]
-        flux:[131647.90413345056, 498482.2347664542, 914397.81480508228, 1132799.3621327095, 1329352.9123961448, 1519686.5943709521, 1608342.6952771661, 1677361.8581732502]
+        flux:[406.65712375514534, 1288.8955810496341, 1634.0235081082126, 1684.5579429185905, 1718.118845192796, 1785.265260722455, 1801.8561084128257, 1823.21222063562]
 
 
-.. image:: ../_static/photometry_example_radplot.png
+.. image:: ../_static/photometry_example_cog.png
     :height: 400
     :width: 600
     :alt: curve of growth plot with defaults
@@ -184,7 +190,7 @@ Here a picture of the area I'm looking at in my DS9 window ( created with viewer
         Lets get some more aperture photometry at larger radii by resetting some of the "a" key values and saving the results to the log
 
             {'center': [True, 'Center the object location using a 2D gaussian fit'],
-            'function': ['aperphot'],
+            'function': ['aper_phot'],
             'radius': [5, 'Radius of aperture for star flux'],
             'skyrad': [15, 'Distance to start sky annulus is pixels'],
             'subsky': [True, 'Subtract a sky background?'],

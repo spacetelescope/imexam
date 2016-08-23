@@ -763,7 +763,8 @@ class ds9(object):
             [lock [true|false]]
             [open|close]
 
-         Example:
+         Examples
+         --------
             >obj.cmap(map="gist_heat")
             >obj.cmap(invert=True)
          """

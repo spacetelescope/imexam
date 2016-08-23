@@ -275,7 +275,7 @@ Now let's load the region file into our image:
 
 
 **reopen**\ ():
-    Reopen a closed viewing window
+    Reopen a closed viewing window, mostly used for ginga windows right now
 
 **rotate**\ (value=None, to=False):
     Rotate the current frame (in degrees)
@@ -287,7 +287,7 @@ Now let's load the region file into our image:
     Save an rgbimage frame as an MEF fits file
 
 **scale**\ (scale='zscale'):
-    Scale the pixel values in the window
+    Scale the pixel values in the window, zscale is the default
 
 **set_region**\ (region_string):
     Use this to send the DS9 viewer a formatted region string it's expecting

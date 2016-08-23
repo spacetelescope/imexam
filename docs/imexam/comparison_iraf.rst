@@ -119,7 +119,7 @@ By default, ``imexam`` prints the data point values to the screen.
     :width: 600
     :alt: IRAF radial plot
 
-.. image:: ../_static/radial_profile_plot.png
+.. image:: ../_static/radial_profile_points.png
     :height: 400
     :width: 600
     :alt: imexam Radial Profile Plot
