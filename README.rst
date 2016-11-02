@@ -32,7 +32,9 @@ To install using pip:
 
 ::
 
-    pip install imexam
+    pip install imexam   #installs from the most recent pypi binaries
+    
+    pip install git+https://github.com/spacetelescope/imexam  #installs from the current master on this repo
 
     pip install --upgrade imexam #if you already have an older version installed
 
