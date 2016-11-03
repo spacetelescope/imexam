@@ -133,11 +133,11 @@ You can also just load the plotting library and NOT connect to any viewer:
 
 ::
 
-    from imexam import Imexamine
+    from imexam.imexamine import Imexamine
     import numpy as np
 
-    plots = Imexamine()
-    data = np.random.rand(100,100) * np.ones((100,100))
+    plots = Imexamine()  #the plots object now has all available functions
+    data = np.random.rand(100,100) * np.ones((100,100)) #make some fake data 
     plots.plot_line(35,45,data) #shows a matplotlib window with a plot
     plots.save() #saves the current plot to file
     
