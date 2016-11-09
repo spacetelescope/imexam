@@ -164,7 +164,7 @@ More detailed examples can be found in the examples section of this documentatio
 Common Problems
 ---------------
 
-You're getting the following error statement when you try to connect() to a DS9 window, or display an image:
+You're getting the following error statement when you try to ``connect()`` to a DS9 window, or display an image:
 
 ::
 
@@ -177,16 +177,34 @@ You can first try using local unix sockets by setting your environment variable 
 
     setenv XPA_METHOD local
 
+or if you have a bash-like shell:
+::
+
+    export XPA_METHOD="local"
+    
+or if you want to do it from inside Python::
+
+    import os
+    os.environ['XPA_METHOD'] = "local"
 
 That will create local unix file sockets for communication with ds9. If that doesn't solve the problem, see if your path includes the location of xpans, the XPA name server. If you have it installed, but it's not on your path, put it there.
 
+Alternatively, if you're getting an error on calling ``connect()`` along the lines of::
+
+    Connection timeout with the ds9
+    
+you may want to force XPA to use the "inet" mode.  E.g.,
+::
+    setenv XPA_METHOD inet
+
+(Or similar based on the examples above)
 
 If you are having display issues, some build problems may exist with the dependency packages which deal with backend graphics, try setting your ``matplotlib`` backend to "Qt4Agg". You can set this in your .matplotlib/matplotlibrc file. Also when using the Qt4Agg you can set your environment variable ``QT_API`` to "pyqt".
 
-from your shel environment:
+from your shell::
 
-  ::
+    % export QT_API="pyqt"
+    
+or inside ~/.matplotlib/matplotlibrc::
 
-    > export QT_API="pyqt"
-    inside ~/.matplotlib/matplotlibrc:
-      backend: Qt4Agg
+  backend: Qt4Agg
