@@ -11,7 +11,6 @@ import logging
 import os
 import astropy
 
-
 from .util import set_logging
 from .ds9_viewer import ds9
 try:
@@ -95,13 +94,16 @@ class Connect(object):
             # self.window._reassign_keys(imexam_dict)
 
         self.logfile = 'imexam_log.txt'
-        self.log = None  # points to the package logger
+        self.log = set_logging()  # points to the package logger
         self._current_slice = None
         self._current_frame = None
 
-    def setlog(self, filename=None, on=True, level=logging.DEBUG):
-        """Turn on and off imexam logging to the a file."""
-        if filename:
+    def setlog(self, filename=None, on=True, level=logging.INFO):
+        """Turn on and off imexam logging to the a file.
+
+
+        """
+        if isinstance(filename, str):
             self.logfile = filename
 
         self.log = set_logging(self.logfile, on, level)
@@ -111,6 +113,8 @@ class Connect(object):
         # make sure all the plots are closed
         self.exam._close_plots()
         self.window.close()
+        #  close any open  handlers for logging
+        self.log = set_logging(on=False)
 
     def imexam(self):
         """Run imexamine loop with user interaction.
@@ -187,7 +191,6 @@ class Connect(object):
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
         cstring = "Current image {0}".format(self.get_data_filename(),)
-        logging.info(cstring)
         print(cstring)
 
         # set defaults
@@ -243,7 +246,7 @@ class Connect(object):
                         self.get_frame_info()['filename'],)
             except TypeError:
                 cstring = "\nuser array in frame"
-            logging.info(cstring)
+            self.log.info(cstring)
             print(cstring)
 
     def _check_slice(self):
@@ -471,7 +474,7 @@ class Connect(object):
 
     def _get_function_name(self, key=None):
         """Return the function and parname associated with the key."""
-        if not key:
+        if key is None:
             print("You need to specify the key-name for the function")
             return None
         if key in self.exam._reserved_keys:
@@ -657,7 +660,7 @@ class Connect(object):
 
     def plotname(self, filename=None):
         """Change or show the default save plotname for imexamine."""
-        if not filename:
+        if filename is None:
             self.exam.get_plot_name()  # show the current default
         else:
             if os.access(filename, os.F_OK):

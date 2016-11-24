@@ -89,6 +89,7 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
         self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
+        self.log = logging.getLogger('imexam.util')
 
     def _close_plots(self):
         """Make sure to release plot memory at end of exam loop."""
@@ -101,7 +102,7 @@ class Imexamine(object):
 
     def show_fit_models(self):
         """Print the available astropy models for plot fits."""
-        print("The available astropy models for fitting\
+        self.log.info("The available astropy models for fitting\
               are: {}".format(self._fit_models))
 
     def set_option_funcs(self):
@@ -156,7 +157,7 @@ class Imexamine(object):
             The key which was pressed
 
         """
-        print("pressed: {0}, {1:s}".format(key,self.imexam_option_funcs[key][0].__name__))
+        self.log.info("pressed: {0}, {1:s}".format(key,self.imexam_option_funcs[key][0].__name__))
         self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
@@ -199,7 +200,7 @@ class Imexamine(object):
 
     def get_plot_name(self):
         """return the default plot name."""
-        print(self.plot_name)
+        self.log.info(self.plot_name)
 
     def _define_default_pars(self):
         """set all pars to their defaults, stored in a file with dicts."""
@@ -258,7 +259,7 @@ class Imexamine(object):
             data = self._data
         self._figure_name = "imexam" + str(len(self._plot_windows) + 1)
         self._plot_windows.append(self._figure_name)
-        print("Plots now directed towards {0:s}".format(self._figure_name))
+        self.log.info("Plots now directed towards {0:s}".format(self._figure_name))
 
     def plot_line(self, x, y, data=None, fig=None):
         """line plot of data at point x.
@@ -376,8 +377,8 @@ class Imexamine(object):
         if data is None:
             data = self._data
         info = "{0} {1}  {2}".format(x, y, data[(y), (x)])
-        print(info)
-        logging.info(info)
+        #print(info)
+        self.log.info(info)
 
     def report_stat(self, x, y, data=None):
         """report the statisic of values in a box with side region_size.
@@ -422,8 +423,8 @@ class Imexamine(object):
             except AttributeError:
                 warnings.warn("Invalid stat specified")
 
-        print(pstr)
-        logging.info(pstr)
+        #print(pstr)
+        self.log.info(pstr)
 
     def save_figure(self, x, y, data=None):
         """Save to file the figure that's currently displayed.
@@ -447,8 +448,8 @@ class Imexamine(object):
         ax = fig.gca()
         plt.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
-        print(pstr)
-        logging.info(pstr)
+        #print(pstr)
+        self.log.info(pstr)
 
     def save(self, filename=None):
         """Save to file the figure that's currently displayed.
@@ -471,8 +472,8 @@ class Imexamine(object):
         ax = fig.gca()
         plt.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
-        print(pstr)
-        logging.info(pstr)
+        #print(pstr)
+        self.log.info(pstr)
 
     def aper_phot(self, x, y, data=None):
         """Perform aperture photometry.
@@ -561,8 +562,8 @@ class Imexamine(object):
                                                      total_flux, mag,
                                                      sky_per_pix,).expandtabs(15)
 
-            print(pheader + pstr)
-            logging.info(pheader + pstr)
+            #  print(pheader + pstr)
+            self.log.info(pheader + pstr)
 
     def line_fit(self, x, y, data=None, form=None,
                  fig=None, genplot=True):
@@ -614,7 +615,7 @@ class Imexamine(object):
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
                    yout > data.shape[0]):
-                        print("Problem with centering, using pixel coords")
+                        self.log.info("Problem with centering, using pixel coords")
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -643,7 +644,7 @@ class Imexamine(object):
             fitted.x_0.value += (xx-delta)
             fitted.y_0.value += (yy-delta)
         else:
-            print("{0:s} not implemented".format(fitform.name))
+            self.log.info("{0:s} not implemented".format(fitform.name))
             return
 
         xline = np.arange(len(chunk)) + xx - delta
@@ -680,30 +681,30 @@ class Imexamine(object):
                     title, fitted.amplitude.value, fitted.mean.value, fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmx)
-                print(pstr)
-                logging.info(pstr)
+                #print(pstr)
+                self.log.info(pstr)
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
-                print(pstr)
-                logging.info(pstr)
+                #print(pstr)
+                self.log.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                print(pstr)
-                logging.info(pstr)
+                #print(pstr)
+                self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
                 pstr = "({0:d},{1:d}) degree={2:d}".format(
                           int(x), int(y), degree)
-                print(pstr)
-                print(fitted.parameters)
-                logging.info(pstr)
+                #print(pstr)
+                self.log.info(fitted.parameters)
+                self.log.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
                 raise ValueError
@@ -771,7 +772,7 @@ class Imexamine(object):
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
                     yout > data.shape[0]):
-                        print("Problem with centering, using pixel coords")
+                        self.log.info("Problem with centering, using pixel coords")
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -794,7 +795,7 @@ class Imexamine(object):
             if fitted is None:
                 raise ValueError("Problem with the Poly1D fit")
         else:
-            print("{0:s} not implemented".format(fitform.name))
+            self.log.info("{0:s} not implemented".format(fitform.name))
             return
 
         yline = np.arange(len(chunk)) + yy - delta
@@ -831,29 +832,29 @@ class Imexamine(object):
                     title, fitted.amplitude.value, fitted.mean.value, fwhmy))
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmy)
-                print(pstr)
-                logging.info(pstr)
+                #print(pstr)
+                self.log.info(pstr)
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
-                print(pstr)
-                logging.info(pstr)
+                #print(pstr)
+                self.log.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                print(pstr)
-                logging.info(pstr)
+                #print(pstr)
+                self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
                 pstr = "({0:d},{1:d}) degree={2:d}".format(
                           int(x), int(y), degree)
-                print(pstr)
-                print(fitted)
+                self.log.info(pstr)
+                self.log.info(fitted)
             else:
                 warnings.warn("Unsupported functional form used in column_fit")
                 raise ValueError
@@ -905,12 +906,12 @@ class Imexamine(object):
             pstr = "xc={0:4f}\tyc={1:4f}".format(
                 (xcenter + x - delta),
                 (ycenter + y - delta))
-            print(pstr)
-            logging.info(pstr)
+            #print(pstr)
+            self.log.info(pstr)
             return amp, xcenter + x - delta, ycenter + y - delta, xsigma, ysigma
 
         except (RuntimeError, UserWarning) as e:
-            print("Warning: {0:s}, returning zeros for fit".format(str(e)))
+            self.log.info("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
     def radial_profile(self, x, y, data=None, form=None,
@@ -1003,19 +1004,19 @@ class Imexamine(object):
                 annulus_area = annulus_apertures.area()
                 sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                     annulus_area)
-                print("Background per pixel: {0:f}".format(sky_per_pix))
+                self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
                 if self.radial_profile_pars["pixels"][0]:
                     flux -= sky_per_pix
                 else:
                     flux -= np.bincount(r.ravel()) * sky_per_pix
                 if getdata:
-                    print("Sky per pixel: {0} using\
+                    self.log.info("Sky per pixel: {0} using\
                          (rad={1}->{2})".format(sky_per_pix,
                                                 inner, inner+width))
             if getdata:
                 info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
-                print(radius, flux)
-                logging.info(info)
+                self.log.info(info)
+                self.log.info(radius, flux)
 
             # finish the plot
             if genplot:
@@ -1042,7 +1043,7 @@ class Imexamine(object):
 
                 # over plot a gaussian fit to the data
                 if bool(self.radial_profile_pars["fitplot"][0]):
-                    print("Fit overlay not yet implemented")
+                    self.log.info("Fit overlay not yet implemented")
 
                 if 'nbagg' not in get_backend().lower():
                     plt.draw()
@@ -1114,8 +1115,8 @@ class Imexamine(object):
                 rapert = np.arange(1, rapert, 1)
                 info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
                     int(centerx), int(centery), rapert, flux)
-                print(info)
-                logging.info(info)
+                #print(info)
+                self.log.info(info)
             if genplot:
                 if fig is None:
                     fig = plt.figure(self._figure_name)
@@ -1276,7 +1277,7 @@ class Imexamine(object):
         n, bins, patches = plt.hist(
                 flat_data, num_bins, range=[mini, maxi], normed=False,
                 facecolor='green', alpha=0.5, histtype='bar')
-        print("hist with {0} bins".format(num_bins))
+        self.log.info("hist with {0} bins".format(num_bins))
         if 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
@@ -1475,7 +1476,7 @@ class Imexamine(object):
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
-        print("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname))
+        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname))
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
@@ -1508,7 +1509,7 @@ class Imexamine(object):
                 self._add_user_function(user_funcs[key][0])
                 self.imexam_option_funcs[key] = (
                     self.__getattribute__(func_name), user_funcs[key][1])
-                print(
+                self.log.info(
                     "User function: {0:s} added to imexam options with \
                           key {1:s}".format(func_name, key))
 
