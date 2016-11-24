@@ -120,48 +120,61 @@ def display_xpa_help():
 
 # Set up logging ability for the user
 # consider making a private logging level for data retension
-def set_logging(filename=None, on=True, level=logging.DEBUG):
-    """Turn on or off logging to a file
-
-    Notes
-    -----
-    basicConfig defaults to opening the file in append mode
-    There's still an issue here that if the user deletes the
-    log file and then continues on with functions which log
-    information, no new file is opened again and nothing gets written
+def set_logging(filename=None, on=True, level=logging.INFO):
+    """Turn on or off logging
     """
+
+    formatter = logging.Formatter('\n%(funcName)s \n%(message)s')
+    root = logging.getLogger(__name__)
+    root.setLevel(level)
+    stream_attached = False
+    file_attached = False
+
     if on:
-        if not filename:
-            warnings.warn("No log filename specified")
-            raise ValueError
+        #  Try to avoid adding duplicate file handlers
+        if len(root.handlers) > 0:
+            for handler in root.handlers:
+                if isinstance(handler, logging.StreamHandler):
+                    stream_attached = True
+                    handler.setLevel(level)
+                if isinstance(handler, logging.FileHandler):
+                    file_attached = True
+                    raise ValueError("File for logging already specified")
+        else:
+            # to prevent warning in unhandled contexts and messages to stderr
+            root.addHandler(logging.NullHandler())
 
-        root = logging.getLogger(__name__)
-        logging.basicConfig(
-            filename=filename,
-            level=level,
-            format='\n%(funcName)s \n%(message)s',
-        )
-        stdout_handler = logging.StreamHandler(stream=sys.stdout)
-        stdout_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('\n%(funcName)s \n%(message)s')
-        stdout_handler.setFormatter(formatter)
+        if isinstance(filename, str) and not file_attached:
+            file_handler = logging.FileHandler(filename=filename,
+                                               mode='a',
+                                               delay=True)
+            file_handler.setLevel(logging.INFO)
+            file_handler.setFormatter(formatter)
+            print("Saving imexam commands to {0:s}".format(filename))
+            root.addHandler(file_handler)
 
-        root.addHandler(stdout_handler)
-        # to prevent warning in unhandled contexts
-        root.addHandler(logging.NullHandler())
+        if not stream_attached:
+            # set the stdout stream handler
+            stdout_handler = logging.StreamHandler(stream=sys.stdout)
+            stdout_handler.setLevel(logging.INFO)
+            stdout_handler.setFormatter(formatter)
+            root.addHandler(stdout_handler)
 
-        print("Saving imexam commands to {0:s}".format(filename))
-        return root
+    #  turning the logging off to the file
+    else:
+        for handler in root.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+                root.removeHandler(handler)
 
-    if not on:
-        logging.disable(logging.CRITICAL)  # basically turns off logging
+    return root
 
 
 def check_filetype(filename=None):
     """check the file to see if it is a multi-extension fits file
     or a simple fits image where the data and header are together
     """
-    if not filename:
+    if filename is None:
         raise ValueError("No filename provided")
     else:
         try:
