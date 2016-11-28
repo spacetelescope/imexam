@@ -37,6 +37,7 @@ except ImportError:
 
 from . import math_helper
 from . import imexam_defpars
+from .util import set_logging
 
 if sys.version_info.major < 3:
     PY3 = False
@@ -89,7 +90,26 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
         self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
-        self.log = logging.getLogger('imexam.util')
+
+        # see if the package logger was already started
+        self.log = logging.getLogger(__name__)
+        self.log = set_logging()
+
+    def setlog(self, filename=None, on=True, level=logging.INFO):
+            """Turn on and off logging to a logfile or the screen.
+
+            Parameters
+            ----------
+            filename: str, optional
+                Name of the  output file to record log information
+            on: bool, optional
+                True by default, turn the logging on or off
+            level: logging class, optional
+                set the level for logging messages, turn off screen messages
+                by setting to logging.CRITICAL
+
+            """
+            self.log = set_logging(filename, on, level)
 
     def _close_plots(self):
         """Make sure to release plot memory at end of exam loop."""
@@ -99,6 +119,7 @@ class Imexamine(object):
     def close(self):
         """For use with the Imexamine object standalone."""
         self._close_plots()
+        self.log = set_logging(on=False)
 
     def show_fit_models(self):
         """Print the available astropy models for plot fits."""
@@ -157,7 +178,7 @@ class Imexamine(object):
             The key which was pressed
 
         """
-        self.log.info("pressed: {0}, {1:s}".format(key,self.imexam_option_funcs[key][0].__name__))
+        self.log.debug("pressed: {0}, {1:s}".format(key, self.imexam_option_funcs[key][0].__name__))
         self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
@@ -182,7 +203,6 @@ class Imexamine(object):
     def set_data(self, data=np.zeros(0)):
         """initialize the data that imexamine uses."""
         self._data = data
-
 
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key.
@@ -261,7 +281,7 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         self.log.info("Plots now directed towards {0:s}".format(self._figure_name))
 
-    def plot_line(self, x, y, data=None, fig=None):
+    def plot_line(self, x, y, data=None):
         """line plot of data at point x.
 
         Parameters
@@ -276,8 +296,7 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-        if fig is None:
-            fig = plt.figure(self._figure_name)
+        fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -308,8 +327,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
-
-    def plot_column(self, x, y, data=None, fig=None):
+    def plot_column(self, x, y, data=None):
         """column plot of data at point y.
 
         Parameters
@@ -326,8 +344,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
-        if fig is None:
-            fig = plt.figure(self._figure_name)
+        fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -377,7 +394,6 @@ class Imexamine(object):
         if data is None:
             data = self._data
         info = "{0} {1}  {2}".format(x, y, data[(y), (x)])
-        #print(info)
         self.log.info(info)
 
     def report_stat(self, x, y, data=None):
@@ -423,7 +439,6 @@ class Imexamine(object):
             except AttributeError:
                 warnings.warn("Invalid stat specified")
 
-        #print(pstr)
         self.log.info(pstr)
 
     def save_figure(self, x, y, data=None):
@@ -446,9 +461,8 @@ class Imexamine(object):
             data = self._data
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
-        plt.savefig(self.plot_name)
+        fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
-        #print(pstr)
         self.log.info(pstr)
 
     def save(self, filename=None):
@@ -470,9 +484,8 @@ class Imexamine(object):
 
         fig = plt.figure(self._figure_name)
         ax = fig.gca()
-        plt.savefig(self.plot_name)
+        fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
-        #print(pstr)
         self.log.info(pstr)
 
     def aper_phot(self, x, y, data=None):
@@ -565,8 +578,7 @@ class Imexamine(object):
             #  print(pheader + pstr)
             self.log.info(pheader + pstr)
 
-    def line_fit(self, x, y, data=None, form=None,
-                 fig=None, genplot=True):
+    def line_fit(self, x, y, data=None, form=None, genplot=True):
         """compute the 1D fit to the line of data using the specified form.
 
         Parameters
@@ -658,8 +670,7 @@ class Imexamine(object):
             title = self.line_fit_pars["title"][0]
 
         if genplot:
-            if fig is None:
-                fig = plt.figure(self._figure_name)
+            fig = plt.figure(self._figure_name)
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
@@ -677,39 +688,37 @@ class Imexamine(object):
 
             if fitform.name is "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
-                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
+                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, \
+                             fwhm={3:9.2f}".format(
                     title, fitted.amplitude.value, fitted.mean.value, fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmx)
-                #print(pstr)
                 self.log.info(pstr)
             elif fitform.name is "Moffat1D":
-                mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
+                mfwhm = math_helper.mfwhm(fitted.alpha.value,
+                                          fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
-                #print(pstr)
                 self.log.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                #print(pstr)
                 self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
                 pstr = "({0:d},{1:d}) degree={2:d}".format(
                           int(x), int(y), degree)
-                #print(pstr)
                 self.log.info(fitted.parameters)
                 self.log.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
                 raise ValueError
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
-            plt.legend()
+            ax.legend()
 
             if 'nbagg' not in get_backend().lower():
                 plt.draw()
@@ -719,8 +728,7 @@ class Imexamine(object):
         else:
             return fitted
 
-    def column_fit(self, x, y, data=None, form=None,
-                   fig=None, genplot=True):
+    def column_fit(self, x, y, data=None, form=None, genplot=True):
         """Compute the 1d  fit to the column of data.
 
         Parameters
@@ -809,8 +817,7 @@ class Imexamine(object):
 
         # make a plot
         if genplot:
-            if fig is None:
-                fig = plt.figure(self._figure_name)
+            fig = plt.figure(self._figure_name)
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
@@ -832,7 +839,6 @@ class Imexamine(object):
                     title, fitted.amplitude.value, fitted.mean.value, fwhmy))
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmy)
-                #print(pstr)
                 self.log.info(pstr)
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
@@ -840,14 +846,12 @@ class Imexamine(object):
                     title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
-                #print(pstr)
                 self.log.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                #print(pstr)
                 self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
@@ -860,7 +864,7 @@ class Imexamine(object):
                 raise ValueError
 
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
-            plt.legend()
+            ax.legend()
             if 'nbagg' not in get_backend().lower():
                 plt.draw()
                 plt.pause(0.001)
@@ -906,7 +910,6 @@ class Imexamine(object):
             pstr = "xc={0:4f}\tyc={1:4f}".format(
                 (xcenter + x - delta),
                 (ycenter + y - delta))
-            #print(pstr)
             self.log.info(pstr)
             return amp, xcenter + x - delta, ycenter + y - delta, xsigma, ysigma
 
@@ -914,8 +917,7 @@ class Imexamine(object):
             self.log.info("Warning: {0:s}, returning zeros for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def radial_profile(self, x, y, data=None, form=None,
-                       fig=None, genplot=True):
+    def radial_profile(self, x, y, data=None, form=None, genplot=True):
         """Display the radial profile plot (intensity vs radius) for the object.
 
         From the parameters Dictionary:
@@ -1020,8 +1022,7 @@ class Imexamine(object):
 
             # finish the plot
             if genplot:
-                if fig is None:
-                    fig = plt.figure(self._figure_name)
+                fig = plt.figure(self._figure_name)
                 fig.clf()
                 fig.add_subplot(111)
                 ax = fig.gca()
@@ -1053,7 +1054,7 @@ class Imexamine(object):
             else:
                 return radius, flux
 
-    def curve_of_growth(self, x, y, data=None, fig=None, genplot=True):
+    def curve_of_growth(self, x, y, data=None, genplot=True):
         """Display a curve of growth plot.
 
         the object photometry is from photutils
@@ -1115,16 +1116,16 @@ class Imexamine(object):
                 rapert = np.arange(1, rapert, 1)
                 info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
                     int(centerx), int(centery), rapert, flux)
-                #print(info)
                 self.log.info(info)
             if genplot:
-                if fig is None:
-                    fig = plt.figure(self._figure_name)
+                fig = plt.figure(self._figure_name)
                 fig.clf()
                 fig.add_subplot(111)
                 ax = fig.gca()
                 if self.curve_of_growth_pars["title"][0] is None:
-                    title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
+                    title = "{0}: {1} {2}".format(self._datafile,
+                                                  int(x),
+                                                  int(y))
                 else:
                     title = self.curve_of_growth_pars["title"][0]
 
@@ -1209,7 +1210,7 @@ class Imexamine(object):
             return (
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
-    def histogram(self, x, y, data=None, fig=None):
+    def histogram(self, x, y, data=None):
         """plot a histogram of the pixel values.
 
 
@@ -1225,8 +1226,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
-        if fig is None:
-            fig = plt.figure(self._figure_name)
+        fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -1284,7 +1284,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
-    def contour(self, x, y, data=None, fig=None):
+    def contour(self, x, y, data=None):
         """plot contours in a region around the specified location.
 
         Parameters
@@ -1299,8 +1299,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
-        if fig is None:
-            fig = plt.figure(self._figure_name)
+        fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -1345,7 +1344,7 @@ class Imexamine(object):
             fig.canvas.draw()
 
 
-    def surface(self, x, y, data=None, fig=None):
+    def surface(self, x, y, data=None):
         """plot a surface around the specified location.
 
         Parameters
@@ -1364,8 +1363,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
-        if fig is None:
-            fig = plt.figure(self._figure_name)
+        fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
@@ -1448,7 +1446,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
-    def cutout(self, x, y, data=None, fig=None, size=None):
+    def cutout(self, x, y, data=None, size=None):
         """Make a fits cutout around the pointer location without wcs.
 
         Parameters
@@ -1525,7 +1523,7 @@ class Imexamine(object):
     def showplt(self):
         """Show the plot."""
         buf = StringIO.StringIO()
-        plt.savefig(buf, bbox_inches=0)
+        fig.savefig(buf, bbox_inches=0)
         img = Image(data=bytes(buf.getvalue()),
                     format='png', embed=True)
         buf.close()

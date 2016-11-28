@@ -121,7 +121,20 @@ def display_xpa_help():
 # Set up logging ability for the user
 # consider making a private logging level for data retension
 def set_logging(filename=None, on=True, level=logging.INFO):
-    """Turn on or off logging
+    """Turn on or off logging to file or stdout.
+
+    Parameters
+    ----------
+
+    filename: str, optional
+        name of the file for logging information
+    on: bool, optional
+        turn logging on or off, will close the file output
+        in order to turn off stdout logging, set the level
+        to logging.CRITICAL
+    level: logging, optional
+        the logging level to be recorded or displayed
+
     """
 
     formatter = logging.Formatter('\n%(funcName)s \n%(message)s')
@@ -139,7 +152,8 @@ def set_logging(filename=None, on=True, level=logging.INFO):
                     handler.setLevel(level)
                 if isinstance(handler, logging.FileHandler):
                     file_attached = True
-                    raise ValueError("File for logging already specified")
+                    raise ValueError("File for logging already specified,\
+                                      turn off logging first.")
         else:
             # to prevent warning in unhandled contexts and messages to stderr
             root.addHandler(logging.NullHandler())
@@ -160,12 +174,16 @@ def set_logging(filename=None, on=True, level=logging.INFO):
             stdout_handler.setFormatter(formatter)
             root.addHandler(stdout_handler)
 
-    #  turning the logging off to the file
+    #  turning the logging off to the file and set level on stream handle
     else:
         for handler in root.handlers:
+            # close the file logger
             if isinstance(handler, logging.FileHandler):
                 handler.close()
                 root.removeHandler(handler)
+            # set stream logging level
+            if isinstance(handler, logging.StreamHandler):
+                handler.setLevel(level)
 
     return root
 

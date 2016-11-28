@@ -81,11 +81,16 @@ class Connect(object):
 
         if 'ds9' in self._viewer:
             self.window = ds9(
-                target=target, path=path, wait_time=wait_time, quit_ds9_on_del=quit_window)
+                target=target,
+                path=path,
+                wait_time=wait_time,
+                quit_ds9_on_del=quit_window)
             self._event_driven_exam = False  # use the imexam loop
 
         elif 'ginga' in self._viewer:
-            self.window = ginga(exam=self.exam, close_on_del=quit_window, port=port)
+            self.window = ginga(exam=self.exam,
+                                close_on_del=quit_window,
+                                port=port)
             # the viewer will track imexam with callbacks
             self._event_driven_exam = True
 
@@ -93,19 +98,26 @@ class Connect(object):
             # if you want to change key+function associations
             # self.window._reassign_keys(imexam_dict)
 
-        self.logfile = 'imexam_log.txt'
+        self.logfile = 'imexam_log.txt'  # default logfile name
         self.log = set_logging()  # points to the package logger
         self._current_slice = None
         self._current_frame = None
 
     def setlog(self, filename=None, on=True, level=logging.INFO):
-        """Turn on and off imexam logging to the a file.
+        """Turn on and off logging to a logfile or the screen.
 
+        Parameters
+        ----------
+        filename: str, optional
+            Name of the  output file to record log information
+        on: bool, optional
+            True by default, turn the logging on or off
+        level: logging class, optional
+            set the level for logging messages, turn off screen messages
+            by setting to logging.CRITICAL
 
         """
-        if isinstance(filename, str):
-            self.logfile = filename
-
+        self.logfile = filename
         self.log = set_logging(self.logfile, on, level)
 
     def close(self):
@@ -459,7 +471,7 @@ class Connect(object):
         one will be added. I haven't tested this yet for multiarray data
         """
         self.exam._datafile = "array"
-        if isinstance(args[0],astropy.nddata.nddata.NDData):
+        if isinstance(args[0], astropy.nddata.nddata.NDData):
             self.window.view(args[0].data)  # when not specified
         else:
             self.window.view(*args, **kwargs)
@@ -652,7 +664,6 @@ class Connect(object):
             return self.exam.imexam_option_funcs['t'][0].__name__
         else:
             return(self.exam.cutout_pars)
-
 
     def unlearn(self):
         """Unlearn all the imexam parameters and reset to default."""
