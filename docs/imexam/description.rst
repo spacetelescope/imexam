@@ -181,7 +181,7 @@ or if you have a bash-like shell:
 ::
 
     export XPA_METHOD="local"
-    
+
 or if you want to do it from inside Python::
 
     import os
@@ -192,9 +192,10 @@ That will create local unix file sockets for communication with ds9. If that doe
 Alternatively, if you're getting an error on calling ``connect()`` along the lines of::
 
     Connection timeout with the ds9
-    
+
 you may want to force XPA to use the "inet" mode.  E.g.,
 ::
+
     setenv XPA_METHOD inet
 
 (Or similar based on the examples above)
@@ -204,7 +205,7 @@ If you are having display issues, some build problems may exist with the depende
 from your shell::
 
     % export QT_API="pyqt"
-    
+
 or inside ~/.matplotlib/matplotlibrc::
 
   backend: Qt4Agg
