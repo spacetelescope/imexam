@@ -99,10 +99,12 @@ class Imexamine(object):
         """For use with the Imexamine object standalone."""
         self._close_plots()
 
-    def show_fit_models(self):
+    def show_fit_models(self, out_f=None):
         """Print the available astropy models for plot fits."""
+        if out_f is None:
+            out_f = sys.stdout
         print("The available astropy models for fitting\
-              are: {}".format(self._fit_models))
+              are: {}".format(self._fit_models), file=out_f)
 
     def set_option_funcs(self):
         """Define the dictionary which maps imexam keys to their functions.
@@ -133,12 +135,15 @@ class Imexamine(object):
                                     't': (self.cutout, 'Make a fits image cutout using pointer location')
                                     }
 
-    def print_options(self):
+    def print_options(self, out_f=None):
         """Print the imexam options to screen."""
+        if out_f is None:
+            out_f = sys.stdout
         keys = self.get_options()
         for key in keys:
-            print("%s\t%s" % (key, self.option_descrip(key)))
-        print()
+            print("%s\t%s" % (key, self.option_descrip(key)),
+                  file=out_f)
+        print(file=out_f)
 
     def do_option(self, x, y, key):
         """Run the imexam option.
@@ -275,6 +280,7 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        pfig = fig
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
@@ -301,7 +307,7 @@ class Imexamine(object):
         else:
             ax.plot(data[y, :])
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
@@ -325,6 +331,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
+        pfig = fig
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
@@ -353,13 +360,13 @@ class Imexamine(object):
         else:
             ax.plot(data[:, x])
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
             fig.canvas.draw()
 
-    def show_xy_coords(self, x, y, data=None):
+    def show_xy_coords(self, x, y, data=None, out_f=None):
         """print the x,y,value to the screen.
 
         Parameters
@@ -371,15 +378,16 @@ class Imexamine(object):
         data: numpy array
             The data array to work on
 
-
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
         info = "{0} {1}  {2}".format(x, y, data[(y), (x)])
-        print(info)
+        print(info, file=out_f)
         logging.info(info)
 
-    def report_stat(self, x, y, data=None):
+    def report_stat(self, x, y, data=None, out_f=None):
         """report the statisic of values in a box with side region_size.
 
         The statistic can be any numpy function
@@ -396,6 +404,8 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
 
         region_size = self.report_stat_pars["region_size"][0]
         name = self.report_stat_pars["stat"][0]
@@ -422,10 +432,10 @@ class Imexamine(object):
             except AttributeError:
                 warnings.warn("Invalid stat specified")
 
-        print(pstr)
+        print(pstr, file=out_f)
         logging.info(pstr)
 
-    def save_figure(self, x, y, data=None):
+    def save_figure(self, x, y, data=None, fig=None, out_f=None):
         """Save to file the figure that's currently displayed.
 
         this is used for the imexam loop, because there is a standard api
@@ -443,14 +453,17 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-        fig = plt.figure(self._figure_name)
+        if out_f is None:
+            out_f = sys.stdout
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         ax = fig.gca()
-        plt.savefig(self.plot_name)
+        fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
-        print(pstr)
+        print(pstr, file=out_f)
         logging.info(pstr)
 
-    def save(self, filename=None):
+    def save(self, filename=None, fig=None):
         """Save to file the figure that's currently displayed.
 
         this is used for the standalone plotting
@@ -467,14 +480,15 @@ class Imexamine(object):
         else:
             self.set_plot_name(self._figure_name + ".pdf")
 
-        fig = plt.figure(self._figure_name)
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         ax = fig.gca()
-        plt.savefig(self.plot_name)
+        fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
         print(pstr)
         logging.info(pstr)
 
-    def aper_phot(self, x, y, data=None):
+    def aper_phot(self, x, y, data=None, out_f=None):
         """Perform aperture photometry.
 
         uses photutils functions, photutils must be available
@@ -491,15 +505,18 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
 
         if not photutils_installed:
-            print("Install photutils to enable")
+            print("Install photutils to enable", file=out_f)
         else:
             if self.aper_phot_pars["center"][0]:
                 center = True
                 delta = 10
                 amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
-                                                             delta=delta)
+                                                             delta=delta,
+                                                             out_f=out_f)
 
             radius = int(self.aper_phot_pars["radius"][0])
             width = int(self.aper_phot_pars["width"][0])
@@ -561,11 +578,11 @@ class Imexamine(object):
                                                      total_flux, mag,
                                                      sky_per_pix,).expandtabs(15)
 
-            print(pheader + pstr)
+            print(pheader + pstr, file=out_f)
             logging.info(pheader + pstr)
 
     def line_fit(self, x, y, data=None, form=None,
-                 fig=None, genplot=True):
+                 fig=None, genplot=True, out_f=None):
         """compute the 1D fit to the line of data using the specified form.
 
         Parameters
@@ -591,6 +608,8 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
 
         if form is None:
             fitform = getattr(models, self.line_fit_pars["func"][0])
@@ -611,10 +630,11 @@ class Imexamine(object):
         if self.line_fit_pars["center"][0]:
             if fitform.name is not "Polynomial1D":
                 amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
-                                                                   delta=delta)
+                                                                   delta=delta,
+                                                                   out_f=out_f)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
                    yout > data.shape[0]):
-                        print("Problem with centering, using pixel coords")
+                        print("Problem with centering, using pixel coords", file=out_f)
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -643,7 +663,7 @@ class Imexamine(object):
             fitted.x_0.value += (xx-delta)
             fitted.y_0.value += (yy-delta)
         else:
-            print("{0:s} not implemented".format(fitform.name))
+            print("{0:s} not implemented".format(fitform.name), file=out_f)
             return
 
         xline = np.arange(len(chunk)) + xx - delta
@@ -657,6 +677,7 @@ class Imexamine(object):
             title = self.line_fit_pars["title"][0]
 
         if genplot:
+            pfig = fig
             if fig is None:
                 fig = plt.figure(self._figure_name)
             fig.clf()
@@ -680,7 +701,7 @@ class Imexamine(object):
                     title, fitted.amplitude.value, fitted.mean.value, fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmx)
-                print(pstr)
+                print(pstr, file=out_f)
                 logging.info(pstr)
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
@@ -688,29 +709,29 @@ class Imexamine(object):
                     title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
-                print(pstr)
+                print(pstr, file=out_f)
                 logging.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                print(pstr)
+                print(pstr, file=out_f)
                 logging.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
                 pstr = "({0:d},{1:d}) degree={2:d}".format(
                           int(x), int(y), degree)
-                print(pstr)
-                print(fitted.parameters)
+                print(pstr, file=out_f)
+                print(fitted.parameters, file=out_f)
                 logging.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
                 raise ValueError
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
-            plt.legend()
+            ax.legend()
 
-            if 'nbagg' not in get_backend().lower():
+            if pfig is None and 'nbagg' not in get_backend().lower():
                 plt.draw()
                 plt.pause(0.001)
             else:
@@ -719,7 +740,7 @@ class Imexamine(object):
             return fitted
 
     def column_fit(self, x, y, data=None, form=None,
-                   fig=None, genplot=True):
+                   fig=None, genplot=True, out_f=None):
         """Compute the 1d  fit to the column of data.
 
         Parameters
@@ -746,6 +767,8 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
 
         if form is None:
             fitform = getattr(models, self.column_fit_pars["func"][0])
@@ -768,10 +791,11 @@ class Imexamine(object):
         if self.column_fit_pars["center"][0]:
             if fitform.name is not "Polynomial1D":
                 amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
-                                                                   delta=delta)
+                                                                   delta=delta,
+                                                                   out_f=out_f)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
                     yout > data.shape[0]):
-                        print("Problem with centering, using pixel coords")
+                        print("Problem with centering, using pixel coords", file=out_f)
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -794,7 +818,7 @@ class Imexamine(object):
             if fitted is None:
                 raise ValueError("Problem with the Poly1D fit")
         else:
-            print("{0:s} not implemented".format(fitform.name))
+            print("{0:s} not implemented".format(fitform.name), file=out_f)
             return
 
         yline = np.arange(len(chunk)) + yy - delta
@@ -808,6 +832,7 @@ class Imexamine(object):
 
         # make a plot
         if genplot:
+            pfig = fig
             if fig is None:
                 fig = plt.figure(self._figure_name)
             fig.clf()
@@ -831,7 +856,7 @@ class Imexamine(object):
                     title, fitted.amplitude.value, fitted.mean.value, fwhmy))
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmy)
-                print(pstr)
+                print(pstr, file=out_f)
                 logging.info(pstr)
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
@@ -839,28 +864,28 @@ class Imexamine(object):
                     title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
-                print(pstr)
+                print(pstr, file=out_f)
                 logging.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                print(pstr)
+                print(pstr, file=out_f)
                 logging.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
                 pstr = "({0:d},{1:d}) degree={2:d}".format(
                           int(x), int(y), degree)
-                print(pstr)
-                print(fitted)
+                print(pstr, file=out_f)
+                print(fitted, file=out_f)
             else:
                 warnings.warn("Unsupported functional form used in column_fit")
                 raise ValueError
 
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
-            plt.legend()
-            if 'nbagg' not in get_backend().lower():
+            ax.legend()
+            if pfig is None and 'nbagg' not in get_backend().lower():
                 plt.draw()
                 plt.pause(0.001)
             else:
@@ -868,7 +893,7 @@ class Imexamine(object):
         else:
             return fitted
 
-    def gauss_center(self, x, y, data=None, delta=10):
+    def gauss_center(self, x, y, data=None, delta=10, out_f=None):
         """Return the 2d gaussian fit center of the data.
 
         Parameters
@@ -886,6 +911,8 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
 
         # reset delta for small arrays
         if delta >= len(data)/4:
@@ -905,16 +932,17 @@ class Imexamine(object):
             pstr = "xc={0:4f}\tyc={1:4f}".format(
                 (xcenter + x - delta),
                 (ycenter + y - delta))
-            print(pstr)
+            print(pstr, file=out_f)
             logging.info(pstr)
             return amp, xcenter + x - delta, ycenter + y - delta, xsigma, ysigma
 
         except (RuntimeError, UserWarning) as e:
-            print("Warning: {0:s}, returning zeros for fit".format(str(e)))
+            print("Warning: {0:s}, returning zeros for fit".format(str(e)),
+                  file=out_f)
             return (0, 0, 0, 0, 0)
 
     def radial_profile(self, x, y, data=None, form=None,
-                       fig=None, genplot=True):
+                       fig=None, genplot=True, out_f=None):
         """Display the radial profile plot (intensity vs radius) for the object.
 
         From the parameters Dictionary:
@@ -938,9 +966,12 @@ class Imexamine(object):
             Generate the plot if True, else return the fit data
 
         """
+        if out_f is None:
+            out_f = sys.stdout
+
         subtract_background = bool(self.radial_profile_pars["background"][0])
         if not photutils_installed and subtract_background:
-            print("Install photutils to enable background subtraction")
+            print("Install photutils to enable background subtraction", file=out_f)
             subtract_background = False
         else:
 
@@ -961,7 +992,7 @@ class Imexamine(object):
             if self.radial_profile_pars["center"][0]:
                 # pull out a small chunk to get the center defined
                 amp, centerx, centery, sigma, sigmay = \
-                    self.gauss_center(x, y, data, delta=delta)
+                    self.gauss_center(x, y, data, delta=delta, out_f=out_f)
             else:
                 centery = y
                 centerx = x
@@ -1003,7 +1034,8 @@ class Imexamine(object):
                 annulus_area = annulus_apertures.area()
                 sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                     annulus_area)
-                print("Background per pixel: {0:f}".format(sky_per_pix))
+                print("Background per pixel: {0:f}".format(sky_per_pix),
+                      file=out_f)
                 if self.radial_profile_pars["pixels"][0]:
                     flux -= sky_per_pix
                 else:
@@ -1011,14 +1043,16 @@ class Imexamine(object):
                 if getdata:
                     print("Sky per pixel: {0} using\
                          (rad={1}->{2})".format(sky_per_pix,
-                                                inner, inner+width))
+                                                inner, inner+width),
+                          file=out_f)
             if getdata:
                 info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
-                print(radius, flux)
+                print(radius, flux, file=out_f)
                 logging.info(info)
 
             # finish the plot
             if genplot:
+                pfig = fig
                 if fig is None:
                     fig = plt.figure(self._figure_name)
                 fig.clf()
@@ -1042,9 +1076,9 @@ class Imexamine(object):
 
                 # over plot a gaussian fit to the data
                 if bool(self.radial_profile_pars["fitplot"][0]):
-                    print("Fit overlay not yet implemented")
+                    print("Fit overlay not yet implemented", file=out_f)
 
-                if 'nbagg' not in get_backend().lower():
+                if pfig is None and 'nbagg' not in get_backend().lower():
                     plt.draw()
                     plt.pause(0.001)
                 else:
@@ -1052,7 +1086,8 @@ class Imexamine(object):
             else:
                 return radius, flux
 
-    def curve_of_growth(self, x, y, data=None, fig=None, genplot=True):
+    def curve_of_growth(self, x, y, data=None, fig=None, genplot=True,
+                        out_f=None):
         """Display a curve of growth plot.
 
         the object photometry is from photutils
@@ -1067,8 +1102,11 @@ class Imexamine(object):
             The data array to work on
 
         """
+        if out_f is None:
+            out_f = sys.stdout
+
         if not photutils_installed:
-            print("Install photutils to enable")
+            print("Install photutils to enable", file=out_f)
         else:
 
             if data is None:
@@ -1081,7 +1119,8 @@ class Imexamine(object):
             if self.curve_of_growth_pars["center"][0]:
                 # pull out a small chunk
                 amp, centerx, centery, sigma, sigmay = \
-                    self.gauss_center(x, y, data, delta=delta)
+                    self.gauss_center(x, y, data, delta=delta,
+                                      out_f=out_f)
             else:
                 centery = y
                 centerx = x
@@ -1100,7 +1139,8 @@ class Imexamine(object):
             for rad in range(1, rapert, 1):
                 aper_flux, annulus_sky, skysub_flux = self._aperture_phot(
                     centerx, centery, data, radsize=rad, sky_inner=inner,
-                    skywidth=width, method="exact", subpixels=subpixels)
+                    skywidth=width, method="exact", subpixels=subpixels,
+                    out_f=out_f)
                 radius.append(rad)
                 if self.curve_of_growth_pars["background"][0]:
                     if inner < router:
@@ -1114,9 +1154,10 @@ class Imexamine(object):
                 rapert = np.arange(1, rapert, 1)
                 info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
                     int(centerx), int(centery), rapert, flux)
-                print(info)
+                print(info, file=out_f)
                 logging.info(info)
             if genplot:
+                pfig = fig
                 if fig is None:
                     fig = plt.figure(self._figure_name)
                 fig.clf()
@@ -1131,7 +1172,7 @@ class Imexamine(object):
                 ax.set_ylabel(self.curve_of_growth_pars["ylabel"][0])
                 ax.plot(radius, flux, 'o')
                 ax.set_title(title)
-                if 'nbagg' in get_backend().lower():
+                if pfig is not None or 'nbagg' not in get_backend().lower():
                     fig.canvas.draw()
                 else:
                     plt.draw()
@@ -1141,7 +1182,8 @@ class Imexamine(object):
 
     def _aperture_phot(self, x, y, data=None, radsize=1,
                        sky_inner=5, skywidth=5,
-                       method="subpixel", subpixels=4):
+                       method="subpixel", subpixels=4,
+                       out_f=None):
         """Perform sky subtracted aperture photometry.
 
         uses photutils functions, photutil must be installed
@@ -1170,8 +1212,11 @@ class Imexamine(object):
         background is taken from sky annulus pixels, check into
         masking bad pixels
         """
+        if out_f is None:
+            out_f = sys.stdout
+
         if not photutils_installed:
-            print("Install photutils to enable")
+            print("Install photutils to enable", file=out_f)
         else:
 
             if data is None:
@@ -1208,7 +1253,7 @@ class Imexamine(object):
             return (
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
-    def histogram(self, x, y, data=None, fig=None):
+    def histogram(self, x, y, data=None, fig=None, out_f=None):
         """plot a histogram of the pixel values.
 
 
@@ -1223,7 +1268,10 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
 
+        pfig = fig
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
@@ -1273,11 +1321,12 @@ class Imexamine(object):
             mini = np.min(data_cut)
         num_bins = int(self.histogram_pars["nbins"][0])
 
-        n, bins, patches = plt.hist(
+        n, bins, patches = ax.hist(
                 flat_data, num_bins, range=[mini, maxi], normed=False,
                 facecolor='green', alpha=0.5, histtype='bar')
-        print("hist with {0} bins".format(num_bins))
-        if 'nbagg' not in get_backend().lower():
+        print("hist with {0} bins".format(num_bins), file=out_f)
+
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
@@ -1298,6 +1347,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
+        pfig = fig
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
@@ -1325,8 +1375,8 @@ class Imexamine(object):
 
         X, Y = np.meshgrid(np.arange(0, deltax, 0.5) + x - deltax / 2.,
                            np.arange(0, deltay, 0.5) + y - deltay / 2.)
-        plt.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
-        C = plt.contour(
+        ax.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
+        C = ax.contour(
             X,
             Y,
             data_cut,
@@ -1335,9 +1385,9 @@ class Imexamine(object):
             colors='black',
             linestyle=lsty)
         if self.contour_pars["label"][0]:
-            plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
+            ax.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
@@ -1363,6 +1413,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
+        pfig = fig
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
@@ -1441,13 +1492,13 @@ class Imexamine(object):
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
             fig.canvas.draw()
 
-    def cutout(self, x, y, data=None, fig=None, size=None):
+    def cutout(self, x, y, data=None, fig=None, size=None, out_f=None):
         """Make a fits cutout around the pointer location without wcs.
 
         Parameters
@@ -1464,6 +1515,8 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        if out_f is None:
+            out_f = sys.stdout
 
         if size is None:
             size = self.cutout_pars["size"][0]
@@ -1475,7 +1528,8 @@ class Imexamine(object):
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
-        print("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname))
+        print("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname),
+              file=out_f)
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
