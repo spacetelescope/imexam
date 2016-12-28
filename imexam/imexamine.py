@@ -49,7 +49,7 @@ else:
     PY3 = True
 
 # turn on interactive mode for plotting
-# plt.ion()
+plt.ion()
 
 # enable display plot in iPython notebook
 try:
