@@ -175,7 +175,7 @@ def set_logging(filename=None, on=True, level=logging.INFO):
             stdout_handler.setFormatter(formatter)
             root.addHandler(stdout_handler)
 
-    #  turning the logging off to the file and set level on stream handle
+    #  turning the logging off to the file and set level on stream handler
     else:
         for handler in root.handlers:
             # close the file logger
@@ -258,5 +258,5 @@ def verify_filename(filename=None, extver=None, extname=None, getshort=False):
         except IOError as e:
             print("Exception: {0}".format(e))
             raise IOError
-            
+
         return cstring
