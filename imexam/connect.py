@@ -269,7 +269,7 @@ class Connect(object):
             self._current_slice = this_slice
             cstring = "\nCurrent slice {0:s}".format(
                 self.get_frame_info()['naxis'],)
-            logging.info(cstring)
+            self.log.info(cstring)
             print(cstring)
 
     #  Implement the following functions in your viewer class

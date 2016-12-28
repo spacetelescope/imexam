@@ -19,21 +19,25 @@
 
 from __future__ import print_function, division, absolute_import
 
-import numpy as np
 import warnings
-import matplotlib.pyplot as plt
+import time
+import numpy as np
 import sys
 import logging
 import tempfile
-from astropy.io import fits
+import matplotlib.pyplot as plt
 from copy import deepcopy
+
 from matplotlib import get_backend
 from IPython.display import Image
+
+
+from astropy.io import fits
 from astropy.modeling import models
 try:
     from scipy import stats
 except ImportError:
-    print("Scipy not installed, describe stat unavailable")
+    self.log.warning("Scipy not installed, describe stat unavailable")
 
 from . import math_helper
 from . import imexam_defpars
@@ -57,9 +61,8 @@ try:
     import photutils
     photutils_installed = True
 except ImportError:
-    print(
-        "photutils not installed, photometry functionality \
-        in imexam() not available")
+    self.log.warning("photutils not installed, photometry functionality "
+          "in imexam() not available")
     photutils_installed = False
 
 __all__ = ["Imexamine"]
@@ -123,8 +126,8 @@ class Imexamine(object):
 
     def show_fit_models(self):
         """Print the available astropy models for plot fits."""
-        self.log.info("The available astropy models for fitting\
-              are: {}".format(self._fit_models))
+        self.log.info("The available astropy models for fitting"
+                      "are: {}".format(self._fit_models))
 
     def set_option_funcs(self):
         """Define the dictionary which maps imexam keys to their functions.
@@ -159,8 +162,7 @@ class Imexamine(object):
         """Print the imexam options to screen."""
         keys = self.get_options()
         for key in keys:
-            print("%s\t%s" % (key, self.option_descrip(key)))
-        print()
+            print("%s\t%s\n" % (key, self.option_descrip(key)))
 
     def do_option(self, x, y, key):
         """Run the imexam option.
@@ -213,17 +215,17 @@ class Imexamine(object):
           The name which is used to save the current plotting window to a file
           The extension on the name decides which file type is used
         """
-        if not filename:
+        if filename is None:
             warnings.warn("No filename provided")
         else:
             self.plot_name = filename
 
     def get_plot_name(self):
         """return the default plot name."""
-        self.log.info(self.plot_name)
+        return self.plot_name
 
     def _define_default_pars(self):
-        """set all pars to their defaults, stored in a file with dicts."""
+        """Set all pars to their defaults, stored in a file with dicts."""
         self.aper_phot_def_pars = imexam_defpars.aper_phot_pars
         self.radial_profile_def_pars = imexam_defpars.radial_profile_pars
         self.curve_of_growth_def_pars = imexam_defpars.curve_of_growth_pars
@@ -241,7 +243,7 @@ class Imexamine(object):
         self._define_local_pars()
 
     def _define_local_pars(self):
-        """set a copy of the default pars that users can alter."""
+        """Set a copy of the default pars that users can alter."""
         self.aper_phot_pars = deepcopy(self.aper_phot_def_pars)
         self.radial_profile_pars = deepcopy(self.radial_profile_def_pars)
         self.curve_of_growth_pars = deepcopy(self.curve_of_growth_def_pars)
@@ -258,10 +260,7 @@ class Imexamine(object):
         self.cutout_pars = deepcopy(self.cutout_def_pars)
 
     def unlearn_all(self):
-        """reset the default parameters for all functions.
-
-        Haven't decided how to reset the parameters for just one function yet
-        """
+        """reset the default parameters for all functions."""
         self._define_local_pars()
 
     def new_plot_window(self, x, y, data=None):
@@ -281,7 +280,7 @@ class Imexamine(object):
         self._plot_windows.append(self._figure_name)
         self.log.info("Plots now directed towards {0:s}".format(self._figure_name))
 
-    def plot_line(self, x, y, data=None):
+    def plot_line(self, x, y, data=None, fig=None):
         """line plot of data at point x.
 
         Parameters
@@ -292,14 +291,20 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
         """
         if data is None:
             data = self._data
-        fig = plt.figure(self._figure_name)
+        self.log.info("Line at {0} {1}".format(x, y))
+
+        pfig = fig
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
+
         if self.lineplot_pars["title"][0] is None:
             ax.set_title("{0:s} line at {1:d}".format(self._datafile, int(y)))
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
@@ -321,13 +326,13 @@ class Imexamine(object):
         else:
             ax.plot(data[y, :])
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
             fig.canvas.draw()
 
-    def plot_column(self, x, y, data=None):
+    def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y.
 
         Parameters
@@ -338,13 +343,16 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
-
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
         """
         if data is None:
             data = self._data
+        self.log.info("Column at {0} {1}".format(x, y))
 
-        fig = plt.figure(self._figure_name)
+        pfig = fig
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -371,7 +379,7 @@ class Imexamine(object):
         else:
             ax.plot(data[:, x])
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
@@ -441,7 +449,7 @@ class Imexamine(object):
 
         self.log.info(pstr)
 
-    def save_figure(self, x, y, data=None):
+    def save_figure(self, x, y, data=None, fig=None):
         """Save to file the figure that's currently displayed.
 
         this is used for the imexam loop, because there is a standard api
@@ -455,17 +463,19 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
         """
         if data is None:
             data = self._data
-        fig = plt.figure(self._figure_name)
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         ax = fig.gca()
         fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
 
-    def save(self, filename=None):
+    def save(self, filename=None, fig=None):
         """Save to file the figure that's currently displayed.
 
         this is used for the standalone plotting
@@ -475,14 +485,16 @@ class Imexamine(object):
         filename: string
             Name of the file the plot will be saved to. The extension
             on the filename determines the filetype
-
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
         """
         if filename:
             self.set_plot_name(filename)
         else:
             self.set_plot_name(self._figure_name + ".pdf")
 
-        fig = plt.figure(self._figure_name)
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         ax = fig.gca()
         fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
@@ -507,7 +519,7 @@ class Imexamine(object):
             data = self._data
 
         if not photutils_installed:
-            print("Install photutils to enable")
+            self.log.warning("Install photutils to enable")
         else:
             if self.aper_phot_pars["center"][0]:
                 center = True
@@ -560,8 +572,8 @@ class Imexamine(object):
             mag = magzero - 2.5 * (np.log10(total_flux))
 
             pheader = (
-                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\
-                 sky\t".format(magzero)).expandtabs(15)
+                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})"
+                 "sky\t".format(magzero)).expandtabs(15)
             if center:
                 pheader += ("fwhm")
                 pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\
@@ -578,7 +590,7 @@ class Imexamine(object):
             #  print(pheader + pstr)
             self.log.info(pheader + pstr)
 
-    def line_fit(self, x, y, data=None, form=None, genplot=True):
+    def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None):
         """compute the 1D fit to the line of data using the specified form.
 
         Parameters
@@ -594,6 +606,8 @@ class Imexamine(object):
             Currently Gaussian1D, Moffat1D, MexicanHat1D, Polynomial1D
         genplot: bool
             produce the plot or return the fit
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
 
         Notes
         -----
@@ -609,6 +623,7 @@ class Imexamine(object):
             fitform = getattr(models, self.line_fit_pars["func"][0])
         else:
             fitform = getattr(models, form)
+        self.log.info("using model: {0}".format(fitform))
 
         # Used for Polynomial1D fitting
         degree = int(self.line_fit_pars["order"][0])
@@ -627,7 +642,7 @@ class Imexamine(object):
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
                    yout > data.shape[0]):
-                        self.log.info("Problem with centering, using pixel coords")
+                        self.log.warning("Problem with centering, using pixel coords")
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -670,7 +685,9 @@ class Imexamine(object):
             title = self.line_fit_pars["title"][0]
 
         if genplot:
-            fig = plt.figure(self._figure_name)
+            pfig = fig
+            if fig is None:
+                fig = plt.figure(self._figure_name)
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
@@ -688,8 +705,8 @@ class Imexamine(object):
 
             if fitform.name is "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
-                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, \
-                             fwhm={3:9.2f}".format(
+                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f},"
+                             "fwhm={3:9.2f}".format(
                     title, fitted.amplitude.value, fitted.mean.value, fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmx)
@@ -720,15 +737,16 @@ class Imexamine(object):
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             ax.legend()
 
-            if 'nbagg' not in get_backend().lower():
+            if pfig is None and 'nbagg' not in get_backend().lower():
                 plt.draw()
                 plt.pause(0.001)
             else:
                 fig.canvas.draw()
+
         else:
             return fitted
 
-    def column_fit(self, x, y, data=None, form=None, genplot=True):
+    def column_fit(self, x, y, data=None, form=None, genplot=True, fig=None):
         """Compute the 1d  fit to the column of data.
 
         Parameters
@@ -743,6 +761,8 @@ class Imexamine(object):
             This is the functional form specified in the column fit parameters
         genplot: int
             produce the plot or return the fit model
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
 
         Notes
         -----
@@ -755,20 +775,16 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-
         if form is None:
             fitform = getattr(models, self.column_fit_pars["func"][0])
         else:
             fitform = getattr(models, form)
 
-
-        # Used for Polynomial1D fitting
+        #  Used for Polynomial1D fitting
         degree = int(self.column_fit_pars["order"][0])
-
         delta = int(self.column_fit_pars["rplot"][0])
         if delta >= len(data)/4:
             delta = int(delta/2)
-
 
         # fit the center with a 2d gaussian
         xx = int(x)
@@ -779,8 +795,9 @@ class Imexamine(object):
                 amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
-                    yout > data.shape[0]):
-                        self.log.info("Problem with centering, using pixel coords")
+                        yout > data.shape[0]):
+                        self.log.info("Problem with centering, "
+                                      "using pixel coords")
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -817,7 +834,9 @@ class Imexamine(object):
 
         # make a plot
         if genplot:
-            fig = plt.figure(self._figure_name)
+            pfig = fig
+            if fig is None:
+                fig = plt.figure(self._figure_name)
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
@@ -865,7 +884,8 @@ class Imexamine(object):
 
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             ax.legend()
-            if 'nbagg' not in get_backend().lower():
+
+            if pfig is None and 'nbagg' not in get_backend().lower():
                 plt.draw()
                 plt.pause(0.001)
             else:
@@ -911,13 +931,19 @@ class Imexamine(object):
                 (xcenter + x - delta),
                 (ycenter + y - delta))
             self.log.info(pstr)
-            return amp, xcenter + x - delta, ycenter + y - delta, xsigma, ysigma
+            return (amp,
+                    xcenter + x - delta,
+                    ycenter + y - delta,
+                    xsigma,
+                    ysigma)
 
         except (RuntimeError, UserWarning) as e:
-            self.log.info("Warning: {0:s}, returning zeros for fit".format(str(e)))
+            self.log.info("Warning: {0:s}, returning zeros "
+                          "for fit".format(str(e)))
             return (0, 0, 0, 0, 0)
 
-    def radial_profile(self, x, y, data=None, form=None, genplot=True):
+    def radial_profile(self, x, y, data=None, form=None,
+                       genplot=True, fig=None):
         """Display the radial profile plot (intensity vs radius) for the object.
 
         From the parameters Dictionary:
@@ -943,14 +969,14 @@ class Imexamine(object):
         """
         subtract_background = bool(self.radial_profile_pars["background"][0])
         if not photutils_installed and subtract_background:
-            print("Install photutils to enable background subtraction")
+            self.log.warning("Install photutils to enable background subtraction")
             subtract_background = False
         else:
 
             if data is None:
                 data = self._data
 
-            if not form:
+            if form is None:
                 form = getattr(models,
                                self.radial_profile_pars["fittype"][0])
 
@@ -1012,9 +1038,9 @@ class Imexamine(object):
                 else:
                     flux -= np.bincount(r.ravel()) * sky_per_pix
                 if getdata:
-                    self.log.info("Sky per pixel: {0} using\
-                         (rad={1}->{2})".format(sky_per_pix,
-                                                inner, inner+width))
+                    self.log.info("Sky per pixel: {0} using "
+                                  "(rad={1}->{2})".format(sky_per_pix,
+                                                          inner, inner+width))
             if getdata:
                 info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
                 self.log.info(info)
@@ -1022,7 +1048,9 @@ class Imexamine(object):
 
             # finish the plot
             if genplot:
-                fig = plt.figure(self._figure_name)
+                pfig = fig
+                if fig is None:
+                    fig = plt.figure(self._figure_name)
                 fig.clf()
                 fig.add_subplot(111)
                 ax = fig.gca()
@@ -1046,18 +1074,17 @@ class Imexamine(object):
                 if bool(self.radial_profile_pars["fitplot"][0]):
                     self.log.info("Fit overlay not yet implemented")
 
-                if 'nbagg' not in get_backend().lower():
+                if pfig is None and 'nbagg' not in get_backend().lower():
                     plt.draw()
                     plt.pause(0.001)
                 else:
                     fig.canvas.draw()
+
             else:
                 return radius, flux
 
-    def curve_of_growth(self, x, y, data=None, genplot=True):
+    def curve_of_growth(self, x, y, data=None, genplot=True, fig=None):
         """Display a curve of growth plot.
-
-        the object photometry is from photutils
 
         Parameters
         ----------
@@ -1067,10 +1094,16 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
+
+        Notes
+        -----
+        the object photometry is taken from photutils
 
         """
         if not photutils_installed:
-            print("Install photutils to enable")
+            self.log.warning("Install photutils to enable")
         else:
 
             if data is None:
@@ -1118,7 +1151,9 @@ class Imexamine(object):
                     int(centerx), int(centery), rapert, flux)
                 self.log.info(info)
             if genplot:
-                fig = plt.figure(self._figure_name)
+                pfig = fig
+                if fig is None:
+                    fig = plt.figure(self._figure_name)
                 fig.clf()
                 fig.add_subplot(111)
                 ax = fig.gca()
@@ -1133,11 +1168,13 @@ class Imexamine(object):
                 ax.set_ylabel(self.curve_of_growth_pars["ylabel"][0])
                 ax.plot(radius, flux, 'o')
                 ax.set_title(title)
-                if 'nbagg' in get_backend().lower():
-                    fig.canvas.draw()
-                else:
+
+                if pfig is None and 'nbagg' not in get_backend().lower():
                     plt.draw()
                     plt.pause(0.001)
+                else:
+                    fig.canvas.draw()
+
             else:
                 return rapert, flux
 
@@ -1173,7 +1210,7 @@ class Imexamine(object):
         masking bad pixels
         """
         if not photutils_installed:
-            print("Install photutils to enable")
+            self.log.warning("Install photutils to enable")
         else:
 
             if data is None:
@@ -1210,41 +1247,39 @@ class Imexamine(object):
             return (
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
-    def histogram(self, x, y, data=None):
-        """plot a histogram of the pixel values.
-
+    def histogram(self, x, y, data=None, genplot=True, fig=None):
+        """Calulate a histogram of the data values.
 
         Parameters
         ----------
-        x: int
+        x: int, required
             The x location of the object
-        y: int
+        y: int, required
             The y location of the object
-        data: numpy array
+        data: numpy array, optional
             The data array to work on
+        genplot: boolean, optional
+            If false, returns the hist, bin_edges tuple
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
+
+        Notes
+        -----
+        This functional originally used the pylab histogram routine for
+        plotting. In order to accomodate returning just the histogram data,
+        this was changed to the numpy histogram, with a subsequent plot if
+        genplot is True.
+
+        Does not yet support numpy v1.11 strings for bin estimation.
+
         """
         if data is None:
             data = self._data
 
-        fig = plt.figure(self._figure_name)
-        fig.clf()
-        fig.add_subplot(111)
-        ax = fig.gca()
-        if self.histogram_pars["title"][0] is None:
-            title = "{0}: {1} {2}".format(self._datafile,int(x),int(y))
-        else:
-            title = self.histogram_pars["title"][0]
-        ax.set_title(title)
-        ax.set_xlabel(self.histogram_pars["xlabel"][0])
-        ax.set_ylabel(self.histogram_pars["ylabel"][0])
-        if self.histogram_pars["logx"][0]:
-            ax.set_xscale("log")
-        if self.histogram_pars["logy"][0]:
-            ax.set_yscale("log")
         deltax = int(self.histogram_pars["ncolumns"][0] / 2.)
         deltay = int(self.histogram_pars["nlines"][0] / 2.)
-        yf=int(y)
-        xf=int(x)
+        yf = int(y)
+        xf = int(x)
 
         data_cut = data[yf - deltay:yf + deltay, xf - deltax:xf + deltax]
 
@@ -1259,9 +1294,6 @@ class Imexamine(object):
         else:
             maxi = np.max(data_cut)
 
-        # ltb=np.array(len(data_cut)*[True],bool)
-        # gtb=np.array(len(data_cut)*[True],bool)
-
         lt = (data_cut < maxi)
         gt = (data_cut > mini)
 
@@ -1274,17 +1306,45 @@ class Imexamine(object):
             mini = np.min(data_cut)
         num_bins = int(self.histogram_pars["nbins"][0])
 
-        n, bins, patches = plt.hist(
-                flat_data, num_bins, range=[mini, maxi], normed=False,
-                facecolor='green', alpha=0.5, histtype='bar')
-        self.log.info("hist with {0} bins".format(num_bins))
-        if 'nbagg' not in get_backend().lower():
-            plt.draw()
-            plt.pause(0.001)
-        else:
-            fig.canvas.draw()
+        if genplot:
+            pfig = fig
+            if fig is None and genplot:
+                fig = plt.figure(self._figure_name)
+            fig.clf()
+            fig.add_subplot(111)
+            ax = fig.gca()
+            if self.histogram_pars["title"][0] is None:
+                title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
+            else:
+                title = self.histogram_pars["title"][0]
+            ax.set_title(title)
+            ax.set_xlabel(self.histogram_pars["xlabel"][0])
+            ax.set_ylabel(self.histogram_pars["ylabel"][0])
 
-    def contour(self, x, y, data=None):
+            if self.histogram_pars["logx"][0]:
+                ax.set_xscale("log")
+            if self.histogram_pars["logy"][0]:
+                ax.set_yscale("log")
+            n, bins, patches = ax.hist(
+                    flat_data, num_bins, range=[mini, maxi], normed=False,
+                    facecolor='green', alpha=0.5, histtype='bar')
+            self.log.info("{0} bins "
+                          "range:[{1},{2}]".format(num_bins, mini, maxi))
+
+            if pfig is None and 'nbagg' not in get_backend().lower():
+                plt.draw()
+                plt.pause(0.001)
+            else:
+                fig.canvas.draw()
+
+        else:
+            hist, bin_edges = np.histogram(flat_data,
+                                           num_bins,
+                                           range=[mini, maxi],
+                                           normed=False)
+            return hist, bin_edges
+
+    def contour(self, x, y, data=None, fig=None):
         """plot contours in a region around the specified location.
 
         Parameters
@@ -1295,11 +1355,16 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
+        fig: figure name for redirect
+            Used for interaction with the ginga GUI
+
         """
         if data is None:
             data = self._data
 
-        fig = plt.figure(self._figure_name)
+        pfig = fig
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
@@ -1310,23 +1375,23 @@ class Imexamine(object):
         ax.set_title(title)
         ax.set_xlabel(self.contour_pars["xlabel"][0])
         ax.set_ylabel(self.contour_pars["ylabel"][0])
-
-        deltax = int(self.contour_pars["ncolumns"][0] / 2.)
-        deltay = int(self.contour_pars["nlines"][0] / 2.)
-        xx=int(x)
-        yy=int(y)
-        data_cut = data[yy - deltay:yy + deltay, xx - deltax:xx + deltax]
-
-        plt.rcParams['xtick.direction'] = 'out'
-        plt.rcParams['ytick.direction'] = 'out'
         ncont = self.contour_pars["ncontours"][0]
         colormap = self.contour_pars["cmap"][0]
         lsty = self.contour_pars["linestyle"][0]
 
+        self.log.info("contour centered at: {0} {1}".format(x, y))
+        deltax = int(self.contour_pars["ncolumns"][0] / 2.)
+        deltay = int(self.contour_pars["nlines"][0] / 2.)
+        xx = int(x)
+        yy = int(y)
+        data_cut = data[yy - deltay:yy + deltay, xx - deltax:xx + deltax]
+        plt.rcParams['xtick.direction'] = 'out'
+        plt.rcParams['ytick.direction'] = 'out'
+
         X, Y = np.meshgrid(np.arange(0, deltax, 0.5) + x - deltax / 2.,
                            np.arange(0, deltay, 0.5) + y - deltay / 2.)
-        plt.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
-        C = plt.contour(
+
+        C = ax.contour(
             X,
             Y,
             data_cut,
@@ -1334,17 +1399,18 @@ class Imexamine(object):
             linewidth=.5,
             colors='black',
             linestyle=lsty)
+        # make the filled contour
+        ax.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
         if self.contour_pars["label"][0]:
-            plt.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
+            ax.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
             fig.canvas.draw()
 
-
-    def surface(self, x, y, data=None):
+    def surface(self, x, y, data=None, fig=None):
         """plot a surface around the specified location.
 
         Parameters
@@ -1362,8 +1428,9 @@ class Imexamine(object):
 
         if data is None:
             data = self._data
-
-        fig = plt.figure(self._figure_name)
+        pfig = fig
+        if fig is None:
+            fig = plt.figure(self._figure_name)
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
@@ -1440,13 +1507,13 @@ class Imexamine(object):
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
 
-        if 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
             plt.pause(0.001)
         else:
             fig.canvas.draw()
 
-    def cutout(self, x, y, data=None, size=None):
+    def cutout(self, x, y, data=None, size=None, fig=None):
         """Make a fits cutout around the pointer location without wcs.
 
         Parameters
@@ -1508,8 +1575,8 @@ class Imexamine(object):
                 self.imexam_option_funcs[key] = (
                     self.__getattribute__(func_name), user_funcs[key][1])
                 self.log.info(
-                    "User function: {0:s} added to imexam options with \
-                          key {1:s}".format(func_name, key))
+                    "User function: {0:s} added to imexam options with "
+                    "key {1:s}".format(func_name, key))
 
     @classmethod
     def _add_user_function(cls, func):
@@ -1523,7 +1590,7 @@ class Imexamine(object):
     def showplt(self):
         """Show the plot."""
         buf = StringIO.StringIO()
-        fig.savefig(buf, bbox_inches=0)
+        plt.savefig(buf, bbox_inches=0)
         img = Image(data=bytes(buf.getvalue()),
                     format='png', embed=True)
         buf.close()
