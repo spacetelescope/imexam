@@ -49,7 +49,7 @@ else:
     PY3 = True
 
 # turn on interactive mode for plotting
-plt.ion()
+# plt.ion()
 
 # enable display plot in iPython notebook
 try:
@@ -162,7 +162,7 @@ class Imexamine(object):
         """Print the imexam options to screen."""
         keys = self.get_options()
         for key in keys:
-            print("%s\t%s\n" % (key, self.option_descrip(key)))
+            print("%s\t%s" % (key, self.option_descrip(key)))
 
     def do_option(self, x, y, key):
         """Run the imexam option.
