@@ -60,14 +60,26 @@ class ginga_general(object):
     def __init__(self, exam=None, close_on_del=True, logger=None, port=None):
         """initialize a general ginga viewer object.
 
-        Notes
-        -----
-        Ginga viewers all need a logger, if none is provided it will create one
+        Parameters
+        ----------
 
-        The port option is for use in the Jupyter notebook since the server
-        displays the image to a distict port. The user can choose to have
-        multiple windows open at the same time as long as they have different
-        ports. If no port is specified, this class will choose an open port.
+        exam: imexam object
+            This is the imexamine object which contains the examination
+            functions
+
+        close_on_del: bool
+            If True, the window connection shuts down when the object is
+            deleted
+
+        logger: logger object
+            Ginga viewers all need a logger, if none is provided it will
+            create one
+
+        port: int
+            This is used as the communication port for the HTML5 viewer. The
+            user can choose to have multiple windows open at the same time
+            as long as they have different port designations. If no port is
+            specified, this class will choose an open port.
 
         """
         global _matplotlib_cmaps_added
@@ -195,10 +207,25 @@ class ginga_general(object):
                        image=None):
         """Set the name and extension information for the data displayed.
 
-        also gather header information.
+        Parameters
+        ----------
+        fname: string
+            The filename of the image
+
+        hdu: int
+            The extension to pull the image from
+
+        data: numpy array
+            if data is specified, then the array is used instead of the file
+
+        image: AstroImage object
+            Image object taken from Ginga
 
         Notes
         -----
+        This function also gathers important image header information.
+        This function may need some more update to make it uniform for
+        the package.
         """
         # check the current frame, if none exists, then don't continue
         frame = self._current_frame
@@ -938,7 +965,7 @@ class ginga(ginga_general):
         try:
             backend_check = get_ipython().config
         except NameError:
-            backend_check = []
+            backend_check = {}
         no_ioloop = False  # ipython terminal
         if 'IPKernelApp' in backend_check:
             no_ioloop = True  # jupyter console and notebook

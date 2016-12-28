@@ -42,13 +42,14 @@ def find_xpans():
 
 def list_active_ds9(verbose=True):
     """
-    Display and/or return information about the DS9 windows currently registered
-    with XPA.
+    Display and/or return information about the DS9 windows currently
+    registered with the XPA.
 
     Parameters
     ----------
     verbose : bool
-        If True, prints out all the information about what DS9 windows are active.
+        If True, prints out all the information about what DS9 windows
+        are active.
 
     Returns
     -------
@@ -92,7 +93,7 @@ def list_active_ds9(verbose=True):
 
 
 def display_help():
-    """Display RTD html help in a browser window"""
+    """Display RTD html help for the installed verison in a browser window."""
     url = "http://imexam.readthedocs.io/"
     try:
         import webbrowser
@@ -189,8 +190,16 @@ def set_logging(filename=None, on=True, level=logging.INFO):
 
 
 def check_filetype(filename=None):
-    """check the file to see if it is a multi-extension fits file
-    or a simple fits image where the data and header are together
+    """Check the file to see if it is a multi-extension FITS file
+    or a simple fits image where the data and header are stored in
+    the global unit.
+
+    Parameters
+    ----------
+    filename: string
+        The name of the file to check
+
+
     """
     if filename is None:
         raise ValueError("No filename provided")
@@ -199,26 +208,35 @@ def check_filetype(filename=None):
             mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
         except KeyError:
             mef_file = False
-
-        # check to see if the fits file lies
-        if mef_file:
-            try:
-                nextend = fits.getval(filename, ext=0, keyword='NEXTEND')
-            except KeyError:
-                mef_file = False
-
         return mef_file
 
 
-def verify_filename(fname="", extver=None, extname=None, getshort=False):
+def verify_filename(filename=None, extver=None, extname=None, getshort=False):
     """
     Verify the filename exists and check to see if the
     user has given extension, extension name or some combination
+
+    Parameters
+    ----------
+    filename: string
+        The name of the file to verify
+
+    extver: int
+        extsion number which corresponds to extname
+
+    extname: string
+        the name of the extension
+
+    getshort: bool
+        If True, return just the name of the file
+
     """
 
-    if fname:
+    if filename is None:
+        print("No filename provided")
+    else:
         # see if the image is MEF or Simple
-        fname = os.path.abspath(fname)
+        fname = os.path.abspath(filename)
         try:
             # strip the extensions for now
             shortname = fname.split("[")[0]
@@ -240,7 +258,5 @@ def verify_filename(fname="", extver=None, extname=None, getshort=False):
         except IOError as e:
             print("Exception: {0}".format(e))
             raise IOError
-
+            
         return cstring
-    else:
-        print("No filename provided")

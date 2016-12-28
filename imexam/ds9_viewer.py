@@ -251,10 +251,6 @@ class ds9(object):
     def _set_frameinfo(self):
         """Set the name and extension for the data displayed in current frame.
 
-        also gather header information
-        It's possible the user has an array in the frame, for which there is no
-        header or filename information
-
         Notes
         -----
         The absolute path reference is stored to make XPA happy in all cases,
@@ -269,8 +265,13 @@ class ds9(object):
 
         If you load a single extension from an MEF into DS9, XPA references
         the extension as 1 afterwards for access points you need to look in
-        the header of the displayed image to find out what the actual extension
-        that is loaded
+        the header of the displayed image to find out what actual extension
+        is loaded
+
+        This also also gathers needed image header information
+        It's possible the user has an array in the frame, for which there is no
+        header or filename information
+
         """
         # check the current frame, if none exists, then don't continue
         frame = self.frame()
