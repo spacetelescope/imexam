@@ -1,6 +1,6 @@
 """Licensed under a 3-clause BSD style license - see LICENSE.rst.
 
-Make sure that the plots in imexamine are working as expected.
+Make sure that the basic plots in imexamine are working as expected.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -53,30 +53,19 @@ def test_line_plot():
     plt.close()
 
 
-def test_xy_coords(capsys):
-    """Make sure xy coords are printed with the correct location and value."""
-    plots = Imexamine()
-    plots.set_data(test_data)
-    out_text = """50 50  3.0"""
-    plots.show_xy_coords(50, 50)
-    out, err = capsys.readouterr()
-    assert (out.strip() == out_text)
-
-
 @pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_aper_phot(capsys):
-    """Make sure aper phot executes and returns expected text."""
-    out_text = """xc=49.500000	yc=49.500000
-x              y              radius         flux           mag(zpt=25.00)                 sky           fwhm
-49.50          49.50          5              134.73         19.68                         1.34           27.54
-"""
-    plots = Imexamine()
-    plots.set_data(test_data)
-    plots.aper_phot(50, 50)
-    out, err = capsys.readouterr()
-    print(out)
-    print(out_text)
-    assert out == out_text
+    """Check that apertures are as expected from photutils"""
+    apertures = photutils.CircularAperture((50, 50), 5)
+    aperture_area = apertures.area()
+    assert_equal(aperture_area, 78.53981633974483)
+    rawflux_table = photutils.aperture_photometry(
+        test_data,
+        apertures,
+        subpixels=1,
+        method="center")
+    total_flux = float(rawflux_table['aperture_sum'][0])
+    assert_equal(total_flux, 207.)
 
 
 def test_line_fit():

@@ -1,12 +1,24 @@
+version 0.6.3
+-------------
+- Logging was updated to allow for more user control of the log files. Additionally, most prints were moved to the stdout stream handler so that users could also shut off messages to the screen
+- The imexamine class was refactored so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
+- A dictionary is now returned to the user when they request information on the active DS9 windows which are available.
+- Tests updated to interact with new logging, had to change them for specific values
+
+version 0.6.2 (released)
+------------------------
+- Unbinned radial plots were added
+- documentation updates
+
 version 0.6dev (unreleased)
 ---------------------------
-- Ginga viewer support for images in matplotlib and QT backend removed, but replaced with HTML5 canvas viewer which is faster and simpler for users to both use and install. 
+- Ginga viewer support for images in matplotlib and QT backend removed, but replaced with HTML5 canvas viewer which is faster and simpler for users to both use and install.
 - replaced custom fits with astropy.modeling, enabling Gaussian2d, Gaussian1d, Moffat1D and MexicanHat1D fits for lines and centering
 - General bug fixes and documentation updates, including example jupyter notebooks
 - Updated the default title display on plots to use the image name or specify an array was used
 - added astropy_helpers as a submodule
 - made xpa a submodule
-- if users pass an nddata object to view()  without a data reference it assumes one, but you can always specify which extension 
+- if users pass an nddata object to view()  without a data reference it assumes one, but you can always specify which extension
 - added better user access function for changing plotting/function parameters used to make plots
 - updated to Read The Docs new site name
 - replaced ipython dependency in the docs build with jupyter
@@ -21,8 +33,8 @@ version 0.5.3dev (unreleased)
 
 version 0.5.2 (released)
 ------------------------
- - windows build change 
- 
+ - windows build change
+
 
 version 0.5.1 (released)
 -----------------------
@@ -60,17 +72,17 @@ version 0.3.dev (unreleased)
 
 - restructured how the code tracks what is in the viewer. It used to track just the
   current frame, now it keeps a dictionary of what's loaded into the viewer which also
-  contains some specifics about the data in each respective frame. This was necessary to 
+  contains some specifics about the data in each respective frame. This was necessary to
   allow user display and tracking of arrays, but also is a nicer way to store the information
   and give users access to more details about the viewer in general if they are scripting something
-  themselves. 
-  
-- the logging method dropped a reference in one of the last commits, this was fixed and logging the 
+  themselves.
+
+- the logging method dropped a reference in one of the last commits, this was fixed and logging the
   session to a file for reference should be functioning correctly again.
 
 - fixed an internal tracking problem in cases where the user loaded files through the gui and then
   immediately issued the imexam() command. The viewer information for the object had not been updated in
-  between because it waits for a call to the window before checking - I added this check to the top of 
+  between because it waits for a call to the window before checking - I added this check to the top of
   imexam function.
 
 version 0.2.dev (unreleased)
@@ -80,7 +92,7 @@ version 0.2.dev (unreleased)
 
 - added support for x-D image cubes. They display, and are correctly tracked through
   the imexam loop. Several new functions were added to support this.
-  
+
 - fixed the zoom(int) bug, you can supply an int or string to the zoom function and it will be happy
 
 

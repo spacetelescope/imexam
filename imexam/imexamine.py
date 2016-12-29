@@ -20,7 +20,6 @@
 from __future__ import print_function, division, absolute_import
 
 import warnings
-import time
 import numpy as np
 import sys
 import logging
@@ -36,7 +35,7 @@ from astropy.modeling import models
 try:
     from scipy import stats
 except ImportError:
-    self.log.warning("Scipy not installed, describe stat unavailable")
+    print("Scipy not installed, describe stat unavailable")
 
 from . import math_helper
 from . import imexam_defpars
@@ -61,7 +60,7 @@ try:
     photutils_installed = True
 except ImportError:
     self.log.warning("photutils not installed, photometry functionality "
-          "in imexam() not available")
+                     "in imexam() not available")
     photutils_installed = False
 
 __all__ = ["Imexamine"]
@@ -95,7 +94,6 @@ class Imexamine(object):
         # see if the package logger was already started
         self.log = logging.getLogger(__name__)
         self.log = set_logging()
-
 
     def setlog(self, filename=None, on=True, level=logging.INFO):
             """Turn on and off logging to a logfile or the screen.
@@ -330,7 +328,6 @@ class Imexamine(object):
             plt.pause(0.001)
         else:
             fig.canvas.draw()
-
 
     def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y.
@@ -570,7 +567,7 @@ class Imexamine(object):
 
             pheader = (
                 "x\ty\tradius\tflux\tmag(zpt={0:0.2f})"
-                 "sky\t".format(magzero)).expandtabs(15)
+                "sky\t".format(magzero)).expandtabs(15)
             if center:
                 pheader += ("fwhm")
                 pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\
@@ -704,8 +701,10 @@ class Imexamine(object):
             if fitform.name is "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f},"
-                             "fwhm={3:9.2f}".format(
-                    title, fitted.amplitude.value, fitted.mean.value, fwhmx))
+                             "fwhm={3:9.2f}".format(title,
+                                                    fitted.amplitude.value,
+                                                    fitted.mean.value,
+                                                    fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmx)
                 self.log.info(pstr)
@@ -740,7 +739,6 @@ class Imexamine(object):
                 plt.pause(0.001)
             else:
                 fig.canvas.draw()
-
 
         else:
             return fitted
@@ -860,7 +858,8 @@ class Imexamine(object):
                     int(x), int(y), fitted.mean.value, fwhmy)
                 self.log.info(pstr)
             elif fitform.name is "Moffat1D":
-                mfwhm = math_helper.mfwhm(fitted.alpha.value, fitted.gamma.value)
+                mfwhm = math_helper.mfwhm(fitted.alpha.value,
+                                          fitted.gamma.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
                     title, fitted.amplitude.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
@@ -1006,7 +1005,7 @@ class Imexamine(object):
 
             if self.radial_profile_pars["pixels"][0]:
                 r = np.sqrt((x - datasize+(centerx-icenterx))**2 +
-                    (y - datasize + (centery-icentery))**2)
+                            (y - datasize + (centery-icentery))**2)
                 indices = np.argsort(r.flat)  # sorted indices
                 radius = r.flat[indices]
                 flux = data_chunk.flat[indices]
@@ -1081,9 +1080,6 @@ class Imexamine(object):
                     plt.pause(0.001)
                 else:
                     fig.canvas.draw()
-
-
-
             else:
                 return radius, flux
 
@@ -1342,8 +1338,6 @@ class Imexamine(object):
                 plt.pause(0.001)
             else:
                 fig.canvas.draw()
-
-
         else:
             hist, bin_edges = np.histogram(flat_data,
                                            num_bins,
@@ -1522,7 +1516,6 @@ class Imexamine(object):
             plt.pause(0.001)
         else:
             fig.canvas.draw()
-
 
     def cutout(self, x, y, data=None, size=None, fig=None):
         """Make a fits cutout around the pointer location without wcs.
