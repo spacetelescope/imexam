@@ -25,12 +25,11 @@ import numpy as np
 import sys
 import logging
 import tempfile
-import matplotlib.pyplot as plt
 from copy import deepcopy
 
+import matplotlib.pyplot as plt
 from matplotlib import get_backend
 from IPython.display import Image
-
 
 from astropy.io import fits
 from astropy.modeling import models
@@ -89,7 +88,6 @@ class Imexamine(object):
         self._plot_windows = list()
         # this contains the name of the current plotting window
         self._figure_name = "imexam"
-
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
         self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
@@ -97,6 +95,7 @@ class Imexamine(object):
         # see if the package logger was already started
         self.log = logging.getLogger(__name__)
         self.log = set_logging()
+
 
     def setlog(self, filename=None, on=True, level=logging.INFO):
             """Turn on and off logging to a logfile or the screen.
@@ -291,7 +290,7 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-        fig: figure name for redirect
+        fig: figure object for redirect
             Used for interaction with the ginga GUI
         """
         if data is None:
@@ -332,6 +331,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
+
     def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y.
 
@@ -356,6 +356,7 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
+
         if self.colplot_pars["title"][0] is None:
             ax.set_title("{0:s} column at {1:d}".format(self._datafile, int(x)))
         else:
@@ -396,8 +397,6 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
-
         """
         if data is None:
             data = self._data
@@ -417,7 +416,6 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
         """
         if data is None:
             data = self._data
@@ -463,14 +461,13 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-        fig: figure name for redirect
+        fig: figure for redirect
             Used for interaction with the ginga GUI
         """
         if data is None:
             data = self._data
         if fig is None:
-            fig = plt.figure(self._figure_name)
-        ax = fig.gca()
+                fig, ax = self._create_figure()
         fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
@@ -494,8 +491,8 @@ class Imexamine(object):
             self.set_plot_name(self._figure_name + ".pdf")
 
         if fig is None:
-            fig = plt.figure(self._figure_name)
-        ax = fig.gca()
+                fig, ax = self._create_figure()
+        fig.clf()
         fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
@@ -606,7 +603,7 @@ class Imexamine(object):
             Currently Gaussian1D, Moffat1D, MexicanHat1D, Polynomial1D
         genplot: bool
             produce the plot or return the fit
-        fig: figure name for redirect
+        fig: figure for redirect
             Used for interaction with the ginga GUI
 
         Notes
@@ -691,6 +688,7 @@ class Imexamine(object):
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
+
             ax.set_xlabel(self.line_fit_pars["xlabel"][0])
             ax.set_ylabel(self.line_fit_pars["ylabel"][0])
             if self.line_fit_pars["logx"][0]:
@@ -742,6 +740,7 @@ class Imexamine(object):
                 plt.pause(0.001)
             else:
                 fig.canvas.draw()
+
 
         else:
             return fitted
@@ -840,6 +839,7 @@ class Imexamine(object):
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
+
             ax.set_xlabel(self.column_fit_pars["xlabel"][0])
             ax.set_ylabel(self.column_fit_pars["ylabel"][0])
             if self.column_fit_pars["logx"][0]:
@@ -890,6 +890,7 @@ class Imexamine(object):
                 plt.pause(0.001)
             else:
                 fig.canvas.draw()
+
         else:
             return fitted
 
@@ -1054,6 +1055,7 @@ class Imexamine(object):
                 fig.clf()
                 fig.add_subplot(111)
                 ax = fig.gca()
+
                 if self.radial_profile_pars["title"][0] is None:
                     title = "{0}: {1} {2}".format(self._datafile,
                                                   icenterx, icentery)
@@ -1079,6 +1081,8 @@ class Imexamine(object):
                     plt.pause(0.001)
                 else:
                     fig.canvas.draw()
+
+
 
             else:
                 return radius, flux
@@ -1157,6 +1161,7 @@ class Imexamine(object):
                 fig.clf()
                 fig.add_subplot(111)
                 ax = fig.gca()
+
                 if self.curve_of_growth_pars["title"][0] is None:
                     title = "{0}: {1} {2}".format(self._datafile,
                                                   int(x),
@@ -1308,11 +1313,12 @@ class Imexamine(object):
 
         if genplot:
             pfig = fig
-            if fig is None and genplot:
+            if fig is None:
                 fig = plt.figure(self._figure_name)
             fig.clf()
             fig.add_subplot(111)
             ax = fig.gca()
+
             if self.histogram_pars["title"][0] is None:
                 title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
             else:
@@ -1337,6 +1343,7 @@ class Imexamine(object):
             else:
                 fig.canvas.draw()
 
+
         else:
             hist, bin_edges = np.histogram(flat_data,
                                            num_bins,
@@ -1355,7 +1362,7 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-        fig: figure name for redirect
+        fig: figure for redirect
             Used for interaction with the ginga GUI
 
         """
@@ -1368,6 +1375,7 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca()
+
         if self.contour_pars["title"][0] is None:
             title = "{0} {1} {2}".format(self._datafile, int(x), int(y))
         else:
@@ -1421,7 +1429,8 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
+        fig: figure for redirect
+            Used for interaction with the ginga GUI
         """
         from mpl_toolkits.mplot3d import Axes3D
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
@@ -1434,6 +1443,7 @@ class Imexamine(object):
         fig.clf()
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
+
         if self.surface_pars["title"][0] is None:
             title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
             ax.set_title(title)
@@ -1513,6 +1523,7 @@ class Imexamine(object):
         else:
             fig.canvas.draw()
 
+
     def cutout(self, x, y, data=None, size=None, fig=None):
         """Make a fits cutout around the pointer location without wcs.
 
@@ -1526,7 +1537,8 @@ class Imexamine(object):
             The data array to work on
         size: int
             The radius of the cutout region
-
+        fig: figure for redirect
+            Used for interaction with the ginga GUI
         """
         if data is None:
             data = self._data
