@@ -117,7 +117,8 @@ class Connect(object):
             by setting to logging.CRITICAL
 
         """
-        self.logfile = filename
+        if filename is not None:
+            self.logfile = filename
         self.log = set_logging(self.logfile, on, level)
 
     def close(self):
