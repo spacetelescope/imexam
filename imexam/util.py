@@ -172,7 +172,7 @@ def set_logging(filename=None, on=True, level=logging.INFO):
             # set the stdout stream handler
             stdout_handler = logging.StreamHandler(stream=sys.stdout)
             stdout_handler.setLevel(logging.INFO)
-            stdout_handler.setFormatter(formatter)
+            #stdout_handler.setFormatter(formatter)
             root.addHandler(stdout_handler)
 
     #  turning the logging off to the file and set level on stream handler
