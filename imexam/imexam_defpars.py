@@ -48,7 +48,7 @@ radial_profile_pars = {"function": ["radial_profile", ],
 curve_of_growth_pars = {"function": ["curve_of_growth", ],
                         "title": [None, "Title of the plot"],
                         "xlabel": ["radius", "The string for the xaxis label"],
-                        "ylabel": ["Flux", "The string for the yaxis label"],
+                        "ylabel": ["Encircled Flux", "The string for the yaxis label"],
                         "center": [True, "Solve for center using 2d Gaussian? [bool]"],
                         "background": [True, "Fit and subtract background? [bool]"],
                         "buffer": [25., "Background inner radius in pixels,from center of star"],
@@ -75,7 +75,7 @@ surface_pars = {"function": ["surface", ],
                 "floor": [None, "Minimum value to be contoured"],
                 "ceiling": [None, "Maximum value to be contoured"],
                 "stride": [1, "step size, higher vals will have less contour"],
-                "cmap": ["RdBu", "colormap (matplotlib) for display"],
+                "cmap": ["viridis", "colormap (matplotlib) for display"],
                 "fancy": [True, "This aint your grandpas iraf"],
                 }
 
@@ -123,7 +123,7 @@ contour_pars = {"function": ["contour", ],
                 "ncontours": [8, "Number of contours to be drawn"],
                 "linestyle": ["--", "matplotlib linestyle"],
                 "label": [True, "Label major contours with their values? [bool]"],
-                "cmap": ["RdBu", "Colormap (matplotlib style) for image"],
+                "cmap": ["viridis", "Colormap (matplotlib style) for image"],
                 }
 
 # histogram of values contained in a box
