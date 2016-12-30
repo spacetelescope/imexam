@@ -463,8 +463,10 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
+        pfig = fig
         if fig is None:
-                fig, ax = self._create_figure()
+            fig = plt.figure(self._figure_name)
+        ax = fig.gca()
         fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
@@ -487,9 +489,10 @@ class Imexamine(object):
         else:
             self.set_plot_name(self._figure_name + ".pdf")
 
+        pfig = fig
         if fig is None:
-                fig, ax = self._create_figure()
-        fig.clf()
+            fig = plt.figure(self._figure_name)
+        ax = fig.gca()
         fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
@@ -1438,9 +1441,10 @@ class Imexamine(object):
         fig.add_subplot(111)
         ax = fig.gca(projection='3d')
 
-        if self.surface_pars["title"][0] is None:
+        title = self.surface_pars["title"][0]
+        if title is None:
             title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
-            ax.set_title(title)
+        ax.set_title(title)
         ax.set_xlabel(self.surface_pars["xlabel"][0])
         ax.set_ylabel(self.surface_pars["ylabel"][0])
         if self.surface_pars["zlabel"][0]:
