@@ -397,7 +397,7 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-        info = "{0} {1}  {2}".format(x, y, data[(y), (x)])
+        info = "{0} {1}  {2}".format(x, y, data[int(y), int(x)])
         self.log.info(info)
 
     def report_stat(self, x, y, data=None):
@@ -635,11 +635,12 @@ class Imexamine(object):
         # fit the center with a 2d gaussian
         if self.line_fit_pars["center"][0]:
             if fitform.name is not "Polynomial1D":
-                amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
+                amp, xout, yout, sigma, sigmay = self.gauss_center(xx, yy, data,
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
                    yout > data.shape[0]):
-                        self.log.warning("Problem with centering, using pixel coords")
+                        self.log.warning("Problem with centering, "
+                                         "pixel coords")
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -920,8 +921,10 @@ class Imexamine(object):
             delta = delta/2
 
         delta = int(delta)
+        xx=int(x)
+        yy=int(y)
         #  flipped from xpa
-        chunk = data[y - delta:y + delta, x - delta:x + delta]
+        chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
         try:
             fit = math_helper.gauss_center(chunk)
             amp = fit.amplitude.value
@@ -931,12 +934,12 @@ class Imexamine(object):
             ysigma = fit.y_stddev.value
 
             pstr = "xc={0:4f}\tyc={1:4f}".format(
-                (xcenter + x - delta),
-                (ycenter + y - delta))
+                (xcenter + xx - delta),
+                (ycenter + yy - delta))
             self.log.info(pstr)
             return (amp,
-                    xcenter + x - delta,
-                    ycenter + y - delta,
+                    xcenter + xx - delta,
+                    ycenter + yy - delta,
                     xsigma,
                     ysigma)
 
