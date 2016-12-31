@@ -59,8 +59,8 @@ try:
     import photutils
     photutils_installed = True
 except ImportError:
-    self.log.warning("photutils not installed, photometry functionality "
-                     "in imexam() not available")
+    print("photutils not installed, photometry functionality "
+          "in imexam() not available")
     photutils_installed = False
 
 __all__ = ["Imexamine"]
@@ -428,9 +428,13 @@ class Imexamine(object):
         if "describe" in name:
             try:
                 stat = getattr(stats, "describe")
-                nobs, minmax, mean, var, skew, kurt = stat(data[ymin:ymax, xmin:xmax].flatten())
-                pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: \nnobs: {5}\nminamx: {6}\nmean {7}\nvariance: {8}\nskew: {9}\nkurtosis: {10}".format(
-                    ymin, ymax, xmin, xmax, name, nobs, minmax, mean, var, skew, kurt )
+                nobs, minmax, mean, var, skew, kurt = stat(data[ymin:ymax,
+                                                           xmin:xmax].flatten())
+                pstr = ("[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: \nnobs: "
+                        "{5}\nminamx: {6}\nmean {7}\nvariance: {8}\nskew: "
+                        "{9}\nkurtosis: {10}".format(ymin, ymax, xmin, xmax,
+                                                     name, nobs, minmax, mean,
+                                                     var, skew, kurt))
             except AttributeError:
                 warnings.warn("Invalid stat specified")
         else:
@@ -463,7 +467,6 @@ class Imexamine(object):
         """
         if data is None:
             data = self._data
-        pfig = fig
         if fig is None:
             fig = plt.figure(self._figure_name)
         ax = fig.gca()
@@ -489,7 +492,6 @@ class Imexamine(object):
         else:
             self.set_plot_name(self._figure_name + ".pdf")
 
-        pfig = fig
         if fig is None:
             fig = plt.figure(self._figure_name)
         ax = fig.gca()
@@ -975,7 +977,8 @@ class Imexamine(object):
         """
         subtract_background = bool(self.radial_profile_pars["background"][0])
         if not photutils_installed and subtract_background:
-            self.log.warning("Install photutils to enable background subtraction")
+            self.log.warning("Install photutils to enable "
+                             "background subtraction")
             subtract_background = False
         else:
 
