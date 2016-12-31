@@ -42,6 +42,7 @@ except ImportError:
             sys.path.insert(1, a_h_path)
 
 from astropy_helpers.sphinx.conf import *
+from astropy.extern import six
 
 # Get configuration information from setup.cfg
 try:
@@ -51,6 +52,17 @@ except ImportError:
 conf = ConfigParser()
 conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
 setup_cfg = dict(conf.items('metadata'))
+
+# Monkey patch to suppress "nonlocal image URI found" warnings
+# http://stackoverflow.com/questions/12772927/specifying-an-online-image-in-sphinx-restructuredtext-format
+import sphinx.environment
+from docutils.utils import get_source_line
+
+def _warn_node(self, msg, node, **kwargs):
+    if not msg.startswith('nonlocal image URI found:'):
+        self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
+
+sphinx.environment.BuildEnvironment.warn_node = _warn_node
 
 # -- General configuration ----------------------------------------------------
 

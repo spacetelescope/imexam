@@ -1,61 +1,86 @@
 ===================
 The imexam() method
 ===================
-This is the main method which allows live interaction with the image display when you are using the DS9 program for viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out the exam.
+This is the main method which allows live interaction with the image display when you are using  viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out the exam.
 
 
 **imexam** ():
     access realtime imexamine functions through the keyboard and mouse
 
-**Current recognized keys for use during imexam are** ::
+**Current recognized keys available during imexam are:** ::
 
-         'a': 'aperture sum, with radius region_size, optional sky subtraction '
-         'j': '1D line fit '
-         'k': '1D column fit '
-         'm': 'square region stats, in region_size square, default stat is median'
-         'x': 'return x,y coords of pixel'
-         'y': 'return x,y coords of pixel'
-         'l': 'return line plot'
-         'c': 'return column plot'
-         'g': 'return curve of growth plot'
-         'r': 'return the radial profile plot'
-         'h': 'return a histogram in the region around the cursor'
-         'e': 'return a contour plot in a region around the cursor'
-         's': 'save current figure to plotname'
-         'b': 'return the gauss fit center of the object'
-         't': 'Make a fits image cutout using pointer location'
-         'w': 'display a surface plot around the cursor location'
-         '2': 'make the next plot in a new window'
+    2	Make the next plot in a new window
+    a	Aperture sum, with radius region_size
+    b	Return the 2D gauss fit center of the object
+    c	Return column plot
+    e	Return a contour plot in a region around the cursor
+    g	Return curve of growth plot
+    h	Return a histogram in the region around the cursor
+    j	1D [Gaussian1D default] line fit
+    k	1D [Gaussian1D default] column fit
+    l	Return line plot
+    m	Square region stats, in [region_size],default is median
+    r	Return the radial profile plot
+    s	Save current figure to disk as [plot_name]
+    t	Make a fits image cutout using pointer location
+    w	Display a surface plot around the cursor location
+    x	Return x,y,value of pixel
+    y	Return x,y,value of pixel
 
-         aimexam(): return a dict of current parameters for aperture photometery
 
-         cimexam(): return dict of current parameters for column plots
+     aimexam(): return a dict of current parameters for aperture photometery
 
-         eimexam(): return dict of current parameters for contour plots
+     cimexam(): return dict of current parameters for column plots
 
-         himexam(): return dict current parameters for histogram plots
+     eimexam(): return dict of current parameters for contour plots
 
-         jimexam(): return dict current parameters for 1D line plots
+     himexam(): return dict current parameters for histogram plots
 
-         kimexam(): return dict of current parameters for 1D column plots
+     jimexam(): return dict current parameters for 1D line plots
 
-         limexam(): return dict of current parameters for  line plots
+     kimexam(): return dict of current parameters for 1D column plots
 
-         gimexam(): return dict of current parameters for curve of growth plots
+     limexam(): return dict of current parameters for  line plots
 
-         rimexam(): return the dict of current parameters for radial profile plots
+     gimexam(): return dict of current parameters for curve of growth plots
 
-         wimexam(): return dict of current parameters for surface plots
+     rimexam(): return the dict of current parameters for radial profile plots
 
-         mimexam(): return dict of current parameters for area statistics
+     wimexam(): return dict of current parameters for surface plots
 
-         timexam(): return a dict of the current parameters for image cutouts
+     mimexam(): return dict of current parameters for area statistics
+
+     timexam(): return a dict of the current parameters for image cutouts
 
 
 .. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers
 
 
 The ``imexam`` key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which maps to your own
+
+You can customize the plotting parameters using ``set_plot_pars``. In the following example, I'm setting three of the parameters for the contour map, whose imexam key is "e"::
+
+    #customize the plotting parameters (or any function in the imexam loop)
+    a.set_plot_pars('e','title','This is my favorite galaxy')
+    a.set_plot_pars('e','ncontours',4)
+    a.set_plot_pars('e','cmap','YlOrRd') #see http://matplotlib.org/users/colormaps.html
+
+where the full dictionary of available values can be found using the ``eimexam()`` function described above.::
+
+    In [1]: a.eimexam()
+    Out[2]:
+    {'ceiling': [None, 'Maximum value to be contoured'],
+     'cmap': ['RdBu', 'Colormap (matplotlib style) for image'],
+     'floor': [None, 'Minimum value to be contoured'],
+     'function': ['contour'],
+     'label': [True, 'Label major contours with their values? [bool]'],
+     'linestyle': ['--', 'matplotlib linestyle'],
+     'ncolumns': [15, 'Number of columns'],
+     'ncontours': [8, 'Number of contours to be drawn'],
+     'nlines': [15, 'Number of lines'],
+     'title': [None, 'Title of the plot'],
+     'xlabel': ['x', 'The string for the xaxis label'],
+     'ylabel': ['y', 'The string for the yaxis label']}
 
 Users may also add their own ``imexam`` keys and associated functions by registering them with the register(user_funct=dict()) method. The new binding will be added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them, but users are free to create them.
 
@@ -106,6 +131,7 @@ Currently, the calculation which is performed is similar to the "," or "a" IRAF 
 
 These are the default parameters for aperture photometry. They live in a dictionary in the exam object::
 
+    The direct access:
 
     viewer.exam.aperphot_pars= {"function":["aperphot",],
                     "center":[True,"Center the object location using a Gaussian2D fit"],
@@ -115,33 +141,25 @@ These are the default parameters for aperture photometry. They live in a diction
                     "radius":[5,"Radius of aperture for star flux"],
                     "zmag":[25.,"zeropoint for the magnitude calculation"],
                     }
+    Using the convenience function:
 
-You can change the parameters by editing the dictionary, whose structure is { "parameter": [values, description] }. In order to change the width of the photometry aperture around the object you would do this ::
+    In [1]: a.aimexam()
+    Out[2]:
+    {'center': [True, 'Center the object location using a 2d gaussian fit'],
+    'function': ['aper_phot'],
+     'radius': [5, 'Radius of aperture for star flux'],
+     'skyrad': [15, 'Distance to start sky annulus is pixels'],
+     'subsky': [True, 'Subtract a sky background?'],
+     'width': [5, 'Width of sky annulus in pixels'],
+     'zmag': [25.0, 'zeropoint for the magnitude calculation']}
+
+In order to change the width of the photometry aperture around the object you would do this ::
 
     viewer.set_plot_pars('a',"radius",10)
 
 This is what the return looks like when you do photometry, where I've asked for photometry from the star circled in green above::
 
     viewer.imexam()
-
-    Press 'q' to quit
-
-    2	make the next plot in a new window
-    a	aperture sum, with radius region_size
-    b	return the gauss fit center of the object
-    c	return column plot
-    e	return a contour plot in a region around the cursor
-    h	return a histogram in the region around the cursor
-    j	1D [see available] line fit
-    k	1D [see available] column fit
-    l	return line plot
-    m	square region stats, in [region_size],defayult is median
-    r	return curve of growth plot
-    s	save current figure to disk as [plot_name]
-    w	display a surface plot around the cursor location
-    x	return x,y,value of pixel
-    y	return x,y,value of pixel
-
 
     xc=576.855763	yc=634.911425
     x              y              radius         flux           mag(zpt=25.00) sky            fwhm
@@ -209,9 +227,7 @@ Square region statistics
 --------------------------
 If you press the "m" key, the  pixel values around the pointer location are calculated inside a box which has a side equal to the region_size, defaulted to 5 pixels, and using the statistical function chosen.
 
-The user can map the function to any reasonable numpy function, it's set to numpy.median by default
-
-::
+The user can map the function to any reasonable numpy function, it's set to numpy.median by default::
 
     report_stat_pars= {"function":["report_stat",],
                         "stat":["median","which numpy stat to return [median,min,max...must map to numpy func]"],
@@ -230,10 +246,7 @@ You can change the statistic reported by changing the "stat" parameter::
 
 You can make a quick comparison of the max reported above with the line fit graph in the 1D gaussian profile example.
 
-You can also choose to use the `scipy.stats.describe`_ function if you have scipy installed by changing the stat to "describe"; this will report the combined stats for the region:
-
-
-::
+You can also choose to use the `scipy.stats.describe`_ function if you have scipy installed by changing the stat to "describe"; this will report the combined stats for the region:::
 
 
     pressed: m, report_stat
@@ -405,7 +418,7 @@ Pressing the "e" key will display  a contour plot around the clicked pixel locat
                        "ncontours":[8,"Number of contours to be drawn"],
                        "linestyle":["--","matplotlib linestyle"],
                        "label":[True,"Label major contours with their values? [bool]"],
-                       "cmap":["jet","Colormap (matplotlib style) for image"],
+                       "cmap":["viridis","Colormap (matplotlib style) for image"],
                        }
 
 
@@ -434,22 +447,22 @@ Here's what it looks like if we change some of the default parameters::
 Surface Plots
 -------------
 
-Pressing the "s" key will display a 3D surface plot of pixel values around the mouse pointer location::
+Pressing the "s" key will display a 3D surface plot of pixel values around the mouse pointer location with the default parameters::
 
-    viewer.exam.surface_pars={"function":["surface",],
-                       "title":["Surface plot","Title of the plot"],
-                       "xlabel":["X","The string for the xaxis label"],
-                       "ylabel":["Y","The string for the yaxis label"],
-                       "zlabel":[None,"Label for zaxis"],
-                       "ncolumns":[21,"Number of columns"],
-                       "nlines":[21,"Number of lines"],
-                       "azim":[None,"azimuthal viewing angle in degrees"],
-                       "floor":[None,"Minimum value to be contoured"],
-                       "ceiling":[None,"Maximum value to be contoured"],
-                       "stride":[2,"step size, higher vals will have less contour"],
-                       "cmap":["jet","colormap (matplotlib) for display"],
-                       "fancy":[False,"This aint your grandpas iraf"],
-                       }
+    surface_pars = {"function": ["surface", ],
+                    "title": [None, "Title of the plot"],
+                    "xlabel": ["X", "The string for the xaxis label"],
+                    "ylabel": ["Y", "The string for the yaxis label"],
+                    "zlabel": [None, "Label for zaxis"],
+                    "ncolumns": [10, "Number of columns"],
+                    "nlines": [10, "Number of lines"],
+                    "azim": [None, "azimuthal viewing angle in degrees"],
+                    "floor": [None, "Minimum value to be contoured"],
+                    "ceiling": [None, "Maximum value to be contoured"],
+                    "stride": [1, "step size, higher vals will have less contour"],
+                    "cmap": ["viridis", "colormap (matplotlib) for display"],
+                    "fancy": [True, "This aint your grandpas iraf"],
+                    }
 
 
 .. image:: ../_static/surface_plot.png
@@ -457,7 +470,7 @@ Pressing the "s" key will display a 3D surface plot of pixel values around the m
     :width: 800
     :alt: surface plot
 
-Or, if you'd like to get fancy and add some nice contours:
+Or, with the contours turned off and a different title:
 
 .. image:: ../_static/fancy_surface.png
     :height: 600

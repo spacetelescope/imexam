@@ -2,7 +2,7 @@
 Convenience functions for  XPA commands
 =======================================
 
-.. note:: The full list of XPA access points can be found at: http://ds9.si.edu/doc/ref/xpa.html
+.. note:: The full list of XPA access points can be found at: http://ds9.si.edu/doc/ref/xpa.html and XPA itself is maintained here https://github.com/ericmandel/xpa
 
     If there is no convenience function for an access point that you would like to use,  you can still call it using the ``imexam`` hooks into the xpa GET and SET functions. They are aliased to your object (for example "window") as window.window.xpa.get() or window.window.xpa.set()
 

@@ -5,13 +5,19 @@ These are methods particular to the ``imexam`` package which are meant to aid us
 in their image analysis. They are called from the main object you created
 with imexam.connect().
 
+At the top library level, the follow commands are available:::
+
+    imexam.connect(): connect to a viewer and return a control object
+    imexam.display_xpa_help(): Takes you to the XPA help page for DS9
+    imexam.display_help(): Takes you to the help documents for your installed version of imexam
+    imexam.defpars: contains the default plotting function dictionaries
+    imexam.imexamine: this class contains the plotting functions and can be instantiated by itself
+    imexam.set_logging(): set the logging parameters for your session. Each object has access to it's own logging which can be edited using viewer.setlog()
+    imexam.list_active_ds9(): lists the available DS9 sessions for connection
+
 
 You can always get the commands available to your local viewer by asking the
-control object for them directly.
-
-If you called your control object "viewer" then the following examples are:
-
-::
+control object for them directly. If you called your control object "viewer" then the following example will return the list:::
 
     viewer.show_window_commands()  # will return a list of available commands
 
@@ -370,6 +376,10 @@ same file. You can toggle logging during a session too:
     ::
 
         viewer.setlog(on=False)
+
+        #and to turn off even messages to the screen:
+
+        viewer.setlog(on=False,level=logging.CRITICAL)
 
 
 

@@ -4,11 +4,12 @@
     :width: 600
     :alt: Example imexam workspace
 
-``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight
-library which enables users to explore data from a command line interface,
-through a Jupyter notebook or through a Jupyter console. It can be used with multiple
-viewers, such as DS9 or Ginga, or without a viewer as a simple library to make plots and grab quick
-photometry information.
+``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight library which enables users to explore data using common methods which are consistant across viewers. It can be used from a command line interface, through a Jupyter notebook or through a Jupyter console. It can be used with multiple viewers, such as DS9 or Ginga, or without a viewer as a simple library to make plots and grab quick photometry information. The above image is an example desktop interfacing with DS9. Below, is another example desktop using the Jupyter notebook and the Ginga HTML5 viewer.
+
+.. image:: _static/ginga_desktop_html5.png
+    :height: 400
+    :width: 600
+    :alt: Example imexam workspace
 
 The power of this python tool is that it is essentially a library of plotting
 and analysis routines which can be directed towards any viewer. It attempts to
@@ -22,8 +23,7 @@ private script.
 
 ``imexam`` may be used as a replacement for the IRAF imexamine task. You should be able
 to perform all of the most used functions that ``imexamine`` provided in IRAF, but
-you also gain the flexibility of python.
-
+you also gain the flexibility of python and the ability to add your own analysis functions.
 
 Installation
 ============

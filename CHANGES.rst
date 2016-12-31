@@ -4,7 +4,7 @@ version 0.6.3dev(unreleased)
 - The imexamine class was updated so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
 - A dictionary is now returned to the user when they request information on the active DS9 windows which are available.
 - Tests updated to be consistent with new package logging
-- Documentation for readthedocs updated
+- Documentation and the jupyter examples updated
 - Fixed bug with loading user specified fits extensions for both ginga and ds9
 
 version 0.6.2 (released)
