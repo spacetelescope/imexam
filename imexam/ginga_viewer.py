@@ -133,7 +133,7 @@ class ginga_general(object):
             except Exception as e:
                 print(
                     "Failed to load matplotlib colormaps: {0}".format(
-                        str(e)))
+                        repr(e)))
 
         # bindings preferences shared with other ginga viewers
         bind_prefs = self.prefs.createCategory('bindings')
@@ -546,7 +546,7 @@ class ginga_general(object):
             try:
                 method(data_x, data_y, data)
             except Exception as e:
-                self.logger.error("Failed examine function: %s" % (str(e)))
+                self.logger.error("Failed examine function: %s" % (repr(e)))
                 try:
                     # log traceback, if possible
                     (type, value, tb) = sys.exc_info()
@@ -563,7 +563,7 @@ class ginga_general(object):
 
         return self.ginga_view.embed(width, height)
 
-    def load_fits(self, fname="", extver=1, extname=None):
+    def load_fits(self, fname="", extver=None, extname=None):
         """Load fits image to current frame.
 
         Parameters
@@ -581,31 +581,39 @@ class ginga_general(object):
 
         Notes
         -----
+        Extname isn't really used here, ginga wants the absolute extension
+        number, not the version number associated with a name
         """
-        if fname:
-            # see if the image is MEF or Simple
-            fname = os.path.abspath(fname)
-            short = True
-            try:
-                mef = util.check_filetype(fname)
-                if not mef:
-                    extver = 0
-                cstring = util.verify_filename(fname, getshort=short)
-                image = AstroImage(logger=self.logger)
+        if fname is None:
+            raise ValueError("No filename provided")
 
-                with fits.open(cstring) as filedata:
-                    hdu = filedata[extver]
-                    image.load_hdu(hdu)
+        try:
+            shortname, extn, extv = util.verify_filename(fname)
+            image = AstroImage(logger=self.logger)
 
-            except Exception as e:
-                self.logger.error("Exception opening file: {0}".format(e))
-                raise IOError(str(e))
+            # prefer name specified over key
+            if extn:
+                extname = extn
+            if extv:
+                extver = extv
 
-            self._set_frameinfo(fname=fname, hdu=hdu, image=image)
-            self.ginga_view.set_image(image)
+            if (extv is None and extver is None):
+                mef = util.check_filetype(shortname)
+                if mef:
+                    extver = 1  # MEF fits
+                else:
+                    extver = 0  # simple fits
 
-        else:
-            print("No filename provided")
+            with fits.open(shortname) as filedata:
+                hdu = filedata[extver]
+                image.load_hdu(hdu)
+
+        except Exception as e:
+            self.logger.error("Exception opening file: {0}".format(repr(e)))
+            raise Exception(repr(e))
+
+        self._set_frameinfo(fname=shortname, hdu=hdu, image=image)
+        self.ginga_view.set_image(image)
 
     def panto_image(self, x, y):
         """Change to x,y  physical image coordinates.
@@ -666,7 +674,7 @@ class ginga_general(object):
         rot_deg = self.ginga_view.get_rotation()
         print("Image rotated at {0:f} deg".format(rot_deg))
 
-    def transform(self, flipx=None, flipy=None, flipxy=None):
+    def transform(self, flipx=None, flipy=None, swapxy=None):
         """Transform the frame.
 
         Parameters
@@ -779,7 +787,7 @@ class ginga_general(object):
             self.ginga_view.zoom_to(zoomlevel)
 
         except Exception as e:
-            print("problem with zoom: %s" % str(e))
+            print("problem with zoom: %s" % repr(e))
 
     def blink(self):
         """Blink multiple frames."""
@@ -975,7 +983,6 @@ class ginga(ginga_general):
     def _shutdown(self):
         self._server.stop()  # stop accepting connections
         print('Stopped http server')
-
 
     def close(self):
         """Close the viewing window."""

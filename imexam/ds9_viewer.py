@@ -692,7 +692,7 @@ class ds9(object):
         try:
             xpa_string = self.get("imexam any coordinate image")
         except XpaException as e:
-            print("Xpa problem reading cursor: {0}".format(str(e)))
+            print("Xpa problem reading cursor: {0}".format(repr(e)))
             raise KeyError
         except ValueError:
             raise ValueError("Outside of data range")
@@ -1108,7 +1108,7 @@ class ds9(object):
         """Embed the viewer in a notebook."""
         print("Not Implemented for DS9")
 
-    def load_fits(self, fname="", extver=None, extname=None, mecube=False):
+    def load_fits(self, fname=None, extver=None, extname=None, mecube=False):
         """convenience function to load fits image to current frame.
 
         Parameters
@@ -1140,31 +1140,44 @@ class ds9(object):
 
         XPA needs to have the absolute path to the filename so that if the
         DS9 window was started in another directory it can still find the
-        file to load. arg.
+        file to load.
         """
-        frame = self.frame()
-        if not frame:
+        if fname is None:
+            raise ValueError("No filename provided")
+
+        frame = self.frame()  # for the viewer reference
+        if frame is None:
             frame = 1  # load into first frame
-        if not extver:
-            extver = 1
 
-        if fname:
-            # see if the image is MEF or Simple
-            fname = os.path.abspath(fname)
+        shortname, extn, extv = util.verify_filename(fname)
 
-            # strip the extensions for now
-            shortname = fname.split("[")[0]
-            if mecube:
-                cstring = "mecube {0:s}".format(shortname)
+        # prefer name specified over key
+        if extn:
+            extname = extn
+        if extv:
+            extver = extv
+
+        if (extv is None and extver is None):
+            mef = util.check_filetype(shortname)
+            if mef:
+                extver = 1  # MEF fits
             else:
-                cstring = util.verify_filename(shortname, extver, extname)
-                print(cstring)
-            self.set(cstring)
-            self._set_frameinfo()
-            # make sure any previous reference is reset
-            self._viewer[frame]['user_array'] = None
+                extver = 0  # simple fits
+
+        print(shortname, extname, extver)
+        if mecube:
+            cstring = "mecube {0:s}".format(shortname)
         else:
-            print("No filename provided")
+            if extname is None:
+                cstring = ('file fits {0:s}[{1:d}]'.format(shortname, extver))
+            else:
+                cstring = ('file fits {0:s}[{1:s},{2:d}]'.format(
+                            shortname, extname, extver))
+
+        self.set(cstring)
+        self._set_frameinfo()
+        # make sure any previous reference is reset
+        self._viewer[frame]['user_array'] = None
 
     def load_region(self, filename):
         """Load regions from a file which uses ds9 standard formatting.
@@ -1673,14 +1686,11 @@ class ds9(object):
     def grab(self):
         """Make a copy of the image view."""
         backend = get_backend().lower()
-        supported = ["nbagg", "tkagg", "qt4agg"]
         fname = self.snapsave(format="png")
         if "nbagg" in backend:  # save inside the notebook
                 data = mpimage.imread(fname)
                 plt.clf()
                 return plt.imshow(data, origin="upper")
-        else:
-            print("Notebook embedding not supported for {0:s}".format(backend))
 
     def view(self, img):
         """Display numpy image array to current frame.
@@ -1722,7 +1732,7 @@ class ds9(object):
                 raise UnsupportedDatatypeException(e)
 
             option = "[xdim={0:d},ydim={1:d},bitpix={2:d}{3:s}]".format(xdim,
-                            ydim, bitpix, endianness)
+                       ydim, bitpix, endianness)
             try:
                 self.set("array " + option, arr_str)
                 self._set_frameinfo()
