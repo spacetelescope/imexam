@@ -1,13 +1,15 @@
-version 0.6.3
--------------
-- Logging was updated to allow for more user control of the log files. Additionally, most prints were moved to the stdout stream handler so that users could also shut off messages to the screen
-- The imexamine class was refactored so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
+version 0.6.3dev(unreleased)
+----------------------------
+- Logging was updated to fix bugs as well allow for more user control of the log files. Additionally, most prints were moved to the stdout stream handler so that users could also shut off messages to the screen
+- The imexamine class was updated so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
 - A dictionary is now returned to the user when they request information on the active DS9 windows which are available.
-- Tests updated to interact with new logging, had to change them for specific values
+- Tests updated to be consistent with new package logging
+- Documentation for readthedocs updated
+- Fixed bug with loading user specified fits extensions for both ginga and ds9
 
 version 0.6.2 (released)
 ------------------------
-- Unbinned radial plots were added
+- Unbinned radial plots were added, bins are still an available option
 - documentation updates
 
 version 0.6dev (unreleased)

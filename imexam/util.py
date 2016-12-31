@@ -165,14 +165,14 @@ def set_logging(filename=None, on=True, level=logging.INFO):
                                                delay=True)
             file_handler.setLevel(logging.INFO)
             file_handler.setFormatter(formatter)
-            print("Saving imexam commands to {0:s}".format(filename))
+            print("Saving imexam commands to {0:s}".format(repr(filename)))
             root.addHandler(file_handler)
 
         if not stream_attached:
             # set the stdout stream handler
             stdout_handler = logging.StreamHandler(stream=sys.stdout)
             stdout_handler.setLevel(logging.INFO)
-            #stdout_handler.setFormatter(formatter)
+            # stdout_handler.setFormatter(formatter)
             root.addHandler(stdout_handler)
 
     #  turning the logging off to the file and set level on stream handler
@@ -201,6 +201,8 @@ def check_filetype(filename=None):
 
 
     """
+    log = logging.getLogger(__name__)
+
     if filename is None:
         raise ValueError("No filename provided")
     else:
@@ -208,13 +210,16 @@ def check_filetype(filename=None):
             mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
         except KeyError:
             mef_file = False
+        except IOError:
+            log.warning("Problem opening file {0:s}".format(repr(filename)))
+            raise IOError("Error opening {0:s}".format(filename))
         return mef_file
 
 
-def verify_filename(filename=None, extver=None, extname=None, getshort=False):
-    """
-    Verify the filename exists and check to see if the
-    user has given extension, extension name or some combination
+def verify_filename(filename=None, extver=None, extname=None):
+    """Verify the filename exist and split it for extension information.
+    If the user has given an extension, extension name or some combination of
+    those, return the full filename, extension and version tuple.
 
     Parameters
     ----------
@@ -226,37 +231,23 @@ def verify_filename(filename=None, extver=None, extname=None, getshort=False):
 
     extname: string
         the name of the extension
-
-    getshort: bool
-        If True, return just the name of the file
-
     """
-
     if filename is None:
         print("No filename provided")
     else:
-        # see if the image is MEF or Simple
-        fname = os.path.abspath(filename)
         try:
-            # strip the extensions for now
-            shortname = fname.split("[")[0]
-            if getshort:
-                return shortname
+            if "[" in filename:
+                splitstr = filename.split("[")
+                shortname = splitstr[0]
+                if "," in splitstr[1]:
+                    extname = splitstr[1].split(",")[0]
+                    extver = int(splitstr[1].split(",")[1][0])
+                else:
+                    extver = int(filename.split("[")[1][0])
+            else:
+                shortname = os.path.abspath(filename)
+        except IndexError as e:
+            print("Exception: {0}".format(repr(e)))
+            raise IndexError
 
-            mef_file = check_filetype(shortname)
-            if not mef_file or '[' in fname:
-                chunk = fname.split(",")
-                cstring = ('file fits {0:s} {1:d}'.format(shortname, extver))
-            elif extver and not extname:
-                cstring = ('file fits {0:s} {1:d}'.format(fname, extver))
-            elif extver and extname:
-                cstring = (
-                    'file fits {0:s} {1:s} {2:d}'.format(
-                        fname,
-                        extname,
-                        extver))
-        except IOError as e:
-            print("Exception: {0}".format(e))
-            raise IOError
-
-        return cstring
+        return shortname, extname, extver
