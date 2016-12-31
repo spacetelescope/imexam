@@ -1,4 +1,3 @@
-:orphan:
 
 =========
 Example 3
@@ -6,18 +5,18 @@ Example 3
 
 Advanced Usage - Interact with Daophot and Astropy
 --------------------------------------------------
-While the original intent for the imexam module was to replicate the realtime interaction of the old IRAF imexamine interface with data, there are other possibilities for data analysis which this module can support.
-One such example, performing more advanced interaction which can be scripted, is outlined below.
+While the original intent for the imexam module was to replicate the realtime interaction of the old IRAF imexamine interface with data, there are other possibilities for data analysis which this module can support.One such example, performing more advanced interaction which can be scripted, is outlined below, using familiar IRAF tasks.
 
-If you have  a  list of source identifications, perhaps prepared by SExtractor, DAOFind, Starfind or a similar program, you can use imexam to display the science image and overlay apertures for all their locations. From there you can do some visual examination and cleaning up of the list with a combination of region manipulation and useful imexam methods.
+.. note:: You can see a similar photometry example which uses ``photutils`` and it's implementation of DAOPhot aperture photometry instead of IRAF in the `imexam_ds9_photometry example jupyter notebook. <https://github.com/spacetelescope/imexam/blob/master/example_notebooks/imexam_ds9_photometry.ipynb>`_
+
+If you have  a  list of source identifications, perhaps prepared by SExtractor, DAOFind, Starfind or a similar program, you can use ``imexam`` to display the science image and overlay apertures for all their locations. From there you can do some visual examination and cleaning up of the list with a combination of region manipulation and useful ``imexam`` methods.
 
 Here's our example image to work with, which is a subsection of a larger image:
 
-.. image:: ../_static/photometry_subsection.png
-    :height: 400
-    :width: 600
-    :alt: subsection of image being examined
-
+.. image:: ../_static/simple_ds9_open.png
+        :height: 600
+        :width: 400
+        :alt: imexam with DS9 window and loaded fits image
 
 
 I'll use the IRAF DAOFind to find objects in my field:
@@ -192,8 +191,7 @@ I'm going to read the results using  astropy.io.ascii
         807.575       2.445      -4.136    0.745        0.171        -0.131       16
 
 
-You can even pop this up in your web browser if that's a good format for you: photfile.show_in_browser().
-imexam has several functions to help display regions on the DS9 window. Since we have this data loaded into memory, the one we will use here is mark_region_from_array().
+You can even pop this up in your web browser if that's a good format for you: ``photfile.show_in_browser()``. ``imexam`` has several functions to help display regions on the DS9 window. Since we have this data loaded into memory, the one we will use here is ``mark_region_from_array()``.
 
 Let's make an array that the method will accept, namely a list of tuples which contain the (x,y,comment) that we want marked to the display. It will also accept any iterator containing a tuple of (x,y,comment).
 
@@ -237,14 +235,16 @@ Now we can get rid of some of the stars by hand and save a new file of locations
     :alt: subsection of image being examined
 
 
-You can save these new regions to a DS9 style region file, either through DS9 or imexam
+You can save these new regions to a ``DS9`` style region file, either through ``DS9`` or ``imexam``
 
 ::
 
     viewer.save_regions('badstars.reg')
 
+.. note:: A future version of the ``imexam`` package will make use of the region interpreter currently being developed with astropy for smoother creation and use of parsable regions files
 
-Here is what the saved region file looks like, you can choose to import this file into any future DS9 display of the same image using the viewer.load_regions() method. You might also want to parse the file to save just the location and comment information in a separate text file.
+
+Here is what the saved region file looks like, you can choose to import this file into any future DS9 display of the same image using the ``viewer.load_regions()`` method. You might also want to parse the file to save just the location and comment information in a separate text file.
 
 ::
 
@@ -275,7 +275,7 @@ Advanced Usage II - Cycle through objects from a list
 This example will step through a list of object locations and center that object in the DS9 window with a narrow zoom so that you can examine it further (think about PSF profile creation options here..)
 
 
-If you haven't already, start DS9 and load your image into the viewer. I'll assume that you started DS9 outside of imexam and will need to connect to the window first.
+If you haven't already, start DS9 and load your image into the viewer. I'll assume that you started ``DS9`` outside of ``imexam`` and will need to connect to the window first.
 
 ::
 
@@ -313,7 +313,7 @@ Read in your list of object locations, I'll use the same DAOphot targets from th
 
 
 
-Take your list of locations and cycle through each one, displaying a zoomed in section on the DS9 window and starting imexam for each coordinate. I'm just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition in conjunction with the viewer.readcursor()
+Take your list of locations and cycle through each one, displaying a zoomed in section on the ``DS9`` window and starting ``imexam`` for each coordinate. I'm just going to go through 10 or so random stars. You can set this up however you like, including using a keystroke as your stopping condition in conjunction with ``viewer.readcursor()``
 
 I'll also mark the object we're interested in on the display for reference
 

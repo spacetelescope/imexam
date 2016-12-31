@@ -246,3 +246,9 @@ The most fancy ``imexam`` surface plot is displayed, the user can alter it with 
     :height: 460
     :width: 650
     :alt: fancy surface plot
+
+.. image:: ../_static/surface_plot.png
+    :height: 460
+    :width: 650
+    :alt: fancy surface plot
+    

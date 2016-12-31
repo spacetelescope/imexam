@@ -6,6 +6,7 @@ Software Dependencies
 *   photutils (for photometry)
 *   matplotlib (for plotting)
 *   DS9 (image display - optional)
+    * XPA: https://github.com/ericmandel/xpa
 *   Ginga (image display - optional )
 
 astropy >= 1.0

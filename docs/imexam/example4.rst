@@ -1,4 +1,3 @@
-:orphan:
 
 =========
 Example 4
@@ -6,7 +5,8 @@ Example 4
 
 Load and examine an image CUBE
 ------------------------------
-Loading image cubes are currently only supported for the DS9 viewer.
+
+.. note:: image cubes are currently only supported for the DS9 viewer.
 
 Image cubes can be multi-extension fits files which have multidimensional (> 2) images in any of their extensions. When they are loaded into DS9, a cube dialog frame is opened along with a box which allows the user to control which slices are displayed. Here's what the structure of such a file might look like::
 

@@ -1,4 +1,3 @@
-:orphan:
 
 =========
 Example 5
@@ -16,7 +15,7 @@ array. In order to access the function, first create an imexamine object:
     from imexam.imexamine import Imexamine
     import numpy as np
 
-    data=np.random.rand(100,100) * np.ones((100,100)) #create a random array thats 100x100 pixels
+    data=np.random.rand((100,100)) #create a random array thats 100x100 pixels
     plots=Imexamine()
 
 
@@ -37,13 +36,11 @@ These are the functions you now have access to:
 
 
 
-To create a plot:
+To create a plot, just specify the method:
 
 ::
 
     plots.plot_line(10,10,data)
-
-
 
 produces the following plot:
 
@@ -53,10 +50,31 @@ produces the following plot:
     :alt: line plot generated without viewing
 
 
-You can save the current plot using the save method:
+You can then save the current plot using the save method:
 
 ::
 
-    plots.save() #with an optional filename using filename="something.extname"
+    plots.contour(10,10,data)
+    plots.save() # with an optional filename using filename="something.extname"
 
-Where the extname specifies the format of the file, ex: jpg or pdf. A pdf file will be the default output, using the curent self.plot_name
+    In [1]: plots.plot_name
+    Out[2]: 'imexam.pdf'
+
+    plots.close() # close the plot window
+
+Where the extname specifies the format of the file, ex: jpg or pdf. A pdf file will be the default output, using the curent self.plot_name.
+
+.. image:: ../_static/example_5a.png
+    :height: 400
+    :width: 400
+    :alt: contour plot generated without viewing
+
+Note that no name is attached to the above contour plot because we plotted a data array. When you are using the plotting class without a viewer, you can attach any title you like by editing the plotting parameters using the dictionary directly:::
+
+    plots.contour_pars['title'][0] = "random numpy array"
+
+
+.. image:: ../_static/example_5b.png
+    :height: 400
+    :width: 400
+    :alt: contour plot generated without viewing and title

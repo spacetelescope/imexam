@@ -1,11 +1,61 @@
 Requirements
 ------------
 
-``imexam`` currently provides display support two viewers: DS9 and Ginga. The default is for imexam to start up it's own DS9 process and shut it down nicely upon exit. A Ginga widget using an HTML5 backend is also available as a viewer. The package is designed so that it may easily accept other display devices in the future.
+``imexam`` currently provides display support two viewers: DS9 and Ginga. The default, when no parameters are supplied to the connect call, is for imexam to start up it's own DS9 process and shut it down nicely upon exit. A Ginga widget using an HTML5 backend is also available as a viewer, most usefull when interacting with the package inside a Jupyter notebook. The package is designed so that it may easily accept other display devices in the future. Additionally, an experimental ginga plugin is available which allows use of the basic ginga gui and interaction with the image display and plots in the imexam style.
 
-The ``imexam`` library can be used standalone, without a viewer, to create the plots which are available in the interactive sessions by importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots are saved inside the notebook in conjunction with the nbAgg matplotlib backend.
+The ``imexam`` library can be used standalone, without a viewer, to create the plots which are available in the interactive sessions by importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots may be saved inside the notebook in conjunction with the notebook (nbAgg) matplotlib backend. If you choose to interact with separate plotting windows, it's still possible to grab an image of the current image display or plot and save it inside the notebook.
 
-.. note:: For DS9, it is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then ``imexam`` will still work, but you should either start the DS9 window after importing ``imexam`` through the imexam.connect() interface, OR after you start DS9 from the shell, make note of the ``XPA_METHOD`` address in the File->Information dialog and use that in your call to connect: window=imexam.connect(XPA_METHOD) so that communication with the correct socket is established.
+.. note:: For DS9, it is important to know if you have XPANS installed on your machine and available through your PATH if you plan to use the nameserver functionality. XPANS is the XPA Name Server, it keeps track of all the open socket connections for DS9 and provides a reference for their names. If you DO NOT have XPANS installed, then ``imexam`` will still work, but you should either start the DS9 window after importing ``imexam`` through the imexam.connect() interface, OR after you start DS9 from the shell.
+
+You can connect to an already open DS9 window by specifying the title or the XPA_METHOD. The ``XPA_METHOD`` is the address in the File->Information dialog. If users don't specify a title in the ds9 window when they open one up, ds9 will just call the window "ds9", so you can end up with multiple windows with the same name. This works for DS9 because the XPA_METHOD is always unique. The most straightforward way is for users to open the DS9 windows with explicit titles, and then tell imexam to connect to that window::
+
+    python> !ds9 -title megan
+    python> window=imexam.connect('megan')
+
+However, if there are windows already open with no unique titles, the best way is to connect using the method. The ``list_active_ds9`` function can be used to return a dictionary which contains the information for all the windows, but it's keys are the unique XPA_METHOD strings.::
+
+    In [3]: !ds9&
+    In [4]: imexam.list_active_ds9()
+    DS9 ds9 gs c0a80106:61894 sosey
+    Out[4]: {'c0a80106:61894': ('ds9', 'sosey', 'DS9', 'gs')}
+
+Using this dictionary, you can also you can return the list of windows you can connect to without too much thinking, making it easy to encorporate into your own scripts as well:::
+
+
+    In [1]: import imexam
+
+    In [2]: windows=imexam.list_active_ds9()
+    DS9 ds9 gs c0a80106:61915 sosey
+
+    In [3]: list(windows)
+    Out[3]: ['c0a80106:61915']
+
+    In [4]: !ds9&
+
+    In [5]: windows=imexam.list_active_ds9()
+    DS9 ds9 gs c0a80106:61915 sosey
+    DS9 ds9 gs c0a80106:61923 sosey
+
+    In [6]: list(windows)
+    Out[6]: ['c0a80106:61915', 'c0a80106:61923']
+
+    In [7]: ds9=imexam.connect(list(windows)[0])
+
+But you can also use it as below to cycle through connecting to a set of windows:::
+
+    In [8]: windows=imexam.list_active_ds9()
+    DS9 ds9 gs c0a80106:61915 sosey
+    DS9 ds9 gs c0a80106:61923 sosey
+
+    In [9]: ds=imexam.connect(windows.popitem()[0]) #connect to first window, remove as possible window
+    In [10]: windows
+    Out[11]: {'c0a80106:61923': ('ds9', 'sosey', 'DS9', 'gs')}
+
+    In [12]: w2=imexam.connect(windows.popitem()[0])
+
+    In [13]: windows
+    Out[31]: {}
+
 
 In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in its package documentation: http://ginga.readthedocs.org/en/latest/. If you are using Python 3 you should also install Pillow which will aid in the image display. The Ginga documentation will
 tell you of any of it's other dependencies. If you install Ginga you will have access to another display tool for your images and data, the HTML5 widget. You can find the source code on GitHub, but you can also install it with ``pip`` or ``conda``.
@@ -25,7 +75,7 @@ These are some tips on installing the package, or tracking down problems you mig
     python setup.py install
 
 
-``imexam`` can also be installed using pip or conda, and is included in the Astroconda distribution from STScI:
+``imexam`` can also be installed using pip or conda, and is included in the Astroconda distribution from STScI::
 
     pip install imexam
     pip install --upgrade imexam #if you already have an older version installed
@@ -34,8 +84,7 @@ These are some tips on installing the package, or tracking down problems you mig
 
 
 
-If you want to have access to the photometry features of the ``imexam`` analysis, download and install ``photutils`` - another of the astropy associated packages. The full list of astropy packages can be found here: https://github.com/astropy
-If ``photutils`` is not installed, ``imexam`` should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop which requires ``photutils`` to render a result.
+If you want to have access to the photometry features of the ``imexam`` analysis, download and install ``photutils`` - another of the astropy associated packages. The full list of astropy packages can be found here: https://github.com/astropy. If ``photutils`` is not installed, ``imexam`` should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop which requires ``photutils`` to render a result.
 
 
 Usage
@@ -47,7 +96,7 @@ Usage
     >%matplotlib
     >import imexam
 
-Matplotlib magic should also be used inside the Jupyter notebook or proper interaction with the plots. Before importing ``imexam`` into the notebook, specify the ``nbAgg`` backend if you wish to save your plots into the notebook itself. Otherwise you can use the standard magic.
+Matplotlib magic should also be used inside the Jupyter notebook or proper interaction with the plots. Before importing ``imexam`` into the notebook, specify the ``notebook`` backend if you wish to save your plots into the notebook itself. Otherwise you can use the standard magic.
 
 
 ``imexam`` is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated.
@@ -200,12 +249,8 @@ you may want to force XPA to use the "inet" mode.  E.g.,
 
 (Or similar based on the examples above)
 
-If you are having display issues, some build problems may exist with the dependency packages which deal with backend graphics, try setting your ``matplotlib`` backend to "Qt4Agg". You can set this in your .matplotlib/matplotlibrc file. Also when using the Qt4Agg you can set your environment variable ``QT_API`` to "pyqt".
-
-from your shell::
-
-    % export QT_API="pyqt"
-
-or inside ~/.matplotlib/matplotlibrc::
+If you are having display issues, some build problems may exist with the dependency packages which deal with backend graphics, try setting your ``matplotlib`` backend to "Qt4Agg". You can set this in your .matplotlib/matplotlibrc file ::
 
   backend: Qt4Agg
+
+The package works with the Qt5Agg and notebook backends, but on occasion I've seen the matplotlib window take two cycles to update, especially inside the Jupyter notebook with inline plots, meaning you may have to hit the exam key twice for the plot to appear. This issue still needs to be worked out, if you're running into it try using the Qt4Agg backend or plotting outside the notebook and saving the figures through the imexam grab or save calls.
