@@ -1,4 +1,4 @@
-version 0.6.3dev(unreleased)
+version 0.6.3dev(released)
 ----------------------------
 - Logging was updated to fix bugs as well allow for more user control of the log files. Additionally, most prints were moved to the stdout stream handler so that users could also shut off messages to the screen
 - The imexamine class was updated so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
