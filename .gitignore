@@ -16,6 +16,7 @@ htmlcov
 .coverage
 
 # Sphinx
+docs/api
 _build
 
 # Packages/installer info
