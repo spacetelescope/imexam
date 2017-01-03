@@ -99,7 +99,7 @@ def display_help():
         import webbrowser
         # grab the version that's installed
         if "dev" not in __version__:
-            url += "en/{0:s}/".format(__version__)
+            url += "en/v{0:s}/".format(__version__)
         webbrowser.open(url)
     except ImportError:
         warnings.warn(
