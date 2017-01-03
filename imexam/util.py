@@ -8,16 +8,16 @@ import logging
 import warnings
 from astropy.io import fits
 
-import xpa
+try:
+    from .xpa_wrap import XPA
+    _have_xpa = True
+except ImportError:
+    _have_xpa = False
+
 from .version import version as __version__
 
 # To guide any import *
-__all__ = [
-    "find_ds9",
-    "list_active_ds9",
-    "display_help",
-    "find_xpans",
-    "set_logging"]
+__all__ = ["display_help", "set_logging"]
 
 
 def find_ds9():

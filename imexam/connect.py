@@ -12,7 +12,7 @@ import os
 import astropy
 
 from .util import set_logging
-from .ds9_viewer import ds9
+
 try:
     from .ginga_viewer import ginga
     have_ginga = True
@@ -22,6 +22,7 @@ except ImportError:
 try:
     from .xpa_wrap import XPA
     have_xpa = True
+    from .ds9_viewer import ds9
 except ImportError:
     have_xpa = False
 
