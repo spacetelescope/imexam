@@ -1,0 +1,8 @@
+
+@import url("bootstrap-astropy.css");
+
+div.topbar a.brand {
+  background: transparent url("imexam_logo_trans.png") no-repeat 10px 4px;
+  background-image: url("imexam_logo.png"), none;
+  background-size: 32px 32px;
+}

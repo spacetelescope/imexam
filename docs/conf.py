@@ -116,6 +116,12 @@ release = package.__version__
 # variables set in the global configuration. The variables set in the
 # global configuration are listed below, commented out.
 
+html_theme_options = {
+    'logotext1': 'im',      # white, semi-bold
+    'logotext2': 'exam',    # orange, light
+    'logotext3': ':docs'    # white, light
+}
+
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
 # html_theme_path = []
@@ -131,7 +137,8 @@ release = package.__version__
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-# html_favicon = ''
+from os.path import join
+html_favicon = join('_static', 'imexam.ico')
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -145,6 +152,11 @@ html_title = '{0} v{1}'.format(project, version)
 htmlhelp_basename = project + 'doc'
 
 html_logo = '_static/imexam_logo_trans.png'
+
+# Static files to copy after template files
+html_static_path = ['_static']
+html_style = 'imexam.css'
+
 
 # -- Options for LaTeX output ------------------------------------------------
 
