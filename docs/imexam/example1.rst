@@ -17,6 +17,7 @@ First you need to import the package
 
 Usage with D9 (the current default viewer)
 ------------------------------------------
+If you are on a windows system, DS9 may not be available, so move on to the Ginga specification.
 
 Start up a ``DS9`` window (by default), a new ``DS9`` window will be opened, open a fits image, and scale it::
 

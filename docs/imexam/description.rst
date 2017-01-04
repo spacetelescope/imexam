@@ -57,8 +57,7 @@ But you can also use it as below to cycle through connecting to a set of windows
     Out[31]: {}
 
 
-In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in its package documentation: http://ginga.readthedocs.org/en/latest/. If you are using Python 3 you should also install Pillow which will aid in the image display. The Ginga documentation will
-tell you of any of it's other dependencies. If you install Ginga you will have access to another display tool for your images and data, the HTML5 widget. You can find the source code on GitHub, but you can also install it with ``pip`` or ``conda``.
+In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in its package documentation: http://ginga.readthedocs.org/en/latest/. If you are using Python 3 you should also install Pillow which will aid in the image display. The Ginga documentation will tell you of any of it's other dependencies. If you install Ginga you will have access to another display tool for your images and data, the HTML5 widget. You can find the source code on GitHub, but you can also install it with ``pip`` or ``conda``.
 
 You can access this help file on your locally installed copy of the package by using the imexam.display_help() call after import. This will display the help in your web browser.
 
@@ -80,11 +79,11 @@ These are some tips on installing the package, or tracking down problems you mig
     pip install imexam
     pip install --upgrade imexam #if you already have an older version installed
 
-    conda install imexam
+    conda install imexam -c http://ssb.stsci.edu/astroconda
 
 
 
-If you want to have access to the photometry features of the ``imexam`` analysis, download and install ``photutils`` - another of the astropy associated packages. The full list of astropy packages can be found here: https://github.com/astropy. If ``photutils`` is not installed, ``imexam`` should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the imexam() function loop which requires ``photutils`` to render a result.
+If you want to have access to the photometry features of the ``imexam()`` analysis, download and install ``photutils`` - another of the astropy associated packages. The full list of astropy packages can be found here: https://github.com/astropy. If ``photutils`` is not installed, ``imexam`` should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the ``imexam()`` function loop which requires ``photutils`` to render a result.
 
 
 Usage
@@ -96,7 +95,7 @@ Usage
     >%matplotlib
     >import imexam
 
-Matplotlib magic should also be used inside the Jupyter notebook or proper interaction with the plots. Before importing ``imexam`` into the notebook, specify the ``notebook`` backend if you wish to save your plots into the notebook itself. Otherwise you can use the standard magic.
+Matplotlib magic should also be used inside the Jupyter notebook or proper interaction with the plots. Before importing ``imexam`` into the notebook, specify the ``notebook`` backend if you wish to save your plots into the notebook itself. Otherwise you can use the standard ipython magics.
 
 
 ``imexam`` is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated.
@@ -119,7 +118,7 @@ The "viewer" object now has associated methods to view, manipulate and analyze d
 
 When ``imexam`` starts up a DS9 window itself, it will create a local socket by default, even though the default socket type for DS9 is INET. However, ``imexam`` will first check to see if ``XPA_METHOD`` was set in your environment and default to that option. If you are experiencing problems, or you don't have an internet connection (the two might be related because the XPA structures INET sockets with an ip address), you can set your environment variable ``XPA_METHOD`` to ``local`` or ``localhost``. This will cause ``imexam`` to start a local(unix) socket which will show an ``XPA_METHOD`` that is a filename on your computer. ``imexam`` defaults to a local socket connection to allow for users who do not have the XPA installed on their machine or available on their PATH.
 
-The full XPA source code is maintained as a submodule to the ``imexam` package. If you don't have the XPA on your path, simply point it to that location, or copy the xpans executable to the location of your choice, and make sure you update your PATH. Any time DS9 is started it will start up the xpa nameserver automatically. Then all the xpans query options will be available through ``imexam`` (such as imexam.list_active_ds9()).  ``imexam`` itself uses Cython wrappers around the ``get`` and ``set`` methods from the XPA for it's communication which is why the fully installed XPA is not necessary.
+The full XPA source code is maintained as a submodule to the ``imexam`` package. If you don't have the XPA on your path, simply point it to that location, or copy the xpans executable to the location of your choice, and make sure you update your PATH. Any time DS9 is started it will start up the xpa nameserver automatically. Then all the xpans query options will be available through ``imexam`` (such as imexam.list_active_ds9()).  ``imexam`` itself uses Cython wrappers around the ``get`` and ``set`` methods from the XPA for it's communication which is why the fully installed XPA is not necessary.
 
 If you wish to open multiple DS9 windows outside of ``imexam``, then it's recommended that you give each a unique name. If you've forgotten which window had which name, you can look in the same XPA info menu and use the ``XPA_NAME`` specified there. If you haven't given them a unique name, you can list the available windows using imexam.list_active_ds9() (as long as XPANS is running) and specify their unique address.
 
