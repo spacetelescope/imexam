@@ -12,12 +12,19 @@ import os
 import astropy
 
 from .util import set_logging
-from .ds9_viewer import ds9
+
 try:
     from .ginga_viewer import ginga
     have_ginga = True
 except ImportError:
     have_ginga = False
+
+try:
+    from .xpa_wrap import XPA
+    have_xpa = True
+    from .ds9_viewer import ds9
+except ImportError:
+    have_xpa = False
 
 from .imexamine import Imexamine
 
@@ -64,15 +71,17 @@ class Connect(object):
     def __init__(self, target=None, path=None, viewer="ds9",
                  wait_time=10, quit_window=True, port=None):
         """Initialize the imexam control object."""
-        # better dynamic way so people can add their own viewers?
-        _possible_viewers = ["ds9"]
+        _possible_viewers = []
 
-        self._viewer = viewer.lower()
+        if have_xpa:
+            _possible_viewers = ["ds9"]
 
         if have_ginga:
             _possible_viewers.append('ginga')
 
-        if self._viewer not in _possible_viewers:
+        self._viewer = viewer.lower()
+
+        if (self._viewer not in _possible_viewers or len(_possible_viewers) == 0):
             warnings.warn("**Unsupported viewer, check your installed packages**\n")
             raise NotImplementedError
 

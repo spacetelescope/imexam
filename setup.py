@@ -19,16 +19,17 @@ from astropy_helpers.setup_helpers import (
 from astropy_helpers.git_helpers import get_git_devstr
 from astropy_helpers.version_helpers import generate_version_py
 
-try:
-    from Cython.Distutils import build_ext
-    from Cython.Build import cythonize
-    use_cython = True
-    CYTHON_SOURCE = "wrappers/xpa.pyx"
-except ImportError:
-    from distutils.command import build_ext
-    use_cython = False
-    print("Building without Cython")
-    CYTHON_SOURCE = "wrappers/xpa.c"
+if not sys.platform.startswith('win'):
+    try:
+        from Cython.Distutils import build_ext
+        from Cython.Build import cythonize
+        use_cython = True
+        CYTHON_SOURCE = "wrappers/xpa.pyx"
+    except ImportError:
+        from distutils.command import build_ext
+        use_cython = False
+        print("Building without Cython")
+        CYTHON_SOURCE = "wrappers/xpa.c"
 
 # A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:
@@ -99,67 +100,67 @@ for entry_point in entry_point_list:
     entry_points['console_scripts'].append('{0} = {1}'.format(entry_point[0],
                                                               entry_point[1]))
 
+if not sys.platform.startswith('win'):
+    XPALIB_DIR = "cextern/xpa/"
+    CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
 
-XPALIB_DIR = "cextern/xpa/"
-CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
+    # We only need to compile with these
+    XPA_FILES = """acl.c
+                   client.c
+                   clipboard.c
+                   command.c
+                   find.c
+                   port.c
+                   remote.c
+                   tcp.c
+                   timedconn.c
+                   word.c
+                   xalloc.c
+                   xlaunch.c
+                   xpa.c
+                   xpaio.c
+                   """.split()
 
-# We only need to compile with these
-XPA_FILES = """acl.c
-               client.c
-               clipboard.c
-               command.c
-               find.c
-               port.c
-               remote.c
-               tcp.c
-               timedconn.c
-               word.c
-               xalloc.c
-               xlaunch.c
-               xpa.c
-               xpaio.c
-               """.split()
+    XPA_SOURCES = [os.path.join(XPALIB_DIR, c) for c in XPA_FILES]
+    XPALIB_DEFINES = [("HAVE_CONFIG_H", "1")]
+    XPA_SOURCES.append(CYTHON_SOURCE)
 
-XPA_SOURCES = [os.path.join(XPALIB_DIR, c) for c in XPA_FILES]
-XPALIB_DEFINES = [("HAVE_CONFIG_H", "1")]
-XPA_SOURCES.append(CYTHON_SOURCE)
+    xpa_module = Extension("xpa",
+                           sources=XPA_SOURCES,
+                           include_dirs=[XPALIB_DIR],
+                           define_macros=XPALIB_DEFINES,
+                           depends=[CONF_H_NAME],
+                           )
+    if use_cython:
+        ext = cythonize(xpa_module)
 
-xpa_module = Extension("xpa",
-                       sources=XPA_SOURCES,
-                       include_dirs=[XPALIB_DIR],
-                       define_macros=XPALIB_DEFINES,
-                       depends=[CONF_H_NAME],
-                       )
-if use_cython:
-    ext = cythonize(xpa_module)
+        class my_clean(clean):
+            def run(self):
+                import subprocess
+                subprocess.call(["make", "clean"],
+                                cwd=XPALIB_DIR)
+                if os.access(CONF_H_NAME, os.F_OK):
+                    os.remove(CONF_H_NAME)
+                os.remove("wrappers/xpa.c")
+                clean.run(self)
+                print("cleaning")
 
-    class my_clean(clean):
-        def run(self):
-            import subprocess
-            subprocess.call(["make", "clean"],
-                            cwd=XPALIB_DIR)
-            if os.access(CONF_H_NAME, os.F_OK):
-                os.remove(CONF_H_NAME)
-            os.remove("wrappers/xpa.c")
-            clean.run(self)
-            print("cleaning")
+        class build_ext_with_configure(build_ext):
+            def build_extensions(self):
+                import subprocess
+                subprocess.call(["make", "-f", "Makefile", "clean"],
+                                cwd=XPALIB_DIR)
+                subprocess.call(["sh", "./configure"], cwd=XPALIB_DIR)
+                subprocess.call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
+                build_ext.build_extensions(self)
 
-    class build_ext_with_configure(build_ext):
-        def build_extensions(self):
-            import subprocess
-            subprocess.call(["make", "-f", "Makefile", "clean"],
-                            cwd=XPALIB_DIR)
-            subprocess.call(["sh", "./configure"], cwd=XPALIB_DIR)
-            subprocess.call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
-            build_ext.build_extensions(self)
+        cmdclass.update({'build_ext': build_ext_with_configure, 'clean': my_clean})
 
-    cmdclass.update({'build_ext': build_ext_with_configure, 'clean': my_clean})
+    else:
+        ext = [xpa_module]
 
-else:
-    ext = [xpa_module]
-
-package_info['package_data'][PACKAGENAME].extend(XPA_FILES)
-package_info['ext_modules'] = ext
+    package_info['package_data'][PACKAGENAME].extend(XPA_FILES)
+    package_info['ext_modules'] = ext
 
 setup(
     name=PACKAGENAME,
