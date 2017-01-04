@@ -8,11 +8,14 @@ with imexam.connect().
 At the top library level, the follow commands are available:::
 
     imexam.connect(): connect to a viewer and return a control object
-    imexam.display_xpa_help(): Takes you to the XPA help page for DS9
     imexam.display_help(): Takes you to the help documents for your installed version of imexam
     imexam.defpars: contains the default plotting function dictionaries
     imexam.imexamine: this class contains the plotting functions and can be instantiated by itself
     imexam.set_logging(): set the logging parameters for your session. Each object has access to it's own logging which can be edited using viewer.setlog()
+
+The following will also be available for those not on a Windows system, where the XPA and DS9 are installed:::
+
+    imexam.display_xpa_help(): Takes you to the XPA help page for DS9
     imexam.list_active_ds9(): returns a dictionary of available DS9 sessions for connection
 
 

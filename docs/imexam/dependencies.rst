@@ -13,15 +13,17 @@ astropy >= 1.0
 
 python >= 2.7
 
-numpy >= 1.6.0
+numpy >= 1.7.0
 
-photutils > 0.2dev
+photutils > 0.2
     This must be installed to enable the photometry options for imexam() but
     it is not required
 
 
 Ginga
     This must be installed in order to use the Ginga displays instead of DS9.
+    Windows users who install from source should also install Ginga if they wish to use an image viewer since the DS9 and XPA compiles will be disabled. It's possible to compile and install the XPA and DS9 from source, but not with typical default software.
+
     Using ginga has the advantage that the imexam() loop is now event driven.
 
     You can issue the viewer.imexam() command to print out the available
@@ -33,4 +35,4 @@ Ginga
     has either started or stopped.
 
     If you are using the Ginga HTML5 widget under python3 in the Jupyter notebook
-    you should also install Pillow to get the correct image viewing
+    you should also install Pillow to get the correct image viewing.

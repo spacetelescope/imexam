@@ -1,4 +1,11 @@
-version 0.6.3dev(released)
+version 0.6.4dev (unreleased)
+-----------------------------
+- fixed a text error in the display_help() so that now the correct version loads the documentation
+- Windows users can now install from source. The setup will ignore the cython and xpa necessary to build the DS9 interaction, and users will only be able to use the Ginga HTML5 window, they can also use the Imexamine() functions without any graphical interface.
+- Documentation updates
+
+
+version 0.6.3 (released)
 ----------------------------
 - Logging was updated to fix bugs as well allow for more user control of the log files. Additionally, most prints were moved to the stdout stream handler so that users could also shut off messages to the screen
 - The imexamine class was updated so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
