@@ -4,7 +4,6 @@ language: python
 python:
     - 2.7
     - 3.5
-    - 3.6
 
 # Setting sudo to false opts in to Travis-CI container-based builds.
 sudo: false
@@ -50,8 +49,6 @@ matrix:
         - python: 2.7
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
         - python: 3.5
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
-        - python: 3.6
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
 
 
@@ -105,10 +102,6 @@ matrix:
         # showing any obvious reason, thus allowing it to fail for now.
         - python: 3.5
           env: NUMPY_VERSION=prerelease
-        - python: 3.6
-          env: ASTROPY_VERSION=lts
-        - python: 3.6
-          env: PIP_DEPENDENCIES=''
 
 
 before_install:
