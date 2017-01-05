@@ -3,8 +3,8 @@ language: python
 
 python:
     - 2.7
-    - 3.4
     - 3.5
+    - 3.6
 
 # Setting sudo to false opts in to Travis-CI container-based builds.
 sudo: false
@@ -51,6 +51,8 @@ matrix:
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
         - python: 3.5
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
+        - python: 3.6
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
 
 
        # Try Astropy development and LTS versions
@@ -62,11 +64,15 @@ matrix:
           env: ASTROPY_VERSION=lts
         - python: 3.5
           env: ASTROPY_VERSION=development
+        - python: 3.6
+          env: ASTROPY_VERSION=lts
 
         # Try with optional dependencies disabled
         - python: 2.7
           env: PIP_DEPENDENCIES=''
         - python: 3.5
+          env: PIP_DEPENDENCIES=''
+        - python: 3.6
           env: PIP_DEPENDENCIES=''
 
         # Try older numpy versions
@@ -78,6 +84,8 @@ matrix:
           env: NUMPY_VERSION=1.10
         - python: 3.5
           env: NUMPY_VERSION=1.9
+        - python: 3.5
+          env: NUMPY_VERSION=1.11
 
 
         # Try numpy pre-release
@@ -100,12 +108,7 @@ matrix:
         # showing any obvious reason, thus allowing it to fail for now.
         - python: 3.5
           env: NUMPY_VERSION=prerelease
-        # The build completes and the tests collect and then
-        # it just stops with no error, same as above
-        - python: 3.5
-          env: NUMPY_VERSION=1.9
-        - python: 2.7
-          env: NUMPY_VERSION=1.9
+
 
 
 before_install:
