@@ -3,7 +3,6 @@ language: python
 
 python:
     - 2.7
-    - 3.4
     - 3.5
 
 # Setting sudo to false opts in to Travis-CI container-based builds.
@@ -69,6 +68,7 @@ matrix:
         - python: 3.5
           env: PIP_DEPENDENCIES=''
 
+
         # Try older numpy versions
         - python: 2.7
           env: NUMPY_VERSION=1.10
@@ -78,6 +78,8 @@ matrix:
           env: NUMPY_VERSION=1.10
         - python: 3.5
           env: NUMPY_VERSION=1.9
+        - python: 3.5
+          env: NUMPY_VERSION=1.11
 
 
         # Try numpy pre-release
@@ -96,16 +98,10 @@ matrix:
           env: SETUP_CMD='test --pep8 -k pep8
 
     allow_failures:
-        # The build with numpy v1.11.1rc1 halts in the middle without
+        # The build with numpy pre-release halts in the middle without
         # showing any obvious reason, thus allowing it to fail for now.
         - python: 3.5
           env: NUMPY_VERSION=prerelease
-        # The build completes and the tests collect and then
-        # it just stops with no error, same as above
-        - python: 3.5
-          env: NUMPY_VERSION=1.9
-        - python: 2.7
-          env: NUMPY_VERSION=1.9
 
 
 before_install:
