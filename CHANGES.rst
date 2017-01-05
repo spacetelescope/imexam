@@ -5,6 +5,7 @@ version 0.6.4dev (unreleased)
 - Documentation updates
 - Added python 3.6 to the test matrix as well as apveyor for the windows build
 
+
 version 0.6.3 (released)
 ----------------------------
 - Logging was updated to fix bugs as well allow for more user control of the log files. Additionally, most prints were moved to the stdout stream handler so that users could also shut off messages to the screen
