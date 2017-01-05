@@ -17,7 +17,7 @@ imexam
     :target: http://www.astropy.org
     :alt: Powered by Astropy Badge
 
-..image:: https://ci.appveyor.com/api/projects/status/github/spacetelescope/imexam?branch=master&svg=true
+.. image:: https://ci.appveyor.com/api/projects/status/github/spacetelescope/imexam?branch=master&svg=true
     :target: https://ci.appveyor.com/api/projects/status/github/spacetelescope/imexam?branch=master
     :alt: Appveyor
 
@@ -98,7 +98,9 @@ Starting a connection to a Ginga HTML5 canvas backend for browser and Jupyter vi
 You can optionally provide a port number to which the viewer is connected as well:
 
 ::
-    a=imexam.connect(viewer='ginga', port=9854)
+
+    a=imexam.connect(viewer='ginga', port=9856)
+
 
 
 Launching multiple DS9 windows
