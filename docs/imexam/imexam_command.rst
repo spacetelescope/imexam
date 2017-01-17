@@ -1,7 +1,7 @@
 ===================
 The imexam() method
 ===================
-This is the main method which allows live interaction with the image display when you are using  viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out the exam.
+This is the main method which allows live interaction with the image display when you are viewing your image or data array.  If you execute imexam() while using the Ginga widget, it will display the available options, however they are always available for use via keystroke and are event-driven (using the same keys described below). In order to turn the key-press capture on and off while you have your mouse in the Ginga widget press the "i" key. Either the "i" or "q" key can be used to quit out of the examination mode.
 
 
 **imexam** ():
@@ -58,7 +58,7 @@ This is the main method which allows live interaction with the image display whe
 
 The ``imexam`` key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which maps to your own
 
-You can customize the plotting parameters using ``set_plot_pars``. In the following example, I'm setting three of the parameters for the contour map, whose imexam key is "e"::
+However, you can access the same dictionary and customize the plotting parameters using ``set_plot_pars``. In the following example, I'm setting three of the parameters for the contour map, whose imexam key is "e"::
 
     #customize the plotting parameters (or any function in the imexam loop)
     a.set_plot_pars('e','title','This is my favorite galaxy')
@@ -153,11 +153,11 @@ These are the default parameters for aperture photometry. They live in a diction
      'width': [5, 'Width of sky annulus in pixels'],
      'zmag': [25.0, 'zeropoint for the magnitude calculation']}
 
-In order to change the width of the photometry aperture around the object you would do this ::
+In order to change the width of the photometry aperture around the object you would do this:::
 
     viewer.set_plot_pars('a',"radius",10)
 
-This is what the return looks like when you do photometry, where I've asked for photometry from the star circled in green above::
+This is what the return looks like when you do photometry, where I've asked for photometry from the star above::
 
     viewer.imexam()
 
@@ -441,7 +441,7 @@ Here's what it looks like if we change some of the default parameters::
     :alt: contour plot
 
 
-.. note:: You can use any of the matplotlib standard cmaps, see here for more information: http://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps
+.. note:: You can use any of the matplotlib standard cmaps, see the following link for more information: http://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps
 
 
 Surface Plots
@@ -465,12 +465,13 @@ Pressing the "s" key will display a 3D surface plot of pixel values around the m
                     }
 
 
+
 .. image:: ../_static/surface_plot.png
     :height: 600
     :width: 800
     :alt: surface plot
 
-Or, with the contours turned off and a different title:
+Or, with the contours turned off (by setting fancy to False) and changing the title:
 
 .. image:: ../_static/fancy_surface.png
     :height: 600
@@ -511,7 +512,7 @@ the cutout retains it's WCS information.
 
 User Specified functions
 ------------------------
-Users may code their own functions and bind them to keys by registering them with the ``imexam`` dictionary through the register method that lives in the exam object. The new binding will be added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new instantiations of ``imexam.connect()`` will not have the new function unless the user specifically registers them.
+Users may code their own functions and bind them to keys by registering them with the ``imexam`` dictionary through the register method that lives in the exam object. As long as a unique key is provided, the new binding will be added to the dictionary of imexamine functions. The new functions do not have to have default dictionaries associated with them. The binding is only good for the current object, new instantiations of ``imexam.connect()`` will not have the new function unless the user specifically registers them.
 
 Here's all the code for a function which saves the cursor location to a file called 'test.list' when the user presses the 'p' key:
 
@@ -573,7 +574,7 @@ Okay, so let's try out our new function! We should be able to see it in the list
 Plot Multiple Windows
 ---------------------
 
-During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the "2"  key. This will save the current plotting window on your desktop and send the next plot to a new window.Here's what that might look like::
+During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the "2"  key. This will save the current plotting window on your desktop and send the next plot to a new window. The plotting windows will be closed when you exit the imexam loop, so be sure to use the "s" key to save a quick copy of any plots you'd like to save for refernce. Here's what that might look like::
 
     #run aperture photometry("a"):
 

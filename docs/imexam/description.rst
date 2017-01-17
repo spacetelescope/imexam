@@ -1,5 +1,9 @@
 Requirements
 ------------
+This package can be used on Windows, Linux and MacOS operating systems.
+
+Windows users may download the git repository or do a direct pip install from the git repository. However, they will not have default access to DS9 because compiling the cython+xpa code cannot currently be done with default installed software. Instead, Windows users should make sure they install the Ginga viewer for image examination and plotting using it's HTML5 viewer. You will have all the same imexam functionality available to you, including the use of Jupyter notebooks and screen plotting.
+
 
 ``imexam`` currently provides display support two viewers: DS9 and Ginga. The default, when no parameters are supplied to the connect call, is for imexam to start up it's own DS9 process and shut it down nicely upon exit. A Ginga widget using an HTML5 backend is also available as a viewer, most usefull when interacting with the package inside a Jupyter notebook. The package is designed so that it may easily accept other display devices in the future. Additionally, an experimental ginga plugin is available which allows use of the basic ginga gui and interaction with the image display and plots in the imexam style.
 
@@ -76,9 +80,19 @@ These are some tips on installing the package, or tracking down problems you mig
 
 ``imexam`` can also be installed using pip or conda, and is included in the Astroconda distribution from STScI::
 
+    # from PyPI
     pip install imexam
-    pip install --upgrade imexam #if you already have an older version installed
 
+    # if you already have an older version installed
+    pip install --upgrade imexam
+
+    # from the master trunk on the repository, considered developmental code
+    pip install git+https://github.com/spacetelescope/imexam.git
+
+    #install version 0.6.3 from the git repository, this uses the git tag reference
+    pip install git+https://github.com/spacetelescope/imexam.git@v0.6.3#egg=imexam
+
+    # from the STScI conda release package
     conda install imexam -c http://ssb.stsci.edu/astroconda
 
 
@@ -253,3 +267,18 @@ If you are having display issues, some build problems may exist with the depende
   backend: Qt4Agg
 
 The package works with the Qt5Agg and notebook backends, but on occasion I've seen the matplotlib window take two cycles to update, especially inside the Jupyter notebook with inline plots, meaning you may have to hit the exam key twice for the plot to appear. This issue still needs to be worked out, if you're running into it try using the Qt4Agg backend or plotting outside the notebook and saving the figures through the imexam grab or save calls.
+
+
+If you get an error about not finding the file "import" when you use the grab() function to save a copy of the DS9 window.
+
+```FileNotFoundError: [Errno 2] No such file or directory: 'import' ```
+
+"import" is the unix/linux import command, it saves any visible window on an X server and outputs it as an image file, it's included with many macos and linux installations, it's likely not on windows. Users should check their path to see if it's included. This only affects grab() for DS9 which saves a copy of the DS9 window on the workspace, it does not affect saves for ginga or matplotlib plots.
+
+``imexam`` switched to using ``import`` to get around a bug in the XPA for the ``saveimage`` call to the XPA. The DS9 ``saveimage`` function basically does a screen capture. In the case of MacOSX (and XQuartz) when you are configured to be rootless, the screen capture fails if your DS9 window is not in the upper left corner of the primary screen - the call should work if you are using a laptop that is not connected to a larger display, or a workstation with only one monitor. Since these are harder things to automatically grab from user environments, the workaround was to ‘Print’ to a file, generating a postscript image that can be rendered outside of ds9 (for example /Applications/Preview). However, I was unable to get this to save to file, the functions it insisted on sending the image directly to the printer. This also makes for greater unknowns on user machines. The workarounds for users who hit this may be:
+
+* screen grab a copy of the window yourself (grabbing saves any overlays as well)
+* move the DS9 window to the appropriate screen and issue the saveimage command, assuming "a" is your control object, that would look like: a.window.xpa.set("saveimage ds9.jpeg")
+
+If you are experiencing an issue not related to those descibed above you can open a new issue on the ``imexam`` `GitHub issue tracker
+<https://github.com/spacetelescope/imexam/issues>`_. You can view older closed issues there as well. 

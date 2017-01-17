@@ -782,6 +782,7 @@ class Imexamine(object):
             fitform = getattr(models, self.column_fit_pars["func"][0])
         else:
             fitform = getattr(models, form)
+        self.log.info("using model: {0}".format(fitform))
 
         #  Used for Polynomial1D fitting
         degree = int(self.column_fit_pars["order"][0])
@@ -863,6 +864,8 @@ class Imexamine(object):
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
                     int(x), int(y), fitted.mean.value, fwhmy)
                 self.log.info(pstr)
+                self.log.info(fitted.parameters)
+
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value,
                                           fitted.gamma.value)
@@ -871,6 +874,8 @@ class Imexamine(object):
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
                     int(x), int(y), fitted.amplitude.value, mfwhm)
                 self.log.info(pstr)
+                self.log.info(fitted.parameters)
+
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
                     title, fitted.amplitude.value, fitted.sigma.value))
@@ -882,7 +887,7 @@ class Imexamine(object):
                 pstr = "({0:d},{1:d}) degree={2:d}".format(
                           int(x), int(y), degree)
                 self.log.info(pstr)
-                self.log.info(fitted)
+                self.log.info(fitted.parameters)
             else:
                 warnings.warn("Unsupported functional form used in column_fit")
                 raise ValueError
