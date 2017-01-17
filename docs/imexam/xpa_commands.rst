@@ -1,6 +1,6 @@
-=======================================
-Convenience functions for  XPA commands
-=======================================
+==============================================
+Convenience functions for DS9's (XPA) commands
+==============================================
 
 .. note:: The full list of XPA access points can be found at: http://ds9.si.edu/doc/ref/xpa.html and XPA itself is maintained here https://github.com/ericmandel/xpa
 

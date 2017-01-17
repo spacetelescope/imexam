@@ -55,9 +55,9 @@ If you have found a bug in ``imexam`` please report it by creating a
 new issue on the ``imexam`` `GitHub issue tracker
 <https://github.com/spacetelescope/imexam/issues>`_.
 
-Please include an example that demonstrates the issue that will allow
-the developers to reproduce and fix the problem. You may be asked to
-also provide information about your operating system and a full Python
+Please include an example that demonstrates the issue sufficiently so that
+the developers can reproduce and fix the problem. You may also be asked to
+provide information about your operating system and a full Python
 stack trace.  The developers will walk you through obtaining a stack
 trace if it is necessary.
 
