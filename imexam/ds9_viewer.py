@@ -1108,7 +1108,7 @@ class ds9(object):
         """Embed the viewer in a notebook."""
         print("Not Implemented for DS9")
 
-    def load_fits(self, fname=None, extver=None, extname=None, mecube=False):
+    def load_fits(self, fname=None, extver=None, mecube=False):
         """convenience function to load fits image to current frame.
 
         Parameters
@@ -1116,13 +1116,10 @@ class ds9(object):
         fname: string, optional
             The name of the file to be loaded. You can specify the full
             extension in the name, such as
-            filename_flt.fits[sci,1] or filename_flt.fits[1]
+            filename_flt.fits or filename_flt.fits[1]
 
         extver: int, optional
             The extension to load (EXTVER in the header)
-
-        extname: string, optional
-            The name (EXTNAME in the header) of the image to load
 
         mecube: bool, optional
             If mecube is True, load the fits file as a cube into ds9
@@ -1151,12 +1148,14 @@ class ds9(object):
 
         shortname, extn, extv = util.verify_filename(fname)
 
-        # prefer name specified over key
-        if extn:
-            extname = extn
-        if extv:
+        if extn is not None:
+            raise ValueError("Extension name  given, must "
+                             "specify the absolute extension you want")
+        # prefer the keyword value over the extension in the name
+        if extver is None:
             extver = extv
 
+        # safety for simple vs mef fits
         if (extv is None and extver is None):
             mef = util.check_filetype(shortname)
             if mef:
@@ -1164,15 +1163,10 @@ class ds9(object):
             else:
                 extver = 0  # simple fits
 
-        print(shortname, extname, extver)
         if mecube:
             cstring = "mecube {0:s}".format(shortname)
         else:
-            if extname is None:
-                cstring = ('file fits {0:s}[{1:d}]'.format(shortname, extver))
-            else:
-                cstring = ('file fits {0:s}[{1:s},{2:d}]'.format(
-                            shortname, extname, extver))
+            cstring = ('fits {0:s}[{1:d}]'.format(shortname, extver))
 
         self.set(cstring)
         self._set_frameinfo()
@@ -1769,9 +1763,8 @@ class ds9(object):
         try:
             self.set("zoom {0:s}".format(str(par)))
         except XpaException:
-            print(
-                "XPA problem with zoom (probably your zoom \
-                window is already closed)")
+            print("XPA problem with zoom (probably your zoom "
+                  "window is already closed)")
 
     def show_xpa_commands(self):
         """Print the available XPA commands."""

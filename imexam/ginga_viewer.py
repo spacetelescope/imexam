@@ -563,7 +563,7 @@ class ginga_general(object):
 
         return self.ginga_view.embed(width, height)
 
-    def load_fits(self, fname="", extver=None, extname=None):
+    def load_fits(self, fname="", extver=None):
         """Load fits image to current frame.
 
         Parameters
@@ -576,12 +576,9 @@ class ginga_general(object):
         extver: int, optional
             The extension to load (EXTVER in the header)
 
-        extname: string, optional
-            The name (EXTNAME in the header) of the image to load
-
         Notes
         -----
-        Extname isn't really used here, ginga wants the absolute extension
+        Extname isn't used here, ginga wants the absolute extension
         number, not the version number associated with a name
         """
         if fname is None:
@@ -591,10 +588,11 @@ class ginga_general(object):
             shortname, extn, extv = util.verify_filename(fname)
             image = AstroImage(logger=self.logger)
 
-            # prefer name specified over key
-            if extn:
-                extname = extn
-            if extv:
+            if extn is not None:
+                raise ValueError("Extension name given, must specify "
+                                 "the absolute extension you want")
+            # prefer specified over filename
+            if extver is None:
                 extver = extv
 
             if (extv is None and extver is None):
