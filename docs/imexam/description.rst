@@ -1,6 +1,6 @@
 Requirements
 ------------
-This package can be used on Windows, Linux and MacOS operating systems.
+This package can be used on Windows, Linux, and MacOS operating systems.
 
 Windows users may download the git repository or do a direct pip install from the git repository. However, they will not have default access to DS9 because compiling the cython+xpa code cannot currently be done with default installed software. Instead, Windows users should make sure they install the Ginga viewer for image examination and plotting using it's HTML5 viewer. You will have all the same imexam functionality available to you, including the use of Jupyter notebooks and screen plotting.
 
@@ -281,4 +281,4 @@ If you get an error about not finding the file "import" when you use the grab() 
 * move the DS9 window to the appropriate screen and issue the saveimage command, assuming "a" is your control object, that would look like: a.window.xpa.set("saveimage ds9.jpeg")
 
 If you are experiencing an issue not related to those descibed above you can open a new issue on the ``imexam`` `GitHub issue tracker
-<https://github.com/spacetelescope/imexam/issues>`_. You can view older closed issues there as well. 
+<https://github.com/spacetelescope/imexam/issues>`_. You can view older closed issues there as well.

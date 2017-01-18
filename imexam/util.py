@@ -213,6 +213,14 @@ def check_filetype(filename=None):
         except IOError:
             log.warning("Problem opening file {0:s}".format(repr(filename)))
             raise IOError("Error opening {0:s}".format(filename))
+
+        #  double check for lying liars, should at least have 1 extension
+        #  and XTENSION is a required keyword
+        if mef_file:
+            try:
+                fits.getval(filename, ext=1, keyword='XTENSION')
+            except (KeyError, IndexError):
+                mef_file = False
         return mef_file
 
 
