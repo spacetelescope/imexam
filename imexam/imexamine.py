@@ -319,9 +319,9 @@ class Imexamine(object):
             ax.set_yscale("log")
 
         if bool(self.lineplot_pars["pointmode"][0]):
-            ax.plot(data[y, :], self.lineplot_pars["marker"][0])
+            ax.plot(data[int(y), :], self.lineplot_pars["marker"][0])
         else:
-            ax.plot(data[y, :])
+            ax.plot(data[int(y), :])
 
         if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
@@ -373,9 +373,9 @@ class Imexamine(object):
         if self.colplot_pars["logy"][0]:
             ax.set_yscale("log")
         if bool(self.colplot_pars["pointmode"][0]):
-            ax.plot(data[:, x], self.colplot_pars["marker"][0])
+            ax.plot(data[:, int(x)], self.colplot_pars["marker"][0])
         else:
-            ax.plot(data[:, x])
+            ax.plot(data[:, int(x)])
 
         if pfig is None and 'nbagg' not in get_backend().lower():
             plt.draw()
@@ -431,7 +431,7 @@ class Imexamine(object):
                 nobs, minmax, mean, var, skew, kurt = stat(data[ymin:ymax,
                                                            xmin:xmax].flatten())
                 pstr = ("[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: \nnobs: "
-                        "{5}\nminamx: {6}\nmean {7}\nvariance: {8}\nskew: "
+                        "{5}\nminmax: {6}\nmean {7}\nvariance: {8}\nskew: "
                         "{9}\nkurtosis: {10}".format(ymin, ymax, xmin, xmax,
                                                      name, nobs, minmax, mean,
                                                      var, skew, kurt))

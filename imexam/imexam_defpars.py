@@ -21,7 +21,7 @@ aper_phot_pars = {"function": ["aper_phot", ],
 
 # box statistics
 report_stat_pars = {"function": ["report_stat", ],
-                    "stat": ["median", "which numpy stat to return [median, min, max]"],
+                    "stat": ["median", "numpy stat name or describe for scipy.stats"],
                     "region_size": [5, "region size in pixels to use"],
                     }
 

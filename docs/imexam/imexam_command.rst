@@ -230,7 +230,7 @@ If you press the "m" key, the  pixel values around the pointer location are calc
 The user can map the function to any reasonable numpy function, it's set to numpy.median by default::
 
     report_stat_pars= {"function":["report_stat",],
-                        "stat":["median","which numpy stat to return [median,min,max...must map to numpy func]"],
+                        "stat":["median","numpy stat name or describe for scipy.stats"],
                         "region_size":[5,"region size in pixels to use"],
                     }
 
