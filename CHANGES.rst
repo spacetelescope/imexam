@@ -20,10 +20,12 @@ version 0.6.3 (released)
 - Documentation and the jupyter examples updated
 - Fixed bug with loading user specified fits extensions for both ginga and ds9
 
+
 version 0.6.2 (released)
 ------------------------
 - Unbinned radial plots were added, bins are still an available option
 - documentation updates
+
 
 version 0.6dev (unreleased)
 ---------------------------
