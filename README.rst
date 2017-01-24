@@ -18,7 +18,7 @@ imexam
     :alt: Powered by Astropy Badge
 
 .. image:: https://ci.appveyor.com/api/projects/status/github/spacetelescope/imexam?branch=master&svg=true
-    :target: https://ci.appveyor.com/api/projects/status/github/spacetelescope/imexam?branch=master
+    :target: https://ci.appveyor.com/project/spacetelescope/imexam/branch/master
     :alt: Appveyor
 
 imexam is an affiliated package of `AstroPy`_. It was designed to be a lightweight library which enables users to explore data from a command line interface, through a Jupyter notebook or through a Jupyter console. It can be used with multiple viewers, such as DS9 or Ginga, or without a viewer as a simple library to make plots and grab quick photometry information. It has been designed so that other viewers may be easily attached in the future.
