@@ -167,6 +167,7 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     requires=['astropy'],
+    install_requires=['astropy'],
     provides=[PACKAGENAME],
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
