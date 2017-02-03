@@ -193,9 +193,9 @@ class ds9(object):
         self._current_frame = None
         self._current_slice = None
 
-        # default starting socket type to local in order get around user xpa
-        # installation issues
-        self._xpa_method = "local"
+        # default starting socket type to inet
+        # users can change to local using environment variable
+        self._xpa_method = "inet"
         self._xpa_name = ""
 
         # only used for DS9 windows started from this module
@@ -1285,9 +1285,9 @@ class ds9(object):
 
             try:
                 if(len(str(location[COMMENT])) > 0):
-                    pline = "text " + str(float(location[X]) + textoff) + " " + \
-                        str(float(location[Y]) + textoff) + " '" + \
-                        str(location[COMMENT]) + "' #font=times"
+                    pline = "text " + str(float(location[X]) + textoff) +\
+                            " " + str(float(location[Y]) + textoff) + " '" +\
+                            str(location[COMMENT]) + "' #font=times"
                     print(pline)
                     self.set_region(pline)
             except IndexError:
@@ -1725,8 +1725,9 @@ class ds9(object):
             except KeyError as e:
                 raise UnsupportedDatatypeException(e)
 
-            option = "[xdim={0:d},ydim={1:d},bitpix={2:d}{3:s}]".format(xdim,
-                       ydim, bitpix, endianness)
+            option = ("[xdim={0:d},ydim={1:d},"
+                      "bitpix={2:d}{3:s}]".format(xdim, ydim,
+                                                  bitpix, endianness))
             try:
                 self.set("array " + option, arr_str)
                 self._set_frameinfo()

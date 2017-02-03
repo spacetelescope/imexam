@@ -130,7 +130,7 @@ The "viewer" object now has associated methods to view, manipulate and analyze d
     viewer=imexam.connect("my_window_title")
 
 
-When ``imexam`` starts up a DS9 window itself, it will create a local socket by default, even though the default socket type for DS9 is INET. However, ``imexam`` will first check to see if ``XPA_METHOD`` was set in your environment and default to that option. If you are experiencing problems, or you don't have an internet connection (the two might be related because the XPA structures INET sockets with an ip address), you can set your environment variable ``XPA_METHOD`` to ``local`` or ``localhost``. This will cause ``imexam`` to start a local(unix) socket which will show an ``XPA_METHOD`` that is a filename on your computer. ``imexam`` defaults to a local socket connection to allow for users who do not have the XPA installed on their machine or available on their PATH.
+When ``imexam`` starts up a DS9 window itself, it will create an inet socket by default. However, ``imexam`` will first check to see if ``XPA_METHOD`` was set in your environment and default to that option. If you are experiencing problems, or you don't have an internet connection (the two might be related because the XPA structures INET sockets with an ip address), you can set your environment variable ``XPA_METHOD`` to ``local`` or ``localhost``. This will cause ``imexam`` to start a local(unix) socket which will show an ``XPA_METHOD`` that is a filename on your computer. ``imexam`` defaults to a local socket connection to allow for users who do not have the XPA installed on their machine or available on their PATH.
 
 The full XPA source code is maintained as a submodule to the ``imexam`` package. If you don't have the XPA on your path, simply point it to that location, or copy the xpans executable to the location of your choice, and make sure you update your PATH. Any time DS9 is started it will start up the xpa nameserver automatically. Then all the xpans query options will be available through ``imexam`` (such as imexam.list_active_ds9()).  ``imexam`` itself uses Cython wrappers around the ``get`` and ``set`` methods from the XPA for it's communication which is why the fully installed XPA is not necessary.
 
@@ -148,7 +148,7 @@ If you wish to open multiple DS9 windows outside of ``imexam``, then it's recomm
 If it seems like the ds9 window is opening or hanging, there could be few things going on:
 
 
-    * ``imexam`` will default to a local unix connection for the XPA to help with users who are not connected to the internet. The default DS9 connection is INET. However, it will first check your environment variable ``XPA_METHOD`` and preferably use that instead. If you don't have an internet connection, check this environment variable.
+    * ``imexam`` will default to an inet socket connection for the XPA. However, it will first check your environment variable ``XPA_METHOD`` and preferably use that instead. If you don't have an internet connection, check this environment variable, and set it to "local".
     * If things seem in order, it's possible that your machine is waiting for X11 to start up, give it time to start, or when you call ``imexam`` increase the wait time sufficiently; you can do this by specifying "wait_time=60" when you open your viewing object with connect(). The 60 here is an example of the number of seconds ``imexam`` should wait before returning a connection error.
     * Next, check that the path to the DS9 executable is somewhere on your path and that it has not been aliased to something else. You can check this from any terminal window by trying to start DS9. You can also use the unix "which ds9" command to return the full path to the executable, as well as "ls -al ds9" to return the full path and any soft links which might have been established.
 
@@ -237,7 +237,7 @@ You can first try using local unix sockets by setting your environment variable 
 
 ::
 
-    setenv XPA_METHOD local
+    setenv XPA_METHOD local    #csh
 
 or if you have a bash-like shell:
 ::
@@ -255,10 +255,11 @@ Alternatively, if you're getting an error on calling ``connect()`` along the lin
 
     Connection timeout with the ds9
 
-you may want to force XPA to use the "inet" mode.  E.g.,
+you may want to force XPA to use the "inet" mode, which is the default unless your XPA_METHOD is set.  E.g.,
 ::
 
-    setenv XPA_METHOD inet
+    setenv XPA_METHOD inet   #csh
+    export XPA_METHOD='inet' #bash
 
 (Or similar based on the examples above)
 

@@ -1,4 +1,10 @@
 
+version 0.7.1dev (unreleased)
+-----------------------------
+- fixed xpa bug holdout from updating for windows specific code
+- changed default connection type from local to inet when XPA_METHOD not specified in users environment
+
+
 version 0.7.0 (released)
 -----------------------------
 - fixed a text error in the display_help() so that now the correct version loads the documentation

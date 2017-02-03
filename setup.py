@@ -154,7 +154,8 @@ if not sys.platform.startswith('win'):
                 subprocess.call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
                 build_ext.build_extensions(self)
 
-        cmdclass.update({'build_ext': build_ext_with_configure, 'clean': my_clean})
+        cmdclass.update({'build_ext': build_ext_with_configure,
+                         'clean': my_clean})
 
     else:
         ext = [xpa_module]

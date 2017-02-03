@@ -9,7 +9,7 @@ import warnings
 from astropy.io import fits
 
 try:
-    from .xpa_wrap import XPA
+    import xpa
     _have_xpa = True
 except ImportError:
     _have_xpa = False
