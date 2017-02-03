@@ -20,7 +20,7 @@ except ImportError:
     have_ginga = False
 
 try:
-    from .xpa_wrap import XPA
+    import xpa
     have_xpa = True
     from .ds9_viewer import ds9
 except ImportError:
@@ -74,15 +74,17 @@ class Connect(object):
         _possible_viewers = []
 
         if have_xpa:
-            _possible_viewers = ["ds9"]
+            _possible_viewers.append("ds9")
 
         if have_ginga:
             _possible_viewers.append('ginga')
 
         self._viewer = viewer.lower()
 
-        if (self._viewer not in _possible_viewers or len(_possible_viewers) == 0):
-            warnings.warn("**Unsupported viewer, check your installed packages**\n")
+        if (self._viewer not in _possible_viewers or
+                len(_possible_viewers) == 0):
+            warnings.warn("**Unsupported viewer, check your installed "
+                          "packages**\n")
             raise NotImplementedError
 
         # init sets empty data array until we can load or check viewer

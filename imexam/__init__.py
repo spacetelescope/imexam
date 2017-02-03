@@ -19,8 +19,8 @@ except ImportError:
 if not _ASTROPY_SETUP_:
     # import high level functions into the imexam namespace
     if _have_xpa:
-        from .util import list_active_ds9
-        from .util import display_help, display_xpa_help
+        from .util import list_active_ds9, find_xpans
+        from .util import display_help, display_xpa_help, find_ds9
 
     from .util import set_logging
     from . import connect as _connect
@@ -30,7 +30,6 @@ if not _ASTROPY_SETUP_:
         import astropy
     except ImportError:
         raise ImportError("astropy required but not found")
-
 
     try:
         from .version import version as __version__
