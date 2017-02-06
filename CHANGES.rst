@@ -1,8 +1,5 @@
-version 0.7.1dev (unreleased)
------------------------------
 
-
-version 0.7.1dev (unreleased)
+version 0.7.1 (released)
 -----------------------------
 - fixed xpa bug holdout from updating for windows specific code
 - changed default connection type from local to inet when XPA_METHOD not specified in users environment
