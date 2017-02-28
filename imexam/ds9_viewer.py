@@ -202,7 +202,7 @@ class ds9(object):
         self._ds9_process = None
         self._ds9_path = None
 
-        if path is None:
+        if target is None and path is None:
             self._ds9_path = util.find_ds9()
             if not self._ds9_path:
                 raise OSError("Could not find ds9 executable on your path")
