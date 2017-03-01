@@ -50,6 +50,7 @@ from astropy.io import fits
 class UnsupportedDatatypeException(Exception):
     pass
 
+
 class UnsupportedImageShapeException(Exception):
     pass
 
@@ -1725,7 +1726,7 @@ class ds9(object):
                 (ydim, xdim) = img.shape
                 dims = "[xdim={0:d},ydim={1:d},".format(xdim, ydim)
             elif dim == 3:
-                (ydim, xdim, zdim) = img.shape
+                (zdim, ydim, xdim) = img.shape
                 dims = "[xdim={0:d},ydim={1:d},zdim={2:d},".format(xdim,
                                                                    ydim,
                                                                    zdim)
