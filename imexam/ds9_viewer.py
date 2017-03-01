@@ -50,7 +50,6 @@ from astropy.io import fits
 class UnsupportedDatatypeException(Exception):
     pass
 
-
 class UnsupportedImageShapeException(Exception):
     pass
 
@@ -206,7 +205,6 @@ class ds9(object):
         # An existing ds9 was suggested. Confirm existence
         # and attach.
         if target:
-
             # check to see if the target exists
             active = util.list_active_ds9(False)
             if target in list(active):
@@ -224,8 +222,6 @@ class ds9(object):
                     "Please choose an existing target."
                 )
 
-        # If an existing ds9 is not specified,
-        # fire one up.
         else:
             if not path:
                 self._ds9_path = util.find_ds9()
@@ -1723,9 +1719,17 @@ class ds9(object):
             if img.dtype.type == np.bool8:
                 img = img.astype(np.uint8)
 
-            try:
-                img.shape = img.shape[-2:]
-            except:
+            # arrays of 1 through 3 dimensions
+            dim = img.ndim
+            if dim == 2:
+                (ydim, xdim) = img.shape
+                dims = "[xdim={0:d},ydim={1:d},".format(xdim, ydim)
+            elif dim == 3:
+                (ydim, xdim, zdim) = img.shape
+                dims = "[xdim={0:d},ydim={1:d},zdim={2:d},".format(xdim,
+                                                                   ydim,
+                                                                   zdim)
+            else:
                 raise UnsupportedImageShapeException(repr(img.shape))
 
             if img.dtype.byteorder in ["=", "|"]:
@@ -1737,7 +1741,7 @@ class ds9(object):
 
             endianness = {">": ",arch=bigendian",
                           "<": ",arch=littleendian"}[byteorder]
-            (ydim, xdim) = img.shape
+
             arr_str = img.tostring()
 
             try:
@@ -1745,9 +1749,7 @@ class ds9(object):
             except KeyError as e:
                 raise UnsupportedDatatypeException(e)
 
-            option = ("[xdim={0:d},ydim={1:d},"
-                      "bitpix={2:d}{3:s}]".format(xdim, ydim,
-                                                  bitpix, endianness))
+            option = (dims + "bitpix={0:d}{1:s}]".format(bitpix, endianness))
             try:
                 self.set("array " + option, arr_str)
                 self._set_frameinfo()
@@ -1789,7 +1791,11 @@ class ds9(object):
 
     def show_xpa_commands(self):
         """Print the available XPA commands."""
+<<<<<<< HEAD
         print(self.get(''))  # With empty string, all commands are returned
+=======
+        print(self.get(''))  # with no arguments supplied, XPA returns options
+>>>>>>> added cube support for view method in ds9
 
     def reopen(self):
         """Reopen a closed window."""

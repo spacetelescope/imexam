@@ -4,6 +4,8 @@ version 0.7.2dev (unreleased)
   to the xpa library
 - fixed logic of connect method. When a target is given, do not look
   for an executable
+- view method now supports loading cubes when there are 3 dimension in the given array
+- logic bug in ds9 class init updated to warn when user specified target doesn't exist
 
   
 version 0.7.1 (released)
