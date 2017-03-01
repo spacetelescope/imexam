@@ -1769,7 +1769,7 @@ class ds9(object):
 
     def show_xpa_commands(self):
         """Print the available XPA commands."""
-        print(self.get())  # with no arguments supplied, XPA returns options
+        print(self.get(''))  # With empty string, all commands are returned
 
     def reopen(self):
         """Reopen a closed window."""
