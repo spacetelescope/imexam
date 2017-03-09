@@ -72,10 +72,11 @@ class ds9(object):
     Parameters
     ----------
     target: string, optional
-         the ds9 target name or id (default is to start a new instance)
+         the ds9 target name or id. If None or empty string,
+         a new ds9 instance is created.
 
     path : string, optional
-        path of the ds9
+        path of the ds9. Used only if a new ds9 is requested.
 
     wait_time : float, optional
         waiting time before error is raised
@@ -159,7 +160,7 @@ class ds9(object):
     _tmp_dir = ""
     _process_list = list()
 
-    def __init__(self, target=None, path=None, wait_time=5,
+    def __init__(self, target='', path='', wait_time=5,
                  quit_ds9_on_del=True):
         """starter.
 
@@ -202,15 +203,38 @@ class ds9(object):
         self._ds9_process = None
         self._ds9_path = None
 
-        if path is None:
-            self._ds9_path = util.find_ds9()
-            if not self._ds9_path:
-                raise OSError("Could not find ds9 executable on your path")
+        # An existing ds9 was suggested. Confirm existence
+        # and attach.
+        if target:
 
+            # check to see if the target exists
+            active = util.list_active_ds9(False)
+            if target in list(active):
+                self._xpa_name = target
+            else:
+                # see if they used a title and not the xpa_method
+                # the title is the first item in the tuple for each key
+                for window in active.values():
+                    if target in window:
+                        self._xpa_name = target
+            if not self._xpa_name:
+                print("\nDS9 target: {0:s} doesn't exist.\n{1}".format(target,
+                                                                       list(active)))
+                raise ValueError(
+                    "Please choose an existing target."
+                )
+
+        # If an existing ds9 is not specified,
+        # fire one up.
         else:
-            self._ds9_path = path
+            if not path:
+                self._ds9_path = util.find_ds9()
+                if not self._ds9_path:
+                    raise OSError("Could not find ds9 executable on your path")
 
-        if not target:
+            else:
+                self._ds9_path = path
+
             # Check to see if the user has chosen a preference first
             if 'XPA_METHOD' in os.environ:
                 self._xpa_method = os.environ['XPA_METHOD'].lower()
@@ -226,10 +250,6 @@ class ds9(object):
 
             # tells xpa where to find sockets
             os.environ['XPA_METHOD'] = self._xpa_method
-
-        else:
-            # just register with the target the user provided
-            self._xpa_name = target
 
         # xpa_name sets the template for the get and set commands
         self.xpa = XPA(self._xpa_name)
@@ -1769,7 +1789,7 @@ class ds9(object):
 
     def show_xpa_commands(self):
         """Print the available XPA commands."""
-        print(self.get())  # with no arguments supplied, XPA returns options
+        print(self.get(''))  # With empty string, all commands are returned
 
     def reopen(self):
         """Reopen a closed window."""

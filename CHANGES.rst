@@ -1,6 +1,11 @@
-ersion 0.7.2dev (unreleased)
+version 0.7.2dev (unreleased)
 -----------------------------
+- fixed show_xpa_commands bug sending None instead of empty string
+  to the xpa library
+- fixed logic of connect method. When a target is given, do not look
+  for an executable
 
+  
 version 0.7.1 (released)
 -----------------------------
 - fixed xpa bug holdout from updating for windows specific code
