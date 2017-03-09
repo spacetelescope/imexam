@@ -72,10 +72,11 @@ class ds9(object):
     Parameters
     ----------
     target: string, optional
-         the ds9 target name or id (default is to start a new instance)
+         the ds9 target name or id. If None or empty string,
+         a new ds9 instance is created.
 
     path : string, optional
-        path of the ds9
+        path of the ds9. Used only if a new ds9 is requested.
 
     wait_time : float, optional
         waiting time before error is raised
