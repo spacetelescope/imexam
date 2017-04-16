@@ -595,6 +595,7 @@ class ds9(object):
         iraf_unix = "{0:s}/.IMT".format(self._tmpd_name)
         # that should be unique enough, something better?
         title = str(time.time())
+        file_list = []
         try:
             # unix only flag disables the fifos and inet connections
             p = Popen([self._ds9_path,
@@ -636,7 +637,7 @@ class ds9(object):
         if len(file_list) > 0:
             xpaname = os.path.join(self._tmpd_name, file_list[0])
         else:
-            shutil.rmtree(self._tmpd_name)
+            shutil.rmtree(self._tmpd_name, ignore_errors=True)
             raise ValueError("Problem starting ds9 local socket connection")
 
         env["XPA_TMPDIR"] = "/tmp/xpa"  # for all local connections
