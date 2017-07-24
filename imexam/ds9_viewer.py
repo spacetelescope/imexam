@@ -1792,11 +1792,8 @@ class ds9(object):
 
     def show_xpa_commands(self):
         """Print the available XPA commands."""
-<<<<<<< HEAD
         print(self.get(''))  # With empty string, all commands are returned
-=======
-        print(self.get(''))  # with no arguments supplied, XPA returns options
->>>>>>> added cube support for view method in ds9
+        
 
     def reopen(self):
         """Reopen a closed window."""
