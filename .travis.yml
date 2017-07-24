@@ -1,9 +1,7 @@
-language: python
+language: c
 
-
-python:
-    - 2.7
-    - 3.5
+os:
+    - linux
 
 # Setting sudo to false opts in to Travis-CI container-based builds.
 sudo: false
@@ -22,6 +20,7 @@ addons:
 env:
     global:
         # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
+        - PYTHON_VERSION=3.6
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='Cython matplotlib scipy ipython'
@@ -29,12 +28,14 @@ env:
         - MAIN_CMD='python setup.py'
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
+        - SETUP_XVFB=True
+        - EVENT_TYPE='push pull_request'
 
     matrix:
         # make sure that egg_info works without dependencies
-        - SETUP_CMD='egg_info'
-        # Try all python versions with the latest numpy
-        - SETUP_CMD='test -v'
+        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
 
 
 matrix:
@@ -43,7 +44,14 @@ matrix:
     fast_finish: true
 
     include:
+        # Try MacOS X
+        - os: osx
+          env: SETUP_CMD='test'
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES
 
+
+        - os: linux
         # Check for sphinx doc build warnings - we do this first because
         # it may run for a long time. Need to use sphinx <1.6 until photutils 0.4 is out.
         - python: 2.7
@@ -99,6 +107,8 @@ matrix:
         # showing any obvious reason, thus allowing it to fail for now.
         - python: 3.5
           env: NUMPY_VERSION=prerelease
+        - python: 3.6
+          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
 
 
 before_install:
