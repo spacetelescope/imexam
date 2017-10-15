@@ -54,8 +54,6 @@ matrix:
 
        # Try Astropy development and LTS versions
         - python: 2.7
-          env: ASTROPY_VERSION=development
-        - python: 2.7
           env: ASTROPY_VERSION=lts
         - python: 3.5
           env: ASTROPY_VERSION=lts
