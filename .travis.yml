@@ -45,12 +45,13 @@ matrix:
     include:
 
         # Check for sphinx doc build warnings - we do this first because
-        # it may run for a long time
+        # it may run for a long time. Need to use sphinx <1.6 until photutils 0.4 is out.
         - python: 2.7
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
+               SPHINX_VERSION=1.5.6
         - python: 3.5
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
-
+               SPHINX_VERSION=1.5.6
 
        # Try Astropy development and LTS versions
         - python: 2.7
