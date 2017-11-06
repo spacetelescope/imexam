@@ -1,4 +1,4 @@
-version 0.8.0dev (unreleased)
+version 0.8.0 (released)
 -----------------------------
 - fixed show_xpa_commands bug sending None instead of empty string
   to the xpa library
