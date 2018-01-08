@@ -651,7 +651,7 @@ class Imexamine(object):
         # fit model to data
         if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
-            fitted.mean.value += (xx-delta)
+            fitted.mean_0.value += (xx-delta)
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
             fitted.x_0.value += (xx-delta)
@@ -703,14 +703,14 @@ class Imexamine(object):
                 ax.plot(xline, chunk, label="data", linestyle='-')
 
             if fitform.name is "Gaussian1D":
-                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
+                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f},"
                              "fwhm={3:9.2f}".format(title,
-                                                    fitted.amplitude.value,
-                                                    fitted.mean.value,
+                                                    fitted.amplitude_0.value,
+                                                    fitted.mean_0.value,
                                                     fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.mean.value, fwhmx)
+                    int(x), int(y), fitted.mean_0.value, fwhmx)
                 self.log.info(pstr)
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha.value,
@@ -810,7 +810,7 @@ class Imexamine(object):
         # fit model to data
         if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
-            fitted.mean.value += (yy-delta)
+            fitted.mean_0.value += (yy-delta)
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
             fitted.x_0.value += (yy-delta)
@@ -856,11 +856,11 @@ class Imexamine(object):
                 ax.plot(yline, chunk, linestyle='-', label="data")
 
             if fitform.name == "Gaussian1D":
-                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
+                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    title, fitted.amplitude.value, fitted.mean.value, fwhmy))
+                    title, fitted.amplitude_0.value, fitted.mean_0.value, fwhmy))
                 pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
-                    int(x), int(y), fitted.mean.value, fwhmy)
+                    int(x), int(y), fitted.mean_0.value, fwhmy)
                 self.log.info(pstr)
                 self.log.info(fitted.parameters)
 
@@ -932,11 +932,11 @@ class Imexamine(object):
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
         try:
             fit = math_helper.gauss_center(chunk)
-            amp = fit.amplitude.value
-            xcenter = fit.x_mean.value
-            ycenter = fit.y_mean.value
-            xsigma = fit.x_stddev.value
-            ysigma = fit.y_stddev.value
+            amp = fit.amplitude_0.value
+            xcenter = fit.x_mean_0.value
+            ycenter = fit.y_mean_0.value
+            xsigma = fit.x_stddev_0.value
+            ysigma = fit.y_stddev_0.value
 
             pstr = "xc={0:4f}\tyc={1:4f}".format(
                 (xcenter + xx - delta),
