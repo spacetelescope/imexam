@@ -308,7 +308,7 @@ class Imexamine(object):
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
         if not self.lineplot_pars["xmax"][0]:
-            xmax = len(data[y, :])
+            xmax = len(data[int(y), :])
         else:
             xmax = self.lineplot_pars["xmax"][0]
         ax.set_xlim(self.lineplot_pars["xmin"][0], xmax)
@@ -517,6 +517,7 @@ class Imexamine(object):
         if data is None:
             data = self._data
 
+        center = False
         if not photutils_installed:
             self.log.warning("Install photutils to enable")
         else:
@@ -571,20 +572,17 @@ class Imexamine(object):
             mag = magzero - 2.5 * (np.log10(total_flux))
 
             pheader = (
-                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})"
-                "sky\t".format(magzero)).expandtabs(15)
+                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky/pix\t".format(magzero)).expandtabs(15)
             if center:
-                pheader += ("fwhm")
-                pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\
-                        \t{5:0.2f}\t{6:0.2f}".format(x, y, radius,
-                                                     total_flux, mag,
-                                                     sky_per_pix,
-                                                     math_helper.gfwhm(sigma)[0]).expandtabs(15)
+                pheader += ("fwhm(pix)")
+                pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(x, y, radius,
+                                                                                                   total_flux, mag,
+                                                                                                   sky_per_pix,
+                                                                                                   math_helper.gfwhm(sigma)[0]).expandtabs(15)
             else:
-                pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\
-                        \t{4:0.2f}\t{5:0.2f}".format(x, y, radius,
-                                                     total_flux, mag,
-                                                     sky_per_pix,).expandtabs(15)
+                pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(x, y, radius,
+                                                                                          total_flux, mag,
+                                                                                          sky_per_pix).expandtabs(15)
 
             #  print(pheader + pstr)
             self.log.info(pheader + pstr)
