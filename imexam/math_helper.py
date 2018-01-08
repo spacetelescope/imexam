@@ -95,8 +95,9 @@ def fit_gauss_1d(data):
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Gaussian1D
-    model = models.Gaussian1D(amplitude=1, mean=0, stddev=1.)
+    # Gaussian1D + a constant
+    model = models.Gaussian1D(amplitude=1, mean=0, stddev=1.) + \
+    models.Polynomial1D(degree=0)
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -125,7 +126,7 @@ def gauss_center(data, sigma=3., theta=0.):
     fit = fitting.LevMarLSQFitter()
 
     # Gaussian2D(amp,xmean,ymean,xstd,ystd,theta)
-    model = models.Gaussian2D(1, delta, delta, sigma, sigma, theta)
+    model = models.Gaussian2D(1, delta, delta, sigma, sigma, theta) + models.Polynomial2D(degree=0)
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
