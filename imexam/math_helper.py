@@ -75,8 +75,9 @@ def fit_moffat_1d(data, gamma=2., alpha=1.):
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Moffat1D
-    model = models.Moffat1D(amplitude=max(data), x_0=ldata/2, gamma=gamma, alpha=alpha)
+    # Moffat1D + constant
+    model = models.Moffat1D(amplitude=max(data), x_0=ldata/2, gamma=gamma, alpha=alpha) +\
+            models.Polynomial1D(c0=data.min(), degree=0)
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -128,7 +129,8 @@ def gauss_center(data, sigma=3., theta=0.):
     fit = fitting.LevMarLSQFitter()
 
     # Gaussian2D(amp,xmean,ymean,xstd,ystd,theta) + a constant
-    model = models.Gaussian2D(amp, delta, delta, sigma, sigma, theta) + models.Polynomial2D(c0_0=data.min(), degree=0)
+    model = models.Gaussian2D(amp, delta, delta, sigma, sigma, theta) +\
+            models.Polynomial2D(c0_0=data.min(), degree=0)
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -147,9 +149,10 @@ def fit_mex_hat_1d(data):
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Mexican Hat 1D
+    # Mexican Hat 1D + constant
     model = models.MexicanHat1D(amplitude=np.max(data),
-                                x_0=ldata/2, sigma=2., fixed=fixed_pars)
+                                x_0=ldata/2, sigma=2., fixed=fixed_pars) +\
+            models.Polynomial1D(c0=data.min(), degree=0)
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -174,9 +177,10 @@ def fit_airy_2d(data, x=None, y=None):
     # fit model to the data
     fit = fitting.LevMarLSQFitter()
 
-    # AiryDisk2D(amplitude, x_0, y_0, radius)
+    # AiryDisk2D(amplitude, x_0, y_0, radius) + constant
     model = models.AiryDisk2D(np.max(data), x_0=x, y_0=y, radius=delta,
-                              fixed=fixed_pars)
+                              fixed=fixed_pars) +\
+            models.Polynomial2D(c0=data.min(), degree=0)
     with warnings.catch_warnings():
             # Ignore model warnings for new_plot_window
             warnings.simplefilter('ignore')

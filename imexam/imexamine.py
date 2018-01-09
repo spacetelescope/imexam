@@ -587,7 +587,7 @@ class Imexamine(object):
             #  print(pheader + pstr)
             self.log.info(pheader + pstr)
 
-    def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None):
+    def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None, col=False):
         """compute the 1D fit to the line of data using the specified form.
 
         Parameters
@@ -605,6 +605,8 @@ class Imexamine(object):
             produce the plot or return the fit
         fig: figure for redirect
             Used for interaction with the ginga GUI
+        col: bool (False)
+            Plot column instead of line
 
         Notes
         -----
@@ -613,19 +615,26 @@ class Imexamine(object):
         If centering is True in the parameter set, then the center
         is fit with a 2d gaussian, not performed for Polynomial1D
         """
+
+        # Set which parameters to use
+        if col:
+            pars = self.column_fit_pars
+        else:
+            pars = self.line_fit_pars
+
         if data is None:
             data = self._data
 
         if form is None:
-            fitform = getattr(models, self.line_fit_pars["func"][0])
+            fitform = getattr(models, pars["func"][0])
         else:
             fitform = getattr(models, form)
         self.log.info("using model: {0}".format(fitform))
 
         # Used for Polynomial1D fitting
-        degree = int(self.line_fit_pars["order"][0])
+        degree = int(self.pars["order"][0])
 
-        delta = int(self.line_fit_pars["rplot"][0])
+        delta = int(self.pars["rplot"][0])
         if delta >= len(data)/4:  # help with small data arrays and defaults
             delta = delta/2
         delta = int(delta)
@@ -633,7 +642,7 @@ class Imexamine(object):
         xx = int(x)
         yy = int(y)
         # fit the center with a 2d gaussian
-        if self.line_fit_pars["center"][0]:
+        if pars["center"][0]:
             if fitform.name is not "Polynomial1D":
                 amp, xout, yout, sigma, sigmay = self.gauss_center(xx, yy, data,
                                                                    delta=delta)
@@ -644,9 +653,12 @@ class Imexamine(object):
                 else:
                     xx = int(xout)
                     yy = int(yout)
-
-        line = data[yy, :]
-        chunk = line[xx - delta: xx + delta]
+        if col:
+            line = data[:, xx]
+            chunk = line[yy - delta:yy + delta]
+        else:
+            line = data[yy, :]
+            chunk = line[xx - delta: xx + delta]
 
         # fit model to data
         if fitform.name is "Gaussian1D":
@@ -654,10 +666,10 @@ class Imexamine(object):
             fitted.mean_0.value += (xx-delta)
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
-            fitted.x_0.value += (xx-delta)
+            fitted.x_0_0.value += (xx-delta)
         elif fitform.name is "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk)
-            fitted.x_0.value += (xx-delta)
+            fitted.x_0_0.value += (xx-delta)
         elif fitform.name is "Polynomial1D":
             fitted = math_helper.fit_poly_n(chunk, deg=degree)
             if fitted is None:
@@ -666,8 +678,8 @@ class Imexamine(object):
             fitted = math_helper.fit_airy_2d(chunk)
             if fitted is None:
                 raise ValueError("Problem with the AiryDisk2D fit")
-            fitted.x_0.value += (xx-delta)
-            fitted.y_0.value += (yy-delta)
+            fitted.x_0_0.value += (xx-delta)
+            fitted.y_0_0.value += (yy-delta)
         else:
             self.log.info("{0:s} not implemented".format(fitform.name))
             return
@@ -677,10 +689,10 @@ class Imexamine(object):
         yfit = fitted(fline)
 
         # make a plot
-        if self.line_fit_pars["title"][0] is None:
+        if pars["title"][0] is None:
             title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
         else:
-            title = self.line_fit_pars["title"][0]
+            title = pars["title"][0]
 
         if genplot:
             pfig = fig
@@ -690,14 +702,14 @@ class Imexamine(object):
             fig.add_subplot(111)
             ax = fig.gca()
 
-            ax.set_xlabel(self.line_fit_pars["xlabel"][0])
-            ax.set_ylabel(self.line_fit_pars["ylabel"][0])
-            if self.line_fit_pars["logx"][0]:
+            ax.set_xlabel(pars["xlabel"][0])
+            ax.set_ylabel(pars["ylabel"][0])
+            if pars["logx"][0]:
                 ax.set_xscale("log")
-            if self.line_fit_pars["logy"][0]:
+            if pars["logy"][0]:
                 ax.set_yscale("log")
 
-            if bool(self.line_fit_pars["pointmode"][0]):
+            if bool(pars["pointmode"][0]):
                 ax.plot(xline, chunk, 'o', label="data")
             else:
                 ax.plot(xline, chunk, label="data", linestyle='-')
@@ -713,18 +725,18 @@ class Imexamine(object):
                     int(x), int(y), fitted.mean_0.value, fwhmx)
                 self.log.info(pstr)
             elif fitform.name is "Moffat1D":
-                mfwhm = math_helper.mfwhm(fitted.alpha.value,
-                                          fitted.gamma.value)
+                mfwhm = math_helper.mfwhm(fitted.alpha_0.value,
+                                          fitted.gamma_0.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
-                    title, fitted.amplitude.value, mfwhm))
+                    title, fitted.amplitude_0.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, mfwhm)
+                    int(x), int(y), fitted.amplitude_0.value, mfwhm)
                 self.log.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
-                    title, fitted.amplitude.value, fitted.sigma.value))
+                    title, fitted.amplitude_0.value, fitted.sigma_0.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
+                    int(x), int(y), fitted.amplitude_0.value, fitted.sigma_0.value)
                 self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
@@ -774,133 +786,11 @@ class Imexamine(object):
         if centering is True, then the center is fit with a 2d gaussian,
         but this is currently not done for Polynomial1D
         """
-        if data is None:
-            data = self._data
-        if form is None:
-            fitform = getattr(models, self.column_fit_pars["func"][0])
-        else:
-            fitform = getattr(models, form)
-        self.log.info("using model: {0}".format(fitform))
 
-        #  Used for Polynomial1D fitting
-        degree = int(self.column_fit_pars["order"][0])
-        delta = int(self.column_fit_pars["rplot"][0])
-        if delta >= len(data)/4:
-            delta = int(delta/2)
-
-        # fit the center with a 2d gaussian
-        xx = int(x)
-        yy = int(y)
-        # fit the center with a 2d gaussian
-        if self.column_fit_pars["center"][0]:
-            if fitform.name is not "Polynomial1D":
-                amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
-                                                                   delta=delta)
-                if (xout < 0 or yout < 0 or xout > data.shape[1] or
-                        yout > data.shape[0]):
-                        self.log.info("Problem with centering, "
-                                      "using pixel coords")
-                else:
-                    xx = int(xout)
-                    yy = int(yout)
-
-        line = data[:, xx]
-        chunk = line[yy - delta:yy + delta]
-
-        # fit model to data
-        if fitform.name is "Gaussian1D":
-            fitted = math_helper.fit_gauss_1d(chunk)
-            fitted.mean_0.value += (yy-delta)
-        elif fitform.name is "Moffat1D":
-            fitted = math_helper.fit_moffat_1d(chunk)
-            fitted.x_0.value += (yy-delta)
-        elif fitform.name is "MexicanHat1D":
-            fitted = math_helper.fit_mex_hat_1d(chunk)
-            fitted.x_0.value += (yy-delta)
-        elif fitform.name is "Polynomial1D":
-            fitted = math_helper.fit_poly_n(chunk, deg=degree)
-            if fitted is None:
-                raise ValueError("Problem with the Poly1D fit")
-        else:
-            self.log.info("{0:s} not implemented".format(fitform.name))
-            return
-
-        yline = np.arange(len(chunk)) + yy - delta
-        fline = np.linspace(yline[0], yline[-1], 100)  # finer sample
-        yfit = fitted(fline)
-
-        if self.column_fit_pars["title"][0] is None:
-            title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
-        else:
-            title = self.column_fit_pars["title"][0]
-
-        # make a plot
-        if genplot:
-            pfig = fig
-            if fig is None:
-                fig = plt.figure(self._figure_name)
-            fig.clf()
-            fig.add_subplot(111)
-            ax = fig.gca()
-
-            ax.set_xlabel(self.column_fit_pars["xlabel"][0])
-            ax.set_ylabel(self.column_fit_pars["ylabel"][0])
-            if self.column_fit_pars["logx"][0]:
-                ax.set_xscale("log")
-            if self.column_fit_pars["logy"][0]:
-                ax.set_yscale("log")
-
-            if bool(self.column_fit_pars["pointmode"][0]):
-                ax.plot(yline, chunk, 'o', label="data")
-            else:
-                ax.plot(yline, chunk, linestyle='-', label="data")
-
-            if fitform.name == "Gaussian1D":
-                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
-                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    title, fitted.amplitude_0.value, fitted.mean_0.value, fwhmy))
-                pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
-                    int(x), int(y), fitted.mean_0.value, fwhmy)
-                self.log.info(pstr)
-                self.log.info(fitted.parameters)
-
-            elif fitform.name is "Moffat1D":
-                mfwhm = math_helper.mfwhm(fitted.alpha.value,
-                                          fitted.gamma.value)
-                ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
-                    title, fitted.amplitude.value, mfwhm))
-                pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, mfwhm)
-                self.log.info(pstr)
-                self.log.info(fitted.parameters)
-
-            elif fitform.name is "MexicanHat1D":
-                ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
-                    title, fitted.amplitude.value, fitted.sigma.value))
-                pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                self.log.info(pstr)
-            elif fitform.name is "Polynomial1D":
-                ax.set_title("{0:s} degree={1:d}".format(title, degree))
-                pstr = "({0:d},{1:d}) degree={2:d}".format(
-                          int(x), int(y), degree)
-                self.log.info(pstr)
-                self.log.info(fitted.parameters)
-            else:
-                warnings.warn("Unsupported functional form used in column_fit")
-                raise ValueError
-
-            ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
-            ax.legend()
-
-            if pfig is None and 'nbagg' not in get_backend().lower():
-                plt.draw()
-                plt.pause(0.001)
-            else:
-                fig.canvas.draw()
-
-        else:
-            return fitted
+        result = self.line_fit(x,y,data=data, form=form,
+                               genplot=genplot, fig=fig, col=True)
+        if not genplot:
+            return result
 
     def gauss_center(self, x, y, data=None, delta=10):
         """Return the 2d gaussian fit center of the data.
