@@ -180,7 +180,7 @@ def fit_airy_2d(data, x=None, y=None):
     # AiryDisk2D(amplitude, x_0, y_0, radius) + constant
     model = models.AiryDisk2D(np.max(data), x_0=x, y_0=y, radius=delta,
                               fixed=fixed_pars) +\
-            models.Polynomial2D(c0=data.min(), degree=0)
+            models.Polynomial2D(c0_0=data.min(), degree=0)
     with warnings.catch_warnings():
             # Ignore model warnings for new_plot_window
             warnings.simplefilter('ignore')
