@@ -632,9 +632,9 @@ class Imexamine(object):
         self.log.info("using model: {0}".format(fitform))
 
         # Used for Polynomial1D fitting
-        degree = int(self.pars["order"][0])
+        degree = int(pars["order"][0])
 
-        delta = int(self.pars["rplot"][0])
+        delta = int(pars["rplot"][0])
         if delta >= len(data)/4:  # help with small data arrays and defaults
             delta = delta/2
         delta = int(delta)
@@ -686,7 +686,10 @@ class Imexamine(object):
 
         xline = np.arange(len(chunk)) + xx - delta
         fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
-        yfit = fitted(fline)
+        if fitform.name is "AiryDisk2D":
+            yfit = fitted(fline, fline*0+fitted.y_0_0.value)
+        else:
+            yfit = fitted(fline)
 
         # make a plot
         if pars["title"][0] is None:
@@ -743,6 +746,12 @@ class Imexamine(object):
                 pstr = "({0:d},{1:d}) degree={2:d}".format(
                           int(x), int(y), degree)
                 self.log.info(fitted.parameters)
+                self.log.info(pstr)
+            elif fitform.name is "AiryDisk2D":
+                ax.set_title("{0:s} amp={1:8.2f} radius={2:8.2f}".format(
+                    title, fitted.amplitude_0.value, fitted.radius_0.value))
+                pstr = "({0:d},{1:d}) amp={2:8.2f} radius={3:9.2f}".format(
+                    int(x), int(y), fitted.amplitude_0.value, fitted.radius_0.value)
                 self.log.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
