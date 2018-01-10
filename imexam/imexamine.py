@@ -32,6 +32,7 @@ from IPython.display import Image
 
 from astropy.io import fits
 from astropy.modeling import models
+from astropy.visualization import ZScaleInterval
 try:
     from scipy import stats
 except ImportError:
@@ -499,7 +500,7 @@ class Imexamine(object):
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
 
-    def aper_phot(self, x, y, data=None):
+    def aper_phot(self, x, y, data=None, fig=None):
         """Perform aperture photometry.
 
         uses photutils functions, photutils must be available
@@ -512,7 +513,8 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
+        fig: figure object for redirect
+            Used for interaction with the ginga GUI
         """
         if data is None:
             data = self._data
@@ -526,6 +528,8 @@ class Imexamine(object):
                 delta = 10
                 amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
                                                              delta=delta)
+
+            # XXX TODO:  Do I beleive that these all have to be ints?
 
             radius = int(self.aper_phot_pars["radius"][0])
             width = int(self.aper_phot_pars["width"][0])
@@ -586,6 +590,49 @@ class Imexamine(object):
 
             #  print(pheader + pstr)
             self.log.info(pheader + pstr)
+            if self.aper_phot_pars["genplot"][0]:
+                pfig = fig
+                if fig is None:
+                    # Make sure figure is square so round stars look round
+                    fig = plt.figure(self._figure_name, figsize=[5,5]) 
+                fig.clf()
+                fig.add_subplot(111)
+                ax = plt.gca()
+
+                if self.aper_phot_pars["title"][0] is None:
+                    title = "x=%.2f, y=%.2f, flux=%.1f, \nmag=%.1f, sky=%.1f" % (x,y, total_flux, mag, sky_per_pix)
+                    if center:
+                        title += ", fwhm=%.2f" % math_helper.gfwhm(sigma)[0]
+                    ax.set_title(title)
+                else:
+                    ax.set_title(self.aper_phot_pars["title"][0])
+
+                if self.aper_phot_pars['scale'][0] == 'zscale':
+                    zs = ZScaleInterval()
+                    color_range = zs.get_limits(self._data)
+                else:
+                    color_range = [self.aper_phot_pars['color_min'][0], self.aper_phot_pars['color_max'][0]]
+
+                pad = outer*1.2  # XXX TODO: Bad magic number
+                ax.imshow(self._data[int(y-pad):int(y+pad), int(x-pad):int(x+pad)],
+                          vmin=color_range[0], vmax=color_range[1],
+                          extent=[int(x-pad), int(x+pad), int(y-pad), int(y+pad)], origin='lower',
+                          cmap=self.aper_phot_pars['cmap'][0])
+                
+                #ax.set_xlim([x-pad, x+pad])
+                #ax.set_ylim([y-pad, y+pad])
+                #cb = plt.colorbar(ax)
+
+                apertures.plot(ax=ax, color='green', alpha=0.75)
+                if subsky:
+                    annulus_apertures.plot(ax=ax, color='red', alpha=0.75)
+
+                if pfig is None and 'nbagg' not in get_backend().lower():
+                    plt.draw()
+                    plt.pause(0.001)
+                else:
+                    fig.canvas.draw()
+
 
     def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None, col=False):
         """compute the 1D fit to the line of data using the specified form.

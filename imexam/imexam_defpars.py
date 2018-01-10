@@ -16,6 +16,12 @@ aper_phot_pars = {"function": ["aper_phot", ],
                  "skyrad": [15, "Distance to start sky annulus is pixels"],
                  "radius": [5, "Radius of aperture for star flux"],
                  "zmag": [25., "zeropoint for the magnitude calculation"],
+                 "genplot": [True, "Plot the apertures"],
+                 "title": [None, "Title of the plot"],
+                 "scale": ['zscale', "How to scale the image"],
+                 "color_min": [None, "Minimum color value"],
+                 "color_max": [None, "Maximum color value"],
+                 "cmap": ['Greys', "Matplotloib colormap to use"],
                  }
 
 
