@@ -545,6 +545,7 @@ class Imexamine(object):
                 subpixels=1,
                 method="center")
 
+            sky_per_pix = None
             if subsky:
                 annulus_apertures = photutils.CircularAnnulus(
                     (x, y), r_in=inner, r_out=outer)
@@ -575,18 +576,22 @@ class Imexamine(object):
             magzero = float(self.aper_phot_pars["zmag"][0])
             mag = magzero - 2.5 * (np.log10(total_flux))
 
-            pheader = (
-                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky/pix\t".format(magzero)).expandtabs(15)
+            # Construct the output strings (header and parameter values)
+            pheader = "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\t".format(magzero)
+            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t".format(x, y, radius,total_flux, mag)
+
+            if sky_per_pix is not None:
+                pheader += "sky/pix\t"
+                pstr += "{0:0.2f}\t".format(sky_per_pix)
             if center:
-                pheader += ("fwhm(pix)")
-                pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(x, y, radius,
-                                                                                                   total_flux, mag,
-                                                                                                   sky_per_pix,
-                                                                                                   math_helper.gfwhm(sigma)[0]).expandtabs(15)
-            else:
-                pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(x, y, radius,
-                                                                                          total_flux, mag,
-                                                                                          sky_per_pix).expandtabs(15)
+                pheader += "fwhm(pix)"
+                pstr += "{0:0.2f}".format(math_helper.gfwhm(sigma)[0])
+
+            pheader = pheader.expandtabs(15)
+            pstr = pstr.expandtabs(15)
+
+            # Save the total flux for unit testing things later
+            self.total_flux = total_flux
 
             #  print(pheader + pstr)
             self.log.info(pheader + pstr)
