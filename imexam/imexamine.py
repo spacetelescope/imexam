@@ -578,7 +578,7 @@ class Imexamine(object):
 
             # Construct the output strings (header and parameter values)
             pheader = "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\t".format(magzero)
-            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t".format(x, y, radius,total_flux, mag)
+            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t".format(x, y, radius, total_flux, mag)
 
             if sky_per_pix is not None:
                 pheader += "sky/pix\t"
@@ -599,13 +599,15 @@ class Imexamine(object):
                 pfig = fig
                 if fig is None:
                     # Make sure figure is square so round stars look round
-                    fig = plt.figure(self._figure_name, figsize=[5,5]) 
+                    fig = plt.figure(self._figure_name, figsize=[5, 5])
                 fig.clf()
                 fig.add_subplot(111)
                 ax = plt.gca()
 
                 if self.aper_phot_pars["title"][0] is None:
-                    title = "x=%.2f, y=%.2f, flux=%.1f, \nmag=%.1f, sky=%.1f" % (x,y, total_flux, mag, sky_per_pix)
+                    title = "x=%.2f, y=%.2f, flux=%.1f, \nmag=%.1f, sky=%.1f" % (x, y,
+                                                                                 total_flux, mag,
+                                                                                 sky_per_pix)
                     if center:
                         title += ", fwhm=%.2f" % math_helper.gfwhm(sigma)[0]
                     ax.set_title(title)
@@ -623,10 +625,6 @@ class Imexamine(object):
                           vmin=color_range[0], vmax=color_range[1],
                           extent=[int(x-pad), int(x+pad), int(y-pad), int(y+pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
-                
-                #ax.set_xlim([x-pad, x+pad])
-                #ax.set_ylim([y-pad, y+pad])
-                #cb = plt.colorbar(ax)
 
                 apertures.plot(ax=ax, color='green', alpha=0.75)
                 if subsky:
@@ -637,7 +635,6 @@ class Imexamine(object):
                     plt.pause(0.001)
                 else:
                     fig.canvas.draw()
-
 
     def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None, col=False):
         """compute the 1D fit to the line of data using the specified form.
@@ -795,8 +792,7 @@ class Imexamine(object):
                 self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
-                pstr = "({0:d},{1:d}) degree={2:d}".format(
-                          int(x), int(y), degree)
+                pstr = "({0:d},{1:d}) degree={2:d}".format(int(x), int(y), degree)
                 self.log.info(fitted.parameters)
                 self.log.info(pstr)
             elif fitform.name is "AiryDisk2D":
@@ -848,7 +844,7 @@ class Imexamine(object):
         but this is currently not done for Polynomial1D
         """
 
-        result = self.line_fit(x,y,data=data, form=form,
+        result = self.line_fit(x, y, data=data, form=form,
                                genplot=genplot, fig=fig, col=True)
         if not genplot:
             return result
@@ -877,8 +873,8 @@ class Imexamine(object):
             delta = delta/2
 
         delta = int(delta)
-        xx=int(x)
-        yy=int(y)
+        xx = int(x)
+        yy = int(y)
         #  flipped from xpa
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
         try:
@@ -983,8 +979,8 @@ class Imexamine(object):
             if subtract_background:
                 inner = self.radial_profile_pars["skyrad"][0]
                 width = self.radial_profile_pars["width"][0]
-                annulus_apertures = photutils.CircularAnnulus(
-                        (centerx, centery), r_in=inner, r_out=inner+width)
+                annulus_apertures = photutils.CircularAnnulus((centerx, centery),
+                                                              r_in=inner, r_out=inner+width)
                 bkgflux_table = photutils.aperture_photometry(data,
                                                               annulus_apertures)
 

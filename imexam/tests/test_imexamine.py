@@ -25,7 +25,7 @@ except ImportError:
 # make some data to test with
 test_data = np.zeros((100, 100), dtype=np.float)
 test_data[45:55, 45:55] = 3.0
-xx,yy = np.meshgrid(np.arange(100), np.arange(100))
+xx, yy = np.meshgrid(np.arange(100), np.arange(100))
 
 
 @pytest.mark.skipif('not HAS_MATPLOTLIB')
@@ -85,6 +85,7 @@ def test_line_fit():
     assert_allclose(in_stddev, fit.stddev_0, 1e-6)
     assert_allclose(in_const, fit.c0_1, 1e-6)
 
+
 def test_column_fit():
     """Fit a Gaussian1D column to the data."""
     plots = Imexamine()
@@ -101,26 +102,30 @@ def test_column_fit():
     assert_allclose(in_stddev, fit.stddev_0, 1e-6)
     assert_allclose(in_const, fit.c0_1, 1e-6)
 
+
 def test_gauss_center():
     """Check the gaussian center fitting."""
     # make a 2d dataset with a gaussian at the center
-    from astropy.convolution import Gaussian2DKernel
-    gaussian_2D_kernel = Gaussian2DKernel(10)
+    in_amp = 12.
+    in_xc = 50.
+    in_yc = 50.
+    in_xsig = 3.
+    in_ysig = 2.
+    in_back = 20.
+
+    xx, yy = np.meshgrid(np.arange(100), np.arange(100))
+    image = in_back + in_amp * np.exp(-.5*((xx-in_xc)/in_xsig)**2) * np.exp(-.5*((yy-in_yc)/in_ysig)**2)
     plots = Imexamine()
-    plots.set_data(gaussian_2D_kernel.array)
-    a, xx, yy, xs, ys = plots.gauss_center(37, 37)
+    plots.set_data(image)
+    # Intentionally guess off-center
+    a, xx, yy, xs, ys = plots.gauss_center(48, 52)
 
-    amp = 0.0015915494309189533
-    xc = 40.0
-    yc = 40.0
-    xsig = 10.0
-    ysig = 10.0
+    assert_allclose(in_amp, a, 1e-6)
+    assert_allclose(in_xc, xx, 1e-4)
+    assert_allclose(in_yc, yy, 1e-4)
+    assert_allclose(in_xsig, xs, 0.01)
+    assert_allclose(in_ysig, ys, 0.01)
 
-    assert_allclose(amp, a, 1e-6)
-    assert_allclose(xc, xx, 1e-4)
-    assert_allclose(yc, yy, 1e-4)
-    assert_allclose(xsig, xs, 0.01)
-    assert_allclose(ysig, ys, 0.01)
 
 def test_radial_profile():
     """Test the radial profile function without background subtraction"""
@@ -213,7 +218,6 @@ def test_radial_profile_pixels():
     rad_in = rad_in[order]
     flux_in = flux_in[order]
 
-    
     plots.set_data(data.array)
     # check the unbinned results
     plots.radial_profile_pars['pixels'][0] = True
@@ -242,9 +246,9 @@ def test_curve_of_growth():
     plots.aper_phot_pars['subsky'][0] = False
 
     for rad in rads:
-      plots.aper_phot_pars['radius'][0] = rad
-      plots.aper_phot(12,12)
-      flux.append(plots.total_flux)
+        plots.aper_phot_pars['radius'][0] = rad
+        plots.aper_phot(12, 12)
+        flux.append(plots.total_flux)
 
     assert_array_equal(rads, rad_out)
     assert_allclose(flux, flux_out, 1e-6)
