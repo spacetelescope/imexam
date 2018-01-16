@@ -108,8 +108,7 @@ matrix:
 before_install:
 
     # CONFIGURE A HEADLESS DISPLAY TO TEST PLOT GENERATION
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
+    - xvfb-run -a
     - sleep 3
     - uname -a
     - python --version
