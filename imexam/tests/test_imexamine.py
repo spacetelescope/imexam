@@ -59,7 +59,7 @@ def test_aper_phot(capsys):
     apertures = photutils.CircularAperture((50, 50), radius)
     aperture_area = apertures.area()
     # dq fuq does this number come from?
-    assert_equal(aperture_area, np.pi*radius**2)
+    assert_equal(aperture_area, np.pi * radius**2)
     rawflux_table = photutils.aperture_photometry(
         test_data,
         apertures,
@@ -77,7 +77,7 @@ def test_line_fit():
     in_stddev = 2.
     in_const = 20.
     # Set all the lines to be Gaussians
-    line_gauss = in_const + in_amp * np.exp(-0.5*((xx-in_mean)/in_stddev)**2)
+    line_gauss = in_const + in_amp * np.exp(-0.5 * ((xx - in_mean) / in_stddev)**2)
     plots.set_data(line_gauss)
     fit = plots.line_fit(50, 50, form='Gaussian1D', genplot=False)
     assert_allclose(in_amp, fit.amplitude_0, 1e-6)
@@ -94,7 +94,7 @@ def test_column_fit():
     in_stddev = 2.
     in_const = 20.
     # Set all the columns to be Gaussians
-    col_gauss = in_const + in_amp * np.exp(-0.5*((yy-in_mean)/in_stddev)**2)
+    col_gauss = in_const + in_amp * np.exp(-0.5 * ((yy - in_mean) / in_stddev)**2)
     plots.set_data(col_gauss)
     fit = plots.column_fit(50, 50, form='Gaussian1D', genplot=False)
     assert_allclose(in_amp, fit.amplitude_0, 1e-6)
@@ -114,7 +114,8 @@ def test_gauss_center():
     in_back = 20.
 
     xx, yy = np.meshgrid(np.arange(100), np.arange(100))
-    image = in_back + in_amp * np.exp(-.5*((xx-in_xc)/in_xsig)**2) * np.exp(-.5*((yy-in_yc)/in_ysig)**2)
+    image = (in_back + in_amp * np.exp(-.5 * ((xx - in_xc) / in_xsig)**2)
+             * np.exp(-.5 * ((yy - in_yc) / in_ysig)**2))
     plots = Imexamine()
     plots.set_data(image)
     # Intentionally guess off-center
@@ -134,7 +135,7 @@ def test_radial_profile():
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
 
-    rad_in = np.sqrt((xx-x0)**2 + (yy-y0)**2)
+    rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
     rad_in = rad_in.ravel()
     flux_in = data.array.ravel()
 
@@ -156,7 +157,7 @@ def test_radial_profile():
     flux_in = np.bincount(rad_in.astype(np.int), flux_in)
 
     assert_array_equal(np.arange(flux_in.size), rad_out)
-    assert_allclose(flux_in-flux_out, flux_out*0, atol=1e-5)
+    assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
 
 
 @pytest.mark.skipif('not HAS_PHOTUTILS')
@@ -167,7 +168,7 @@ def test_radial_profile_background():
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
 
-    rad_in = np.sqrt((xx-x0)**2 + (yy-y0)**2)
+    rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
     rad_in = rad_in.ravel()
     flux_in = data.array.ravel()
 
@@ -189,7 +190,7 @@ def test_radial_profile_background():
     flux_in = np.bincount(rad_in.astype(np.int), flux_in)
 
     assert_array_equal(np.arange(flux_in.size), rad_out)
-    assert_allclose(flux_in-flux_out, flux_out*0, atol=1e-5)
+    assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
 
 
 def test_radial_profile_pixels():
@@ -199,17 +200,17 @@ def test_radial_profile_pixels():
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
 
-    rad_in = np.sqrt((xx-x0)**2 + (yy-y0)**2)
+    rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
 
     # It's going to crop things down apparently.
     plots = Imexamine()
-    datasize = int(plots.radial_profile_pars["rplot"][0])-1
+    datasize = int(plots.radial_profile_pars["rplot"][0]) - 1
     icentery = 12
     icenterx = 12
-    rad_in = rad_in[icentery-datasize:icentery+datasize,
-                    icenterx-datasize:icenterx+datasize]
-    flux_in = data.array[icentery-datasize:icentery+datasize,
-                         icenterx-datasize:icenterx+datasize]
+    rad_in = rad_in[icentery - datasize:icentery + datasize,
+                    icenterx - datasize:icenterx + datasize]
+    flux_in = data.array[icentery - datasize:icentery + datasize,
+                         icenterx - datasize:icenterx + datasize]
 
     rad_in = rad_in.ravel()
     flux_in = flux_in.ravel()
