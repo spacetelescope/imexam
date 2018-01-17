@@ -593,7 +593,6 @@ class Imexamine(object):
             # Save the total flux for unit testing things later
             self.total_flux = total_flux
 
-            #  print(pheader + pstr)
             self.log.info(pheader + pstr)
             if self.aper_phot_pars["genplot"][0]:
                 pfig = fig
