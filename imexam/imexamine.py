@@ -48,7 +48,8 @@ else:
     PY3 = True
 
 # turn on interactive mode for plotting
-plt.ion()
+if not plt.isinteractive():
+    plt.ion()
 
 # enable display plot in iPython notebook
 try:
@@ -90,7 +91,7 @@ class Imexamine(object):
         self._figure_name = "imexam"
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
-        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
+        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D", "AiryDisk2D", "Polynomial1D"]
 
         # see if the package logger was already started
         self.log = logging.getLogger(__name__)
@@ -363,7 +364,7 @@ class Imexamine(object):
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
         if not self.colplot_pars["xmax"][0]:
-            xmax = len(data[:, x])
+            xmax = len(data[:, int(x)])
         else:
             xmax = self.colplot_pars["xmax"][0]
         ax.set_xlim(self.colplot_pars["xmin"][0], xmax)
@@ -1498,14 +1499,16 @@ class Imexamine(object):
         if size is None:
             size = self.cutout_pars["size"][0]
 
-        prefix = "cutout_{0}_{1}_".format(int(x), int(y))
+        xx = int(x)
+        yy = int(y)
+        prefix = "cutout_{0}_{1}_".format(xx, yy)
         fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
-        cutout = data[y-size:y+size, x-size:x+size]
+        cutout = data[yy-size:yy+size, xx-size:xx+size]
         hdu = fits.PrimaryHDU(cutout)
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
-        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname))
+        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(xx, yy, fname))
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
