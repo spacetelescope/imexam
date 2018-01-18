@@ -61,13 +61,13 @@ The ``imexam`` key dictionary is stored inside the user object as  <object_name>
 However, you can access the same dictionary and customize the plotting parameters using ``set_plot_pars``. In the following example, I'm setting three of the parameters for the contour map, whose imexam key is "e"::
 
     #customize the plotting parameters (or any function in the imexam loop)
-    a.set_plot_pars('e','title','This is my favorite galaxy')
-    a.set_plot_pars('e','ncontours',4)
-    a.set_plot_pars('e','cmap','YlOrRd') #see http://matplotlib.org/users/colormaps.html
+    viewer.set_plot_pars('e','title','This is my favorite galaxy')
+    viewer.set_plot_pars('e','ncontours',4)
+    viewer.set_plot_pars('e','cmap','YlOrRd') #see http://matplotlib.org/users/colormaps.html
 
 where the full dictionary of available values can be found using the ``eimexam()`` function described above.::
 
-    In [1]: a.eimexam()
+    In [1]: viewer.eimexam()
     Out[2]:
     {'ceiling': [None, 'Maximum value to be contoured'],
      'cmap': ['RdBu', 'Colormap (matplotlib style) for image'],
@@ -133,25 +133,37 @@ These are the default parameters for aperture photometry. They live in a diction
 
     The direct access:
 
-    viewer.exam.aperphot_pars= {"function":["aperphot",],
-                    "center":[True,"Center the object location using a Gaussian2D fit"],
-                    "width":[5,"Width of sky annulus in pixels"],
-                    "subsky":[True,"Subtract a sky background?"],
-                    "skyrad":[15,"Distance to start sky annulus is pixels"],
-                    "radius":[5,"Radius of aperture for star flux"],
-                    "zmag":[25.,"zeropoint for the magnitude calculation"],
+    viewer.exam.aper_phot_pars= {'function':["aperphot",],
+                    'center':[True,"Center the object location using a Gaussian2D fit"],
+                    'width':[5,"Width of sky annulus in pixels"],
+                    'subsky':[True,"Subtract a sky background?"],
+                    'skyrad':[15,"Distance to start sky annulus is pixels"],
+                    'radius':[5,"Radius of aperture for star flux"],
+                    'zmag':[25.,"zeropoint for the magnitude calculation"],
+                    'genplot': [True, 'Plot the apertures'], 
+                    'title': [None, 'Title of the plot'],
+                    'scale': ['zscale', 'How to scale the image'],
+                    'color_min': [None, 'Minimum color value'],
+                    'color_max': [None, 'Maximum color value'],
+                    'cmap': ['Greys', 'Matplotlib colormap to use']
                     }
     Using the convenience function:
 
-    In [1]: a.aimexam()
+    In [1]: viewer.aimexam()
     Out[2]:
     {'center': [True, 'Center the object location using a 2d gaussian fit'],
-    'function': ['aper_phot'],
+     'function': ['aper_phot'],
      'radius': [5, 'Radius of aperture for star flux'],
      'skyrad': [15, 'Distance to start sky annulus is pixels'],
      'subsky': [True, 'Subtract a sky background?'],
      'width': [5, 'Width of sky annulus in pixels'],
-     'zmag': [25.0, 'zeropoint for the magnitude calculation']}
+     'zmag': [25.0, 'zeropoint for the magnitude calculation'],
+     'genplot': [True, 'Plot the apertures'],
+     'title': [None, 'Title of the plot'],
+     'scale': ['zscale', 'How to scale the image'],
+     'color_min': [None, 'Minimum color value'],
+     'color_max': [None, 'Maximum color value'],
+     'cmap': ['Greys', 'Matplotlib colormap to use']}
 
 In order to change the width of the photometry aperture around the object you would do this:::
 
@@ -161,11 +173,18 @@ This is what the return looks like when you do photometry, where I've asked for 
 
     viewer.imexam()
 
-    xc=576.855763	yc=634.911425
-    x              y              radius         flux           mag(zpt=25.00) sky            fwhm
-    576.86         634.91         10             2191284.53     9.15           10998.89       5.58
+    xc=574.988523   yc=632.680333
+    x              y              radius         flux           mag(zpt=25.00) sky/pix        fwhm(pix)
+    574.99         632.68         10             2178054.09     9.15           11005.40       5.72
 
 xc = xcenter, yc=ycenter; these were found using a Gaussian2D fit centered on the pixel location of the mouse. You can turn the fit off by setting the "center" parameter to "False".
+
+This is the resulting plot:
+
+.. image:: ../_static/ap_phot_plot.png
+    :height: 400
+    :width: 400
+    :alt: Plot of aperture photometry apertures
 
 
 Gaussian1D, Moffat1D, MexicanHat1D profiles
