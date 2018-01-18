@@ -21,7 +21,7 @@ aper_phot_pars = {"function": ["aper_phot", ],
                   "scale": ['zscale', "How to scale the image"],
                   "color_min": [None, "Minimum color value"],
                   "color_max": [None, "Maximum color value"],
-                  "cmap": ['Greys', "Matplotloib colormap to use"],
+                  "cmap": ['Greys', "Matplotlib colormap to use"],
                   }
 
 

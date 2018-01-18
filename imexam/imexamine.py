@@ -626,9 +626,9 @@ class Imexamine(object):
                           extent=[int(x - pad), int(x + pad), int(y - pad), int(y + pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
 
-                apertures.plot(ax=ax, color='green', alpha=0.75)
+                apertures.plot(ax=ax, color='green', alpha=0.75, lw=3)
                 if subsky:
-                    annulus_apertures.plot(ax=ax, color='red', alpha=0.75)
+                    annulus_apertures.plot(ax=ax, color='red', alpha=0.75, lw=3)
 
                 if pfig is None and 'nbagg' not in get_backend().lower():
                     plt.draw()
