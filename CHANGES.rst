@@ -8,7 +8,6 @@ version 0.8.1dev (unreleased)
 - ZScaleInterval added from astropy.virtualization to set the color range on the data for aperture photometry plot
 
 
-
 version 0.8.0 (released)
 ------------------------
 - fixed show_xpa_commands bug sending None instead of empty string

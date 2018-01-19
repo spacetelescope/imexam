@@ -201,9 +201,6 @@ class Imexamine(object):
         """
         return self.imexam_option_funcs[key][field]
 
-    def set_data(self, data=np.zeros(0)):
-        """initialize the data that imexamine uses."""
-        self._data = data
 
     def set_plot_name(self, filename=None):
         """set the default plot name for the "s" key.
@@ -616,12 +613,12 @@ class Imexamine(object):
 
                 if self.aper_phot_pars['scale'][0] == 'zscale':
                     zs = ZScaleInterval()
-                    color_range = zs.get_limits(self._data)
+                    color_range = zs.get_limits(data)
                 else:
                     color_range = [self.aper_phot_pars['color_min'][0], self.aper_phot_pars['color_max'][0]]
 
                 pad = outer*1.2  # XXX TODO: Bad magic number
-                ax.imshow(self._data[int(y-pad):int(y+pad), int(x-pad):int(x+pad)],
+                ax.imshow(data[int(y-pad):int(y+pad), int(x-pad):int(x+pad)],
                           vmin=color_range[0], vmax=color_range[1],
                           extent=[int(x-pad), int(x+pad), int(y-pad), int(y+pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
