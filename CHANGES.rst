@@ -6,7 +6,7 @@ version 0.8.1dev (unreleased)
 - unit test updates
 - new options added to the aperture phot parameter set that allow users to plot the used apertures
 - ZScaleInterval added from astropy.virtualization to set the color range on the data for aperture photometry plot
-
+- replaced the sigma to fwhm lambda with the astropy constant for conversion
 
 version 0.8.0 (released)
 ------------------------
