@@ -105,8 +105,6 @@ matrix:
 
 
 before_install:
-
-    # CONFIGURE A HEADLESS DISPLAY TO TEST PLOT GENERATION
     - uname -a
     - python --version
 
@@ -136,12 +134,9 @@ install:
     # section if they are needed before setting up conda) to install any
     # other dependencies.
 
-before_script:
-    - xvfb-run -a
-    - sleep 3
 
 script:
-    - $MAIN_CMD  $SETUP_CMD
+    - xvfb-run -a $MAIN_CMD  $SETUP_CMD
 
 
 after_success:
