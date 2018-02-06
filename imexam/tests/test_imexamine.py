@@ -59,6 +59,7 @@ def test_aper_phot(capsys):
     apertures = photutils.CircularAperture((50, 50), radius)
     aperture_area = apertures.area()
     assert_equal(aperture_area, np.pi * radius**2)
+
     rawflux_table = photutils.aperture_photometry(
         test_data,
         apertures,
@@ -67,6 +68,7 @@ def test_aper_phot(capsys):
     total_flux = float(rawflux_table['aperture_sum'][0])
     # Verify the expected circular area sum
     assert_equal(total_flux, 207.0)
+
 
 
 def test_line_fit():
@@ -81,6 +83,7 @@ def test_line_fit():
     line_gauss = in_const + in_amp * np.exp(-0.5 * ((xx - in_mean) / in_stddev)**2)
     plots.set_data(line_gauss)
     fit = plots.line_fit(50, 50, form='Gaussian1D', genplot=False)
+
 
     assert_allclose(in_amp, fit.amplitude_0, 1e-6)
     assert_allclose(in_mean, fit.mean_0, 1e-6)
@@ -108,7 +111,6 @@ def test_column_fit():
 
 def test_gauss_center():
     """Check the gaussian center fitting."""
-
     from astropy.convolution import Gaussian2DKernel
 
     # This creates a 2D normalized gaussian kernal with
@@ -137,6 +139,7 @@ def test_radial_profile():
     x0, y0 = np.where(data.array == data.array.max())
 
     rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
+
     rad_in = rad_in.ravel()
     flux_in = data.array.ravel()
 
@@ -161,6 +164,7 @@ def test_radial_profile():
     assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
 
 
+
 @pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_radial_profile_background():
     """Test the radial profile function with background subtraction"""
@@ -170,6 +174,7 @@ def test_radial_profile_background():
     x0, y0 = np.where(data.array == data.array.max())
 
     rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
+
     rad_in = rad_in.ravel()
     flux_in = data.array.ravel()
 
@@ -184,6 +189,7 @@ def test_radial_profile_background():
     plots.radial_profile_pars['background'][0] = True
     rad_out, flux_out = plots.radial_profile(x0, y0, genplot=False)
 
+
     good = np.where(rad_in <= np.max(rad_out))
     rad_in = rad_in[good]
     flux_in = flux_in[good]
@@ -194,13 +200,13 @@ def test_radial_profile_background():
     assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
 
 
+
 def test_radial_profile_pixels():
     """Test the radial profile function without background subtraction"""
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
-
     rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
 
     # It's going to crop things down apparently.
@@ -224,6 +230,7 @@ def test_radial_profile_pixels():
     # check the unbinned results
     plots.radial_profile_pars['pixels'][0] = True
     out_radius, out_flux = plots.radial_profile(x0, y0, genplot=False)
+
     good = np.where(rad_in <= np.max(out_radius))
     rad_in = rad_in[good]
     flux_in = flux_in[good]

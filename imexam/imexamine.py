@@ -626,9 +626,9 @@ class Imexamine(object):
                           extent=[int(x - pad), int(x + pad), int(y - pad), int(y + pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
 
-                apertures.plot(ax=ax, color='green', alpha=0.75)
+                apertures.plot(ax=ax, color='green', alpha=0.75, lw=3)
                 if subsky:
-                    annulus_apertures.plot(ax=ax, color='red', alpha=0.75)
+                    annulus_apertures.plot(ax=ax, color='red', alpha=0.75, lw=3)
 
                 if pfig is None and 'nbagg' not in get_backend().lower():
                     plt.draw()
@@ -684,8 +684,10 @@ class Imexamine(object):
         degree = int(pars["order"][0])
 
         delta = int(pars["rplot"][0])
+
         if delta >= len(data) / 4:  # help with small data arrays and defaults
             delta = delta / 2
+
         delta = int(delta)
 
         xx = int(x)
@@ -712,6 +714,7 @@ class Imexamine(object):
         # fit model to data
         if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
+
             fitted.mean_0.value += (xx - delta)
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
@@ -719,6 +722,7 @@ class Imexamine(object):
         elif fitform.name is "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk)
             fitted.x_0_0.value += (xx - delta)
+
         elif fitform.name is "Polynomial1D":
             fitted = math_helper.fit_poly_n(chunk, deg=degree)
             if fitted is None:
@@ -727,8 +731,10 @@ class Imexamine(object):
             fitted = math_helper.fit_airy_2d(chunk)
             if fitted is None:
                 raise ValueError("Problem with the AiryDisk2D fit")
+
             fitted.x_0_0.value += (xx - delta)
             fitted.y_0_0.value += (yy - delta)
+
         else:
             self.log.info("{0:s} not implemented".format(fitform.name))
             return
@@ -737,6 +743,7 @@ class Imexamine(object):
         fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
         if fitform.name is "AiryDisk2D":
             yfit = fitted(fline, fline * 0 + fitted.y_0_0.value)
+
         else:
             yfit = fitted(fline)
 
@@ -982,6 +989,7 @@ class Imexamine(object):
                 annulus_apertures = photutils.CircularAnnulus((centerx, centery),
                                                               r_in=inner,
                                                               r_out=inner + width)
+
                 bkgflux_table = photutils.aperture_photometry(data,
                                                               annulus_apertures)
 
