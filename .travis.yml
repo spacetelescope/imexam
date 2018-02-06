@@ -107,6 +107,7 @@ matrix:
 before_install:
     - uname -a
     - python --version
+    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( sudo Xvfb :99 -ac -screen 0 1024x768x8; sleep 3; echo ok )& fi
 
     # We now use the ci-helpers package to set up our testing environment.
     # This is done by using Miniconda and then using conda and pip to install
@@ -136,7 +137,8 @@ install:
 
 
 script:
-    - xvfb-run -a $MAIN_CMD  $SETUP_CMD
+    - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ( xvfb-run -a $MAIN_CMD  $SETUP_CMD ) fi
+    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( $MAIN_CMD $SETUP_CMD ) fi
 
 
 after_success:
