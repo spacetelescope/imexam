@@ -55,18 +55,20 @@ def test_line_plot():
 @pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_aper_phot(capsys):
     """Check that apertures are as expected from photutils"""
-    radius = 10
+    radius = 5
     apertures = photutils.CircularAperture((50, 50), radius)
     aperture_area = apertures.area()
-    # dq fuq does this number come from?
-    assert_equal(aperture_area, np.pi*radius**2)
+    assert_equal(aperture_area, np.pi * radius**2)
+
     rawflux_table = photutils.aperture_photometry(
         test_data,
         apertures,
         subpixels=1,
         method="center")
     total_flux = float(rawflux_table['aperture_sum'][0])
-    assert_equal(total_flux, test_data.sum())
+    # Verify the expected circular area sum
+    assert_equal(total_flux, 207.0)
+
 
 
 def test_line_fit():
@@ -76,10 +78,13 @@ def test_line_fit():
     in_mean = 50.
     in_stddev = 2.
     in_const = 20.
+
     # Set all the lines to be Gaussians
-    line_gauss = in_const + in_amp * np.exp(-0.5*((xx-in_mean)/in_stddev)**2)
+    line_gauss = in_const + in_amp * np.exp(-0.5 * ((xx - in_mean) / in_stddev)**2)
     plots.set_data(line_gauss)
     fit = plots.line_fit(50, 50, form='Gaussian1D', genplot=False)
+
+
     assert_allclose(in_amp, fit.amplitude_0, 1e-6)
     assert_allclose(in_mean, fit.mean_0, 1e-6)
     assert_allclose(in_stddev, fit.stddev_0, 1e-6)
@@ -94,9 +99,10 @@ def test_column_fit():
     in_stddev = 2.
     in_const = 20.
     # Set all the columns to be Gaussians
-    col_gauss = in_const + in_amp * np.exp(-0.5*((yy-in_mean)/in_stddev)**2)
+    col_gauss = in_const + in_amp * np.exp(-0.5 * ((yy - in_mean) / in_stddev)**2)
     plots.set_data(col_gauss)
     fit = plots.column_fit(50, 50, form='Gaussian1D', genplot=False)
+
     assert_allclose(in_amp, fit.amplitude_0, 1e-6)
     assert_allclose(in_mean, fit.mean_0, 1e-6)
     assert_allclose(in_stddev, fit.stddev_0, 1e-6)
@@ -105,26 +111,24 @@ def test_column_fit():
 
 def test_gauss_center():
     """Check the gaussian center fitting."""
-    # make a 2d dataset with a gaussian at the center
-    in_amp = 12.
-    in_xc = 50.
-    in_yc = 50.
-    in_xsig = 3.
-    in_ysig = 2.
-    in_back = 20.
+    from astropy.convolution import Gaussian2DKernel
 
-    xx, yy = np.meshgrid(np.arange(100), np.arange(100))
-    image = in_back + in_amp * np.exp(-.5*((xx-in_xc)/in_xsig)**2) * np.exp(-.5*((yy-in_yc)/in_ysig)**2)
+    # This creates a 2D normalized gaussian kernal with
+    # a set amplitude. Guess off-center
+    amp = 0.0015915494309189533
+    size = 81.0
+    sigma = 10.0
+
+    gaussian_2D_kernel = Gaussian2DKernel(sigma, x_size=size, y_size=size)
     plots = Imexamine()
-    plots.set_data(image)
-    # Intentionally guess off-center
-    a, xx, yy, xs, ys = plots.gauss_center(48, 52)
+    plots.set_data(gaussian_2D_kernel.array)
+    a, xx, yy, xs, ys = plots.gauss_center(37, 37)
 
-    assert_allclose(in_amp, a, 1e-6)
-    assert_allclose(in_xc, xx, 1e-4)
-    assert_allclose(in_yc, yy, 1e-4)
-    assert_allclose(in_xsig, xs, 0.01)
-    assert_allclose(in_ysig, ys, 0.01)
+    assert_allclose(amp, a, 1e-6)
+    assert_allclose(size // 2, xx, 1e-6)
+    assert_allclose(size // 2, yy, 1e-6)
+    assert_allclose(sigma, xs, 0.01)
+    assert_allclose(sigma, ys, 0.01)
 
 
 def test_radial_profile():
@@ -134,7 +138,8 @@ def test_radial_profile():
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
 
-    rad_in = np.sqrt((xx-x0)**2 + (yy-y0)**2)
+    rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
+
     rad_in = rad_in.ravel()
     flux_in = data.array.ravel()
 
@@ -147,7 +152,7 @@ def test_radial_profile():
     # check the binned results
     plots.radial_profile_pars['pixels'][0] = False
     plots.radial_profile_pars['background'][0] = False
-    rad_out, flux_out = plots.radial_profile(12, 12, genplot=False)
+    rad_out, flux_out = plots.radial_profile(x0, y0, genplot=False)
 
     good = np.where(rad_in <= np.max(rad_out))
     rad_in = rad_in[good]
@@ -156,7 +161,8 @@ def test_radial_profile():
     flux_in = np.bincount(rad_in.astype(np.int), flux_in)
 
     assert_array_equal(np.arange(flux_in.size), rad_out)
-    assert_allclose(flux_in-flux_out, flux_out*0, atol=1e-5)
+    assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
+
 
 
 @pytest.mark.skipif('not HAS_PHOTUTILS')
@@ -167,7 +173,8 @@ def test_radial_profile_background():
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
 
-    rad_in = np.sqrt((xx-x0)**2 + (yy-y0)**2)
+    rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
+
     rad_in = rad_in.ravel()
     flux_in = data.array.ravel()
 
@@ -180,7 +187,8 @@ def test_radial_profile_background():
     # check the binned results
     plots.radial_profile_pars['pixels'][0] = False
     plots.radial_profile_pars['background'][0] = True
-    rad_out, flux_out = plots.radial_profile(12, 12, genplot=False)
+    rad_out, flux_out = plots.radial_profile(x0, y0, genplot=False)
+
 
     good = np.where(rad_in <= np.max(rad_out))
     rad_in = rad_in[good]
@@ -189,7 +197,8 @@ def test_radial_profile_background():
     flux_in = np.bincount(rad_in.astype(np.int), flux_in)
 
     assert_array_equal(np.arange(flux_in.size), rad_out)
-    assert_allclose(flux_in-flux_out, flux_out*0, atol=1e-5)
+    assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
+
 
 
 def test_radial_profile_pixels():
@@ -198,18 +207,17 @@ def test_radial_profile_pixels():
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
-
-    rad_in = np.sqrt((xx-x0)**2 + (yy-y0)**2)
+    rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
 
     # It's going to crop things down apparently.
     plots = Imexamine()
-    datasize = int(plots.radial_profile_pars["rplot"][0])-1
+    datasize = int(plots.radial_profile_pars["rplot"][0]) - 1
     icentery = 12
     icenterx = 12
-    rad_in = rad_in[icentery-datasize:icentery+datasize,
-                    icenterx-datasize:icenterx+datasize]
-    flux_in = data.array[icentery-datasize:icentery+datasize,
-                         icenterx-datasize:icenterx+datasize]
+    rad_in = rad_in[icentery - datasize:icentery + datasize,
+                    icenterx - datasize:icenterx + datasize]
+    flux_in = data.array[icentery - datasize:icentery + datasize,
+                         icenterx - datasize:icenterx + datasize]
 
     rad_in = rad_in.ravel()
     flux_in = flux_in.ravel()
@@ -221,7 +229,8 @@ def test_radial_profile_pixels():
     plots.set_data(data.array)
     # check the unbinned results
     plots.radial_profile_pars['pixels'][0] = True
-    out_radius, out_flux = plots.radial_profile(12, 12, genplot=False)
+    out_radius, out_flux = plots.radial_profile(x0, y0, genplot=False)
+
     good = np.where(rad_in <= np.max(out_radius))
     rad_in = rad_in[good]
     flux_in = flux_in[good]

@@ -48,7 +48,8 @@ else:
     PY3 = True
 
 # turn on interactive mode for plotting
-plt.ion()
+if not plt.isinteractive():
+    plt.ion()
 
 # enable display plot in iPython notebook
 try:
@@ -90,7 +91,7 @@ class Imexamine(object):
         self._figure_name = "imexam"
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
-        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
+        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D", "AiryDisk2D", "Polynomial1D"]
 
         # see if the package logger was already started
         self.log = logging.getLogger(__name__)
@@ -363,7 +364,7 @@ class Imexamine(object):
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
         if not self.colplot_pars["xmax"][0]:
-            xmax = len(data[:, x])
+            xmax = len(data[:, int(x)])
         else:
             xmax = self.colplot_pars["xmax"][0]
         ax.set_xlim(self.colplot_pars["xmin"][0], xmax)
@@ -593,7 +594,6 @@ class Imexamine(object):
             # Save the total flux for unit testing things later
             self.total_flux = total_flux
 
-            #  print(pheader + pstr)
             self.log.info(pheader + pstr)
             if self.aper_phot_pars["genplot"][0]:
                 pfig = fig
@@ -616,14 +616,14 @@ class Imexamine(object):
 
                 if self.aper_phot_pars['scale'][0] == 'zscale':
                     zs = ZScaleInterval()
-                    color_range = zs.get_limits(self._data)
+                    color_range = zs.get_limits(data)
                 else:
                     color_range = [self.aper_phot_pars['color_min'][0], self.aper_phot_pars['color_max'][0]]
 
-                pad = outer*1.2  # XXX TODO: Bad magic number
-                ax.imshow(self._data[int(y-pad):int(y+pad), int(x-pad):int(x+pad)],
+                pad = outer * 1.2  # XXX TODO: Bad magic number
+                ax.imshow(data[int(y - pad):int(y + pad), int(x - pad):int(x + pad)],
                           vmin=color_range[0], vmax=color_range[1],
-                          extent=[int(x-pad), int(x+pad), int(y-pad), int(y+pad)], origin='lower',
+                          extent=[int(x - pad), int(x + pad), int(y - pad), int(y + pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
 
                 apertures.plot(ax=ax, color='green', alpha=0.75, lw=3)
@@ -684,8 +684,10 @@ class Imexamine(object):
         degree = int(pars["order"][0])
 
         delta = int(pars["rplot"][0])
-        if delta >= len(data)/4:  # help with small data arrays and defaults
-            delta = delta/2
+
+        if delta >= len(data) / 4:  # help with small data arrays and defaults
+            delta = delta / 2
+
         delta = int(delta)
 
         xx = int(x)
@@ -712,13 +714,15 @@ class Imexamine(object):
         # fit model to data
         if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
-            fitted.mean_0.value += (xx-delta)
+
+            fitted.mean_0.value += (xx - delta)
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
-            fitted.x_0_0.value += (xx-delta)
+            fitted.x_0_0.value += (xx - delta)
         elif fitform.name is "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk)
-            fitted.x_0_0.value += (xx-delta)
+            fitted.x_0_0.value += (xx - delta)
+
         elif fitform.name is "Polynomial1D":
             fitted = math_helper.fit_poly_n(chunk, deg=degree)
             if fitted is None:
@@ -727,8 +731,10 @@ class Imexamine(object):
             fitted = math_helper.fit_airy_2d(chunk)
             if fitted is None:
                 raise ValueError("Problem with the AiryDisk2D fit")
-            fitted.x_0_0.value += (xx-delta)
-            fitted.y_0_0.value += (yy-delta)
+
+            fitted.x_0_0.value += (xx - delta)
+            fitted.y_0_0.value += (yy - delta)
+
         else:
             self.log.info("{0:s} not implemented".format(fitform.name))
             return
@@ -736,7 +742,8 @@ class Imexamine(object):
         xline = np.arange(len(chunk)) + xx - delta
         fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
         if fitform.name is "AiryDisk2D":
-            yfit = fitted(fline, fline*0+fitted.y_0_0.value)
+            yfit = fitted(fline, fline * 0 + fitted.y_0_0.value)
+
         else:
             yfit = fitted(fline)
 
@@ -869,8 +876,8 @@ class Imexamine(object):
             data = self._data
 
         # reset delta for small arrays
-        if delta >= len(data)/4:
-            delta = delta/2
+        if delta >= len(data) / 4:
+            delta = delta / 2
 
         delta = int(delta)
         xx = int(x)
@@ -942,7 +949,7 @@ class Imexamine(object):
             getdata = bool(self.radial_profile_pars["getdata"][0])
 
             # cut the data down to size
-            datasize = int(self.radial_profile_pars["rplot"][0])-1
+            datasize = int(self.radial_profile_pars["rplot"][0]) - 1
             delta = 10  # chunk size in pixels to find center
 
             # center on image using a 2d gaussian
@@ -957,14 +964,14 @@ class Imexamine(object):
             icentery = int(centery)
 
             # just grab the data box we want from the image
-            data_chunk = data[icentery-datasize:icentery+datasize,
-                              icenterx-datasize:icenterx+datasize]
+            data_chunk = data[icentery - datasize:icentery + datasize,
+                              icenterx - datasize:icenterx + datasize]
 
             y, x = np.indices((data_chunk.shape))  # radii of all pixels
 
             if self.radial_profile_pars["pixels"][0]:
-                r = np.sqrt((x - datasize+(centerx-icenterx))**2 +
-                            (y - datasize + (centery-icentery))**2)
+                r = np.sqrt((x - datasize + (centerx - icenterx))**2
+                            + (y - datasize + (centery - icentery))**2)
                 indices = np.argsort(r.flat)  # sorted indices
                 radius = r.flat[indices]
                 flux = data_chunk.flat[indices]
@@ -980,7 +987,9 @@ class Imexamine(object):
                 inner = self.radial_profile_pars["skyrad"][0]
                 width = self.radial_profile_pars["width"][0]
                 annulus_apertures = photutils.CircularAnnulus((centerx, centery),
-                                                              r_in=inner, r_out=inner+width)
+                                                              r_in=inner,
+                                                              r_out=inner + width)
+
                 bkgflux_table = photutils.aperture_photometry(data,
                                                               annulus_apertures)
 
@@ -999,7 +1008,7 @@ class Imexamine(object):
                 if getdata:
                     self.log.info("Sky per pixel: {0} using "
                                   "(rad={1}->{2})".format(sky_per_pix,
-                                                          inner, inner+width))
+                                                          inner, inner + width))
             if getdata:
                 info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
                 self.log.info(info)
@@ -1286,9 +1295,12 @@ class Imexamine(object):
                 ax.set_xscale("log")
             if self.histogram_pars["logy"][0]:
                 ax.set_yscale("log")
-            n, bins, patches = ax.hist(
-                    flat_data, num_bins, range=[mini, maxi], normed=False,
-                    facecolor='green', alpha=0.5, histtype='bar')
+            n, bins, patches = ax.hist(flat_data, num_bins,
+                                       range=[mini, maxi],
+                                       normed=False,
+                                       facecolor='green',
+                                       alpha=0.5,
+                                       histtype='bar')
             self.log.info("{0} bins "
                           "range:[{1},{2}]".format(num_bins, mini, maxi))
 
@@ -1499,14 +1511,16 @@ class Imexamine(object):
         if size is None:
             size = self.cutout_pars["size"][0]
 
-        prefix = "cutout_{0}_{1}_".format(int(x), int(y))
+        xx = int(x)
+        yy = int(y)
+        prefix = "cutout_{0}_{1}_".format(xx, yy)
         fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
-        cutout = data[y-size:y+size, x-size:x+size]
+        cutout = data[yy - size:yy + size, xx - size:xx + size]
         hdu = fits.PrimaryHDU(cutout)
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
-        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname))
+        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(xx, yy, fname))
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
