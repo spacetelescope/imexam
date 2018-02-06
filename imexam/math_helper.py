@@ -7,12 +7,11 @@ from __future__ import print_function, division
 import numpy as np
 import warnings
 from astropy.modeling import models, fitting
-
-
+from astropy.stats import gaussian_sigma_to_fwhm
 
 
 def gfwhm(sigmax, sigmay=None):
-    """Compute the gaussian full width half max.
+    """Compute the Gaussian full width half max.
 
     Parameters
     ----------
@@ -25,19 +24,20 @@ def gfwhm(sigmax, sigmay=None):
 
     Returns
     -------
-    The FWHM tuple for the gaussian
+    The FWHM tuple for the Gaussian
 
     """
     if sigmax is None:
-        print("Need at least one sigma value")
+        print("Need at least one sigma value for Gaussian FWHM")
         return (None, None)
 
-    g = lambda x: x * np.sqrt(8.0 * np.log(2.))
-
+    fwhmx = gaussian_sigma_to_fwhm * sigmax
     if sigmay is None:
-        return (g(sigmax), g(sigmax))  # assume circular where sigmax = sigmay
+        fwhmy = fwhmx
     else:
-        return (g(sigmax), g(sigmay))
+        fwhmy = gaussian_sigma_to_fwhm * sigmay
+
+    return (fwhmx, fwhmy)
 
 
 def mfwhm(alpha=0, gamma=0):
@@ -58,12 +58,10 @@ def mfwhm(alpha=0, gamma=0):
     fwhm = 2* alpha * sqrt(2^(1/gamma) -1 ))
     """
     if alpha == 0 or gamma == 0:
-        print("Need alpha AND gamma values")
+        print("Need alpha AND gamma values for moffat FWHM")
         return None
 
-    g = lambda x, y: 2 * x * np.sqrt(2 ** (1/y) - 1)
-
-    return g(alpha, gamma)
+    return 2 * alpha * np.sqrt(2 ** (1 / gamma) - 1)
 
 
 def fit_moffat_1d(data, gamma=2., alpha=1.):
@@ -75,8 +73,10 @@ def fit_moffat_1d(data, gamma=2., alpha=1.):
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Moffat1D
-    model = models.Moffat1D(amplitude=max(data), x_0=ldata/2, gamma=gamma, alpha=alpha)
+    # Moffat1D + constant
+    model = (models.Moffat1D(amplitude=max(data), x_0=ldata / 2, gamma=gamma, alpha=alpha)
+             + models.Polynomial1D(c0=data.min(), degree=0))
+
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -89,14 +89,17 @@ def fit_moffat_1d(data, gamma=2., alpha=1.):
 def fit_gauss_1d(data):
     """Fit a 1D gaussian to the data and return the fit."""
     # data is assumed to already be chunked to a reasonable size
+    delta = int(len(data) / 2.)  # guess the center
     ldata = len(data)
     x = np.arange(ldata)
 
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Gaussian1D
-    model = models.Gaussian1D(amplitude=1, mean=0, stddev=1.)
+    # Gaussian1D + a constant
+    model = (models.Gaussian1D(amplitude=data.max() - data.min(), mean=delta, stddev=1.)
+             + models.Polynomial1D(c0=data.min(), degree=0))
+
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -118,14 +121,17 @@ def gauss_center(data, sigma=3., theta=0.):
     """
     # use a smaller bounding box so that we are only fitting the local data
     delta = int(len(data) / 2)  # guess the center
+    amp = data.max() - data.min()  # guess the amplitude
     ldata = len(data)
     yy, xx = np.mgrid[:ldata, :ldata]
 
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Gaussian2D(amp,xmean,ymean,xstd,ystd,theta)
-    model = models.Gaussian2D(1, delta, delta, sigma, sigma, theta)
+    # Gaussian2D(amp,xmean,ymean,xstd,ystd,theta) + a constant
+    model = (models.Gaussian2D(amp, delta, delta, sigma, sigma, theta)
+             + models.Polynomial2D(c0_0=data.min(), degree=0))
+
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -144,9 +150,11 @@ def fit_mex_hat_1d(data):
     # Fit model to data
     fit = fitting.LevMarLSQFitter()
 
-    # Mexican Hat 1D
-    model = models.MexicanHat1D(amplitude=np.max(data),
-                                x_0=ldata/2, sigma=2., fixed=fixed_pars)
+    # Mexican Hat 1D + constant
+    model = (models.MexicanHat1D(amplitude=np.max(data),
+                                 x_0=ldata / 2, sigma=2., fixed=fixed_pars)
+             + models.Polynomial1D(c0=data.min(), degree=0))
+
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
@@ -171,9 +179,11 @@ def fit_airy_2d(data, x=None, y=None):
     # fit model to the data
     fit = fitting.LevMarLSQFitter()
 
-    # AiryDisk2D(amplitude, x_0, y_0, radius)
-    model = models.AiryDisk2D(np.max(data), x_0=x, y_0=y, radius=delta,
-                              fixed=fixed_pars)
+    # AiryDisk2D(amplitude, x_0, y_0, radius) + constant
+    model = (models.AiryDisk2D(np.max(data), x_0=x, y_0=y, radius=delta,
+                               fixed=fixed_pars)
+             + models.Polynomial2D(c0_0=data.min(), degree=0))
+
     with warnings.catch_warnings():
             # Ignore model warnings for new_plot_window
             warnings.simplefilter('ignore')

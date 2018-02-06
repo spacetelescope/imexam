@@ -32,6 +32,7 @@ from IPython.display import Image
 
 from astropy.io import fits
 from astropy.modeling import models
+from astropy.visualization import ZScaleInterval
 try:
     from scipy import stats
 except ImportError:
@@ -47,7 +48,8 @@ else:
     PY3 = True
 
 # turn on interactive mode for plotting
-plt.ion()
+if not plt.isinteractive():
+    plt.ion()
 
 # enable display plot in iPython notebook
 try:
@@ -89,7 +91,7 @@ class Imexamine(object):
         self._figure_name = "imexam"
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
-        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D"]
+        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D", "AiryDisk2D", "Polynomial1D"]
 
         # see if the package logger was already started
         self.log = logging.getLogger(__name__)
@@ -362,7 +364,7 @@ class Imexamine(object):
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
         if not self.colplot_pars["xmax"][0]:
-            xmax = len(data[:, x])
+            xmax = len(data[:, int(x)])
         else:
             xmax = self.colplot_pars["xmax"][0]
         ax.set_xlim(self.colplot_pars["xmin"][0], xmax)
@@ -499,7 +501,7 @@ class Imexamine(object):
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
 
-    def aper_phot(self, x, y, data=None):
+    def aper_phot(self, x, y, data=None, fig=None):
         """Perform aperture photometry.
 
         uses photutils functions, photutils must be available
@@ -512,7 +514,8 @@ class Imexamine(object):
             The y location of the object
         data: numpy array
             The data array to work on
-
+        fig: figure object for redirect
+            Used for interaction with the ginga GUI
         """
         if data is None:
             data = self._data
@@ -526,6 +529,8 @@ class Imexamine(object):
                 delta = 10
                 amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
                                                              delta=delta)
+
+            # XXX TODO:  Do I beleive that these all have to be ints?
 
             radius = int(self.aper_phot_pars["radius"][0])
             width = int(self.aper_phot_pars["width"][0])
@@ -541,6 +546,7 @@ class Imexamine(object):
                 subpixels=1,
                 method="center")
 
+            sky_per_pix = None
             if subsky:
                 annulus_apertures = photutils.CircularAnnulus(
                     (x, y), r_in=inner, r_out=outer)
@@ -571,23 +577,66 @@ class Imexamine(object):
             magzero = float(self.aper_phot_pars["zmag"][0])
             mag = magzero - 2.5 * (np.log10(total_flux))
 
-            pheader = (
-                "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\tsky/pix\t".format(magzero)).expandtabs(15)
+            # Construct the output strings (header and parameter values)
+            pheader = "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\t".format(magzero)
+            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t".format(x, y, radius, total_flux, mag)
+
+            if sky_per_pix is not None:
+                pheader += "sky/pix\t"
+                pstr += "{0:0.2f}\t".format(sky_per_pix)
             if center:
-                pheader += ("fwhm(pix)")
-                pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}\t{6:0.2f}".format(x, y, radius,
-                                                                                                   total_flux, mag,
-                                                                                                   sky_per_pix,
-                                                                                                   math_helper.gfwhm(sigma)[0]).expandtabs(15)
-            else:
-                pstr = "\n{0:0.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t{5:0.2f}".format(x, y, radius,
-                                                                                          total_flux, mag,
-                                                                                          sky_per_pix).expandtabs(15)
+                pheader += "fwhm(pix)"
+                pstr += "{0:0.2f}".format(math_helper.gfwhm(sigma)[0])
 
-            #  print(pheader + pstr)
+            pheader = pheader.expandtabs(15)
+            pstr = pstr.expandtabs(15)
+
+            # Save the total flux for unit testing things later
+            self.total_flux = total_flux
+
             self.log.info(pheader + pstr)
+            if self.aper_phot_pars["genplot"][0]:
+                pfig = fig
+                if fig is None:
+                    # Make sure figure is square so round stars look round
+                    fig = plt.figure(self._figure_name, figsize=[5, 5])
+                fig.clf()
+                fig.add_subplot(111)
+                ax = plt.gca()
 
-    def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None):
+                if self.aper_phot_pars["title"][0] is None:
+                    title = "x=%.2f, y=%.2f, flux=%.1f, \nmag=%.1f, sky=%.1f" % (x, y,
+                                                                                 total_flux, mag,
+                                                                                 sky_per_pix)
+                    if center:
+                        title += ", fwhm=%.2f" % math_helper.gfwhm(sigma)[0]
+                    ax.set_title(title)
+                else:
+                    ax.set_title(self.aper_phot_pars["title"][0])
+
+                if self.aper_phot_pars['scale'][0] == 'zscale':
+                    zs = ZScaleInterval()
+                    color_range = zs.get_limits(data)
+                else:
+                    color_range = [self.aper_phot_pars['color_min'][0], self.aper_phot_pars['color_max'][0]]
+
+                pad = outer * 1.2  # XXX TODO: Bad magic number
+                ax.imshow(data[int(y - pad):int(y + pad), int(x - pad):int(x + pad)],
+                          vmin=color_range[0], vmax=color_range[1],
+                          extent=[int(x - pad), int(x + pad), int(y - pad), int(y + pad)], origin='lower',
+                          cmap=self.aper_phot_pars['cmap'][0])
+
+                apertures.plot(ax=ax, color='green', alpha=0.75, lw=3)
+                if subsky:
+                    annulus_apertures.plot(ax=ax, color='red', alpha=0.75, lw=3)
+
+                if pfig is None and 'nbagg' not in get_backend().lower():
+                    plt.draw()
+                    plt.pause(0.001)
+                else:
+                    fig.canvas.draw()
+
+    def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None, col=False):
         """compute the 1D fit to the line of data using the specified form.
 
         Parameters
@@ -605,6 +654,8 @@ class Imexamine(object):
             produce the plot or return the fit
         fig: figure for redirect
             Used for interaction with the ginga GUI
+        col: bool (False)
+            Plot column instead of line
 
         Notes
         -----
@@ -613,27 +664,36 @@ class Imexamine(object):
         If centering is True in the parameter set, then the center
         is fit with a 2d gaussian, not performed for Polynomial1D
         """
+
+        # Set which parameters to use
+        if col:
+            pars = self.column_fit_pars
+        else:
+            pars = self.line_fit_pars
+
         if data is None:
             data = self._data
 
         if form is None:
-            fitform = getattr(models, self.line_fit_pars["func"][0])
+            fitform = getattr(models, pars["func"][0])
         else:
             fitform = getattr(models, form)
         self.log.info("using model: {0}".format(fitform))
 
         # Used for Polynomial1D fitting
-        degree = int(self.line_fit_pars["order"][0])
+        degree = int(pars["order"][0])
 
-        delta = int(self.line_fit_pars["rplot"][0])
-        if delta >= len(data)/4:  # help with small data arrays and defaults
-            delta = delta/2
+        delta = int(pars["rplot"][0])
+
+        if delta >= len(data) / 4:  # help with small data arrays and defaults
+            delta = delta / 2
+
         delta = int(delta)
 
         xx = int(x)
         yy = int(y)
         # fit the center with a 2d gaussian
-        if self.line_fit_pars["center"][0]:
+        if pars["center"][0]:
             if fitform.name is not "Polynomial1D":
                 amp, xout, yout, sigma, sigmay = self.gauss_center(xx, yy, data,
                                                                    delta=delta)
@@ -644,20 +704,25 @@ class Imexamine(object):
                 else:
                     xx = int(xout)
                     yy = int(yout)
-
-        line = data[yy, :]
-        chunk = line[xx - delta: xx + delta]
+        if col:
+            line = data[:, xx]
+            chunk = line[yy - delta:yy + delta]
+        else:
+            line = data[yy, :]
+            chunk = line[xx - delta: xx + delta]
 
         # fit model to data
         if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
-            fitted.mean.value += (xx-delta)
+
+            fitted.mean_0.value += (xx - delta)
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
-            fitted.x_0.value += (xx-delta)
+            fitted.x_0_0.value += (xx - delta)
         elif fitform.name is "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk)
-            fitted.x_0.value += (xx-delta)
+            fitted.x_0_0.value += (xx - delta)
+
         elif fitform.name is "Polynomial1D":
             fitted = math_helper.fit_poly_n(chunk, deg=degree)
             if fitted is None:
@@ -666,21 +731,27 @@ class Imexamine(object):
             fitted = math_helper.fit_airy_2d(chunk)
             if fitted is None:
                 raise ValueError("Problem with the AiryDisk2D fit")
-            fitted.x_0.value += (xx-delta)
-            fitted.y_0.value += (yy-delta)
+
+            fitted.x_0_0.value += (xx - delta)
+            fitted.y_0_0.value += (yy - delta)
+
         else:
             self.log.info("{0:s} not implemented".format(fitform.name))
             return
 
         xline = np.arange(len(chunk)) + xx - delta
         fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
-        yfit = fitted(fline)
+        if fitform.name is "AiryDisk2D":
+            yfit = fitted(fline, fline * 0 + fitted.y_0_0.value)
+
+        else:
+            yfit = fitted(fline)
 
         # make a plot
-        if self.line_fit_pars["title"][0] is None:
+        if pars["title"][0] is None:
             title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
         else:
-            title = self.line_fit_pars["title"][0]
+            title = pars["title"][0]
 
         if genplot:
             pfig = fig
@@ -690,47 +761,52 @@ class Imexamine(object):
             fig.add_subplot(111)
             ax = fig.gca()
 
-            ax.set_xlabel(self.line_fit_pars["xlabel"][0])
-            ax.set_ylabel(self.line_fit_pars["ylabel"][0])
-            if self.line_fit_pars["logx"][0]:
+            ax.set_xlabel(pars["xlabel"][0])
+            ax.set_ylabel(pars["ylabel"][0])
+            if pars["logx"][0]:
                 ax.set_xscale("log")
-            if self.line_fit_pars["logy"][0]:
+            if pars["logy"][0]:
                 ax.set_yscale("log")
 
-            if bool(self.line_fit_pars["pointmode"][0]):
+            if bool(pars["pointmode"][0]):
                 ax.plot(xline, chunk, 'o', label="data")
             else:
                 ax.plot(xline, chunk, label="data", linestyle='-')
 
             if fitform.name is "Gaussian1D":
-                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
+                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
                 ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f},"
                              "fwhm={3:9.2f}".format(title,
-                                                    fitted.amplitude.value,
-                                                    fitted.mean.value,
+                                                    fitted.amplitude_0.value,
+                                                    fitted.mean_0.value,
                                                     fwhmx))
                 pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.mean.value, fwhmx)
+                    int(x), int(y), fitted.mean_0.value, fwhmx)
                 self.log.info(pstr)
             elif fitform.name is "Moffat1D":
-                mfwhm = math_helper.mfwhm(fitted.alpha.value,
-                                          fitted.gamma.value)
+                mfwhm = math_helper.mfwhm(fitted.alpha_0.value,
+                                          fitted.gamma_0.value)
                 ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
-                    title, fitted.amplitude.value, mfwhm))
+                    title, fitted.amplitude_0.value, mfwhm))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, mfwhm)
+                    int(x), int(y), fitted.amplitude_0.value, mfwhm)
                 self.log.info(pstr)
             elif fitform.name is "MexicanHat1D":
                 ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
-                    title, fitted.amplitude.value, fitted.sigma.value))
+                    title, fitted.amplitude_0.value, fitted.sigma_0.value))
                 pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
+                    int(x), int(y), fitted.amplitude_0.value, fitted.sigma_0.value)
                 self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
                 ax.set_title("{0:s} degree={1:d}".format(title, degree))
-                pstr = "({0:d},{1:d}) degree={2:d}".format(
-                          int(x), int(y), degree)
+                pstr = "({0:d},{1:d}) degree={2:d}".format(int(x), int(y), degree)
                 self.log.info(fitted.parameters)
+                self.log.info(pstr)
+            elif fitform.name is "AiryDisk2D":
+                ax.set_title("{0:s} amp={1:8.2f} radius={2:8.2f}".format(
+                    title, fitted.amplitude_0.value, fitted.radius_0.value))
+                pstr = "({0:d},{1:d}) amp={2:8.2f} radius={3:9.2f}".format(
+                    int(x), int(y), fitted.amplitude_0.value, fitted.radius_0.value)
                 self.log.info(pstr)
             else:
                 warnings.warn("Unsupported functional form used in line_fit")
@@ -774,133 +850,11 @@ class Imexamine(object):
         if centering is True, then the center is fit with a 2d gaussian,
         but this is currently not done for Polynomial1D
         """
-        if data is None:
-            data = self._data
-        if form is None:
-            fitform = getattr(models, self.column_fit_pars["func"][0])
-        else:
-            fitform = getattr(models, form)
-        self.log.info("using model: {0}".format(fitform))
 
-        #  Used for Polynomial1D fitting
-        degree = int(self.column_fit_pars["order"][0])
-        delta = int(self.column_fit_pars["rplot"][0])
-        if delta >= len(data)/4:
-            delta = int(delta/2)
-
-        # fit the center with a 2d gaussian
-        xx = int(x)
-        yy = int(y)
-        # fit the center with a 2d gaussian
-        if self.column_fit_pars["center"][0]:
-            if fitform.name is not "Polynomial1D":
-                amp, xout, yout, sigma, sigmay = self.gauss_center(x, y, data,
-                                                                   delta=delta)
-                if (xout < 0 or yout < 0 or xout > data.shape[1] or
-                        yout > data.shape[0]):
-                        self.log.info("Problem with centering, "
-                                      "using pixel coords")
-                else:
-                    xx = int(xout)
-                    yy = int(yout)
-
-        line = data[:, xx]
-        chunk = line[yy - delta:yy + delta]
-
-        # fit model to data
-        if fitform.name is "Gaussian1D":
-            fitted = math_helper.fit_gauss_1d(chunk)
-            fitted.mean.value += (yy-delta)
-        elif fitform.name is "Moffat1D":
-            fitted = math_helper.fit_moffat_1d(chunk)
-            fitted.x_0.value += (yy-delta)
-        elif fitform.name is "MexicanHat1D":
-            fitted = math_helper.fit_mex_hat_1d(chunk)
-            fitted.x_0.value += (yy-delta)
-        elif fitform.name is "Polynomial1D":
-            fitted = math_helper.fit_poly_n(chunk, deg=degree)
-            if fitted is None:
-                raise ValueError("Problem with the Poly1D fit")
-        else:
-            self.log.info("{0:s} not implemented".format(fitform.name))
-            return
-
-        yline = np.arange(len(chunk)) + yy - delta
-        fline = np.linspace(yline[0], yline[-1], 100)  # finer sample
-        yfit = fitted(fline)
-
-        if self.column_fit_pars["title"][0] is None:
-            title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
-        else:
-            title = self.column_fit_pars["title"][0]
-
-        # make a plot
-        if genplot:
-            pfig = fig
-            if fig is None:
-                fig = plt.figure(self._figure_name)
-            fig.clf()
-            fig.add_subplot(111)
-            ax = fig.gca()
-
-            ax.set_xlabel(self.column_fit_pars["xlabel"][0])
-            ax.set_ylabel(self.column_fit_pars["ylabel"][0])
-            if self.column_fit_pars["logx"][0]:
-                ax.set_xscale("log")
-            if self.column_fit_pars["logy"][0]:
-                ax.set_yscale("log")
-
-            if bool(self.column_fit_pars["pointmode"][0]):
-                ax.plot(yline, chunk, 'o', label="data")
-            else:
-                ax.plot(yline, chunk, linestyle='-', label="data")
-
-            if fitform.name == "Gaussian1D":
-                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev.value)
-                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    title, fitted.amplitude.value, fitted.mean.value, fwhmy))
-                pstr = "({0:d},{1:d}) mean={2:0.3f}, fwhm={3:0.2f}".format(
-                    int(x), int(y), fitted.mean.value, fwhmy)
-                self.log.info(pstr)
-                self.log.info(fitted.parameters)
-
-            elif fitform.name is "Moffat1D":
-                mfwhm = math_helper.mfwhm(fitted.alpha.value,
-                                          fitted.gamma.value)
-                ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
-                    title, fitted.amplitude.value, mfwhm))
-                pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, mfwhm)
-                self.log.info(pstr)
-                self.log.info(fitted.parameters)
-
-            elif fitform.name is "MexicanHat1D":
-                ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
-                    title, fitted.amplitude.value, fitted.sigma.value))
-                pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude.value, fitted.sigma.value)
-                self.log.info(pstr)
-            elif fitform.name is "Polynomial1D":
-                ax.set_title("{0:s} degree={1:d}".format(title, degree))
-                pstr = "({0:d},{1:d}) degree={2:d}".format(
-                          int(x), int(y), degree)
-                self.log.info(pstr)
-                self.log.info(fitted.parameters)
-            else:
-                warnings.warn("Unsupported functional form used in column_fit")
-                raise ValueError
-
-            ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
-            ax.legend()
-
-            if pfig is None and 'nbagg' not in get_backend().lower():
-                plt.draw()
-                plt.pause(0.001)
-            else:
-                fig.canvas.draw()
-
-        else:
-            return fitted
+        result = self.line_fit(x, y, data=data, form=form,
+                               genplot=genplot, fig=fig, col=True)
+        if not genplot:
+            return result
 
     def gauss_center(self, x, y, data=None, delta=10):
         """Return the 2d gaussian fit center of the data.
@@ -922,21 +876,21 @@ class Imexamine(object):
             data = self._data
 
         # reset delta for small arrays
-        if delta >= len(data)/4:
-            delta = delta/2
+        if delta >= len(data) / 4:
+            delta = delta / 2
 
         delta = int(delta)
-        xx=int(x)
-        yy=int(y)
+        xx = int(x)
+        yy = int(y)
         #  flipped from xpa
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
         try:
             fit = math_helper.gauss_center(chunk)
-            amp = fit.amplitude.value
-            xcenter = fit.x_mean.value
-            ycenter = fit.y_mean.value
-            xsigma = fit.x_stddev.value
-            ysigma = fit.y_stddev.value
+            amp = fit.amplitude_0.value
+            xcenter = fit.x_mean_0.value
+            ycenter = fit.y_mean_0.value
+            xsigma = fit.x_stddev_0.value
+            ysigma = fit.y_stddev_0.value
 
             pstr = "xc={0:4f}\tyc={1:4f}".format(
                 (xcenter + xx - delta),
@@ -995,7 +949,7 @@ class Imexamine(object):
             getdata = bool(self.radial_profile_pars["getdata"][0])
 
             # cut the data down to size
-            datasize = int(self.radial_profile_pars["rplot"][0])-1
+            datasize = int(self.radial_profile_pars["rplot"][0]) - 1
             delta = 10  # chunk size in pixels to find center
 
             # center on image using a 2d gaussian
@@ -1010,14 +964,14 @@ class Imexamine(object):
             icentery = int(centery)
 
             # just grab the data box we want from the image
-            data_chunk = data[icentery-datasize:icentery+datasize,
-                              icenterx-datasize:icenterx+datasize]
+            data_chunk = data[icentery - datasize:icentery + datasize,
+                              icenterx - datasize:icenterx + datasize]
 
             y, x = np.indices((data_chunk.shape))  # radii of all pixels
 
             if self.radial_profile_pars["pixels"][0]:
-                r = np.sqrt((x - datasize+(centerx-icenterx))**2 +
-                            (y - datasize + (centery-icentery))**2)
+                r = np.sqrt((x - datasize + (centerx - icenterx))**2
+                            + (y - datasize + (centery - icentery))**2)
                 indices = np.argsort(r.flat)  # sorted indices
                 radius = r.flat[indices]
                 flux = data_chunk.flat[indices]
@@ -1032,8 +986,10 @@ class Imexamine(object):
             if subtract_background:
                 inner = self.radial_profile_pars["skyrad"][0]
                 width = self.radial_profile_pars["width"][0]
-                annulus_apertures = photutils.CircularAnnulus(
-                        (centerx, centery), r_in=inner, r_out=inner+width)
+                annulus_apertures = photutils.CircularAnnulus((centerx, centery),
+                                                              r_in=inner,
+                                                              r_out=inner + width)
+
                 bkgflux_table = photutils.aperture_photometry(data,
                                                               annulus_apertures)
 
@@ -1052,7 +1008,7 @@ class Imexamine(object):
                 if getdata:
                     self.log.info("Sky per pixel: {0} using "
                                   "(rad={1}->{2})".format(sky_per_pix,
-                                                          inner, inner+width))
+                                                          inner, inner + width))
             if getdata:
                 info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
                 self.log.info(info)
@@ -1339,9 +1295,12 @@ class Imexamine(object):
                 ax.set_xscale("log")
             if self.histogram_pars["logy"][0]:
                 ax.set_yscale("log")
-            n, bins, patches = ax.hist(
-                    flat_data, num_bins, range=[mini, maxi], normed=False,
-                    facecolor='green', alpha=0.5, histtype='bar')
+            n, bins, patches = ax.hist(flat_data, num_bins,
+                                       range=[mini, maxi],
+                                       normed=False,
+                                       facecolor='green',
+                                       alpha=0.5,
+                                       histtype='bar')
             self.log.info("{0} bins "
                           "range:[{1},{2}]".format(num_bins, mini, maxi))
 
@@ -1552,14 +1511,16 @@ class Imexamine(object):
         if size is None:
             size = self.cutout_pars["size"][0]
 
-        prefix = "cutout_{0}_{1}_".format(int(x), int(y))
+        xx = int(x)
+        yy = int(y)
+        prefix = "cutout_{0}_{1}_".format(xx, yy)
         fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
-        cutout = data[y-size:y+size, x-size:x+size]
+        cutout = data[yy - size:yy + size, xx - size:xx + size]
         hdu = fits.PrimaryHDU(cutout)
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
-        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(x, y, fname))
+        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(xx, yy, fname))
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.

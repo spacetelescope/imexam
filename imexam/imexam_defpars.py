@@ -10,13 +10,19 @@ from a json or text file maybe
 
 # aperture photometry parameters
 aper_phot_pars = {"function": ["aper_phot", ],
-                 "center": [True, "Center the object location using a 2d gaussian fit"],
-                 "width": [5, "Width of sky annulus in pixels"],
-                 "subsky": [True, "Subtract a sky background?"],
-                 "skyrad": [15, "Distance to start sky annulus is pixels"],
-                 "radius": [5, "Radius of aperture for star flux"],
-                 "zmag": [25., "zeropoint for the magnitude calculation"],
-                 }
+                  "center": [True, "Center the object location using a 2d gaussian fit"],
+                  "width": [5, "Width of sky annulus in pixels"],
+                  "subsky": [True, "Subtract a sky background?"],
+                  "skyrad": [15, "Distance to start sky annulus is pixels"],
+                  "radius": [5, "Radius of aperture for star flux"],
+                  "zmag": [25., "zeropoint for the magnitude calculation"],
+                  "genplot": [True, "Plot the apertures"],
+                  "title": [None, "Title of the plot"],
+                  "scale": ['zscale', "How to scale the image"],
+                  "color_min": [None, "Minimum color value"],
+                  "color_max": [None, "Maximum color value"],
+                  "cmap": ['Greys', "Matplotlib colormap to use"],
+                  }
 
 
 # box statistics
@@ -27,22 +33,22 @@ report_stat_pars = {"function": ["report_stat", ],
 
 # radial profile plots
 radial_profile_pars = {"function": ["radial_profile", ],
-                        "title": [None, "Title of the plot"],
-                        "xlabel": ["Radius", "The string for the xaxis label"],
-                        "ylabel": ["Flux", "The string for the yaxis label"],
-                        "pixels": [True, "Plot all pixels at each radius? (False bins the data)"],
-                        "fitplot": [False, "Overplot profile fit?"],
-                        "fittype": ["Gaussian2D", "Profile type to fit (Gaussian2D)"],
-                        "center": [True, "Solve for center using 2d Gaussian? [bool]"],
-                        "background": [False, "Subtract background? [bool]"],
-                        "skyrad": [10., "Background inner radius in pixels, from center of object"],
-                        "width": [5., "Background annulus width in pixels"],
-                        "magzero": [25., "magnitude zero point"],
-                        "rplot": [8., "Plotting radius in pixels"],
-                        "pointmode": [True, "plot points instead of lines? [bool]"],
-                        "marker": ["o", "The marker character to use, matplotlib style"],
-                        "getdata": [False, "print the plotted data values"]
-                        }
+                       "title": [None, "Title of the plot"],
+                       "xlabel": ["Radius", "The string for the xaxis label"],
+                       "ylabel": ["Flux", "The string for the yaxis label"],
+                       "pixels": [True, "Plot all pixels at each radius? (False bins the data)"],
+                       "fitplot": [False, "Overplot profile fit?"],
+                       "fittype": ["Gaussian2D", "Profile type to fit (Gaussian2D)"],
+                       "center": [True, "Solve for center using 2d Gaussian? [bool]"],
+                       "background": [False, "Subtract background? [bool]"],
+                       "skyrad": [10., "Background inner radius in pixels, from center of object"],
+                       "width": [5., "Background annulus width in pixels"],
+                       "magzero": [25., "magnitude zero point"],
+                       "rplot": [8., "Plotting radius in pixels"],
+                       "pointmode": [True, "plot points instead of lines? [bool]"],
+                       "marker": ["o", "The marker character to use, matplotlib style"],
+                       "getdata": [False, "print the plotted data values"]
+                       }
 
 # curve of growth
 curve_of_growth_pars = {"function": ["curve_of_growth", ],
