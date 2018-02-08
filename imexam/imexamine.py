@@ -690,6 +690,7 @@ class Imexamine(object):
 
         xx = int(x)
         yy = int(y)
+
         # fit the center with a 2d gaussian
         if pars["center"][0]:
             if fitform.name is not "Polynomial1D":
@@ -705,20 +706,22 @@ class Imexamine(object):
         if col:
             line = data[:, xx]
             chunk = line[yy - delta:yy + delta]
+            delta_add = yy - delta
         else:
             line = data[yy, :]
             chunk = line[xx - delta: xx + delta]
+            delta_add = xx - delta
 
         # fit model to data
         if fitform.name is "Gaussian1D":
             fitted = math_helper.fit_gauss_1d(chunk)
-            fitted.mean_0.value += (xx - delta)
+            fitted.mean_0.value += delta_add
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk)
-            fitted.x_0_0.value += (xx - delta)
+            fitted.x_0_0.value += delta_add
         elif fitform.name is "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk)
-            fitted.x_0_0.value += (xx - delta)
+            fitted.x_0_0.value += delta_add
         elif fitform.name is "Polynomial1D":
             fitted = math_helper.fit_poly_n(chunk, deg=degree)
             if fitted is None:
@@ -733,8 +736,9 @@ class Imexamine(object):
             self.log.info("{0:s} not implemented".format(fitform.name))
             return
 
-        xline = np.arange(len(chunk)) + xx - delta
+        xline = np.arange(len(chunk)) + delta_add
         fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
+
         if fitform.name is "AiryDisk2D":
             yfit = fitted(fline, fline * 0 + fitted.y_0_0.value)
         else:
@@ -802,7 +806,7 @@ class Imexamine(object):
                     int(x), int(y), fitted.amplitude_0.value, fitted.radius_0.value)
                 self.log.info(pstr)
             else:
-                warnings.warn("Unsupported functional form used in line_fit")
+                warnings.warn("Unsupported functional form specified for fit")
                 raise ValueError
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             ax.legend()
