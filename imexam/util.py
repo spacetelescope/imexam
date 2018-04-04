@@ -6,6 +6,7 @@ import os
 import sys
 import logging
 import warnings
+import astropy
 from astropy.io import fits
 
 try:
@@ -20,22 +21,14 @@ from .version import version as __version__
 __all__ = ["display_help", "set_logging"]
 
 
-def find_ds9():
-    """Find the local path to the DS9 executable"""
-    path = "ds9"
+def find_path(target=None):
+    """Find the local path to the target executable"""
+    if target is None:
+        raise TypeError("Expected name of executable")
+
     for dirname in os.getenv("PATH").split(":"):
-        possible = os.path.join(dirname, path)
+        possible = os.target.join(dirname, target)
         if os.path.isfile(possible):
-            return possible
-    return None
-
-
-def find_xpans():
-    """Find the local path to the xpans executable"""
-    path = "xpans"
-    for dirname in os.getenv("PATH").split(":"):
-        possible = os.path.join(dirname, path)
-        if os.path.exists(possible):
             return possible
     return None
 
@@ -69,7 +62,7 @@ def list_active_ds9(verbose=True):
     session_dict = {}
 
     # only run if XPA/xpans is installed on the machine
-    if find_xpans():
+    if find_path('xpans'):
         sessions = None
         try:
             sessions = xpa.get(b"xpans").decode().strip().split("\n")
@@ -185,47 +178,103 @@ def set_logging(filename=None, on=True, level=logging.INFO):
             # set stream logging level
             if isinstance(handler, logging.StreamHandler):
                 handler.setLevel(level)
-
     return root
 
 
-def check_filetype(filename=None):
+def check_valid(filename=None, mem_obj=None):
     """Check the file to see if it is a multi-extension FITS file
     or a simple fits image where the data and header are stored in
-    the global unit.
+    the primary header unit.
 
     Parameters
     ----------
-    filename: string
-        The name of the file to check
+    filename: None, string
+        The name of the file to check, if set mem_obj will be ignored
+    mem_obj: None, FITS object
+        Set to an in-memory FITS object if passing FITS HDUList;
+        in this case filename will be ignored
 
+    Returns
+    -------
+    mef_file: bool
+        Returns True if the file is a multi-extension fits file
+    nextend: int
+        The number of extension in the file
+    first_image: int, None
+        The extension that contains the first image data.
+        None will be returned when no IMAGE xtension is found
 
+    Notes
+    -----
+    Drizzled images put a table in the first extension and an image in
+    the zero extension, so this function checks for the first occurrance
+    of 'IMAGE' in 'XTENSION', which is a required keyword. 
     """
     log = logging.getLogger(__name__)
+    mef_file = True  # is this an MEF file
+    found_image = False  # Does it contain an IMAGE XTENSION
+    nextend = 0  # how many extenions does it have
+    first_image = None  # what extension has the first image?
 
     if filename is None:
-        raise ValueError("No filename provided")
+        if mem_obj is None:
+            raise ValueError("No filename or FITS object provided")
+        else:
+            if isinstance(mem_obj, fits.hdu.hdulist.HDUList):
+                fits_image = mem_obj
+            elif isinstance(mem_obj, (astropy.io.fits.hdu.image.PrimaryHDU)):
+                mef_file = False
+                if mem_obj.header['NAXIS'] > 0:
+                    first_image = 0
+            else:
+                raise TypeError("Expected FITS instance")
     else:
         try:
-            mef_file = fits.getval(filename, ext=0, keyword='EXTEND')
+            fits_image = fits.open(filename)
+        except IOError:
+            msg = "Error opening file {0:s}".format(repr(filename))
+            log.warning(msg)
+            raise IOError(msg)
+        try:
+            # EXTEND is required for MEF FITS files
+            mef_file = fits_image[0].header['EXTEND']
         except KeyError:
             mef_file = False
-        except IOError:
-            log.warning("Problem opening file {0:s}".format(repr(filename)))
-            raise IOError("Error opening {0:s}".format(filename))
+            if fits_image[0].header['NAXIS'] > 0:
+                first_image = 0
 
-        #  double check for lying liars, should at least have 1 extension
-        #  and XTENSION is a required keyword
-        if mef_file:
+    #  double check for lying liars, should at least have 1 extension
+    #  if it's MEF and XTENSION is a required keyword in each extension
+    #  after the primary hdu
+    if mef_file:
+        for extn in fits_image:
             try:
-                fits.getval(filename, ext=1, keyword='XTENSION')
-            except (KeyError, IndexError):
-                mef_file = False
-        return mef_file
+                if ((extn.header['XTENSION'] == 'IMAGE') and (not found_image)):
+                    first_image = nextend  # The number of the extension
+                    found_image = True
+            except KeyError:
+                # There doens't have to be an 'XTENSION' keyword in the global(0) if
+                # the MEF has data there, so check for naxis if its an image
+                # and tfields if it's table data
+                if nextend == 0:
+                    print("Nextend: {}".format(nextend))
+                    try:
+                        tfields = extn.header['TFIELDS']  # table?
+                    except KeyError:
+                        if extn.header['NAXIS'] > 0:
+                            found_image = True
+                            first_image = nextend
+                else:
+                    mef_file = False
+            nextend += 1
+        nextend -=1
+    if not mem_obj:
+        fits_image.close()
+    return (mef_file, nextend, first_image)
 
 
 def verify_filename(filename=None, extver=None, extname=None):
-    """Verify the filename exist and split it for extension information.
+    """Verify the filename exists and split it for extension information.
     If the user has given an extension, extension name or some combination of
     those, return the full filename, extension and version tuple.
 
@@ -239,23 +288,28 @@ def verify_filename(filename=None, extver=None, extname=None):
 
     extname: string
         the name of the extension
+
+    Returns
+    -------
+    shortname: str
+        The name of the file with full path
+    extname: str, None
+        The extension name, or None
+    extver: int, None
+        The extension version number or None
     """
     if filename is None:
         print("No filename provided")
     else:
-        try:
-            if "[" in filename:
-                splitstr = filename.split("[")
-                shortname = splitstr[0]
-                if "," in splitstr[1]:
-                    extname = splitstr[1].split(",")[0]
-                    extver = int(splitstr[1].split(",")[1][0])
-                else:
-                    extver = int(filename.split("[")[1][0])
+        if "[" in filename:
+            splitstr = filename.split("[")
+            shortname = os.path.abspath(splitstr[0])
+            if "," in splitstr[1]:
+                extname = splitstr[1].split(",")[0]
+                extver = int(splitstr[1].split(",")[1][0])
             else:
-                shortname = os.path.abspath(filename)
-        except IndexError as e:
-            print("Exception: {0}".format(repr(e)))
-            raise IndexError
+                extver = int(filename.split("[")[1][0])
+        else:
+            shortname = os.path.abspath(filename)
 
-        return shortname, extname, extver
+    return shortname, extname, extver

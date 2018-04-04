@@ -596,11 +596,12 @@ class ginga_general(object):
                 extver = extv
 
             if (extv is None and extver is None):
-                mef = util.check_filetype(shortname)
-                if mef:
-                    extver = 1  # MEF fits
-                else:
-                    extver = 0  # simple fits
+                mef_file, nextend, first_image = util.check_valid(shortname)
+                # if mef_file:
+                #     extver = 1  # MEF fits
+                # else:
+                #     extver = 0  # simple fits
+                extver = first_image  # really ext number for first IMAGE
 
             with fits.open(shortname) as filedata:
                 hdu = filedata[extver]
