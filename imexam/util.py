@@ -27,7 +27,7 @@ def find_path(target=None):
         raise TypeError("Expected name of executable")
 
     for dirname in os.getenv("PATH").split(":"):
-        possible = os.target.join(dirname, target)
+        possible = os.path.join(dirname, target)
         if os.path.isfile(possible):
             return possible
     return None
@@ -257,7 +257,6 @@ def check_valid(filename=None, mem_obj=None):
                 # the MEF has data there, so check for naxis if its an image
                 # and tfields if it's table data
                 if nextend == 0:
-                    print("Nextend: {}".format(nextend))
                     try:
                         tfields = extn.header['TFIELDS']  # table?
                     except KeyError:
