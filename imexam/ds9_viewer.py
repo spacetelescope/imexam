@@ -225,7 +225,7 @@ class ds9(object):
 
         else:
             if not path:
-                self._ds9_path = util.find_ds9()
+                self._ds9_path = util.find_path('ds9')
                 if not self._ds9_path:
                     raise OSError("Could not find ds9 executable on your path")
 
@@ -357,7 +357,7 @@ class ds9(object):
                 header_cards = fits.Header.fromstring(
                     self.get_header(),
                     sep='\n')
-                mef_file = util.check_filetype(filename)
+                mef_file, nextend, first_image = util.check_valid(filename)
                 if mef_file:
                     try:
                         extver = int(header_cards['EXTVER'])
@@ -1172,13 +1172,18 @@ class ds9(object):
         if extver is None:
             extver = extv
 
-        # safety for simple vs mef fits
-        if (extv is None and extver is None):
-            mef = util.check_filetype(shortname)
-            if mef:
-                extver = 1  # MEF fits
-            else:
-                extver = 0  # simple fits
+        # safety for a valid imexam file 
+        if ((extv is None) and (extver is None)):
+            mef_file, nextend, first_image = util.check_valid(shortname)
+            extver = first_image  # really the extension of the first IMAGE
+            extname = None
+            # if mef_file:
+            #     # get the number of extensions in the file
+            #     # nextend = fits.getval(shortname, 'XTENSION')
+            #     extver = first_image
+            # else:
+            #     print("No image extension found, setting to zero")
+            #     extver = 0  # simple fits
 
         if mecube:
             cstring = "mecube {0:s}".format(shortname)
