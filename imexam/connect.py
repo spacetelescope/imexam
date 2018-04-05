@@ -346,7 +346,7 @@ class Connect(object):
         return self.window.embed(**kwargs)
 
     def frame(self, *args, **kwargs):
-        """Move to a different frame."""
+        """Move to a different frame, or add a new one"""
         return self.window.frame(*args, **kwargs)
 
     def get_data(self):

@@ -19,7 +19,7 @@ def test_invalid_simple_fits():
     the primary HDU."""
 
     simple_fits_hdu = fits.PrimaryHDU()
-    valid_file, nextend, first_image = util.check_valid(mem_obj=simple_fits_hdu)
+    valid_file, nextend, first_image = util.check_valid(simple_fits_hdu)
     assert_equal(valid_file, False)
     assert_equal(nextend, 0)
     assert_equal(first_image, None)
@@ -40,7 +40,7 @@ def test_invalid_MEF_table():
     extension = fits.PrimaryHDU()
     mef_fits_hdu.append(tbhdu)
 
-    mef_file, nextend, first_image = util.check_valid(mem_obj=mef_fits_hdu)
+    mef_file, nextend, first_image = util.check_valid(mef_fits_hdu)
     assert_equal(mef_file, True)
     assert_equal(nextend, 1)
     assert_equal(first_image, None)
@@ -65,7 +65,7 @@ def test_image_and_table_extensions():
                                       header=extension.header,
                                       name='SCI1'))
 
-    mef_file, nextend, first_image = util.check_valid(mem_obj=mef_fits_hdu)
+    mef_file, nextend, first_image = util.check_valid(mef_fits_hdu)
     assert_equal(mef_file, True)
     assert_equal(nextend, 2)
     assert_equal(first_image, 2)
@@ -88,7 +88,7 @@ def test_drizzled_image():
                                       header=extension.header))
     mef_fits_hdu.data = test_data_zeros
     mef_fits_hdu.append(tbhdu)
-    mef_file, nextend, first_image = util.check_valid(mem_obj=mef_fits_hdu)
+    mef_file, nextend, first_image = util.check_valid(mef_fits_hdu)
     assert_equal(mef_file, True)
     assert_equal(nextend, 1)
     assert_equal(first_image, 0)
@@ -116,7 +116,7 @@ def test_mef_2_image_extensions():
                                       header=extension.header,
                                       name='SCI2'))
 
-    mef_file, nextend, first_image = util.check_valid(mem_obj=mef_fits_hdu)
+    mef_file, nextend, first_image = util.check_valid(mef_fits_hdu)
     assert_equal(mef_file, True)
     assert_equal(nextend, 2)
     assert_equal(first_image, 1)
@@ -132,7 +132,7 @@ def test_simple_image_in_primary():
     simple_fits_hdu = fits.PrimaryHDU()
     simple_fits_hdu.data = test_data_zeros
 
-    mef_file, nextend, first_image = util.check_valid(mem_obj=simple_fits_hdu)
+    mef_file, nextend, first_image = util.check_valid(simple_fits_hdu)
     assert_equal(mef_file, False)
     assert_equal(nextend, 0)
     assert_equal(first_image, 0)

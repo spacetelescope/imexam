@@ -6,7 +6,6 @@ import os
 import sys
 import logging
 import warnings
-import astropy
 from astropy.io import fits
 
 try:
@@ -181,18 +180,16 @@ def set_logging(filename=None, on=True, level=logging.INFO):
     return root
 
 
-def check_valid(filename=None, mem_obj=None):
+def check_valid(fits_data=None):
     """Check the file to see if it is a multi-extension FITS file
     or a simple fits image where the data and header are stored in
     the primary header unit.
 
     Parameters
     ----------
-    filename: None, string
-        The name of the file to check, if set mem_obj will be ignored
-    mem_obj: None, FITS object
+    fits_data: None, FITS object
         Set to an in-memory FITS object if passing FITS HDUList;
-        in this case filename will be ignored
+        Otherwise set to the name of the file to check
 
     Returns
     -------
@@ -211,35 +208,33 @@ def check_valid(filename=None, mem_obj=None):
     of 'IMAGE' in 'XTENSION', which is a required keyword. 
     """
     log = logging.getLogger(__name__)
-    mef_file = True  # is this an MEF file
     found_image = False  # Does it contain an IMAGE XTENSION
     nextend = 0  # how many extenions does it have
     first_image = None  # what extension has the first image?
+    fits_file = False
+    mef_file = False
 
-    if filename is None:
-        if mem_obj is None:
+    if fits_data is None:
             raise ValueError("No filename or FITS object provided")
-        else:
-            if isinstance(mem_obj, fits.hdu.hdulist.HDUList):
-                fits_image = mem_obj
-            elif isinstance(mem_obj, (astropy.io.fits.hdu.image.PrimaryHDU)):
-                mef_file = False
-                if mem_obj.header['NAXIS'] > 0:
-                    first_image = 0
-            else:
-                raise TypeError("Expected FITS instance")
-    else:
+    if isinstance(fits_data, fits.hdu.hdulist.HDUList):
+        mef_file = True
+        fits_image = fits_data
+    elif isinstance(fits_data, fits.hdu.image.PrimaryHDU):
+        if fits_data.header['NAXIS'] > 0:
+            first_image = 0
+        fits_image = fits_data
+    elif isinstance(fits_data, str):
+        fits_file = True
         try:
-            fits_image = fits.open(filename)
+            fits_image = fits.open(fits_data)
         except IOError:
-            msg = "Error opening file {0:s}".format(repr(filename))
+            msg = "Error opening file {0:s}".format(repr(fits_data))
             log.warning(msg)
             raise IOError(msg)
         try:
             # EXTEND is required for MEF FITS files
             mef_file = fits_image[0].header['EXTEND']
         except KeyError:
-            mef_file = False
             if fits_image[0].header['NAXIS'] > 0:
                 first_image = 0
 
@@ -266,8 +261,8 @@ def check_valid(filename=None, mem_obj=None):
                 else:
                     mef_file = False
             nextend += 1
-        nextend -=1
-    if not mem_obj:
+        nextend -= 1  # account for overcounting in return value
+    if fits_file:
         fits_image.close()
     return (mef_file, nextend, first_image)
 

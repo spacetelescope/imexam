@@ -326,7 +326,6 @@ class ds9(object):
                     load_header = True
                 else:
                     filename_string = ""
-
             except XpaException:
                 filename_string = ""
 
@@ -343,9 +342,7 @@ class ds9(object):
                         naxis.append("0")
                     naxis.reverse()  # for astropy.fits row-major ordering
                     naxis = map(int, naxis)
-                    naxis = [
-                        axis -
-                        1 if axis > 0 else 0 for axis in naxis]
+                    naxis = [axis - 1 if axis > 0 else 0 for axis in naxis]
                     naxis = tuple(naxis)
             except ValueError:
                 raise ValueError("Problem parsing filename")
@@ -364,7 +361,7 @@ class ds9(object):
                     except KeyError:
                         # fits doesn't require extver if there is only 1
                         # extension
-                        extver = 1
+                        extver = first_image
 
                     try:
                         extname = str(header_cards['EXTNAME'])
@@ -409,10 +406,8 @@ class ds9(object):
 
         if frame:
             self._set_frameinfo()
-
             if self._viewer[frame]['filename']:
                 return True
-
             else:
                 try:
                     if self._viewer[frame]['user_array'].any():
@@ -1058,7 +1053,7 @@ class ds9(object):
                         if self._viewer[frame]['iscube']:
                             data = filedata[extname, extver].section[naxis]
                         else:
-                            data = filedata[extname, extver].data
+                            data = filedata[extver].data
                     return data
                 else:
                     with fits.open(filename) as filedata:
@@ -1125,15 +1120,16 @@ class ds9(object):
         """Embed the viewer in a notebook."""
         print("Not Implemented for DS9")
 
-    def load_fits(self, fname=None, extver=None, mecube=False):
+    def load_fits(self, fname, extver=None, mecube=False):
         """convenience function to load fits image to current frame.
 
         Parameters
         ----------
-        fname: string, optional
+        fname: string, FITS object
             The name of the file to be loaded. You can specify the full
             extension in the name, such as
             filename_flt.fits or filename_flt.fits[1]
+            You can also pass it an in-memory FITS object
 
         extver: int, optional
             The extension to load (EXTVER in the header)
@@ -1156,44 +1152,46 @@ class ds9(object):
         DS9 window was started in another directory it can still find the
         file to load.
         """
-        if fname is None:
-            raise ValueError("No filename provided")
-
-        frame = self.frame()  # for the viewer reference
+        # for the viewer reference
+        frame = self.frame()
         if frame is None:
             frame = 1  # load into first frame
 
-        shortname, extn, extv = util.verify_filename(fname)
+        if isinstance(fname, fits.hdu.image.PrimaryHDU):
+            shortname = fname
+            extn = None
+            extv = 0
+        if isinstance(fname, fits.hdu.hdulist.HDUList):
+            shortname = fname
+            extn = None
+            extv = extver
+        elif isinstance(fname, str):
+            shortname, extn, extv = util.verify_filename(fname)
+            if extn is not None:
+                raise ValueError("Extension name  given, must "
+                                 "specify the absolute extension you want")
+            # prefer the keyword value over the extension in the name
+            if extver is None:
+                extver = extv
+        else:
+            raise TypeError("Expected FITS data as input")
 
-        if extn is not None:
-            raise ValueError("Extension name  given, must "
-                             "specify the absolute extension you want")
-        # prefer the keyword value over the extension in the name
-        if extver is None:
-            extver = extv
-
-        # safety for a valid imexam file 
+        # safety for a valid imexam file
         if ((extv is None) and (extver is None)):
             mef_file, nextend, first_image = util.check_valid(shortname)
-            extver = first_image  # really the extension of the first IMAGE
-            extname = None
-            # if mef_file:
-            #     # get the number of extensions in the file
-            #     # nextend = fits.getval(shortname, 'XTENSION')
-            #     extver = first_image
-            # else:
-            #     print("No image extension found, setting to zero")
-            #     extver = 0  # simple fits
+            extver = first_image  # the extension of the first IMAGE
 
-        if mecube:
-            cstring = "mecube {0:s}".format(shortname)
+        if isinstance(fname, str):
+            if mecube:
+                cstring = "mecube {0:s}".format(shortname)
+            else:
+                cstring = ('fits {0:s}[{1:d}]'.format(shortname, extver))
+            self.set(cstring)
+            # make sure any previous reference is reset
+            self._set_frameinfo()
+            self._viewer[frame]['user_array'] = None
         else:
-            cstring = ('fits {0:s}[{1:d}]'.format(shortname, extver))
-
-        self.set(cstring)
-        self._set_frameinfo()
-        # make sure any previous reference is reset
-        self._viewer[frame]['user_array'] = None
+            self.view(fname[extver].data)
 
     def load_region(self, filename):
         """Load regions from a file which uses ds9 standard formatting.
