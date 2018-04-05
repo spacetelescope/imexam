@@ -17,7 +17,7 @@ First you need to import the package
 
 Usage with D9 (the current default viewer)
 ------------------------------------------
-If you are on a windows system, DS9 may not be available, so move on to the Ginga specification.
+If you are on a windows system, and DS9 is not be available, move on to the Ginga specification.
 
 Start up a ``DS9`` window (by default), a new ``DS9`` window will be opened, open a fits image, and scale it::
 
@@ -48,13 +48,13 @@ If you already have a window running, you can ask for a list of windows; windows
     DS9 ds9 gs 82a7e75f:57222 sosey
 
 
-You can attach to a current ``DS9`` window be specifying its unique name
+You can attach to a current ``DS9`` window by specifying its unique name
 ::
 
     viewer1=imexam.connect('ds9')
 
 
-If you haven't given your windows unique names using the ``-t <name>`` option from the commandline, then you must use the ip:port address::
+If you haven't given your windows unique names using the ``-title <name>`` option from the commandline, then you must use the ip:port address::
 
     viewer=imexam.connect('82a7e75f:57222')
 

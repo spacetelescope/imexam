@@ -143,6 +143,7 @@ If you wish to open multiple DS9 windows outside of ``imexam``, then it's recomm
 
     imexam.connect(target="",path=None,viewer="ds9",wait_time=10)
 
+
     Where target is the name of the ds9 window that is already running, path is the location of the ds9 executable, viewer is the name of the viewer to use (ds9 is the only one which is currently activated), and wait_time is the time to wait to establish a connection to the socket before exiting the process.
 
 If it seems like the ds9 window is opening or hanging, there could be few things going on:
