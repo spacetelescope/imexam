@@ -288,7 +288,7 @@ If you haven't already, start DS9 and load your image into the viewer. I'll assu
 
     #A little unsure this is the correct window? Let's check by asking what image is loaded. The image I'm working with is iabf01bzq_flt.fits
 
-    viewer.get_data_filename()
+    viewer.get_filename()
 
         '/Users/sosey/ssb/sosey/testme/iabf01bzq_flt.fits'  <-- notice it returned the full pathname to the file
 

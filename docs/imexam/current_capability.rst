@@ -85,7 +85,7 @@ but not yet fully implemented should return an error to that affect.
 
     ::
 
-        In [1]: viewer.get_data_filename()
+        In [1]: viewer.get_filename()
         Out[2]: '/Users/sosey/ssb/imexam/iabf01bzq_flt.fits'
 
 

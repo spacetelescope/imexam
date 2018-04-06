@@ -170,7 +170,7 @@ class Connect(object):
         """Display a snapshop of the current image in the browser window."""
         return self.window.grab()
 
-    def get_data_filename(self):
+    def get_filename(self):
         """Return the filename for the data in the current window."""
         return self.window.get_filename()
 
@@ -214,7 +214,7 @@ class Connect(object):
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
-        cstring = "Current image {0}".format(self.get_data_filename(),)
+        cstring = "Current image {0}".format(self.get_filename(),)
         print(cstring)
 
         # set defaults
