@@ -107,8 +107,8 @@ the information that `imexam` stores::
       'numaxis': 2,
       'user_array': None}}
 
-      Above, you'll see there is only 1 frame, named '1' that
-      contains a multi-extension fits file
+      # Above, you can see there is only 1 frame, named 1, that
+      # contains a multi-extension fits file
 
     In [24]: from astropy.io import fits
     In [25]: image = fits.open('n8q624e8q_cal.fits')
@@ -136,12 +136,13 @@ the information that `imexam` stores::
              [ 0.53063494,  0.54570055,  0.53724855, ...,  0.4361479 ,
                0.58057427,  0.45152891]], dtype=float32)}}
 
-        Above, you'll see that there is only 1 frame, but it contains 
-        a numpy array and no filename reference.
+      # Above you can see that there is only 1 frame, but it contains 
+      # a numpy array and no filename reference.
 
 
 
-You can also load a numpy array directly, we'll create an example array::
+You can also load a numpy array directly, we'll create an example array 
+and display it to our viewer::
 
     import numpy as np
     array = np.ones((100,100), dtype=np.float) * np.random.rand(100)
@@ -186,10 +187,10 @@ The available key mappings should be printed to your terminal::
 
 Look at the window below, I've started the imexam loop
 and then pressed the 'a' key to create an aperture photometry
-plot (which also printed information to the terminal), then
-I pressed the '2' key in order to keep the current plot open
-and direct the next plot to a new window, where I've asked for
-a line plot of the same star, using the 'l' key.
+plot (which also printed information about the photometry to 
+the terminal), then I pressed the '2' key in order to keep the
+current plot open and direct the next plot to a new window, 
+where I've asked for a line plot of the same star, using the 'l' key.
 
 .. image:: ../_static/walkthrough-imexam.png
         :height: 500
@@ -206,7 +207,10 @@ You should see the printed information in your terminal::
     Line at 104.75 131.625
 
 
-Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which maps to your own
+Users may change the default settings for each of the imexamine recognized keys by
+editing the associated dictionary. You can edit it directly, by accessing each of
+the values by their keyname and then reset mydict to values you prefer. You can 
+also create a new dictionary of functions which map to your own analysis functions.
 
 However, you can access the same dictionary and customize the plotting parameters using ``set_plot_pars``. In the following example, I'm setting three of the parameters for the contour map, whose imexam key is "e"::
 
