@@ -234,6 +234,9 @@ def check_valid(fits_data=None):
         try:
             # EXTEND is required for MEF FITS files
             mef_file = fits_image[0].header['EXTEND']
+            if not mef_file:
+                if fits_image[0].header['NAXIS'] > 0:
+                    first_image = 0
         except KeyError:
             if fits_image[0].header['NAXIS'] > 0:
                 first_image = 0
