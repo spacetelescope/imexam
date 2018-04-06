@@ -205,7 +205,7 @@ def test_radial_profile_pixels():
 
     # It's going to crop things down apparently.
     plots = Imexamine()
-    datasize = int(plots.radial_profile_pars["rplot"][0]) - 1
+    datasize = int(plots.radial_profile_pars["rplot"][0])
     icentery = 12
     icenterx = 12
     rad_in = rad_in[icentery - datasize:icentery + datasize,
