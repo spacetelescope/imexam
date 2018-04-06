@@ -9,24 +9,23 @@ This is the main method which allows live interaction with the image display whe
 
 **Current recognized keys available during imexam are:** ::
 
-    2	Make the next plot in a new window
-    a	Aperture sum, with radius region_size
-    b	Return the 2D gauss fit center of the object
-    c	Return column plot
-    e	Return a contour plot in a region around the cursor
-    g	Return curve of growth plot
-    h	Return a histogram in the region around the cursor
-    j	1D [Gaussian1D default] line fit
-    k	1D [Gaussian1D default] column fit
-    l	Return line plot
-    m	Square region stats, in [region_size],default is median
-    r	Return the radial profile plot
-    s	Save current figure to disk as [plot_name]
-    t	Make a fits image cutout using pointer location
-    w	Display a surface plot around the cursor location
-    x	Return x,y,value of pixel
-    y	Return x,y,value of pixel
-
+    2   Make the next plot in a new window
+    a   Aperture sum, with radius region_size 
+    b   Return the 2D gauss fit center of the object
+    c   Return column plot
+    e   Return a contour plot in a region around the cursor
+    g   Return curve of growth plot
+    h   Return a histogram in the region around the cursor
+    j   1D [Gaussian1D default] line fit 
+    k   1D [Gaussian1D default] column fit
+    l   Return line plot
+    m   Square region stats, in [region_size],default is median
+    r   Return the radial profile plot
+    s   Save current figure to disk as [plot_name]
+    t   Make a fits image cutout using pointer location
+    w   Display a surface plot around the cursor location
+    x   Return x,y,value of pixel
+    y   Return x,y,value of pixel
 
      aimexam(): return a dict of current parameters for aperture photometery
 
@@ -187,42 +186,44 @@ This is the resulting plot:
     :alt: Plot of aperture photometry apertures
 
 
-Gaussian1D, Moffat1D, MexicanHat1D profiles
--------------------------------------------
+Available 1D profiles
+---------------------
+These include Gaussian1D, Moffat1D, MexicanHat1D, AiryDisk2D, and Polynomial1D.
+
 If you press the "j" or "k" keys, a 1D profile is fit to the data in either the line or column of the current pointer location. An option to use a Polynomial1D fit is also available, although not something of use for looking at stellar profiles. A plot of both the data and the fit + parameters is displayed. If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data. ::
 
 
     line_fit_pars={"function":["line_fit",],
-                   "func":["gaussian","function for fitting [see available]"],
+                   "func":["gaussian"," function for fitting [see available]"],
                    "title":["Fit 1D line plot","Title of the plot"],
-                   "xlabel":["Line","The string for the xaxis label"],
-                   "ylabel":["Flux","The string for the yaxis label"],
-                   "background":[False,"Solve for background? [bool]"],
-                   "width":[10.0,"Background  width in pixels"],
-                   "xorder":[0,"Background terms to fit, 0=median"],
-                   "rplot":[20.,"Plotting radius in pixels"],
-                   "pointmode":[True,"plot points instead of lines? [bool]"],
-                   "logx":[False,"log scale x-axis?"],
-                   "logy":[False,"log scale y-axis?"],
-                   "center":[True,"Recenter around the local max"],
+                   "xlabel":["Line", "The string for the xaxis label"],
+                   "ylabel":["Flux", "The string for the yaxis label"],
+                   "background":[False, "Solve for background? [bool]"],
+                   "width":[10.0, "Background  width in pixels"],
+                   "xorder":[0, "Background terms to fit, 0=median"],
+                   "rplot":[20., "Plotting radius in pixels"],
+                   "pointmode":[True, "plot points instead of lines? [bool]"],
+                   "logx":[False, "log scale x-axis?"],
+                   "logy":[False, "log scale y-axis?"],
+                   "center":[True, "Recenter around the local max"],
                    }
 
 
 The column fit parameters are similar::
 
     column_fit_pars={"function":["column_fit",],
-                     "func":["Gaussian1D","function for fitting [see available]"],
-                     "title":["Fit 1D column plot","Title of the plot"],
-                     "xlabel":["Column","The string for the xaxis label"],
-                     "ylabel":["Flux","The string for the yaxis label"],
-                     "background":[False,"Solve for background? [bool]"],
-                     "width":[10.0,"Background  width in pixels"],
-                     "xorder":[0,"Background terms to fit, 0=median"],
-                     "rplot":[20.,"Plotting radius in pixels"],
+                     "func":["Gaussian1D", "function for fitting [see available]"],
+                     "title":["Fit 1D column plot", "Title of the plot"],
+                     "xlabel":["Column", "The string for the xaxis label"],
+                     "ylabel":["Flux", "The string for the yaxis label"],
+                     "background":[False, "Solve for background? [bool]"],
+                     "width":[10.0, "Background  width in pixels"],
+                     "xorder":[0, "Background terms to fit, 0=median"],
+                     "rplot":[20., "Plo tting radius in pixels"],
                      "pointmode":[True,"plot points instead of lines? [bool]"],
-                     "logx":[False,"log scale x-axis?"],
-                     "logy":[False,"log scale y-axis?"],
-                     "center":[True,"Recenter around the local max"],
+                     "logx":[False, "log scale x-axis?"],
+                     "logy":[False, "log scale y-axis?"],
+                     "center":[True, "Recenter around the local max"],
                      }
 
 This is the resulting line fit:
@@ -249,8 +250,8 @@ If you press the "m" key, the  pixel values around the pointer location are calc
 The user can map the function to any reasonable numpy function, it's set to numpy.median by default::
 
     report_stat_pars= {"function":["report_stat",],
-                        "stat":["median","numpy stat name or describe for scipy.stats"],
-                        "region_size":[5,"region size in pixels to use"],
+                        "stat":["median", "numpy stat name or describe for scipy.stats"],
+                        "region_size":[5, "region size in pixels to use"],
                     }
 
 
@@ -258,7 +259,7 @@ The user can map the function to any reasonable numpy function, it's set to nump
 
 You can change the statistic reported by changing the "stat" parameter::
 
-    viewer.set_plot_pars('m',"stat","max")
+    viewer.set_plot_pars('m', "stat", "max")
 
     [572:577,629:634] amax: 55271.000000
 

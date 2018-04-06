@@ -1,5 +1,9 @@
 version 0.8.1dev (unreleased)
 -----------------------------
+- radial profile plot centering changed slightly to use the max brightest pixel after gauss centering
+- documenation updated and new simple walkthrough added
+- MEF fits images with IMAGE arrays in the primary HDU should be detected correctly now
+- now possible to give load_fits an in-memory fits object
 - code cleanup and minor bug fixes
 - background fit added to 1D and 2D Gaussian fits
 - plotting AiryDisk2D fit is now possible

@@ -206,6 +206,34 @@ You should see the printed information in your terminal::
     Line at 104.75 131.625
 
 
+Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which maps to your own
+
+However, you can access the same dictionary and customize the plotting parameters using ``set_plot_pars``. In the following example, I'm setting three of the parameters for the contour map, whose imexam key is "e"::
+
+    #customize the plotting parameters (or any function in the imexam loop)
+    viewer.set_plot_pars('e','title','This is my favorite galaxy')
+    viewer.set_plot_pars('e','ncontours',4)
+    viewer.set_plot_pars('e','cmap','YlOrRd') #see http://matplotlib.org/users/colormaps.html
+
+where the full dictionary of available values can be found using the ``eimexam()`` function described above.::
+
+    In [1]: viewer.eimexam()
+    Out[2]:
+    {'ceiling': [None, 'Maximum value to be contoured'],
+     'cmap': ['RdBu', 'Colormap (matplotlib style) for image'],
+     'floor': [None, 'Minimum value to be contoured'],
+     'function': ['contour'],
+     'label': [True, 'Label major contours with their values? [bool]'],
+     'linestyle': ['--', 'matplotlib linestyle'],
+     'ncolumns': [15, 'Number of columns'],
+     'ncontours': [8, 'Number of contours to be drawn'],
+     'nlines': [15, 'Number of lines'],
+     'title': [None, 'Title of the plot'],
+     'xlabel': ['x', 'The string for the xaxis label'],
+     'ylabel': ['y', 'The string for the yaxis label']}
+
+Users may also add their own ``imexam`` keys and associated functions by registering them with the register(user_funct=dict()) method. The new binding will be added to the dictionary of imexamine functions as long as the key is unique. The new functions do not have to have default dictionaries association with them, but users are free to create them.
+
 
 
 Usage with Ginga viewer

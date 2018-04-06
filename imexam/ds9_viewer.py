@@ -1161,6 +1161,8 @@ class ds9(object):
             shortname = fname
             extn = None
             extv = 0
+            if extver is None:
+                extver = extv
         if isinstance(fname, fits.hdu.hdulist.HDUList):
             shortname = fname
             extn = None
@@ -1291,23 +1293,23 @@ class ds9(object):
         elif isinstance(input_points, str):
             input_points = [tuple(input_points.split())]
 
-        X = 0
-        Y = 1
-        COMMENT = 2
+        x = 0
+        y = 1
+        comment = 2
         rtype = "circle"  # only one supported right now
 
         for location in input_points:
             if rtype == "circle":
                 pline = rtype + " " + \
-                    str(location[X]) + " " + str(location[Y]) + " " + str(size)
+                    str(location[x]) + " " + str(location[y]) + " " + str(size)
                 print(pline)
                 self.set_region(pline)
 
             try:
-                if(len(str(location[COMMENT])) > 0):
-                    pline = "text " + str(float(location[X]) + textoff) +\
-                            " " + str(float(location[Y]) + textoff) + " '" +\
-                            str(location[COMMENT]) + "' #font=times"
+                if(len(str(location[comment])) > 0):
+                    pline = "text " + str(float(location[x]) + textoff) +\
+                            " " + str(float(location[y]) + textoff) + " '" +\
+                            str(location[comment]) + "' #font=times"
                     print(pline)
                     self.set_region(pline)
             except IndexError:
@@ -1796,7 +1798,6 @@ class ds9(object):
     def show_xpa_commands(self):
         """Print the available XPA commands."""
         print(self.get(''))  # With empty string, all commands are returned
-        
 
     def reopen(self):
         """Reopen a closed window."""

@@ -946,7 +946,7 @@ class Imexamine(object):
             getdata = bool(self.radial_profile_pars["getdata"][0])
 
             # cut the data down to size
-            datasize = int(self.radial_profile_pars["rplot"][0]) - 1
+            datasize = int(self.radial_profile_pars["rplot"][0])
             delta = 10  # chunk size in pixels to find center
 
             # center on image using a 2d gaussian
@@ -960,21 +960,23 @@ class Imexamine(object):
             icenterx = int(centerx)
             icentery = int(centery)
 
-            # just grab the data box we want from the image
+            # just grab the data box we want centered on the object
             data_chunk = data[icentery - datasize:icentery + datasize,
                               icenterx - datasize:icenterx + datasize]
 
-            y, x = np.indices((data_chunk.shape))  # radii of all pixels
+            # the max pixel should be at this location, modulo bad pixels
+            xmax, ymax = np.unravel_index(data_chunk.argmax(), data_chunk.shape)
+            y, x = np.indices(data_chunk.shape)  # index of all pixels
 
             if self.radial_profile_pars["pixels"][0]:
-                r = np.sqrt((x - datasize + (centerx - icenterx))**2
-                            + (y - datasize + (centery - icentery))**2)
+                r = np.sqrt((np.abs(x - xmax) )**2 +
+                            (np.abs(y - ymax) )**2)
                 indices = np.argsort(r.flat)  # sorted indices
                 radius = r.flat[indices]
                 flux = data_chunk.flat[indices]
 
             else:  # sum the flux in integer bins
-                r = np.sqrt((x - datasize)**2 + (y - datasize)**2)
+                r = np.sqrt((x - xmax)**2 + (y - ymax)**2)
                 r = r.astype(np.int)
                 flux = np.bincount(r.ravel(), data_chunk.ravel())
                 radius = np.arange(len(flux))
@@ -992,12 +994,13 @@ class Imexamine(object):
                 # to calculate the mean local background, divide the circular
                 # annulus aperture sums by the area of the circular annulus.
                 # The bkg sum with the circular aperture is then
-                # then mean local background times the circular apreture area.
+                # the mean local background times the circular apreture area.
                 annulus_area = annulus_apertures.area()
                 sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                     annulus_area)
                 self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
                 if self.radial_profile_pars["pixels"][0]:
+
                     flux -= sky_per_pix
                 else:
                     flux -= np.bincount(r.ravel()) * sky_per_pix
