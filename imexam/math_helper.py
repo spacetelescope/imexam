@@ -7,7 +7,7 @@ from __future__ import print_function, division
 import numpy as np
 import warnings
 from astropy.modeling import models, fitting
-from astropy.stats import gaussian_sigma_to_fwhm
+from astropy.stats import gaussian_sigma_to_fwhm, sigma_clip
 
 
 def gfwhm(sigmax, sigmay=None):
@@ -64,58 +64,128 @@ def mfwhm(alpha=0, gamma=0):
     return 2 * alpha * np.sqrt(2 ** (1 / gamma) - 1)
 
 
-def fit_moffat_1d(data, gamma=2., alpha=1.):
-    """Fit a 1D moffat profile to the data and return the fit."""
+def fit_moffat_1d(data, gamma=2., alpha=1., sigma=0.):
+    """Fit a 1D moffat profile to the data and return the fit.
+
+    Parameters
+    ----------
+    data: 2D data array
+        The input sigma to use
+    gamma: float (optional)
+        The input gamma to use
+    alpha: float (optional)
+        The input alpha to use
+    sigma: float (optional)
+        If sigma>0 then sigma clipping of the data is performed
+        at that level
+
+    Returns
+    -------
+    The fitted 1D moffat model for the data
+
+    """
     # data is assumed to already be chunked to a reasonable size
     ldata = len(data)
     x = np.arange(ldata)
 
-    # Fit model to data
-    fit = fitting.LevMarLSQFitter()
+    # Initialize the fitter
+    fitter = fitting.LevMarLSQFitter()
+    if sigma > 0:
+        fit = fitting.FittingWithOutlierRemoval(fitter,
+                                                sigma_clip,
+                                                niter=3,
+                                                sigma=sigma)
+    else:
+        fit = fitter
 
     # Moffat1D + constant
-    model = (models.Moffat1D(amplitude=max(data), x_0=ldata / 2, gamma=gamma, alpha=alpha)
-             + models.Polynomial1D(c0=data.min(), degree=0))
+    model = (models.Moffat1D(amplitude=max(data),
+                             x_0=ldata / 2,
+                             gamma=gamma,
+                             alpha=alpha) +
+             models.Polynomial1D(c0=data.min(), degree=0))
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
         results = fit(model, x, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
-    return results
+    # if sigma clipping is used, results is a tuple of data, model
+    if sigma > 0:
+        return results[1]
+    else:
+        return results
 
 
-def fit_gauss_1d(data):
-    """Fit a 1D gaussian to the data and return the fit."""
+def fit_gauss_1d(data, sigma_factor=0):
+    """Fit a 1D gaussian to the 2d data and return the fit.
+
+    Parameters
+    ----------
+    data: 2D data array
+        The input sigma to use
+    sigma: float (optional)
+        If sigma>0 then sigma clipping of the data is performed
+        at that level
+
+    Returns
+    -------
+    The fitted 1D gaussian model for the data
+    """
+
     # data is assumed to already be chunked to a reasonable size
     delta = int(len(data) / 2.)  # guess the center
     ldata = len(data)
-    x = np.arange(ldata)
 
-    # Fit model to data
-    fit = fitting.LevMarLSQFitter()
+    # Initialize the fitter
+    fitter = fitting.LevMarLSQFitter()
+    if sigma_factor > 0:
+        fit = fitting.FittingWithOutlierRemoval(fitter,
+                                                sigma_clip,
+                                                niter=3,
+                                                sigma=sigma_factor)
+    else:
+        fit = fitter
 
     # Gaussian1D + a constant
-    model = (models.Gaussian1D(amplitude=data.max() - data.min(), mean=delta, stddev=1.)
-             + models.Polynomial1D(c0=data.min(), degree=0))
+    model = (models.Gaussian1D(amplitude=data.max() - data.min(),
+                               mean=delta, stddev=1.) +
+             models.Polynomial1D(c0=data.min(), degree=0))
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
+        x = np.arange(ldata)
         results = fit(model, x, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
-    return results
+    # if sigma clipping is used, results is a tuple of data, model
+    if sigma_factor > 0:
+        return results[1]
+    else:
+        return results
 
 
-def gauss_center(data, sigma=3., theta=0.):
+def fit_gaussian_2d(data, sigma=3., theta=0., sigma_factor=0):
     """center the data  by fitting a 2d gaussian to the region.
 
     Parameters
     ----------
 
-    data: float
+    data: 2D float array
         should be a 2d array, the initial center is used to estimate
         the fit center
+    sigma: float (optional)
+        The sigma value for the starting gaussian model
+    theta: float(optional)
+        The theta value for the starting gaussian model
+    sigma_factor: float (optional)
+        If sigma_factor > 0 then clipping will be performed
+        on the data during the model fit
+
+    Returns
+    -------
+    The full gaussian fit model, from which the center can be extracted
+
     """
     # use a smaller bounding box so that we are only fitting the local data
     delta = int(len(data) / 2)  # guess the center
@@ -123,68 +193,139 @@ def gauss_center(data, sigma=3., theta=0.):
     ldata = len(data)
     yy, xx = np.mgrid[:ldata, :ldata]
 
-    # Fit model to data
-    fit = fitting.LevMarLSQFitter()
+    # Initialize the fitter
+    fitter = fitting.LevMarLSQFitter()
+    if sigma_factor > 0:
+        fit = fitting.FittingWithOutlierRemoval(fitter,
+                                                sigma_clip,
+                                                niter=3,
+                                                sigma=sigma_factor)
+    else:
+        fit = fitter
 
     # Gaussian2D(amp,xmean,ymean,xstd,ystd,theta) + a constant
-    model = (models.Gaussian2D(amp, delta, delta, sigma, sigma, theta)
-             + models.Polynomial2D(c0_0=data.min(), degree=0))
+    model = (models.Gaussian2D(amp, delta, delta, sigma, sigma, theta) +
+             models.Polynomial2D(c0_0=data.min(), degree=0))
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
         results = fit(model, xx, yy, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
-    return results
+    # if sigma clipping is used, results is a tuple of data, model
+    if sigma_factor > 0:
+        return results[1]
+    else:
+        return results
 
 
-def fit_mex_hat_1d(data):
-    """Fit a 1D Mexican Hat function to the data."""
+def fit_mex_hat_1d(data, sigma_factor=0):
+    """Fit a 1D Mexican Hat function to the data.
+
+    Parameters
+    ----------
+
+    data: 2D float array
+        should be a 2d array, the initial center is used to estimate
+        the fit center
+    sigma_factor: float (optional)
+        If sigma_factor > 0 then clipping will be performed
+        on the data during the model fit
+
+    Returns
+    -------
+    The the fit model for mexican hat 1D function
+    """
     ldata = len(data)
     x = np.arange(ldata)
     fixed_pars = {"x_0": True}
 
-    # Fit model to data
-    fit = fitting.LevMarLSQFitter()
+    # Initialize the fitter
+    fitter = fitting.LevMarLSQFitter()
+    if sigma_factor > 0:
+        fit = fitting.FittingWithOutlierRemoval(fitter,
+                                                sigma_clip,
+                                                niter=3,
+                                                sigma=sigma_factor)
+    else:
+        fit = fitter
 
     # Mexican Hat 1D + constant
     model = (models.MexicanHat1D(amplitude=np.max(data),
-                                 x_0=ldata / 2, sigma=2., fixed=fixed_pars)
-             + models.Polynomial1D(c0=data.min(), degree=0))
+                                 x_0=ldata / 2,
+                                 sigma=2.,
+                                 fixed=fixed_pars) +
+             models.Polynomial1D(c0=data.min(), degree=0))
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
         results = fit(model, x, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
-    return results
+    if sigma_factor > 0:
+        return results[1]
+    else:
+        return results
 
 
-def fit_airy_2d(data, x=None, y=None):
-    """Fit an AiryDisk2D model to the data."""
+def fit_airy_2d(data, x=None, y=None, sigma_factor=0):
+    """Fit an AiryDisk2D model to the data.
+
+    Parameters
+    ----------
+
+    data: 2D float array
+        should be a 2d array, the initial center is used to estimate
+        the fit center
+    x: float (optional)
+        xcenter location
+    y: float (optional)
+        ycenter location
+    sigma_factor: float (optional)
+        If sigma_factor > 0 then clipping will be performed
+        on the data during the model fit
+
+    Returns
+    -------
+    The the fit model for Airy2D function
+
+    """
     delta = int(len(data) / 2)  # guess the center
     ldata = len(data)
 
-    if not x:
+    if x is None:
         x = delta
-    if not y:
+    if y is None:
         y = delta
     fixed_pars = {"x_0": True, "y_0": True}  # hold these constant
     yy, xx = np.mgrid[:ldata, :ldata]
 
-    # fit model to the data
-    fit = fitting.LevMarLSQFitter()
+    # Initialize the fitter
+    fitter = fitting.LevMarLSQFitter()
+    if sigma_factor > 0:
+        fit = fitting.FittingWithOutlierRemoval(fitter,
+                                                sigma_clip,
+                                                niter=3,
+                                                sigma=sigma_factor)
+    else:
+        fit = fitter
 
     # AiryDisk2D(amplitude, x_0, y_0, radius) + constant
-    model = (models.AiryDisk2D(np.max(data), x_0=x, y_0=y, radius=delta,
-                               fixed=fixed_pars)
-             + models.Polynomial2D(c0_0=data.min(), degree=0))
+    model = (models.AiryDisk2D(np.max(data),
+                               x_0=x,
+                               y_0=y,
+                               radius=delta,
+                               fixed=fixed_pars) +
+             models.Polynomial2D(c0_0=data.min(), degree=0))
     with warnings.catch_warnings():
             # Ignore model warnings for new_plot_window
             warnings.simplefilter('ignore')
             results = fit(model, xx, yy, data)
 
-    return results
+    if sigma_factor > 0:
+        return results[1]
+    else:
+        return results
 
 
 def fit_poly_n(data, x=None, y=None, deg=1):

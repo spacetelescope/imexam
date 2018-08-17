@@ -74,7 +74,7 @@ def list_active_ds9(verbose=True):
                 if verbose:
                     for line in sessions:
                         print(line)
-        except xpa.XpaException:
+        except (ValueError, xpa.XpaException):
                 print("No active sessions registered")
 
     else:
