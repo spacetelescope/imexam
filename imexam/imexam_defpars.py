@@ -1,11 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """These are default parameters for some of the plotting functions in Imexam
-Maybe it would be better to put these along with the imexam functions into
-their own class which the connect class can import? Users could edit this file
-to set their own defaults before installation, they could script something that
-resets the dictionaries themselves, or we could create a method to let them set
-from a json or text file maybe
+Users can edit this file to set their own defaults before installation, 
+they could script something that resets the dictionaries themselves, 
+or we could create a method to let them set from a json or text file maybe
 """
 
 # aperture photometry parameters
@@ -37,8 +35,8 @@ radial_profile_pars = {"function": ["radial_profile", ],
                        "xlabel": ["Radius", "The string for the xaxis label"],
                        "ylabel": ["Flux", "The string for the yaxis label"],
                        "pixels": [True, "Plot all pixels at each radius? (False bins the data)"],
-                       "fitplot": [False, "Overplot profile fit?"],
-                       "fittype": ["Gaussian2D", "Profile type to fit (Gaussian2D)"],
+                       "fitplot": [True, "Overplot profile fit?"],
+                       "fittype": ["Gaussian1D", "Profile type to fit"],
                        "center": [True, "Solve for center using 2d Gaussian? [bool]"],
                        "background": [False, "Subtract background? [bool]"],
                        "skyrad": [10., "Background inner radius in pixels, from center of object"],
@@ -47,7 +45,9 @@ radial_profile_pars = {"function": ["radial_profile", ],
                        "rplot": [8., "Plotting radius in pixels"],
                        "pointmode": [True, "plot points instead of lines? [bool]"],
                        "marker": ["o", "The marker character to use, matplotlib style"],
-                       "getdata": [False, "print the plotted data values"]
+                       "getdata": [False, "print the plotted data values"],
+                       "clip": [True, "Sigma clip by np.mean before center fitting?"],
+                       "sigma": [3.0, "sigma value for clipping"],
                        }
 
 # curve of growth
@@ -99,6 +99,8 @@ line_fit_pars = {"function": ["line_fit", ],
                  "logx": [False, "log scale x-axis?"],
                  "logy": [False, "log scale y-axis?"],
                  "center": [True, "Recenter around the local max"],
+                 "clip": [False, "Sigma clip by the mean before fitting?"],
+                 "sigma": [3.0, "sigma value for clipping"],
                  }
 
 # fit of column in image using model
@@ -115,6 +117,8 @@ column_fit_pars = {"function": ["column_fit", ],
                    "logx": [False, "log scale x-axis?"],
                    "logy": [False, "log scale y-axis?"],
                    "center": [True, "Recenter around the local max"],
+                   "clip": [False, "Sigma clip by the mean before fitting?"],
+                   "sigma": [3.0, "sigma value for clipping"],
                    }
 
 # contour plots

@@ -33,9 +33,12 @@ from IPython.display import Image
 from astropy.io import fits
 from astropy.modeling import models
 from astropy.visualization import ZScaleInterval
+
 try:
     from scipy import stats
+    scipy_installed = True
 except ImportError:
+    scipy_installed = False
     print("Scipy not installed, describe stat unavailable")
 
 from . import math_helper
@@ -91,7 +94,11 @@ class Imexamine(object):
         self._figure_name = "imexam"
         self._plot_windows.append(self._figure_name)
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
-        self._fit_models = ["Gaussian1D", "Moffat1D", "MexicanHat1D", "AiryDisk2D", "Polynomial1D"]
+        self._fit_models = ["Gaussian1D",
+                            "Moffat1D",
+                            "MexicanHat1D",
+                            "AiryDisk2D",
+                            "Polynomial1D"]
 
         # see if the package logger was already started
         self.log = logging.getLogger(__name__)
@@ -427,7 +434,7 @@ class Imexamine(object):
         ymin = int(y - dist)
         ymax = int(y + dist)
 
-        if "describe" in name:
+        if (("describe" in name) and (scipy_installed)):
             try:
                 stat = getattr(stats, "describe")
                 nobs, minmax, mean, var, skew, kurt = stat(data[ymin:ymax,
@@ -531,7 +538,6 @@ class Imexamine(object):
                                                              delta=delta)
 
             # XXX TODO:  Do I beleive that these all have to be ints?
-
             radius = int(self.aper_phot_pars["radius"][0])
             width = int(self.aper_phot_pars["width"][0])
             inner = int(self.aper_phot_pars["skyrad"][0])
@@ -579,7 +585,11 @@ class Imexamine(object):
 
             # Construct the output strings (header and parameter values)
             pheader = "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\t".format(magzero)
-            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t".format(x, y, radius, total_flux, mag)
+            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t".format(x,
+                                                                             y,
+                                                                             radius,
+                                                                             total_flux,
+                                                                             mag)
 
             if sky_per_pix is not None:
                 pheader += "sky/pix\t"
@@ -605,9 +615,9 @@ class Imexamine(object):
                 ax = plt.gca()
 
                 if self.aper_phot_pars["title"][0] is None:
-                    title = "x=%.2f, y=%.2f, flux=%.1f, \nmag=%.1f, sky=%.1f" % (x, y,
-                                                                                 total_flux, mag,
-                                                                                 sky_per_pix)
+                    title = "x=%.2f, y=%.2f, flux=%.1f, \nmag=%.1f, sky=%.1f" %(x, y,
+                                                                                total_flux, mag,
+                                                                                sky_per_pix)
                     if center:
                         title += ", fwhm=%.2f" % math_helper.gfwhm(sigma)[0]
                     ax.set_title(title)
@@ -618,12 +628,15 @@ class Imexamine(object):
                     zs = ZScaleInterval()
                     color_range = zs.get_limits(data)
                 else:
-                    color_range = [self.aper_phot_pars['color_min'][0], self.aper_phot_pars['color_max'][0]]
+                    color_range = [self.aper_phot_pars['color_min'][0],
+                                   self.aper_phot_pars['color_max'][0]]
 
                 pad = outer * 1.2  # XXX TODO: Bad magic number
-                ax.imshow(data[int(y - pad):int(y + pad), int(x - pad):int(x + pad)],
+                ax.imshow(data[int(y - pad):int(y + pad),
+                               int(x - pad):int(x + pad)],
                           vmin=color_range[0], vmax=color_range[1],
-                          extent=[int(x - pad), int(x + pad), int(y - pad), int(y + pad)], origin='lower',
+                          extent=[int(x - pad), int(x + pad),
+                                  int(y - pad), int(y + pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
 
                 apertures.plot(ax=ax, color='green', alpha=0.75, lw=3)
@@ -649,7 +662,7 @@ class Imexamine(object):
             The data array to work on
         form: string
             This is the functional form specified in the line fit parameters
-            Currently Gaussian1D, Moffat1D, MexicanHat1D, Polynomial1D
+            see show_fit_models()
         genplot: bool
             produce the plot or return the fit
         fig: figure for redirect
@@ -694,7 +707,9 @@ class Imexamine(object):
         # fit the center with a 2d gaussian
         if pars["center"][0]:
             if fitform.name is not "Polynomial1D":
-                amp, xout, yout, sigma, sigmay = self.gauss_center(xx, yy, data,
+                amp, xout, yout, sigma, sigmay = self.gauss_center(xx,
+                                                                   yy,
+                                                                   data,
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
                    yout > data.shape[0]):
@@ -712,22 +727,28 @@ class Imexamine(object):
             chunk = line[xx - delta: xx + delta]
             delta_add = xx - delta
 
+        # This factor is passed to the fitter
+        if pars["clip"][0]:
+            sig_factor = pars["sigma"][0]
+        else:
+            sig_factor = 0
+
         # fit model to data
         if fitform.name is "Gaussian1D":
-            fitted = math_helper.fit_gauss_1d(chunk)
+            fitted = math_helper.fit_gauss_1d(chunk, sigma=sig_factor)
             fitted.mean_0.value += delta_add
         elif fitform.name is "Moffat1D":
-            fitted = math_helper.fit_moffat_1d(chunk)
+            fitted = math_helper.fit_moffat_1d(chunk, sigma=sig_factor)
             fitted.x_0_0.value += delta_add
         elif fitform.name is "MexicanHat1D":
-            fitted = math_helper.fit_mex_hat_1d(chunk)
+            fitted = math_helper.fit_mex_hat_1d(chunk, sigma=sig_factor)
             fitted.x_0_0.value += delta_add
         elif fitform.name is "Polynomial1D":
-            fitted = math_helper.fit_poly_n(chunk, deg=degree)
+            fitted = math_helper.fit_poly_n(chunk, deg=degree, sigma=sig_factor)
             if fitted is None:
                 raise ValueError("Problem with the Poly1D fit")
         elif fitform.name is "AiryDisk2D":
-            fitted = math_helper.fit_airy_2d(chunk)
+            fitted = math_helper.fit_airy_2d(chunk, sigma=sig_factor)
             if fitted is None:
                 raise ValueError("Problem with the AiryDisk2D fit")
             fitted.x_0_0.value += (xx - delta)
@@ -821,7 +842,7 @@ class Imexamine(object):
             return fitted
 
     def column_fit(self, x, y, data=None, form=None, genplot=True, fig=None):
-        """Compute the 1d  fit to the column of data.
+        """Compute the 1d fit to the column of data.
 
         Parameters
         ----------
@@ -853,7 +874,7 @@ class Imexamine(object):
         if not genplot:
             return result
 
-    def gauss_center(self, x, y, data=None, delta=10):
+    def gauss_center(self, x, y, data=None, delta=10, sigma_factor=0):
         """Return the 2d gaussian fit center of the data.
 
         Parameters
@@ -867,6 +888,8 @@ class Imexamine(object):
         delta: int
             The range of data values (bounding box) to use around the x,y
             location for calculating the center
+        sigma_factor: float, optional
+            The sigma clipping factor to use on the data fit
 
         """
         if data is None:
@@ -882,7 +905,7 @@ class Imexamine(object):
         #  flipped from xpa
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
         try:
-            fit = math_helper.gauss_center(chunk)
+            fit = math_helper.fit_gaussian_2d(chunk, sigma_factor=sigma_factor)
             amp = fit.amplitude_0.value
             xcenter = fit.x_mean_0.value
             ycenter = fit.y_mean_0.value
@@ -910,7 +933,7 @@ class Imexamine(object):
 
         From the parameters Dictionary:
         If pixel is True, then every pixel at each radius is plotted.
-        If pixel is False, then the sum of all pixels at each radius is plotted.
+        If pixel is False, then the sum of all pixels at each radius is plotted
 
         Background may be subtracted and centering can be done with a
         2D Gaussian fit. These options are read from the plot parameters dict.
@@ -944,16 +967,41 @@ class Imexamine(object):
                                self.radial_profile_pars["fittype"][0])
 
             getdata = bool(self.radial_profile_pars["getdata"][0])
+            center = self.radial_profile_pars["center"][0]
+            clip_on = self.radial_profile_pars["clip"][0]
+            fitplot = self.radial_profile_pars["fitplot"][0]
+
+            if fitplot and not center:
+                center = True  # needed for the fit
 
             # cut the data down to size
             datasize = int(self.radial_profile_pars["rplot"][0])
-            delta = 10  # chunk size in pixels to find center
 
             # center on image using a 2d gaussian
-            if self.radial_profile_pars["center"][0]:
-                # pull out a small chunk to get the center defined
-                amp, centerx, centery, sigma, sigmay = \
-                    self.gauss_center(x, y, data, delta=delta)
+            sigma_factor = 0
+            if clip_on:
+                    sigma_factor = self.radial_profile_pars["sigma"][0]
+
+            if center:
+                # reset delta for small arrays
+                delta = datasize  # chunk size in pixels to find center
+                if delta >= len(data) / 4:
+                    delta = delta / 2
+                delta = int(delta)
+
+                xx = int(x)
+                yy = int(y)
+                #  flipped from xpa
+                data_chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
+
+                fitted = math_helper.fit_gaussian_2d(data_chunk,
+                                                     sigma_factor=sigma_factor)
+                amp = fitted.amplitude_0.value
+                centerx = fitted.x_mean_0.value
+                centery = fitted.y_mean_0.value
+                sigmax = fitted.x_stddev_0.value
+                sigmay = fitted.y_stddev_0.value
+                fwhmx, fwhmx = math_helper.gfwhm(sigmax, sigmay)
             else:
                 centery = y
                 centerx = x
@@ -965,18 +1013,21 @@ class Imexamine(object):
                               icenterx - datasize:icenterx + datasize]
 
             # the max pixel should be at this location, modulo bad pixels
-            xmax, ymax = np.unravel_index(data_chunk.argmax(), data_chunk.shape)
+            # ymax, xmax = np.unravel_index(data_chunk.argmax(), data_chunk.shape)
             y, x = np.indices(data_chunk.shape)  # index of all pixels
+            deltax = centerx - icenterx - 0.5  # fractional from fit to center
+            deltay = centery - icentery - 0.5  # fractional from fit to center
 
             if self.radial_profile_pars["pixels"][0]:
-                r = np.sqrt((np.abs(x - xmax) )**2 +
-                            (np.abs(y - ymax) )**2)
+                r = np.sqrt((np.abs(x - datasize) + deltax)**2 +
+                            (np.abs(y - datasize) + deltay)**2)
                 indices = np.argsort(r.flat)  # sorted indices
                 radius = r.flat[indices]
                 flux = data_chunk.flat[indices]
 
             else:  # sum the flux in integer bins
-                r = np.sqrt((x - xmax)**2 + (y - ymax)**2)
+                r = np.sqrt((x - datasize + deltax)**2 +
+                            (y - datasize + deltay)**2)
                 r = r.astype(np.int)
                 flux = np.bincount(r.ravel(), data_chunk.ravel())
                 radius = np.arange(len(flux))
@@ -987,7 +1038,7 @@ class Imexamine(object):
                 width = self.radial_profile_pars["width"][0]
                 annulus_apertures = photutils.CircularAnnulus((centerx, centery),
                                                               r_in=inner,
-                                                              r_out=inner + width)
+                                                              r_out=inner+width)
                 bkgflux_table = photutils.aperture_photometry(data,
                                                               annulus_apertures)
 
@@ -1013,7 +1064,15 @@ class Imexamine(object):
                 self.log.info(info)
                 self.log.info(radius, flux)
 
-            # finish the plot
+            # make data from the 2D gaussian fit
+            if fitplot:
+                xline = np.arange(len(data_chunk))
+                fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
+                yfit = fitted(fline)
+
+            #  finish the plot
+            #  TODO: users may get error if they use this without a display
+            #  and request data back but forget to set genplot=False
             if genplot:
                 pfig = fig
                 if fig is None:
@@ -1023,8 +1082,7 @@ class Imexamine(object):
                 ax = fig.gca()
 
                 if self.radial_profile_pars["title"][0] is None:
-                    title = "{0}: {1} {2}".format(self._datafile,
-                                                  icenterx, icentery)
+                    title = "obj: ({0},{1})".format(icenterx, icentery)
                 else:
                     title = self.radial_profile_pars["title"][0]
 
@@ -1035,12 +1093,21 @@ class Imexamine(object):
                     ax.plot(radius, flux, self.radial_profile_pars["marker"][0])
                 else:
                     ax.plot(radius, flux)
-                ax.set_title(title)
                 ax.set_ylim(0,)
 
-                # over plot a gaussian fit to the data
-                if bool(self.radial_profile_pars["fitplot"][0]):
-                    self.log.info("Fit overlay not yet implemented")
+                if fitplot:
+                    ax.plot(fline, yfit, linestyle='-', c='r', label="Gaussin2D fit")
+                    ax.set_xlim(0, datasize, 1)
+                    ax.set_title("{0:s} amp={1:8.2f} sigmax={2:9.2f},"
+                                 "fwhm={3:9.2f}".format(title,
+                                                        amp,
+                                                        sigmax,
+                                                        fwhmx))
+                    pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
+                        int(centerx), int(centery), sigmax, fwhmx)
+                    self.log.info(pstr)
+                else:
+                    ax.set_title(title)
 
                 if pfig is None and 'nbagg' not in get_backend().lower():
                     plt.draw()
