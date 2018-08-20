@@ -690,7 +690,12 @@ class Imexamine(object):
         if form is None:
             fitform = getattr(models, pars["func"][0])
         else:
-            fitform = getattr(models, form)
+            if form in self._fit_models:
+                fitform = getattr(models, form)
+            else:
+                raise ValueError("Functional form not in available: {}"
+                                 .format(self._fit_models))
+
         self.log.info("using model: {0}".format(fitform))
 
         # Used for Polynomial1D fitting
@@ -735,27 +740,24 @@ class Imexamine(object):
 
         # fit model to data
         if fitform.name is "Gaussian1D":
-            fitted = math_helper.fit_gauss_1d(chunk, sigma=sig_factor)
+            fitted = math_helper.fit_gauss_1d(chunk, sigma_factor=sig_factor)
             fitted.mean_0.value += delta_add
         elif fitform.name is "Moffat1D":
-            fitted = math_helper.fit_moffat_1d(chunk, sigma=sig_factor)
+            fitted = math_helper.fit_moffat_1d(chunk, sigma_factor=sig_factor)
             fitted.x_0_0.value += delta_add
         elif fitform.name is "MexicanHat1D":
-            fitted = math_helper.fit_mex_hat_1d(chunk, sigma=sig_factor)
+            fitted = math_helper.fit_mex_hat_1d(chunk, sigma_factor=sig_factor)
             fitted.x_0_0.value += delta_add
         elif fitform.name is "Polynomial1D":
-            fitted = math_helper.fit_poly_n(chunk, deg=degree, sigma=sig_factor)
+            fitted = math_helper.fit_poly_n(chunk, deg=degree, sigma_factor=sig_factor)
             if fitted is None:
                 raise ValueError("Problem with the Poly1D fit")
         elif fitform.name is "AiryDisk2D":
-            fitted = math_helper.fit_airy_2d(chunk, sigma=sig_factor)
+            fitted = math_helper.fit_airy_2d(chunk, sigma_factor=sig_factor)
             if fitted is None:
                 raise ValueError("Problem with the AiryDisk2D fit")
             fitted.x_0_0.value += (xx - delta)
             fitted.y_0_0.value += (yy - delta)
-        else:
-            self.log.info("{0:s} not implemented".format(fitform.name))
-            return
 
         xline = np.arange(len(chunk)) + delta_add
         fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
@@ -952,170 +954,175 @@ class Imexamine(object):
             Generate the plot if True, else return the fit data
 
         """
-        subtract_background = bool(self.radial_profile_pars["background"][0])
+        pars = self.radial_profile_pars
+
+        subtract_background = bool(pars["background"][0])
         if not photutils_installed and subtract_background:
             self.log.warning("Install photutils to enable "
                              "background subtraction")
             subtract_background = False
-        else:
 
-            if data is None:
-                data = self._data
+        if data is None:
+            data = self._data
 
+        getdata = bool(pars["getdata"][0])
+        center = pars["center"][0]
+        clip_on = pars["clip"][0]
+        if clip_on:
+            sig_factor = pars["sigma"][0]
+        fitplot = bool(pars["fitplot"][0])
+
+        if fitplot:
             if form is None:
-                form = getattr(models,
-                               self.radial_profile_pars["fittype"][0])
-
-            getdata = bool(self.radial_profile_pars["getdata"][0])
-            center = self.radial_profile_pars["center"][0]
-            clip_on = self.radial_profile_pars["clip"][0]
-            fitplot = self.radial_profile_pars["fitplot"][0]
-
-            if fitplot and not center:
-                center = True  # needed for the fit
-
-            # cut the data down to size
-            datasize = int(self.radial_profile_pars["rplot"][0])
-
-            # center on image using a 2d gaussian
-            sigma_factor = 0
-            if clip_on:
-                    sigma_factor = self.radial_profile_pars["sigma"][0]
-
-            if center:
-                # reset delta for small arrays
-                delta = datasize  # chunk size in pixels to find center
-                if delta >= len(data) / 4:
-                    delta = delta / 2
-                delta = int(delta)
-
-                xx = int(x)
-                yy = int(y)
-                #  flipped from xpa
-                data_chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
-
-                fitted = math_helper.fit_gaussian_2d(data_chunk,
-                                                     sigma_factor=sigma_factor)
-                amp = fitted.amplitude_0.value
-                centerx = fitted.x_mean_0.value
-                centery = fitted.y_mean_0.value
-                sigmax = fitted.x_stddev_0.value
-                sigmay = fitted.y_stddev_0.value
-                fwhmx, fwhmx = math_helper.gfwhm(sigmax, sigmay)
+                fitform = getattr(models, pars["func"][0])
             else:
-                centery = y
-                centerx = x
-            icenterx = int(centerx)
-            icentery = int(centery)
-
-            # just grab the data box we want centered on the object
-            data_chunk = data[icentery - datasize:icentery + datasize,
-                              icenterx - datasize:icenterx + datasize]
-
-            # the max pixel should be at this location, modulo bad pixels
-            # ymax, xmax = np.unravel_index(data_chunk.argmax(), data_chunk.shape)
-            y, x = np.indices(data_chunk.shape)  # index of all pixels
-            deltax = centerx - icenterx - 0.5  # fractional from fit to center
-            deltay = centery - icentery - 0.5  # fractional from fit to center
-
-            if self.radial_profile_pars["pixels"][0]:
-                r = np.sqrt((np.abs(x - datasize) + deltax)**2 +
-                            (np.abs(y - datasize) + deltay)**2)
-                indices = np.argsort(r.flat)  # sorted indices
-                radius = r.flat[indices]
-                flux = data_chunk.flat[indices]
-
-            else:  # sum the flux in integer bins
-                r = np.sqrt((x - datasize + deltax)**2 +
-                            (y - datasize + deltay)**2)
-                r = r.astype(np.int)
-                flux = np.bincount(r.ravel(), data_chunk.ravel())
-                radius = np.arange(len(flux))
-
-            # Get a background measurement
-            if subtract_background:
-                inner = self.radial_profile_pars["skyrad"][0]
-                width = self.radial_profile_pars["width"][0]
-                annulus_apertures = photutils.CircularAnnulus((centerx, centery),
-                                                              r_in=inner,
-                                                              r_out=inner+width)
-                bkgflux_table = photutils.aperture_photometry(data,
-                                                              annulus_apertures)
-
-                # to calculate the mean local background, divide the circular
-                # annulus aperture sums by the area of the circular annulus.
-                # The bkg sum with the circular aperture is then
-                # the mean local background times the circular apreture area.
-                annulus_area = annulus_apertures.area()
-                sky_per_pix = float(bkgflux_table['aperture_sum'] /
-                                    annulus_area)
-                self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
-                if self.radial_profile_pars["pixels"][0]:
-
-                    flux -= sky_per_pix
+                if form not in self._fit_models:
+                    msg = "{0:s} not supported for fitting".format(form)
+                    self.log(msg)
+                    raise ValueError(msg)
                 else:
-                    flux -= np.bincount(r.ravel()) * sky_per_pix
-                if getdata:
-                    self.log.info("Sky per pixel: {0} using "
-                                  "(rad={1}->{2})".format(sky_per_pix,
-                                                          inner, inner + width))
+                    fitform = getattr(models, form)
+
+        # cut the data down to size
+        datasize = int(pars["rplot"][0])
+
+        if center:
+            # reset delta for small arrays
+            delta = datasize  # chunk size in pixels to find center
+            if delta >= len(data) / 4:
+                delta = delta / 2
+            delta = int(delta)
+
+            xx = int(x)
+            yy = int(y)
+            #  flipped from xpa
+            data_chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
+
+            amp, centerx, centery, sigmax, sigmay = self.gauss_center(xx, yy, data, delta=delta)
+        else:
+            centery = y
+            centerx = x
+        icenterx = int(centerx)
+        icentery = int(centery)
+
+        # just grab the data box centered on the object
+        data_chunk = data[icentery - datasize :icentery + datasize,
+                          icenterx - datasize :icenterx + datasize]
+
+        y, x = np.indices(data_chunk.shape)  # index of all pixels
+        r = np.sqrt(((x - datasize)**2 +
+                     (y - datasize)**2))
+
+        if pars["pixels"][0]:
+            indices = np.argsort(r.flat)  # sorted indices
+            flux = data_chunk.flat[indices]
+            radius = r.flat[indices]
+
+        else:  # sum the flux in integer bins
+            r = r.astype(np.int)
+            flux = np.bincount(r.ravel(), data_chunk.ravel())
+            radius = np.arange(len(flux))
+
+        # Get a background measurement
+        if subtract_background:
+            inner = pars["skyrad"][0]
+            width = pars["width"][0]
+            annulus_apertures = photutils.CircularAnnulus((centerx, centery),
+                                                          r_in=inner,
+                                                          r_out=inner+width)
+            bkgflux_table = photutils.aperture_photometry(data,
+                                                          annulus_apertures)
+
+            # to calculate the mean local background, divide the circular
+            # annulus aperture sums by the area of the circular annulus.
+            # The bkg sum with the circular aperture is then
+            # the mean local background times the circular apreture area.
+            annulus_area = annulus_apertures.area()
+            sky_per_pix = float(bkgflux_table['aperture_sum'] /
+                                annulus_area)
+            self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
+            if pars["pixels"][0]:
+                flux -= sky_per_pix
+            else:
+                flux -= np.bincount(r.ravel()) * sky_per_pix
             if getdata:
-                info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
-                self.log.info(info)
-                self.log.info(radius, flux)
+                self.log.info("Sky per pixel: {0} using "
+                              "(rad={1}->{2})".format(sky_per_pix,
+                                                      inner, inner + width))
+        if getdata:
+            info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
+            self.log.info(info)
+            self.log.info(radius, flux)
 
-            # make data from the 2D gaussian fit
-            if fitplot:
-                xline = np.arange(len(data_chunk))
-                fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
-                yfit = fitted(fline)
+        # Fit the functional form to the radial profile flux
+        if fitplot:
+            sig_factor = pars["sigma"][0]
+            fline = np.linspace(0, datasize, 100)  # finer sample
+            # fit model to data
+            if fitform.name is "Gaussian1D":
+                fitted = math_helper.fit_gauss_1d(flux,
+                                                  sigma_factor=sig_factor,
+                                                  center_left=True,
+                                                  weighted=True)
+            elif fitform.name is "Moffat1D":
+                fitted = math_helper.fit_moffat_1d(flux,
+                                                   sigma_factor=sig_factor,
+                                                   center_left=True,
+                                                   weighted=True)
+            elif fitform.name is "MexicanHat1D":
+                fitted = math_helper.fit_mex_hat_1d(flux,
+                                                    sigma_factor=sig_factor,
+                                                    center_left=True,
+                                                    weighted=True)
+            if fitted is None:
+                msg = "Problem with the {0:s} fit".format(fitform.name)
+                self.log(msg)
+                raise ValueError(msg)
 
-            #  finish the plot
-            #  TODO: users may get error if they use this without a display
-            #  and request data back but forget to set genplot=False
-            if genplot:
-                pfig = fig
-                if fig is None:
-                    fig = plt.figure(self._figure_name)
-                fig.clf()
-                fig.add_subplot(111)
-                ax = fig.gca()
+            yfit = fitted(fline)
 
-                if self.radial_profile_pars["title"][0] is None:
-                    title = "obj: ({0},{1})".format(icenterx, icentery)
-                else:
-                    title = self.radial_profile_pars["title"][0]
+        #  finish the plot
+        #  TODO: users may get error if they use this without a display
+        #  and request data back but forget to set genplot=False
+        if genplot:
+            pfig = fig
+            if fig is None:
+                fig = plt.figure(self._figure_name)
+            fig.clf()
+            fig.add_subplot(111)
+            ax = fig.gca()
 
-                ax.set_xlabel(self.radial_profile_pars["xlabel"][0])
-                ax.set_ylabel(self.radial_profile_pars["ylabel"][0])
+            ax.set_xlabel(pars["xlabel"][0])
+            ax.set_ylabel(pars["ylabel"][0])
 
-                if bool(self.radial_profile_pars["pointmode"][0]):
-                    ax.plot(radius, flux, self.radial_profile_pars["marker"][0])
-                else:
-                    ax.plot(radius, flux)
-                ax.set_ylim(0,)
-
-                if fitplot:
-                    ax.plot(fline, yfit, linestyle='-', c='r', label="Gaussin2D fit")
-                    ax.set_xlim(0, datasize, 1)
-                    ax.set_title("{0:s} amp={1:8.2f} sigmax={2:9.2f},"
-                                 "fwhm={3:9.2f}".format(title,
-                                                        amp,
-                                                        sigmax,
-                                                        fwhmx))
-                    pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
-                        int(centerx), int(centery), sigmax, fwhmx)
-                    self.log.info(pstr)
-                else:
-                    ax.set_title(title)
-
-                if pfig is None and 'nbagg' not in get_backend().lower():
-                    plt.draw()
-                    plt.pause(0.001)
-                else:
-                    fig.canvas.draw()
+            if bool(pars["pointmode"][0]):
+                ax.plot(radius, flux, pars["marker"][0])
             else:
-                return radius, flux
+                ax.plot(radius, flux)
+            ax.set_ylim(0,)
+
+            if pars["title"][0] is None:
+                if fitplot:
+                    title = ("Radial Profile at ({0:d},{1:d}) with {2:s}"
+                             .format(icenterx, icentery, fitform.name))
+                else:
+                    title = "Radial Profile for {0} {1}".format(icenterx, icentery)
+            else:
+                title = pars["title"][0]
+
+            if fitplot:
+                ax.plot(fline, yfit, linestyle='-', c='r', label=fitform.name)
+                ax.set_xlim(0, datasize, 1)
+
+            ax.set_title(title)
+
+            if pfig is None and 'nbagg' not in get_backend().lower():
+                plt.draw()
+                plt.pause(0.001)
+            else:
+                fig.canvas.draw()
+        else:
+            return radius, flux
 
     def curve_of_growth(self, x, y, data=None, genplot=True, fig=None):
         """Display a curve of growth plot.
