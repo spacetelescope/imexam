@@ -6,6 +6,7 @@ from __future__ import print_function, division
 
 import numpy as np
 import warnings
+
 from astropy.modeling import models, fitting
 from astropy.stats import gaussian_sigma_to_fwhm, sigma_clip
 
@@ -64,7 +65,8 @@ def mfwhm(alpha=0, gamma=0):
     return 2 * alpha * np.sqrt(2 ** (1 / gamma) - 1)
 
 
-def fit_moffat_1d(data, gamma=2., alpha=1., sigma=0.):
+def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
+                  center_left=False, weighted=False):
     """Fit a 1D moffat profile to the data and return the fit.
 
     Parameters
@@ -75,7 +77,7 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma=0.):
         The input gamma to use
     alpha: float (optional)
         The input alpha to use
-    sigma: float (optional)
+    sigma_factor: float (optional)
         If sigma>0 then sigma clipping of the data is performed
         at that level
 
@@ -86,56 +88,81 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma=0.):
     """
     # data is assumed to already be chunked to a reasonable size
     ldata = len(data)
+    if center_left:
+        x0 = 0
+    else:
+        x0 = int(ldata / 2.)
+
+    # assumes negligable background
+    if weighted:
+        z = np.sqrt(data)  # use as weight
+
     x = np.arange(ldata)
 
     # Initialize the fitter
     fitter = fitting.LevMarLSQFitter()
-    if sigma > 0:
+    if sigma_factor > 0:
         fit = fitting.FittingWithOutlierRemoval(fitter,
                                                 sigma_clip,
                                                 niter=3,
-                                                sigma=sigma)
+                                                sigma=sigma_factor)
     else:
         fit = fitter
 
     # Moffat1D + constant
     model = (models.Moffat1D(amplitude=max(data),
-                             x_0=ldata / 2,
+                             x_0=x0,
                              gamma=gamma,
                              alpha=alpha) +
              models.Polynomial1D(c0=data.min(), degree=0))
+
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
-        results = fit(model, x, data)
+        if weighted:
+            results = fit(model, x, data, weights=z)
+        else:
+            results = fit(model, x, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
     # if sigma clipping is used, results is a tuple of data, model
-    if sigma > 0:
+    if sigma_factor > 0:
         return results[1]
     else:
         return results
 
 
-def fit_gauss_1d(data, sigma_factor=0):
-    """Fit a 1D gaussian to the 2d data and return the fit.
+def fit_gauss_1d(data, sigma_factor=0, center_left=False, weighted=False):
+    """Fit a 1D gaussian to the data and return the fit.
 
     Parameters
     ----------
-    data: 2D data array
-        The input sigma to use
+    data: data array
+        Peak is assumed at center of array
+        set center_high to True and the center will
+        be taken at the first value
     sigma: float (optional)
         If sigma>0 then sigma clipping of the data is performed
         at that level
+    center_high: bool
+        False by default, set to true to use first value as center
+    weighted: bool
+        if weighted is True, then weight the values by basic
+        uncertainty measure of flux
 
     Returns
     -------
-    The fitted 1D gaussian model for the data
+    The fitted 1D gaussian model for the data.
     """
-
-    # data is assumed to already be chunked to a reasonable size
-    delta = int(len(data) / 2.)  # guess the center
     ldata = len(data)
+    if center_left:
+        delta = 0
+    else:
+        delta = int(ldata / 2.)
+
+    # assumes negligable background
+    if weighted:
+        z = np.sqrt(data)  # use as weight
 
     # Initialize the fitter
     fitter = fitting.LevMarLSQFitter()
@@ -151,11 +178,15 @@ def fit_gauss_1d(data, sigma_factor=0):
     model = (models.Gaussian1D(amplitude=data.max() - data.min(),
                                mean=delta, stddev=1.) +
              models.Polynomial1D(c0=data.min(), degree=0))
+
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
         x = np.arange(ldata)
-        results = fit(model, x, data)
+        if weighted:
+            results = fit(model, x, data, weights=z)
+        else:
+            results = fit(model, x, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
     # if sigma clipping is used, results is a tuple of data, model
@@ -219,7 +250,7 @@ def fit_gaussian_2d(data, sigma=3., theta=0., sigma_factor=0):
         return results
 
 
-def fit_mex_hat_1d(data, sigma_factor=0):
+def fit_mex_hat_1d(data, sigma_factor=0, center_left=False, weighted=False):
     """Fit a 1D Mexican Hat function to the data.
 
     Parameters
@@ -237,6 +268,15 @@ def fit_mex_hat_1d(data, sigma_factor=0):
     The the fit model for mexican hat 1D function
     """
     ldata = len(data)
+    if center_left:
+        x0 = 0
+    else:
+        x0 = int(ldata / 2.)
+
+    # assumes negligable background
+    if weighted:
+        z = np.sqrt(data)  # use as weight
+
     x = np.arange(ldata)
     fixed_pars = {"x_0": True}
 
@@ -252,14 +292,18 @@ def fit_mex_hat_1d(data, sigma_factor=0):
 
     # Mexican Hat 1D + constant
     model = (models.MexicanHat1D(amplitude=np.max(data),
-                                 x_0=ldata / 2,
+                                 x_0=x0,
                                  sigma=2.,
                                  fixed=fixed_pars) +
              models.Polynomial1D(c0=data.min(), degree=0))
+
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
-        results = fit(model, x, data)
+        if weighted:
+            results = fit(model, x, data, weights=z)
+        else:
+            results = fit(model, x, data)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
     if sigma_factor > 0:
@@ -328,8 +372,26 @@ def fit_airy_2d(data, x=None, y=None, sigma_factor=0):
         return results
 
 
-def fit_poly_n(data, x=None, y=None, deg=1):
-    """Fit a Polynomial 1D model to the data."""
+def fit_poly_n(data, deg=1, sigma_factor=0):
+    """Fit a Polynomial 1D model to the data.
+
+    Parameters
+    ----------
+
+    data: float array
+        should be a 1d or 2d array
+    deg: int
+        The degree of polynomial to fit
+    sigma_factor: float (optional)
+        If sigma_factor > 0 then clipping will be performed
+        on the data during the model fit
+
+    Returns
+    -------
+    The the polynomial fit model for the function
+    """
+    if len(data) < deg + 1:
+        raise ValueError("fit_poly_n: Need more data for fit")
 
     # define the model
     poly = models.Polynomial1D(deg)
@@ -338,10 +400,22 @@ def fit_poly_n(data, x=None, y=None, deg=1):
     ax = np.arange(len(data))
 
     # define the fitter
-    fit = fitting.LinearLSQFitter()
+    fitter = fitting.LinearLSQFitter()
+
+    if sigma_factor > 0:
+        fit = fitting.FittingWithOutlierRemoval(fitter,
+                                                sigma_clip,
+                                                sigma=sigma_factor,
+                                                niter=3)
+    else:
+        fit = fitter
+
     try:
         result = fit(poly, ax, data)
-    except:
-        ValueError
+    except ValueError:
         result = None
+
+    if sigma_factor > 0:
+        result = result[1]
+
     return result
