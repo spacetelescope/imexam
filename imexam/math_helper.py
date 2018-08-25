@@ -66,7 +66,7 @@ def mfwhm(alpha=0, gamma=0):
 
 
 def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
-                  center_left=False, weighted=False):
+                  center_at=None, weighted=False):
     """Fit a 1D moffat profile to the data and return the fit.
 
     Parameters
@@ -80,6 +80,11 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
     sigma_factor: float (optional)
         If sigma>0 then sigma clipping of the data is performed
         at that level
+    center_at: float or None
+        None by default, set to value to use as center
+    weighted: bool
+        if weighted is True, then weight the values by basic
+        uncertainty hueristic
 
     Returns
     -------
@@ -88,14 +93,16 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
     """
     # data is assumed to already be chunked to a reasonable size
     ldata = len(data)
-    if center_left:
+
+    # guesstimate mean
+    if center_at:
         x0 = 0
     else:
         x0 = int(ldata / 2.)
 
     # assumes negligable background
     if weighted:
-        z = np.sqrt(data)  # use as weight
+        z = np.nan_to_num(1. / np.sqrt(data))  # use as weight
 
     x = np.arange(ldata)
 
@@ -132,7 +139,7 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
         return results
 
 
-def fit_gauss_1d(data, sigma_factor=0, center_left=False, weighted=False):
+def fit_gauss_1d(data, sigma_factor=0, center_at=None, weighted=False):
     """Fit a 1D gaussian to the data and return the fit.
 
     Parameters
@@ -144,25 +151,27 @@ def fit_gauss_1d(data, sigma_factor=0, center_left=False, weighted=False):
     sigma: float (optional)
         If sigma>0 then sigma clipping of the data is performed
         at that level
-    center_high: bool
-        False by default, set to true to use first value as center
+    center_at: float or None
+        False by default, set to value to use as center
     weighted: bool
         if weighted is True, then weight the values by basic
-        uncertainty measure of flux
+        uncertainty hueristic
 
     Returns
     -------
     The fitted 1D gaussian model for the data.
     """
     ldata = len(data)
-    if center_left:
-        delta = 0
-    else:
+
+    # guesstimate the mean
+    if center_at is None:
         delta = int(ldata / 2.)
+    else:
+        delta = center_at
 
     # assumes negligable background
     if weighted:
-        z = np.sqrt(data)  # use as weight
+        z = np.nan_to_num(1. / np.sqrt(data))
 
     # Initialize the fitter
     fitter = fitting.LevMarLSQFitter()
@@ -250,7 +259,7 @@ def fit_gaussian_2d(data, sigma=3., theta=0., sigma_factor=0):
         return results
 
 
-def fit_mex_hat_1d(data, sigma_factor=0, center_left=False, weighted=False):
+def fit_mex_hat_1d(data, sigma_factor=0, center_at=None, weighted=False):
     """Fit a 1D Mexican Hat function to the data.
 
     Parameters
@@ -262,20 +271,25 @@ def fit_mex_hat_1d(data, sigma_factor=0, center_left=False, weighted=False):
     sigma_factor: float (optional)
         If sigma_factor > 0 then clipping will be performed
         on the data during the model fit
+    center_at: float or None
+        None by default, set to value to use as center
+    weighted: bool
+        if weighted is True, then weight the values by basic
+        uncertainty hueristic
 
     Returns
     -------
     The the fit model for mexican hat 1D function
     """
     ldata = len(data)
-    if center_left:
+    if center_at:
         x0 = 0
     else:
         x0 = int(ldata / 2.)
 
     # assumes negligable background
     if weighted:
-        z = np.sqrt(data)  # use as weight
+        z = np.nan_to_num(1. / np.sqrt(data))  # use as weight
 
     x = np.arange(ldata)
     fixed_pars = {"x_0": True}

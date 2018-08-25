@@ -970,6 +970,8 @@ class Imexamine(object):
         clip_on = pars["clip"][0]
         if clip_on:
             sig_factor = pars["sigma"][0]
+        else:
+            sig_factor = 0
         fitplot = bool(pars["fitplot"][0])
 
         if fitplot:
@@ -984,7 +986,11 @@ class Imexamine(object):
                     fitform = getattr(models, form)
 
         # cut the data down to size
+        # make it odd if it's even
         datasize = int(pars["rplot"][0])
+        if datasize < 3:
+            print("Insufficient pixels, resetting chunk size to 3.")
+            datasize = 3
 
         if center:
             # reset delta for small arrays
@@ -1004,14 +1010,20 @@ class Imexamine(object):
             centerx = x
         icenterx = int(centerx)
         icentery = int(centery)
+        xfrac = centerx - icenterx
+        yfrac = centery - icentery
 
         # just grab the data box centered on the object
-        data_chunk = data[icentery - datasize :icentery + datasize,
-                          icenterx - datasize :icenterx + datasize]
+        data_chunk = data[icentery - datasize:icentery + datasize,
+                          icenterx - datasize:icenterx + datasize]
 
         y, x = np.indices(data_chunk.shape)  # index of all pixels
-        r = np.sqrt(((x - datasize)**2 +
-                     (y - datasize)**2))
+        y = np.abs(y - datasize) + xfrac
+        x = np.abs(x - datasize) + yfrac 
+        x[datasize, datasize] = 0
+        y[datasize, datasize] = 0
+
+        r = np.sqrt(x**2 + y**2)
 
         if pars["pixels"][0]:
             indices = np.argsort(r.flat)  # sorted indices
@@ -1040,7 +1052,13 @@ class Imexamine(object):
             annulus_area = annulus_apertures.area()
             sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                 annulus_area)
+
+            # don't add flux
+            if sky_per_pix < 0:
+                sky_per_pix = 0
+                self.log.info("Sky background negative, setting to zero")
             self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
+
             if pars["pixels"][0]:
                 flux -= sky_per_pix
             else:
@@ -1055,25 +1073,50 @@ class Imexamine(object):
             self.log.info(radius, flux)
 
         # Fit the functional form to the radial profile flux
+        # TODO: Ignore sky subtracted pixels that push flux
+        # below zero?
         if fitplot:
-            sig_factor = pars["sigma"][0]
             fline = np.linspace(0, datasize, 100)  # finer sample
             # fit model to data
             if fitform.name is "Gaussian1D":
                 fitted = math_helper.fit_gauss_1d(flux,
                                                   sigma_factor=sig_factor,
-                                                  center_left=True,
+                                                  center_at=0,
                                                   weighted=True)
+                self.log.info(fitted)
+                fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
+                legend = ("Max. pix. flux = {0:9.3f}\n"
+                          "amp = {1:9.3f}\n"
+                          "fwhm = {2:9.3f}".format(np.max(flux),
+                                                   fitted.amplitude_0.value,
+                                                   fwhmx))
+                legendx = 2  # the min datasize
+                legendy = fitted.amplitude_0.value / 2
+
             elif fitform.name is "Moffat1D":
                 fitted = math_helper.fit_moffat_1d(flux,
                                                    sigma_factor=sig_factor,
-                                                   center_left=True,
+                                                   center_at=0,
                                                    weighted=True)
+                mfwhm = math_helper.mfwhm(fitted.alpha_0.value,
+                                          fitted.gamma_0.value)
+                legend = ("Max. pix. flux = {0:9.3f}\n"
+                          "amp = {1:9.3f}\n"
+                          "fwhm = {2:9.3f}".format(np.max(flux),
+                                                   fitted.amplitude_0.value,
+                                                   mfwhm))
+                legendx = 2  # the min datasize
+                legendy = fitted.amplitude_0.value / 2
+
             elif fitform.name is "MexicanHat1D":
                 fitted = math_helper.fit_mex_hat_1d(flux,
                                                     sigma_factor=sig_factor,
-                                                    center_left=True,
+                                                    center_at=0,
                                                     weighted=True)
+                legend = ("Max. pix. flux = {0:9.3f}\n".format(np.max(flux)))
+                legendx = 2  # the min datasize
+                legendy = np.max(flux) / 2
+
             if fitted is None:
                 msg = "Problem with the {0:s} fit".format(fitform.name)
                 self.log(msg)
@@ -1092,8 +1135,12 @@ class Imexamine(object):
             fig.add_subplot(111)
             ax = fig.gca()
 
+            if subtract_background:
+                ytitle = ("Flux ( sky/pix = {0:8.2f} )".format(sky_per_pix))
+            else:
+                ytitle = pars["ylabel"][0]
             ax.set_xlabel(pars["xlabel"][0])
-            ax.set_ylabel(pars["ylabel"][0])
+            ax.set_ylabel(ytitle)
 
             if bool(pars["pointmode"][0]):
                 ax.plot(radius, flux, pars["marker"][0])
@@ -1112,7 +1159,8 @@ class Imexamine(object):
 
             if fitplot:
                 ax.plot(fline, yfit, linestyle='-', c='r', label=fitform.name)
-                ax.set_xlim(0, datasize, 1)
+                ax.set_xlim(0, datasize, 0.5)
+                ax.text(legendx, legendy, legend)
 
             ax.set_title(title)
 
