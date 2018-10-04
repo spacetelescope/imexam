@@ -1010,6 +1010,8 @@ class Imexamine(object):
             centerx = x
         icenterx = int(centerx)
         icentery = int(centery)
+
+        # fractional center
         xfrac = centerx - icenterx
         yfrac = centery - icentery
 
@@ -1018,8 +1020,8 @@ class Imexamine(object):
                           icenterx - datasize:icenterx + datasize]
 
         y, x = np.indices(data_chunk.shape)  # index of all pixels
-        y = np.abs(y - datasize) + xfrac
-        x = np.abs(x - datasize) + yfrac 
+        y = np.abs(y - datasize) - 0.5 + np.abs(0.5 - yfrac)
+        x = np.abs(x - datasize) - 0.5 + np.abs(0.5 - xfrac)
         x[datasize, datasize] = 0
         y[datasize, datasize] = 0
 
@@ -1083,7 +1085,7 @@ class Imexamine(object):
                                                   sigma_factor=sig_factor,
                                                   center_at=0,
                                                   weighted=True)
-                self.log.info(fitted)
+
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
                 legend = ("Max. pix. flux = {0:9.3f}\n"
                           "amp = {1:9.3f}\n"
