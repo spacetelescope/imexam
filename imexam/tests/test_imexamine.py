@@ -130,7 +130,10 @@ def test_gauss_center():
 
 
 def test_radial_profile():
-    """Test the radial profile function without background subtraction"""
+    """Test the radial profile function
+    No background subtraction
+    Cummulive pixels used
+    """
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
@@ -146,6 +149,7 @@ def test_radial_profile():
 
     plots = Imexamine()
     plots.set_data(data.array)
+
     # check the binned results
     plots.radial_profile_pars['pixels'][0] = False
     plots.radial_profile_pars['background'][0] = False
@@ -163,7 +167,9 @@ def test_radial_profile():
 
 @pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_radial_profile_background():
-    """Test the radial profile function with background subtraction"""
+    """Test the radial profile function
+    With background subtraction
+    Cummulative pixels """
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
@@ -195,7 +201,10 @@ def test_radial_profile_background():
 
 
 def test_radial_profile_pixels():
-    """Test the radial profile function without background subtraction"""
+    """Test the radial profile function
+    without background subtraction
+    with each pixel unsummed
+    """
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))

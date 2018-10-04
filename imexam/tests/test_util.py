@@ -4,7 +4,7 @@ Make sure that the functions in util are behaving as expected
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import pytest
+
 import numpy as np
 from numpy.testing import assert_equal
 from astropy.io import fits
@@ -15,7 +15,7 @@ test_data_zeros = np.zeros((100, 100), dtype=np.float)
 
 
 def test_invalid_simple_fits():
-    """Test for an invalid FITS hdu with no data in
+    """Test for an invalid simple FITS hdu with no data in
     the primary HDU."""
 
     simple_fits_hdu = fits.PrimaryHDU()
@@ -59,7 +59,7 @@ def test_image_and_table_extensions():
     mef_fits_hdu = fits.HDUList()
     mef_fits_hdu.append(fits.PrimaryHDU())
     extension = fits.PrimaryHDU()
-    
+
     mef_fits_hdu.append(tbhdu)
     mef_fits_hdu.append(fits.ImageHDU(test_data_zeros,
                                       header=extension.header,
