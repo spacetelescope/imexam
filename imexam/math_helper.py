@@ -139,20 +139,22 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
         return results
 
 
-def fit_gauss_1d(data, sigma_factor=0, center_at=None, weighted=False):
+def fit_gauss_1d(radius, flux, sigma_factor=0, center_at=None, weighted=False):
     """Fit a 1D gaussian to the data and return the fit.
 
     Parameters
     ----------
-    data: data array
-        Peak is assumed at center of array
-        set center_high to True and the center will
-        be taken at the first value
-    sigma: float (optional)
+    radius: array of float
+        set center_at and the center will be taken there
+    flux: array of float
+        values should correspond to radius array
+    sigma_factor: float (optional)
         If sigma>0 then sigma clipping of the data is performed
         at that level
     center_at: float or None
-        False by default, set to value to use as center
+        None by default, set to value to use as center
+        If the value is None, center will be set at half the
+        array size.
     weighted: bool
         if weighted is True, then weight the values by basic
         uncertainty hueristic
@@ -161,17 +163,20 @@ def fit_gauss_1d(data, sigma_factor=0, center_at=None, weighted=False):
     -------
     The fitted 1D gaussian model for the data.
     """
-    ldata = len(data)
+
+    if radius.shape != flux.shape:
+        raise ValueError("Expected same sizes for radius and flux")
 
     # guesstimate the mean
+    # assumes ordered radius
     if center_at is None:
-        delta = int(ldata / 2.)
+        delta = int(len(radius) / 2.)
     else:
         delta = center_at
 
     # assumes negligable background
     if weighted:
-        z = np.nan_to_num(1. / np.sqrt(data))
+        z = np.nan_to_num(np.log(flux))
 
     # Initialize the fitter
     fitter = fitting.LevMarLSQFitter()
@@ -184,18 +189,17 @@ def fit_gauss_1d(data, sigma_factor=0, center_at=None, weighted=False):
         fit = fitter
 
     # Gaussian1D + a constant
-    model = (models.Gaussian1D(amplitude=data.max() - data.min(),
+    model = (models.Gaussian1D(amplitude=flux.max() - flux.min(),
                                mean=delta, stddev=1.) +
-             models.Polynomial1D(c0=data.min(), degree=0))
+             models.Polynomial1D(c0=flux.min(), degree=0))
 
     with warnings.catch_warnings():
         # Ignore model linearity warning from the fitter
         warnings.simplefilter('ignore')
-        x = np.arange(ldata)
         if weighted:
-            results = fit(model, x, data, weights=z)
+            results = fit(model, radius, flux, weights=z)
         else:
-            results = fit(model, x, data)
+            results = fit(model, radius, flux)
 
     # previous yield amp, ycenter, xcenter, sigma, offset
     # if sigma clipping is used, results is a tuple of data, model
