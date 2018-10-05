@@ -740,7 +740,8 @@ class Imexamine(object):
 
         # fit model to data
         if fitform.name is "Gaussian1D":
-            fitted = math_helper.fit_gauss_1d(chunk, sigma_factor=sig_factor)
+            xr = np.arange(len(chunk))
+            fitted = math_helper.fit_gauss_1d(xr, chunk, sigma_factor=sig_factor)
             fitted.mean_0.value += delta_add
         elif fitform.name is "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk, sigma_factor=sig_factor)
@@ -904,6 +905,7 @@ class Imexamine(object):
         delta = int(delta)
         xx = int(x)
         yy = int(y)
+        self.log.info("delta xx yy: {} {} {}".format(delta,xx,yy))
         #  flipped from xpa
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
         try:
@@ -951,7 +953,7 @@ class Imexamine(object):
         form: string
             The string name of the form of the fit to use
         genplot: bool
-            Generate the plot if True, else return the fit data
+            Generate the plot if True, else retfurn the fit data
 
         """
         pars = self.radial_profile_pars
@@ -967,11 +969,15 @@ class Imexamine(object):
 
         getdata = bool(pars["getdata"][0])
         center = pars["center"][0]
+
+        # be careful with the clipping since most
+        # of the data will be near the low value
         clip_on = pars["clip"][0]
         if clip_on:
             sig_factor = pars["sigma"][0]
         else:
             sig_factor = 0
+
         fitplot = bool(pars["fitplot"][0])
 
         if fitplot:
@@ -980,61 +986,60 @@ class Imexamine(object):
             else:
                 if form not in self._fit_models:
                     msg = "{0:s} not supported for fitting".format(form)
-                    self.log(msg)
+                    self.log.info(msg)
                     raise ValueError(msg)
                 else:
                     fitform = getattr(models, form)
 
-        # cut the data down to size
-        # make it odd if it's even
+        # cut the data down to size and center cutout
         datasize = int(pars["rplot"][0])
         if datasize < 3:
-            print("Insufficient pixels, resetting chunk size to 3.")
+            self.log.info("Insufficient pixels, resetting chunk size to 3.")
             datasize = 3
 
         if center:
             # reset delta for small arrays
-            delta = datasize  # chunk size in pixels to find center
-            if delta >= len(data) / 4:
-                delta = delta / 2
-            delta = int(delta)
-
+            # make it odd if it's even
+            if ((datasize % 2) == 0):
+                datasize = datasize + 1
             xx = int(x)
             yy = int(y)
             #  flipped from xpa
-            data_chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
+            data_chunk = data[yy - datasize:yy + datasize,
+                              xx - datasize:xx + datasize]
+            amp, centerx, centery, sigmax, sigmay = self.gauss_center(xx, yy, data, delta=datasize)
 
-            amp, centerx, centery, sigmax, sigmay = self.gauss_center(xx, yy, data, delta=delta)
         else:
             centery = y
             centerx = x
+
         icenterx = int(centerx)
         icentery = int(centery)
 
-        # fractional center
-        xfrac = centerx - icenterx
-        yfrac = centery - icentery
+        # fractional center, help with precision errors to 1000th pixel
+        xfrac = round(centerx - icenterx, 2)
+        yfrac = round(centery - icentery, 2)
 
         # just grab the data box centered on the object
         data_chunk = data[icentery - datasize:icentery + datasize,
                           icenterx - datasize:icenterx + datasize]
 
         y, x = np.indices(data_chunk.shape)  # index of all pixels
-        y = np.abs(y - datasize) - 0.5 + np.abs(0.5 - yfrac)
-        x = np.abs(x - datasize) - 0.5 + np.abs(0.5 - xfrac)
-        x[datasize, datasize] = 0
-        y[datasize, datasize] = 0
+        y = y - datasize
+        x = x - datasize
+        r = np.sqrt((x-xfrac)**2 + (y-yfrac)**2)
 
-        r = np.sqrt(x**2 + y**2)
+        indices = np.argsort(r.flat)  # sorted indices
 
         if pars["pixels"][0]:
-            indices = np.argsort(r.flat)  # sorted indices
-            flux = data_chunk.flat[indices]
-            radius = r.flat[indices]
+            flux = data_chunk.ravel()[indices]
+            radius = r.ravel()[indices]
 
         else:  # sum the flux in integer bins
-            r = r.astype(np.int)
-            flux = np.bincount(r.ravel(), data_chunk.ravel())
+            radius = r.ravel()[indices].astype(np.int)
+            flux = np.bincount(radius, data_chunk.ravel()[indices])
+            radbc = np.bincount(radius)
+            flux = flux / radbc
             radius = np.arange(len(flux))
 
         # Get a background measurement
@@ -1061,10 +1066,8 @@ class Imexamine(object):
                 self.log.info("Sky background negative, setting to zero")
             self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
 
-            if pars["pixels"][0]:
-                flux -= sky_per_pix
-            else:
-                flux -= np.bincount(r.ravel()) * sky_per_pix
+            flux -= sky_per_pix
+
             if getdata:
                 self.log.info("Sky per pixel: {0} using "
                               "(rad={1}->{2})".format(sky_per_pix,
@@ -1081,7 +1084,7 @@ class Imexamine(object):
             fline = np.linspace(0, datasize, 100)  # finer sample
             # fit model to data
             if fitform.name is "Gaussian1D":
-                fitted = math_helper.fit_gauss_1d(flux,
+                fitted = math_helper.fit_gauss_1d(radius, flux,
                                                   sigma_factor=sig_factor,
                                                   center_at=0,
                                                   weighted=True)
@@ -1092,8 +1095,9 @@ class Imexamine(object):
                           "fwhm = {2:9.3f}".format(np.max(flux),
                                                    fitted.amplitude_0.value,
                                                    fwhmx))
-                legendx = 2  # the min datasize
-                legendy = fitted.amplitude_0.value / 2
+                self.log.info(legend)
+                legendx = datasize / 2
+                legendy = np.max(flux) / 2
 
             elif fitform.name is "Moffat1D":
                 fitted = math_helper.fit_moffat_1d(flux,
@@ -1107,8 +1111,8 @@ class Imexamine(object):
                           "fwhm = {2:9.3f}".format(np.max(flux),
                                                    fitted.amplitude_0.value,
                                                    mfwhm))
-                legendx = 2  # the min datasize
-                legendy = fitted.amplitude_0.value / 2
+                legendx = datasize / 2
+                legendy = np.max(flux) / 2
 
             elif fitform.name is "MexicanHat1D":
                 fitted = math_helper.fit_mex_hat_1d(flux,
@@ -1116,12 +1120,12 @@ class Imexamine(object):
                                                     center_at=0,
                                                     weighted=True)
                 legend = ("Max. pix. flux = {0:9.3f}\n".format(np.max(flux)))
-                legendx = 2  # the min datasize
+                legendx = datasize / 2
                 legendy = np.max(flux) / 2
 
             if fitted is None:
                 msg = "Problem with the {0:s} fit".format(fitform.name)
-                self.log(msg)
+                self.log.info(msg)
                 raise ValueError(msg)
 
             yfit = fitted(fline)
@@ -1155,7 +1159,8 @@ class Imexamine(object):
                     title = ("Radial Profile at ({0:d},{1:d}) with {2:s}"
                              .format(icenterx, icentery, fitform.name))
                 else:
-                    title = "Radial Profile for {0} {1}".format(icenterx, icentery)
+                    title = "Radial Profile for {0} {1}".format(icenterx,
+                                                                icentery)
             else:
                 title = pars["title"][0]
 
@@ -1644,6 +1649,7 @@ class Imexamine(object):
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
         self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(xx, yy, fname))
+
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
