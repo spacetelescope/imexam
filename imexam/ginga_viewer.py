@@ -4,7 +4,7 @@
    For default key and mouse shortcuts in a Ginga window, see:
    https://ginga.readthedocs.org/en/latest/quickref.html
 """
-from __future__ import print_function, division, absolute_import
+#from __future__ import division, absolute_import
 
 import sys
 import os
@@ -35,7 +35,7 @@ _matplotlib_cmaps_added = False
 __all__ = ['ginga', 'ginga_general']
 
 
-class ginga_general(object):
+class ginga_general:
 
     """ A base class which controls all interactions between the user and the
     ginga widget.
@@ -192,7 +192,7 @@ class ginga_general(object):
         self._capturing = False
         top_canvas = self.ginga_view.get_canvas()
         top_canvas.delete_object_by_tag("imexam-canvas")
-        self.logger.debug("canvas deleted top=%s" % top_canvas.objects)
+        self.logger.debug("canvas deleted top={:s}".format(top_canvas.objects))
 
     def __str__(self):
         """Return viewer name."""
@@ -504,7 +504,7 @@ class ginga_general(object):
         if "q" not in keyname:
             print("read: {0:s} at {1}, {2}".format(keyname, data_x, data_y))
 
-        self.logger.debug("key %s pressed at data %f,%f" % (
+        self.logger.debug("key {:s} pressed at data {:f},{:f}".format(
             keyname, data_x, data_y))
 
         if keyname == 'q':
@@ -532,9 +532,9 @@ class ginga_general(object):
         self._keyvals = (keyname, data_x, data_y)
         with self._rlock:
             self.logger.debug(
-                "x,y,data dim: %f %f %i" %
-                (data_x, data_y, data.ndim))
-            self.logger.debug("exam=%s" % str(self.exam))
+                "x,y,data dim: {:f} {:f} {:d}".format(
+                data_x, data_y, data.ndim))
+            self.logger.debug("exam={:s}".format(str(self.exam)))
 
             # call the imexam function directly
             self.logger.debug(
@@ -546,12 +546,12 @@ class ginga_general(object):
             try:
                 method(data_x, data_y, data)
             except Exception as e:
-                self.logger.error("Failed examine function: %s" % (repr(e)))
+                self.logger.error("Failed examine function: {:s}".format(repr(e)))
                 try:
                     # log traceback, if possible
                     (type, value, tb) = sys.exc_info()
                     tb_str = "".join(traceback.format_tb(tb))
-                    self.logger.error("Traceback:\n%s" % (tb_str))
+                    self.logger.error("Traceback:\n {:s}".format(tb_str))
                 except Exception:
                     tb_str = "Traceback information unavailable."
                     self.logger.error(tb_str)
@@ -786,7 +786,7 @@ class ginga_general(object):
             self.ginga_view.zoom_to(zoomlevel)
 
         except Exception as e:
-            print("problem with zoom: %s" % repr(e))
+            print("problem with zoom: {:s}".format(repr(e)))
 
     def blink(self):
         """Blink multiple frames."""

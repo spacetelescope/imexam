@@ -23,7 +23,7 @@ http://hea-www.harvard.edu/saord/xpa/
 
 """
 
-from __future__ import print_function, division, absolute_import
+#from __future__ import division, absolute_import
 
 import os
 import shutil
@@ -57,7 +57,7 @@ class UnsupportedImageShapeException(Exception):
 __all__ = ['ds9']
 
 
-class ds9(object):
+class ds9:
     """Control all interactions between the user and the DS9 window.
 
     The ds9() contructor takes a ds9 target as its main argument.
