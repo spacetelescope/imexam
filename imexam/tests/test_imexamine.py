@@ -132,7 +132,7 @@ def test_gauss_center():
 def test_radial_profile():
     """Test the radial profile function
     No background subtraction
-    Cummulive pixels used
+    individual pixel results used
     """
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
@@ -150,100 +150,68 @@ def test_radial_profile():
     plots = Imexamine()
     plots.set_data(data.array)
 
-    # check the binned results
-    plots.radial_profile_pars['pixels'][0] = False
+    plots.radial_profile_pars['pixels'][0] = True
     plots.radial_profile_pars['background'][0] = False
+    plots.radial_profile_pars['clip'][0] = False
     rad_out, flux_out = plots.radial_profile(x0, y0, genplot=False)
 
-    good = np.where(rad_in <= np.max(rad_out))
-    rad_in = rad_in[good]
-    flux_in = flux_in[good]
+    order2 = np.argsort(rad_out)
+    rad_out = rad_out[order2]
+    flux_out = flux_out[order2]
 
-    flux_in = np.bincount(rad_in.astype(np.int), flux_in)
-
-    assert_array_equal(np.arange(flux_in.size), rad_out)
-    assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
-
-
-@pytest.mark.skipif('not HAS_PHOTUTILS')
-def test_radial_profile_background():
-    """Test the radial profile function
-    With background subtraction
-    Cummulative pixels """
-    from astropy.convolution import Gaussian2DKernel
-    data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
-    xx, yy = np.meshgrid(np.arange(25), np.arange(25))
-    x0, y0 = np.where(data.array == data.array.max())
-
-    rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
-    rad_in = rad_in.ravel()
-    flux_in = data.array.ravel()
-
-    order = np.argsort(rad_in)
-    rad_in = rad_in[order]
-    flux_in = flux_in[order]
-
-    plots = Imexamine()
-    plots.set_data(data.array)
-    # check the binned results
-    plots.radial_profile_pars['pixels'][0] = False
-    plots.radial_profile_pars['background'][0] = True
-    rad_out, flux_out = plots.radial_profile(x0, y0, genplot=False)
-
-    good = np.where(rad_in <= np.max(rad_out))
-    rad_in = rad_in[good]
-    flux_in = flux_in[good]
-
-    flux_in = np.bincount(rad_in.astype(np.int), flux_in)
-
-    assert_array_equal(np.arange(flux_in.size), rad_out)
-    assert_allclose(flux_in - flux_out, flux_out * 0, atol=1e-5)
+    # the radial profile is done on a smaller cutout by default
+    # and may have a fractional center radius calculation. This
+    # looks at the first few hundred data points in both arrays
+    assert (len(rad_out) < len(rad_in))
+    good = 150
+    assert_allclose(rad_in[:good], rad_out[:good], atol=1e-14)
+    assert_allclose(flux_in[:good], flux_out[:good], atol=1e-14)
 
 
-def test_radial_profile_pixels():
+def test_radial_profile_cumulative():
     """Test the radial profile function
     without background subtraction
-    with each pixel unsummed
+    with each pixel integer binned
     """
     from astropy.convolution import Gaussian2DKernel
-    data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
-    xx, yy = np.meshgrid(np.arange(25), np.arange(25))
+    ksize = 25
+    data = Gaussian2DKernel(1.5, x_size=ksize, y_size=ksize)
+    xx, yy = np.meshgrid(np.arange(ksize), np.arange(ksize))
     x0, y0 = np.where(data.array == data.array.max())
-
     rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
 
-    # It's going to crop things down apparently.
-    plots = Imexamine()
-    datasize = int(plots.radial_profile_pars["rplot"][0])
-    icentery = 12
-    icenterx = 12
-    rad_in = rad_in[icentery - datasize:icentery + datasize,
-                    icenterx - datasize:icenterx + datasize]
-    flux_in = data.array[icentery - datasize:icentery + datasize,
-                         icenterx - datasize:icenterx + datasize]
-
     rad_in = rad_in.ravel()
-    flux_in = flux_in.ravel()
+    flux_in = data.array.ravel()
 
-    order = np.argsort(rad_in)
-    rad_in = rad_in[order]
-    flux_in = flux_in[order]
+    indices = np.argsort(rad_in)
+    rad_in = rad_in[indices]
+    flux_in = flux_in[indices]
 
+    # now bin the radflux like we expect
+    rad_in = rad_in.astype(np.int)
+    flux_in = np.bincount(rad_in, flux_in) / np.bincount(rad_in)
+    rad_in = np.arange(len(flux_in))
+    assert (data.array[x0, y0] == flux_in[0])
+
+    # check the binned results
+    plots = Imexamine()
     plots.set_data(data.array)
-    # check the unbinned results
-    plots.radial_profile_pars['pixels'][0] = True
-    out_radius, out_flux = plots.radial_profile(x0, y0, genplot=False)
-    good = np.where(rad_in <= np.max(out_radius))
-    rad_in = rad_in[good]
-    flux_in = flux_in[good]
+    plots.radial_profile_pars['pixels'][0] = False
+    plots.radial_profile_pars['background'][0] = False
+    plots.radial_profile_pars['clip'][0] = False
+    rad_out, flux_out = plots.radial_profile(x0, y0, genplot=False)
 
-    assert_allclose(rad_in, out_radius, 1e-7)
-    assert_allclose(flux_in, out_flux, 1e-7)
+    # The default measurement size is not equal
+    assert (len(rad_in) >= len(rad_out))
+    good = [rad_in[i] for i in rad_out if rad_out[i] == rad_in[i]]
+
+    assert_array_equal(rad_in[good], rad_out[good])
+    assert_allclose(flux_in[good], flux_out[good], atol=1e-7)
 
 
 @pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_curve_of_growth():
-    """Test the cog functionality."""
+    """Test the curve of growth functionality."""
     from astropy.convolution import Gaussian2DKernel
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     plots = Imexamine()
@@ -252,6 +220,7 @@ def test_curve_of_growth():
 
     rads = [1, 2, 3, 4, 5, 6, 7, 8]
     flux = []
+
     # Run the aperture phot on this to build up the expected fluxes
     plots.aper_phot_pars['genplot'][0] = False
     plots.aper_phot_pars['subsky'][0] = False
