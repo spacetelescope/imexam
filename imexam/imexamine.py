@@ -17,7 +17,7 @@
 
  """
 
-from __future__ import print_function, division, absolute_import
+#from __future__ import division, absolute_import
 
 import matplotlib.pyplot as plt
 # turn on interactive mode for plotting
@@ -169,7 +169,7 @@ class Imexamine(object):
         """Print the imexam options to screen."""
         keys = self.get_options()
         for key in keys:
-            print("%s\t%s" % (key, self.option_descrip(key)))
+            print("{:s} {:s}".format(key, self.option_descrip(key)))
 
     def do_option(self, x, y, key):
         """Run the imexam option.
@@ -616,11 +616,11 @@ class Imexamine(object):
                 ax = plt.gca()
 
                 if self.aper_phot_pars["title"][0] is None:
-                    title = "x=%.2f, y=%.2f, flux=%.1f, \nmag=%.1f, sky=%.1f" %(x, y,
-                                                                                total_flux, mag,
-                                                                                sky_per_pix)
+                    title = "x= {:0.2f}, y={:0.2f}, flux={:0.1f}, \nmag={:0.1f}, sky={:0.1f}".format(x, y,
+                                                                                        total_flux, mag,
+                                                                                        sky_per_pix)
                     if center:
-                        title += ", fwhm=%.2f" % math_helper.gfwhm(sigma)[0]
+                        title += ", fwhm={:0.2f}".format(math_helper.gfwhm(sigma)[0])
                     ax.set_title(title)
                 else:
                     ax.set_title(self.aper_phot_pars["title"][0])

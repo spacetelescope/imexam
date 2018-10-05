@@ -4,7 +4,7 @@
 the viewer and the imexamine classes
 """
 
-from __future__ import print_function, division, absolute_import
+#from __future__ import division, absolute_import
 
 import warnings
 import logging
@@ -31,7 +31,7 @@ from .imexamine import Imexamine
 __all__ = ["Connect"]
 
 
-class Connect(object):
+class Connect:
     """Connect to a display device to look at and examine images.
 
     The control features below are a basic set that should be available
