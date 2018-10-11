@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """These are default parameters for some of the plotting functions in Imexam
-Users can edit this file to set their own defaults before installation, 
-they could script something that resets the dictionaries themselves, 
+Users can edit this file to set their own defaults before installation,
+they could script something that resets the dictionaries themselves,
 or we could create a method to let them set from a json or text file maybe
 """
 

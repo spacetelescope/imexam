@@ -297,6 +297,8 @@ def verify_filename(filename=None, extver=None, extname=None):
     """
     if filename is None:
         print("No filename provided")
+    elif not isinstance(filename, str):
+        raise TypeError("Expected filename to be a string")
     else:
         if "[" in filename:
             splitstr = filename.split("[")
@@ -308,5 +310,4 @@ def verify_filename(filename=None, extver=None, extname=None):
                 extver = int(filename.split("[")[1][0])
         else:
             shortname = os.path.abspath(filename)
-
     return shortname, extname, extver

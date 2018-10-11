@@ -1150,7 +1150,7 @@ class ds9:
 
         XPA needs to have the absolute path to the filename so that if the
         DS9 window was started in another directory it can still find the
-        file to load.
+        file to load. The pathname also needs to be stripped of spaces.
         """
         # for the viewer reference
         frame = self.frame()
