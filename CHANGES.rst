@@ -1,7 +1,10 @@
 version 0.8.1dev (unreleased)
 -----------------------------
 - travis and appveyor testing updates
-- radial profile plot centering changed slightly to use the max brightest pixel after gauss centering
+- radial profile plot centering fixed to more correctly calculate the fractional center offsets
+- cumulative radial profile flux calculation should now be correct
+- the fit_gauss_1d function call was changed to accept the radius and flux array so that they
+  could be constructed correctly for multiple circumstances 
 - documentation updated and new simple walkthrough added
 - MEF fits images with IMAGE arrays in the primary HDU should be detected correctly now
 - now possible to give load_fits an in-memory fits object
