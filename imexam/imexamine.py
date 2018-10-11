@@ -57,7 +57,7 @@ if not plt.isinteractive():
 # enable display plot in iPython notebook
 try:
     from io import StringIO
-except:
+except ImportError:
     from cString import StringIO
 
 try:
@@ -905,7 +905,7 @@ class Imexamine(object):
         delta = int(delta)
         xx = int(x)
         yy = int(y)
-        self.log.info("delta xx yy: {} {} {}".format(delta,xx,yy))
+
         #  flipped from xpa
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
         try:
@@ -937,7 +937,7 @@ class Imexamine(object):
 
         From the parameters Dictionary:
         If pixel is True, then every pixel at each radius is plotted.
-        If pixel is False, then the sum of all pixels at each radius is plotted
+        If pixel is False, then the sum of all pixels in integer bins is plotted
 
         Background may be subtracted and centering can be done with a
         2D Gaussian fit. These options are read from the plot parameters dict.
@@ -1649,7 +1649,6 @@ class Imexamine(object):
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
         self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(xx, yy, fname))
-
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
