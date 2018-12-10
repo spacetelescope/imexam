@@ -232,22 +232,40 @@ class Connect(object):
                 self._check_frame()
                 if self.window.iscube():
                     self._check_slice()
+
+                # This loop now recognizes the arrow keys
+                # for moving the cursor in the window, it calls
+                # the windows cursor function. However, depending
+                # on how the use has their windowing focus setup
+                # they might loose focus on the DS9 window and have to
+                # move the cursor to gain focus again, is there a way
+                # around this? Cursor is not implemented in the ginga
+                # interface.    
                 try:
                     x, y, current_key = self.readcursor()
-                    self._check_frame()
-                    if self.window.iscube():
-                        self._check_slice()
-                    if current_key not in keys and 'q' not in current_key:
-                        print("Invalid key")
-                        self.exam._close_plots()
+                    if current_key in ["Left", "Right", "Up", "Down"]:
+                        if current_key == "Left":
+                            x, y = x - 1, y
+                        if current_key == "Right":
+                            x, y = x + 1, y
+                        if current_key == "Down":
+                            x, y = x, y - 1
+                        if current_key == "Up":
+                            x, y = x, y + 1
+                        self.cursor(x=x, y=y)
                     else:
-                        if 'q' in current_key:
-                            current_key = None
+                        if current_key not in keys and 'q' not in current_key:
                             self.exam._close_plots()
                         else:
-                            self.exam.do_option(
-                                x, y, current_key)
-
+                            if 'q' in current_key:
+                                current_key = None
+                                self.exam._close_plots()
+                            else:
+                                self._check_frame()
+                                if self.window.iscube():
+                                    self._check_slice()
+                                self.exam.do_option(
+                                    x, y, current_key)
                 except KeyError:
                     print(
                         "Invalid key, use\n: {0}".format(
