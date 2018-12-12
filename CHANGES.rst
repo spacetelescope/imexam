@@ -1,6 +1,6 @@
 version 0.8.2a (unreleased)
 ---------------------------
-
+- python 2->3 print and object updates
 
 version 0.8.1 (2018-12-14)
 --------------------------
