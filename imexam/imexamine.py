@@ -17,8 +17,6 @@
 
  """
 
-#from __future__ import division, absolute_import
-
 import matplotlib.pyplot as plt
 # turn on interactive mode for plotting
 # so that plt.show becomes non-blocking
