@@ -1,5 +1,7 @@
 version 0.8.1dev (unreleased)
 -----------------------------
+** THIS WILL BE THE LAST VERSION THAT SUPPORT Python 2.7 **
+
 - travis and appveyor testing updates
 - radial profile plot centering fixed to more correctly calculate the fractional center offsets
 - cumulative radial profile flux calculation should now be correct
