@@ -240,7 +240,7 @@ class Connect:
                 # they might loose focus on the DS9 window and have to
                 # move the cursor to gain focus again, is there a way
                 # around this? Cursor is not implemented in the ginga
-                # interface.    
+                # interface.
                 try:
                     x, y, current_key = self.readcursor()
                     if current_key in ["Left", "Right", "Up", "Down"]:

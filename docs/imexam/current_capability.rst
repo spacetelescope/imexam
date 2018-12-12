@@ -151,7 +151,8 @@ but not yet fully implemented should return an error to that affect.
 
 
 **load_fits**\ (fname="", extver=1, extname=None):
-    Load a fits image into the current frame
+    Load a fits image into the current frame.
+    fname can be a filename or a fits HDU
 
 
 **load_mef_as_cube**\ (filename=None):

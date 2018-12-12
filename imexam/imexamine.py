@@ -19,6 +19,11 @@
 
 #from __future__ import division, absolute_import
 
+import matplotlib.pyplot as plt
+# turn on interactive mode for plotting
+if not plt.isinteractive():
+    plt.ion()
+
 import warnings
 import numpy as np
 import sys
@@ -26,7 +31,7 @@ import logging
 import tempfile
 from copy import deepcopy
 
-import matplotlib.pyplot as plt
+
 from matplotlib import get_backend
 from IPython.display import Image
 
@@ -49,10 +54,6 @@ if sys.version_info.major < 3:
     PY3 = False
 else:
     PY3 = True
-
-# turn on interactive mode for plotting
-if not plt.isinteractive():
-    plt.ion()
 
 # enable display plot in iPython notebook
 try:
