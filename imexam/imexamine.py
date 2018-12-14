@@ -33,7 +33,6 @@ from copy import deepcopy
 
 
 from matplotlib import get_backend
-from IPython.display import Image
 
 from astropy.io import fits
 from astropy.modeling import models
@@ -1694,15 +1693,6 @@ class Imexamine(object):
         else:
             return setattr(cls, func.__name__,
                            types.MethodType(func, None, cls))
-
-    def showplt(self):
-        """Show the plot."""
-        buf = StringIO.StringIO()
-        plt.savefig(buf, bbox_inches=0)
-        img = Image(data=bytes(buf.getvalue()),
-                    format='png', embed=True)
-        buf.close()
-        return img
 
     def set_aper_phot_pars(self, user_dict=None):
         """the user may supply a dictionary of par settings."""

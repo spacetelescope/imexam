@@ -90,7 +90,9 @@ inside ~/.matplotlib/matplotlibrc:
 Using the Ginga HTML5 Viewer
 ----------------------------
 
-If you have installed Ginga, you can use the HTML5 viewer for image display with either a python terminal, jupyter console, qtconsole or Jypyter notebook session. If you are using a Windows machine you should install ginga to use as the viewer with this package. Make sure that you have installed the latest version, or you can download the development code here: https://github.com/ejeschke/ginga.  There's also a new ginga plugin for imexam which is in the ginga repository in the experimental directory. This will load the imexam plotting and analysis library into the ginga gui framework.
+If you have installed Ginga, you can use the HTML5 viewer for image display with either a jupyter console, qtconsole or Jypyter notebook session. If you are using a Windows machine you should install ginga to use as the viewer with this package. Make sure that you have installed the latest version, or you can download the development code here: https://github.com/ejeschke/ginga.  
+
+There is also a ginga plugin for imexam which is in the ginga repository in the experimental directory. This will load the imexam plotting and analysis library into the ginga gui framework.
 
 Starting a connection to a Ginga HTML5 canvas backend for browser and Jupyter viewing:
 
@@ -105,9 +107,26 @@ You can optionally provide a port number to which the viewer is connected as wel
     a=imexam.connect(viewer='ginga', port=9856)
 
 
+Using imexam with DS9
+---------------------
+From a python terminal: using either the TkAGG or QT4Agg/QT5Agg backends:
+
+::
+    import imexam
+    a = imexam.connect()
+    a.imexam()
+
+From an ipython terminal: using either the TkAgg or QT4Agg/QT5Agg backends. 
+
+::
+    import imexam
+    a = imexam.connect()
+
+If you are using TkAGG as the backend, in from an ipython terminal, you may need to ctrl-D out to closeout the plotting window. This should not happen if you are running TkAgg and running from a regular python terminal.
+
 
 Launching multiple DS9 windows
-------------------------------
+==============================
 
 You can launch multiple ds9 windows either from this package or the command line. DS9 can be used to view images and arrays from any of the python terminals, consoles or the Jupyter notebook.
 
