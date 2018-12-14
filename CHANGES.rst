@@ -1,3 +1,7 @@
+version 0.8.2a (unreleased)
+---------------------------
+
+
 version 0.8.1 (2018-12-14)
 --------------------------
 ** THIS WILL BE THE LAST VERSION THAT SUPPORT Python 2.7 **
