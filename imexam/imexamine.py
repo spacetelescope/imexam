@@ -21,6 +21,7 @@
 
 import matplotlib.pyplot as plt
 # turn on interactive mode for plotting
+# so that plt.show becomes non-blocking
 if not plt.isinteractive():
     plt.ion()
 
@@ -1478,7 +1479,7 @@ class Imexamine(object):
         ax.set_ylabel(self.contour_pars["ylabel"][0])
         ncont = self.contour_pars["ncontours"][0]
         colormap = self.contour_pars["cmap"][0]
-        lsty = self.contour_pars["linestyle"][0]
+        lsty = self.contour_pars["linestyles"][0]
 
         self.log.info("contour centered at: {0} {1}".format(x, y))
         deltax = int(self.contour_pars["ncolumns"][0] / 2.)
@@ -1497,9 +1498,9 @@ class Imexamine(object):
             Y,
             data_cut,
             ncont,
-            linewidth=.5,
+            linewidths=.5,
             colors='black',
-            linestyle=lsty)
+            linestyles=lsty)
         # make the filled contour
         ax.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
         if self.contour_pars["label"][0]:
