@@ -131,7 +131,7 @@ contour_pars = {"function": ["contour", ],
                 "floor": [None, "Minimum value to be contoured"],
                 "ceiling": [None, "Maximum value to be contoured"],
                 "ncontours": [8, "Number of contours to be drawn"],
-                "linestyle": ["--", "matplotlib linestyle"],
+                "linestyles": ["--", "matplotlib linestyle"],
                 "label": [True, "Label major contours with their values? [bool]"],
                 "cmap": ["viridis", "Colormap (matplotlib style) for image"],
                 }

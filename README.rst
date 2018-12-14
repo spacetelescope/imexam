@@ -78,19 +78,51 @@ Try turning off the resume state:
     defaults write org.python.python ApplePersistenceIgnoreState NO
 
 
-If you are having display issues, some build problems may exist with the dependency packages which deal with backend graphics, try setting your matplotlib backend to Qt4Agg. You can set this in your .matplotlib/matplotlibrc file. You may also want to switch your matplotlib backend to Qt if you have a mac with the default MacOS backend specified. If you don't already have matplotlibrc file in your home directory, you can download one from their documentation: http://matplotlib.org/_static/matplotlibrc
+
+Contributing
+============
+Please open a new issue or new pull request for bugs, feedback, or new features
+you would like to see.   If there is an issue you would like to work on, please
+leave a comment and we will be happy to assist.   New contributions and
+contributors are very welcome!
+
+New to github or open source projects?  If you are unsure about where to start
+or haven't used github before, please feel free to contact `@sosey`.
+Want more information about how to make a contribution?  Take a look at
+the astropy `contributing`_ and `developer`_ documentation.
+
+Feedback and feature requests?   Is there something missing you would like
+to see?  Please open an issue or send an email to  `@sosey`. imexam follows the `Astropy Code of Conduct`_ and strives to provide a
+welcoming community to all of our users and contributors.
+
+
+License
+=======
+imexam is licensed under a 3-clause BSD style license (see the
+``licenses/LICENSE.rst`` file).
+
+.. _AstroPy: http://www.astropy.org/
+.. _contributing: http://docs.astropy.org/en/stable/index.html#contributing
+.. _developer: http://docs.astropy.org/en/stable/index.html#developer-documentation
+.. _Astropy Code of Conduct:  http://www.astropy.org/about.html#codeofconduct
+
+
+
+Quick Instructions
+==================
+If you are having display issues, and you are using TkAgg, try setting your matplotlib backend to Qt4Agg or Qt5Agg. You can set this in your .matplotlib/matplotlibrc file. You may also want to switch your matplotlib backend to Qt if you have a mac with the default MacOS backend specified. If you don't already have matplotlibrc file in your home directory, you can download one from their documentation: http://matplotlib.org/_static/matplotlibrc
+
 
 ::
 
-inside ~/.matplotlib/matplotlibrc:
+    inside ~/.matplotlib/matplotlibrc:
     backend: Qt4Agg
-
 
 
 Using the Ginga HTML5 Viewer
 ----------------------------
 
-If you have installed Ginga, you can use the HTML5 viewer for image display with either a jupyter console, qtconsole or Jypyter notebook session. If you are using a Windows machine you should install ginga to use as the viewer with this package. Make sure that you have installed the latest version, or you can download the development code here: https://github.com/ejeschke/ginga.  
+If you have installed Ginga, you can use the HTML5 viewer for image display with either a jupyter console, qtconsole or Jupyter notebook session. If you are using a Windows machine you should install ginga to use as the viewer with this package. Make sure that you have installed the latest version, or you can download the development code here: https://github.com/ejeschke/ginga.  
 
 There is also a ginga plugin for imexam which is in the ginga repository in the experimental directory. This will load the imexam plotting and analysis library into the ginga gui framework.
 
@@ -98,7 +130,7 @@ Starting a connection to a Ginga HTML5 canvas backend for browser and Jupyter vi
 
 ::
 
-    a=imexam.connect(viewer='ginga')
+    a = imexam.connect(viewer='ginga')
 
 You can optionally provide a port number to which the viewer is connected as well:
 
@@ -111,7 +143,9 @@ Using imexam with DS9
 ---------------------
 From a python terminal: using either the TkAGG or QT4Agg/QT5Agg backends:
 
+
 ::
+
     import imexam
     a = imexam.connect()
     a.imexam()
@@ -119,15 +153,25 @@ From a python terminal: using either the TkAGG or QT4Agg/QT5Agg backends:
 From an ipython terminal: using either the TkAgg or QT4Agg/QT5Agg backends. 
 
 ::
+
     import imexam
     a = imexam.connect()
 
-If you are using TkAGG as the backend, in from an ipython terminal, you may need to ctrl-D out to closeout the plotting window. This should not happen if you are running TkAgg and running from a regular python terminal.
+If you are using TkAGG as the backend, from an ipython terminal, you may need to ctrl-D, then select n, to closeout the plotting window. This should not happen if you are running TkAgg and running from a regular python terminal. Looking into the closeout issue with TkAgg now.
+
+From jupyter console/qtconsole: startup with the matplotlib magics to use the backend you specified for display:
+
+::
+
+    In [1]: %matplotlib
+    import imexam
+    a = imexam.connect()                                                                                                                                                                                 
+
+If you are using the Qt4Agg/Qt5Agg backend with ginga, the plots will display in the console window
 
 
 Launching multiple DS9 windows
-==============================
-
+------------------------------
 You can launch multiple ds9 windows either from this package or the command line. DS9 can be used to view images and arrays from any of the python terminals, consoles or the Jupyter notebook.
 
 If you launch ds9 from outside the imexam package, you need supply the name of the window to imexam, this can be done in one of 2 ways:
@@ -175,7 +219,10 @@ Connecting to a DS9 window which was started from the system prompt:
 Examples can be found in the package documentation, online documentation, and imexam.display_help() will pull up the installed package documentation in a web browser. You can also download the examply Jupyter notebooks available in the example_notebooks directory above.
 
 
-You can also just load the plotting library and NOT connect to any viewer:
+You can also just load the plotting library for use without a viewer:
+---------------------------------------------------------------------
+This is useful when you want to make batch plots or return information from scripts.
+You can also save the lotting data returned and use it futher, or design your own plot.
 
 ::
 
@@ -191,32 +238,3 @@ You can also just load the plotting library and NOT connect to any viewer:
 
     plots.set_data(data)
     plots.plot_line(35,45)
-
-Contributing
-------------
-
-Please open a new issue or new pull request for bugs, feedback, or new features
-you would like to see.   If there is an issue you would like to work on, please
-leave a comment and we will be happy to assist.   New contributions and
-contributors are very welcome!
-
-New to github or open source projects?  If you are unsure about where to start
-or haven't used github before, please feel free to contact `@sosey`.
-Want more information about how to make a contribution?  Take a look at
-the astropy `contributing`_ and `developer`_ documentation.
-
-Feedback and feature requests?   Is there something missing you would like
-to see?  Please open an issue or send an email to  `@sosey`. imexam follows the `Astropy Code of Conduct`_ and strives to provide a
-welcoming community to all of our users and contributors.
-
-
-License
--------
-
-imexam is licensed under a 3-clause BSD style license (see the
-``licenses/LICENSE.rst`` file).
-
-.. _AstroPy: http://www.astropy.org/
-.. _contributing: http://docs.astropy.org/en/stable/index.html#contributing
-.. _developer: http://docs.astropy.org/en/stable/index.html#developer-documentation
-.. _Astropy Code of Conduct:  http://www.astropy.org/about.html#codeofconduct
