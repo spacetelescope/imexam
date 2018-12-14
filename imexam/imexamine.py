@@ -19,6 +19,12 @@
 
 from __future__ import print_function, division, absolute_import
 
+import matplotlib.pyplot as plt
+# turn on interactive mode for plotting
+# so that plt.show becomes non-blocking
+if not plt.isinteractive():
+    plt.ion()
+
 import warnings
 import numpy as np
 import sys
@@ -26,9 +32,8 @@ import logging
 import tempfile
 from copy import deepcopy
 
-import matplotlib.pyplot as plt
+
 from matplotlib import get_backend
-from IPython.display import Image
 
 from astropy.io import fits
 from astropy.modeling import models
@@ -49,10 +54,6 @@ if sys.version_info.major < 3:
     PY3 = False
 else:
     PY3 = True
-
-# turn on interactive mode for plotting
-if not plt.isinteractive():
-    plt.ion()
 
 # enable display plot in iPython notebook
 try:
@@ -1478,7 +1479,7 @@ class Imexamine(object):
         ax.set_ylabel(self.contour_pars["ylabel"][0])
         ncont = self.contour_pars["ncontours"][0]
         colormap = self.contour_pars["cmap"][0]
-        lsty = self.contour_pars["linestyle"][0]
+        lsty = self.contour_pars["linestyles"][0]
 
         self.log.info("contour centered at: {0} {1}".format(x, y))
         deltax = int(self.contour_pars["ncolumns"][0] / 2.)
@@ -1497,9 +1498,9 @@ class Imexamine(object):
             Y,
             data_cut,
             ncont,
-            linewidth=.5,
+            linewidths=.5,
             colors='black',
-            linestyle=lsty)
+            linestyles=lsty)
         # make the filled contour
         ax.contourf(X, Y, data_cut, ncont, alpha=.75, cmap=colormap)
         if self.contour_pars["label"][0]:
@@ -1693,15 +1694,6 @@ class Imexamine(object):
         else:
             return setattr(cls, func.__name__,
                            types.MethodType(func, None, cls))
-
-    def showplt(self):
-        """Show the plot."""
-        buf = StringIO.StringIO()
-        plt.savefig(buf, bbox_inches=0)
-        img = Image(data=bytes(buf.getvalue()),
-                    format='png', embed=True)
-        buf.close()
-        return img
 
     def set_aper_phot_pars(self, user_dict=None):
         """the user may supply a dictionary of par settings."""

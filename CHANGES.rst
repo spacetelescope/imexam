@@ -1,5 +1,7 @@
 version 0.8.1dev (unreleased)
 -----------------------------
+** THIS WILL BE THE LAST VERSION THAT SUPPORT Python 2.7 **
+
 - travis and appveyor testing updates
 - radial profile plot centering fixed to more correctly calculate the fractional center offsets
 - cumulative radial profile flux calculation should now be correct
@@ -15,6 +17,7 @@ version 0.8.1dev (unreleased)
 - new options added to the aperture phot parameter set that allow users to plot the used apertures
 - ZScaleInterval added from astropy.virtualization to set the color range on the data for aperture photometry plot
 - replaced the sigma to fwhm lambda with the astropy constant for conversion
+- added cursor move recognition using the arrow keys during the imexam loop, however, depending how the user has their windowing focus set, the DS9 window may loose focus, forcing them to move the cursor manually back to the window. Cursor moves are only implemented for DS9, not Ginga.
 
 version 0.8.0 (released)
 ------------------------

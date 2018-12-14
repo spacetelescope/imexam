@@ -205,7 +205,7 @@ def check_valid(fits_data=None):
     -----
     Drizzled images put a table in the first extension and an image in
     the zero extension, so this function checks for the first occurrance
-    of 'IMAGE' in 'XTENSION', which is a required keyword. 
+    of 'IMAGE' in 'XTENSION', which is a required keyword.
     """
     log = logging.getLogger(__name__)
     found_image = False  # Does it contain an IMAGE XTENSION
