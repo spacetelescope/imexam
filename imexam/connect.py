@@ -170,7 +170,7 @@ class Connect(object):
         """Display a snapshop of the current image in the browser window."""
         return self.window.grab()
 
-    def get_data_filename(self):
+    def get_filename(self):
         """Return the filename for the data in the current window."""
         return self.window.get_filename()
 
@@ -214,7 +214,7 @@ class Connect(object):
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
-        cstring = "Current image {0}".format(self.get_data_filename(),)
+        cstring = "Current image {0}".format(self.get_filename(),)
         print(cstring)
 
         # set defaults
@@ -232,22 +232,40 @@ class Connect(object):
                 self._check_frame()
                 if self.window.iscube():
                     self._check_slice()
+
+                # This loop now recognizes the arrow keys
+                # for moving the cursor in the window, it calls
+                # the windows cursor function. However, depending
+                # on how the use has their windowing focus setup
+                # they might loose focus on the DS9 window and have to
+                # move the cursor to gain focus again, is there a way
+                # around this? Cursor is not implemented in the ginga
+                # interface.
                 try:
                     x, y, current_key = self.readcursor()
-                    self._check_frame()
-                    if self.window.iscube():
-                        self._check_slice()
-                    if current_key not in keys and 'q' not in current_key:
-                        print("Invalid key")
-                        self.exam._close_plots()
+                    if current_key in ["Left", "Right", "Up", "Down"]:
+                        if current_key == "Left":
+                            x, y = x - 1, y
+                        if current_key == "Right":
+                            x, y = x + 1, y
+                        if current_key == "Down":
+                            x, y = x, y - 1
+                        if current_key == "Up":
+                            x, y = x, y + 1
+                        self.cursor(x=x, y=y)
                     else:
-                        if 'q' in current_key:
-                            current_key = None
+                        if current_key not in keys and 'q' not in current_key:
                             self.exam._close_plots()
                         else:
-                            self.exam.do_option(
-                                x, y, current_key)
-
+                            if 'q' in current_key:
+                                current_key = None
+                                self.exam._close_plots()
+                            else:
+                                self._check_frame()
+                                if self.window.iscube():
+                                    self._check_slice()
+                                self.exam.do_option(
+                                    x, y, current_key)
                 except KeyError:
                     print(
                         "Invalid key, use\n: {0}".format(
@@ -346,7 +364,7 @@ class Connect(object):
         return self.window.embed(**kwargs)
 
     def frame(self, *args, **kwargs):
-        """Move to a different frame."""
+        """Move to a different frame, or add a new one"""
         return self.window.frame(*args, **kwargs)
 
     def get_data(self):

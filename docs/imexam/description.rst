@@ -143,6 +143,7 @@ If you wish to open multiple DS9 windows outside of ``imexam``, then it's recomm
 
     imexam.connect(target="",path=None,viewer="ds9",wait_time=10)
 
+
     Where target is the name of the ds9 window that is already running, path is the location of the ds9 executable, viewer is the name of the viewer to use (ds9 is the only one which is currently activated), and wait_time is the time to wait to establish a connection to the socket before exiting the process.
 
 If it seems like the ds9 window is opening or hanging, there could be few things going on:
@@ -267,7 +268,7 @@ If you are having display issues, some build problems may exist with the depende
 
   backend: Qt4Agg
 
-The package works with the Qt5Agg and notebook backends, but on occasion I've seen the matplotlib window take two cycles to update, especially inside the Jupyter notebook with inline plots, meaning you may have to hit the exam key twice for the plot to appear. This issue still needs to be worked out, if you're running into it try using the Qt4Agg backend or plotting outside the notebook and saving the figures through the imexam grab or save calls.
+The package works with the Qt5Agg and notebook backends, but on occasion I've seen the matplotlib window take two cycles to update, especially inside the Jupyter notebook with inline plots, meaning you may have to hit the exam key twice for the plot to appear. This issue still needs to be worked out, if you're running into it try using the Qt4Agg backend or plotting outside the notebook and saving the figures through the imexam grab or save calls. More information about the backends for matplotlib can be found here: https://matplotlib.org/users/shell.html
 
 
 If you get an error about not finding the file "import" when you use the grab() function to save a copy of the DS9 window.

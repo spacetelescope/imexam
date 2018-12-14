@@ -225,7 +225,7 @@ class ds9(object):
 
         else:
             if not path:
-                self._ds9_path = util.find_ds9()
+                self._ds9_path = util.find_path('ds9')
                 if not self._ds9_path:
                     raise OSError("Could not find ds9 executable on your path")
 
@@ -326,7 +326,6 @@ class ds9(object):
                     load_header = True
                 else:
                     filename_string = ""
-
             except XpaException:
                 filename_string = ""
 
@@ -343,9 +342,7 @@ class ds9(object):
                         naxis.append("0")
                     naxis.reverse()  # for astropy.fits row-major ordering
                     naxis = map(int, naxis)
-                    naxis = [
-                        axis -
-                        1 if axis > 0 else 0 for axis in naxis]
+                    naxis = [axis - 1 if axis > 0 else 0 for axis in naxis]
                     naxis = tuple(naxis)
             except ValueError:
                 raise ValueError("Problem parsing filename")
@@ -357,14 +354,14 @@ class ds9(object):
                 header_cards = fits.Header.fromstring(
                     self.get_header(),
                     sep='\n')
-                mef_file = util.check_filetype(filename)
+                mef_file, nextend, first_image = util.check_valid(filename)
                 if mef_file:
                     try:
                         extver = int(header_cards['EXTVER'])
                     except KeyError:
                         # fits doesn't require extver if there is only 1
                         # extension
-                        extver = 1
+                        extver = first_image
 
                     try:
                         extname = str(header_cards['EXTNAME'])
@@ -409,10 +406,8 @@ class ds9(object):
 
         if frame:
             self._set_frameinfo()
-
             if self._viewer[frame]['filename']:
                 return True
-
             else:
                 try:
                     if self._viewer[frame]['user_array'].any():
@@ -1058,7 +1053,7 @@ class ds9(object):
                         if self._viewer[frame]['iscube']:
                             data = filedata[extname, extver].section[naxis]
                         else:
-                            data = filedata[extname, extver].data
+                            data = filedata[extver].data
                     return data
                 else:
                     with fits.open(filename) as filedata:
@@ -1125,15 +1120,16 @@ class ds9(object):
         """Embed the viewer in a notebook."""
         print("Not Implemented for DS9")
 
-    def load_fits(self, fname=None, extver=None, mecube=False):
+    def load_fits(self, fname, extver=None, mecube=False):
         """convenience function to load fits image to current frame.
 
         Parameters
         ----------
-        fname: string, optional
+        fname: string, FITS object
             The name of the file to be loaded. You can specify the full
             extension in the name, such as
             filename_flt.fits or filename_flt.fits[1]
+            You can also pass it an in-memory FITS object
 
         extver: int, optional
             The extension to load (EXTVER in the header)
@@ -1154,41 +1150,50 @@ class ds9(object):
 
         XPA needs to have the absolute path to the filename so that if the
         DS9 window was started in another directory it can still find the
-        file to load.
+        file to load. The pathname also needs to be stripped of spaces.
         """
-        if fname is None:
-            raise ValueError("No filename provided")
-
-        frame = self.frame()  # for the viewer reference
+        # for the viewer reference
+        frame = self.frame()
         if frame is None:
             frame = 1  # load into first frame
 
-        shortname, extn, extv = util.verify_filename(fname)
-
-        if extn is not None:
-            raise ValueError("Extension name  given, must "
-                             "specify the absolute extension you want")
-        # prefer the keyword value over the extension in the name
-        if extver is None:
-            extver = extv
-
-        # safety for simple vs mef fits
-        if (extv is None and extver is None):
-            mef = util.check_filetype(shortname)
-            if mef:
-                extver = 1  # MEF fits
-            else:
-                extver = 0  # simple fits
-
-        if mecube:
-            cstring = "mecube {0:s}".format(shortname)
+        if isinstance(fname, fits.hdu.image.PrimaryHDU):
+            shortname = fname
+            extn = None
+            extv = 0
+            if extver is None:
+                extver = extv
+        if isinstance(fname, fits.hdu.hdulist.HDUList):
+            shortname = fname
+            extn = None
+            extv = extver
+        elif isinstance(fname, str):
+            shortname, extn, extv = util.verify_filename(fname)
+            if extn is not None:
+                raise ValueError("Extension name  given, must "
+                                 "specify the absolute extension you want")
+            # prefer the keyword value over the extension in the name
+            if extver is None:
+                extver = extv
         else:
-            cstring = ('fits {0:s}[{1:d}]'.format(shortname, extver))
+            raise TypeError("Expected FITS data as input")
 
-        self.set(cstring)
-        self._set_frameinfo()
-        # make sure any previous reference is reset
-        self._viewer[frame]['user_array'] = None
+        # safety for a valid imexam file
+        if ((extv is None) and (extver is None)):
+            mef_file, nextend, first_image = util.check_valid(shortname)
+            extver = first_image  # the extension of the first IMAGE
+
+        if isinstance(fname, str):
+            if mecube:
+                cstring = "mecube {0:s}".format(shortname)
+            else:
+                cstring = ('fits {0:s}[{1:d}]'.format(shortname, extver))
+            self.set(cstring)
+            # make sure any previous reference is reset
+            self._set_frameinfo()
+            self._viewer[frame]['user_array'] = None
+        else:
+            self.view(fname[extver].data)
 
     def load_region(self, filename):
         """Load regions from a file which uses ds9 standard formatting.
@@ -1288,23 +1293,23 @@ class ds9(object):
         elif isinstance(input_points, str):
             input_points = [tuple(input_points.split())]
 
-        X = 0
-        Y = 1
-        COMMENT = 2
+        x = 0
+        y = 1
+        comment = 2
         rtype = "circle"  # only one supported right now
 
         for location in input_points:
             if rtype == "circle":
                 pline = rtype + " " + \
-                    str(location[X]) + " " + str(location[Y]) + " " + str(size)
+                    str(location[x]) + " " + str(location[y]) + " " + str(size)
                 print(pline)
                 self.set_region(pline)
 
             try:
-                if(len(str(location[COMMENT])) > 0):
-                    pline = "text " + str(float(location[X]) + textoff) +\
-                            " " + str(float(location[Y]) + textoff) + " '" +\
-                            str(location[COMMENT]) + "' #font=times"
+                if(len(str(location[comment])) > 0):
+                    pline = "text " + str(float(location[x]) + textoff) +\
+                            " " + str(float(location[y]) + textoff) + " '" +\
+                            str(location[comment]) + "' #font=times"
                     print(pline)
                     self.set_region(pline)
             except IndexError:
@@ -1793,7 +1798,6 @@ class ds9(object):
     def show_xpa_commands(self):
         """Print the available XPA commands."""
         print(self.get(''))  # With empty string, all commands are returned
-        
 
     def reopen(self):
         """Reopen a closed window."""

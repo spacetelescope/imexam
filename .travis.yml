@@ -1,5 +1,11 @@
 language: c
 
+# Cache can be cleared from the travis settings menu, see docs currently at
+# https://docs.travis-ci.com/user/caching#Clearing-Caches
+cache:
+  - ccache
+
+
 os:
     - linux
 
@@ -16,7 +22,6 @@ addons:
             - texlive-latex-extra
             - dvipng
 
-
 env:
     global:
         # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
@@ -30,6 +35,23 @@ env:
         - CONDA_CHANNELS='astropy-ci-extras astropy'
         - SETUP_XVFB=True
         - EVENT_TYPE='push pull_request'
+
+        # PEP8 errors/warnings:
+        # E101 - mix of tabs and spaces
+        # W191 - use of tabs
+        # W291 - trailing whitespace
+        # W292 - no newline at end of file
+        # W293 - trailing whitespace
+        # W391 - blank line at end of file
+        # E111 - 4 spaces per indentation level
+        # E112 - 4 spaces per indentation level
+        # E113 - 4 spaces per indentation level
+        # E502 - the backslash is redundant between brackets
+        # E722 - do not use bare except
+        # E901 - SyntaxError or IndentationError
+        # E902 - IOError
+        - FLAKE8_OPT="--select=E101,W191,W291,W292,W293,W391,E111,E112,E113,E502,E722,E901,E902"
+
 
     matrix:
         # make sure that egg_info works without dependencies
@@ -59,7 +81,6 @@ matrix:
                SPHINX_VERSION=1.5.6
         - python: 3.5
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
-               SPHINX_VERSION=1.5.6
 
        # Try Astropy development and LTS versions
         - python: 2.7
@@ -68,11 +89,15 @@ matrix:
           env: ASTROPY_VERSION=lts
         - python: 3.5
           env: ASTROPY_VERSION=development
+        - python: 3.6
+          env: ASTROPY_VERSION=development
 
         # Try with optional dependencies disabled
         - python: 2.7
           env: PIP_DEPENDENCIES=''
         - python: 3.5
+          env: PIP_DEPENDENCIES=''
+        - python: 3.6
           env: PIP_DEPENDENCIES=''
 
 
@@ -81,20 +106,24 @@ matrix:
           env: NUMPY_VERSION=1.11
         - python: 3.5
           env: NUMPY_VERSION=1.12
+        - python: 3.5
+          env: NUMPY_VERSION=1.13
 
 
         # Try numpy pre-release
         - python: 3.5
           env: NUMPY_VERSION=prerelease
+        - python: 3.6
+          env: NUMPY_VERSION=prerelease
 
-        # Do a coverage test in Python 2.
-        - python: 2.7
+        # Do a coverage tests
+        - python: 3.5
           env: SETUP_CMD='test --coverage'
 
 
         # Do a pep8 test
         - python: 3.5
-          env: SETUP_CMD='test --pep8 -k pep8
+          env: MAIN_CMD="flake8 imexam --count $FLAKE8_OPT" SETUP_CMD=''
 
     allow_failures:
         # The build with numpy pre-release halts in the middle without
@@ -102,17 +131,13 @@ matrix:
         - python: 3.5
           env: NUMPY_VERSION=prerelease
         - python: 3.6
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
+          env: NUMPY_VERSION=prerelease
 
 
 before_install:
-
-    # CONFIGURE A HEADLESS DISPLAY TO TEST PLOT GENERATION
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - sleep 3
     - uname -a
     - python --version
+    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( sudo Xvfb :99 -ac -screen 0 1024x768x8; sleep 3; echo ok )& fi
 
     # We now use the ci-helpers package to set up our testing environment.
     # This is done by using Miniconda and then using conda and pip to install
@@ -142,7 +167,8 @@ install:
 
 
 script:
-    - $MAIN_CMD  $SETUP_CMD
+    - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ( xvfb-run -a $MAIN_CMD  $SETUP_CMD ) fi
+    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( $MAIN_CMD $SETUP_CMD ) fi
 
 
 after_success:

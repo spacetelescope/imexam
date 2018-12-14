@@ -563,12 +563,12 @@ class ginga_general(object):
 
         return self.ginga_view.embed(width, height)
 
-    def load_fits(self, fname="", extver=None):
+    def load_fits(self, fname=None, extver=None):
         """Load fits image to current frame.
 
         Parameters
         ----------
-        fname: string, optional
+        fname: string, FITS HDU
             The name of the file to be loaded. You can specify the full
             extension in the name, such as
             filename_flt.fits[sci,1] or filename_flt.fits[1]
@@ -582,36 +582,56 @@ class ginga_general(object):
         number, not the version number associated with a name
         """
         if fname is None:
-            raise ValueError("No filename provided")
+            raise ValueError("No filename or HDU provided")
 
-        try:
+        if isinstance(fname, (fits.hdu.image.PrimaryHDU, fits.hdu.image.ImageHDU)):
+            # Simple fits, data + header
+            shortname = fname
+            extn = None
+            if extver is None:
+                extv = None
+                extver = 0
+
+        elif isinstance(fname, fits.hdu.hdulist.HDUList):
+            shortname = fname
+            extn = None
+            extv = extver
+
+        elif isinstance(fname, str):
             shortname, extn, extv = util.verify_filename(fname)
-            image = AstroImage(logger=self.logger)
-
             if extn is not None:
-                raise ValueError("Extension name given, must specify "
-                                 "the absolute extension you want")
-            # prefer specified over filename
+                raise ValueError("Extension name given, must "
+                                 "specify the absolute extension you want")
+            # prefer the keyword value over the extension in the name
             if extver is None:
                 extver = extv
 
-            if (extv is None and extver is None):
-                mef = util.check_filetype(shortname)
-                if mef:
-                    extver = 1  # MEF fits
+        else:
+            raise TypeError("Expected FITS data as input")
+
+        # safety for a valid imexam file
+        if ((extv is None) and (extver is None)):
+            mef_file, nextend, first_image = util.check_valid(shortname)
+            extver = first_image  # the extension of the first IMAGE
+
+        image = AstroImage(logger=self.logger)
+
+        try:
+            if isinstance(fname, str):
+                with fits.open(shortname) as filedata:
+                    hdu = filedata[extver]
+                    image.load_hdu(hdu)
+            else:
+                if extver:
+                    hdu = shortname[extver]
                 else:
-                    extver = 0  # simple fits
-
-            with fits.open(shortname) as filedata:
-                hdu = filedata[extver]
+                    hdu = shortname
                 image.load_hdu(hdu)
-
+            self._set_frameinfo(fname=shortname, hdu=hdu, image=image)
+            self.ginga_view.set_image(image)
         except Exception as e:
-            self.logger.error("Exception opening file: {0}".format(repr(e)))
+            self.logger.error("Exception loading image: {0}".format(repr(e)))
             raise Exception(repr(e))
-
-        self._set_frameinfo(fname=shortname, hdu=hdu, image=image)
-        self.ginga_view.set_image(image)
 
     def panto_image(self, x, y):
         """Change to x,y  physical image coordinates.

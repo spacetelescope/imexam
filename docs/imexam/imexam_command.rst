@@ -9,24 +9,23 @@ This is the main method which allows live interaction with the image display whe
 
 **Current recognized keys available during imexam are:** ::
 
-    2	Make the next plot in a new window
-    a	Aperture sum, with radius region_size
-    b	Return the 2D gauss fit center of the object
-    c	Return column plot
-    e	Return a contour plot in a region around the cursor
-    g	Return curve of growth plot
-    h	Return a histogram in the region around the cursor
-    j	1D [Gaussian1D default] line fit
-    k	1D [Gaussian1D default] column fit
-    l	Return line plot
-    m	Square region stats, in [region_size],default is median
-    r	Return the radial profile plot
-    s	Save current figure to disk as [plot_name]
-    t	Make a fits image cutout using pointer location
-    w	Display a surface plot around the cursor location
-    x	Return x,y,value of pixel
-    y	Return x,y,value of pixel
-
+    2   Make the next plot in a new window
+    a   Aperture sum, with radius region_size 
+    b   Return the 2D gauss fit center of the object
+    c   Return column plot
+    e   Return a contour plot in a region around the cursor
+    g   Return curve of growth plot
+    h   Return a histogram in the region around the cursor
+    j   1D [Gaussian1D default] line fit 
+    k   1D [Gaussian1D default] column fit
+    l   Return line plot
+    m   Square region stats, in [region_size],default is median
+    r   Return the radial profile plot
+    s   Save current figure to disk as [plot_name]
+    t   Make a fits image cutout using pointer location
+    w   Display a surface plot around the cursor location
+    x   Return x,y,value of pixel
+    y   Return x,y,value of pixel
 
      aimexam(): return a dict of current parameters for aperture photometery
 
@@ -61,13 +60,13 @@ The ``imexam`` key dictionary is stored inside the user object as  <object_name>
 However, you can access the same dictionary and customize the plotting parameters using ``set_plot_pars``. In the following example, I'm setting three of the parameters for the contour map, whose imexam key is "e"::
 
     #customize the plotting parameters (or any function in the imexam loop)
-    a.set_plot_pars('e','title','This is my favorite galaxy')
-    a.set_plot_pars('e','ncontours',4)
-    a.set_plot_pars('e','cmap','YlOrRd') #see http://matplotlib.org/users/colormaps.html
+    viewer.set_plot_pars('e','title','This is my favorite galaxy')
+    viewer.set_plot_pars('e','ncontours',4)
+    viewer.set_plot_pars('e','cmap','YlOrRd') #see http://matplotlib.org/users/colormaps.html
 
 where the full dictionary of available values can be found using the ``eimexam()`` function described above.::
 
-    In [1]: a.eimexam()
+    In [1]: viewer.eimexam()
     Out[2]:
     {'ceiling': [None, 'Maximum value to be contoured'],
      'cmap': ['RdBu', 'Colormap (matplotlib style) for image'],
@@ -133,25 +132,37 @@ These are the default parameters for aperture photometry. They live in a diction
 
     The direct access:
 
-    viewer.exam.aperphot_pars= {"function":["aperphot",],
-                    "center":[True,"Center the object location using a Gaussian2D fit"],
-                    "width":[5,"Width of sky annulus in pixels"],
-                    "subsky":[True,"Subtract a sky background?"],
-                    "skyrad":[15,"Distance to start sky annulus is pixels"],
-                    "radius":[5,"Radius of aperture for star flux"],
-                    "zmag":[25.,"zeropoint for the magnitude calculation"],
+    viewer.exam.aper_phot_pars= {'function':["aperphot",],
+                    'center':[True,"Center the object location using a Gaussian2D fit"],
+                    'width':[5,"Width of sky annulus in pixels"],
+                    'subsky':[True,"Subtract a sky background?"],
+                    'skyrad':[15,"Distance to start sky annulus is pixels"],
+                    'radius':[5,"Radius of aperture for star flux"],
+                    'zmag':[25.,"zeropoint for the magnitude calculation"],
+                    'genplot': [True, 'Plot the apertures'], 
+                    'title': [None, 'Title of the plot'],
+                    'scale': ['zscale', 'How to scale the image'],
+                    'color_min': [None, 'Minimum color value'],
+                    'color_max': [None, 'Maximum color value'],
+                    'cmap': ['Greys', 'Matplotlib colormap to use']
                     }
     Using the convenience function:
 
-    In [1]: a.aimexam()
+    In [1]: viewer.aimexam()
     Out[2]:
     {'center': [True, 'Center the object location using a 2d gaussian fit'],
-    'function': ['aper_phot'],
+     'function': ['aper_phot'],
      'radius': [5, 'Radius of aperture for star flux'],
      'skyrad': [15, 'Distance to start sky annulus is pixels'],
      'subsky': [True, 'Subtract a sky background?'],
      'width': [5, 'Width of sky annulus in pixels'],
-     'zmag': [25.0, 'zeropoint for the magnitude calculation']}
+     'zmag': [25.0, 'zeropoint for the magnitude calculation'],
+     'genplot': [True, 'Plot the apertures'],
+     'title': [None, 'Title of the plot'],
+     'scale': ['zscale', 'How to scale the image'],
+     'color_min': [None, 'Minimum color value'],
+     'color_max': [None, 'Maximum color value'],
+     'cmap': ['Greys', 'Matplotlib colormap to use']}
 
 In order to change the width of the photometry aperture around the object you would do this:::
 
@@ -161,49 +172,58 @@ This is what the return looks like when you do photometry, where I've asked for 
 
     viewer.imexam()
 
-    xc=576.855763	yc=634.911425
-    x              y              radius         flux           mag(zpt=25.00) sky            fwhm
-    576.86         634.91         10             2191284.53     9.15           10998.89       5.58
+    xc=574.988523   yc=632.680333
+    x              y              radius         flux           mag(zpt=25.00) sky/pix        fwhm(pix)
+    574.99         632.68         10             2178054.09     9.15           11005.40       5.72
 
 xc = xcenter, yc=ycenter; these were found using a Gaussian2D fit centered on the pixel location of the mouse. You can turn the fit off by setting the "center" parameter to "False".
 
+This is the resulting plot:
 
-Gaussian1D, Moffat1D, MexicanHat1D profiles
--------------------------------------------
+.. image:: ../_static/ap_phot_plot.png
+    :height: 400
+    :width: 400
+    :alt: Plot of aperture photometry apertures
+
+
+Available 1D profiles
+---------------------
+These include Gaussian1D, Moffat1D, MexicanHat1D, AiryDisk2D, and Polynomial1D.
+
 If you press the "j" or "k" keys, a 1D profile is fit to the data in either the line or column of the current pointer location. An option to use a Polynomial1D fit is also available, although not something of use for looking at stellar profiles. A plot of both the data and the fit + parameters is displayed. If the centering option is True, then the center of the flux is computed by fitting a 2d Gaussian to the data. ::
 
 
     line_fit_pars={"function":["line_fit",],
-                   "func":["gaussian","function for fitting [see available]"],
+                   "func":["gaussian"," function for fitting [see available]"],
                    "title":["Fit 1D line plot","Title of the plot"],
-                   "xlabel":["Line","The string for the xaxis label"],
-                   "ylabel":["Flux","The string for the yaxis label"],
-                   "background":[False,"Solve for background? [bool]"],
-                   "width":[10.0,"Background  width in pixels"],
-                   "xorder":[0,"Background terms to fit, 0=median"],
-                   "rplot":[20.,"Plotting radius in pixels"],
-                   "pointmode":[True,"plot points instead of lines? [bool]"],
-                   "logx":[False,"log scale x-axis?"],
-                   "logy":[False,"log scale y-axis?"],
-                   "center":[True,"Recenter around the local max"],
+                   "xlabel":["Line", "The string for the xaxis label"],
+                   "ylabel":["Flux", "The string for the yaxis label"],
+                   "background":[False, "Solve for background? [bool]"],
+                   "width":[10.0, "Background  width in pixels"],
+                   "xorder":[0, "Background terms to fit, 0=median"],
+                   "rplot":[20., "Plotting radius in pixels"],
+                   "pointmode":[True, "plot points instead of lines? [bool]"],
+                   "logx":[False, "log scale x-axis?"],
+                   "logy":[False, "log scale y-axis?"],
+                   "center":[True, "Recenter around the local max"],
                    }
 
 
 The column fit parameters are similar::
 
     column_fit_pars={"function":["column_fit",],
-                     "func":["Gaussian1D","function for fitting [see available]"],
-                     "title":["Fit 1D column plot","Title of the plot"],
-                     "xlabel":["Column","The string for the xaxis label"],
-                     "ylabel":["Flux","The string for the yaxis label"],
-                     "background":[False,"Solve for background? [bool]"],
-                     "width":[10.0,"Background  width in pixels"],
-                     "xorder":[0,"Background terms to fit, 0=median"],
-                     "rplot":[20.,"Plotting radius in pixels"],
+                     "func":["Gaussian1D", "function for fitting [see available]"],
+                     "title":["Fit 1D column plot", "Title of the plot"],
+                     "xlabel":["Column", "The string for the xaxis label"],
+                     "ylabel":["Flux", "The string for the yaxis label"],
+                     "background":[False, "Solve for background? [bool]"],
+                     "width":[10.0, "Background  width in pixels"],
+                     "xorder":[0, "Background terms to fit, 0=median"],
+                     "rplot":[20., "Plo tting radius in pixels"],
                      "pointmode":[True,"plot points instead of lines? [bool]"],
-                     "logx":[False,"log scale x-axis?"],
-                     "logy":[False,"log scale y-axis?"],
-                     "center":[True,"Recenter around the local max"],
+                     "logx":[False, "log scale x-axis?"],
+                     "logy":[False, "log scale y-axis?"],
+                     "center":[True, "Recenter around the local max"],
                      }
 
 This is the resulting line fit:
@@ -230,8 +250,8 @@ If you press the "m" key, the  pixel values around the pointer location are calc
 The user can map the function to any reasonable numpy function, it's set to numpy.median by default::
 
     report_stat_pars= {"function":["report_stat",],
-                        "stat":["median","numpy stat name or describe for scipy.stats"],
-                        "region_size":[5,"region size in pixels to use"],
+                        "stat":["median", "numpy stat name or describe for scipy.stats"],
+                        "region_size":[5, "region size in pixels to use"],
                     }
 
 
@@ -239,7 +259,7 @@ The user can map the function to any reasonable numpy function, it's set to nump
 
 You can change the statistic reported by changing the "stat" parameter::
 
-    viewer.set_plot_pars('m',"stat","max")
+    viewer.set_plot_pars('m', "stat", "max")
 
     [572:577,629:634] amax: 55271.000000
 
