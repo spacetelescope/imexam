@@ -55,9 +55,9 @@ env:
 
     matrix:
         # make sure that egg_info works without dependencies
-        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
 
 
 matrix:
@@ -76,15 +76,10 @@ matrix:
         - os: linux
         # Check for sphinx doc build warnings - we do this first because
         # it may run for a long time. Need to use sphinx <1.6 until photutils 0.4 is out.
-        - python: 2.7
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
-               SPHINX_VERSION=1.5.6
         - python: 3.5
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
 
        # Try Astropy development and LTS versions
-        - python: 2.7
-          env: ASTROPY_VERSION=lts
         - python: 3.5
           env: ASTROPY_VERSION=lts
         - python: 3.5
@@ -93,17 +88,14 @@ matrix:
           env: ASTROPY_VERSION=development
 
         # Try with optional dependencies disabled
-        - python: 2.7
-          env: PIP_DEPENDENCIES=''
         - python: 3.5
           env: PIP_DEPENDENCIES=''
         - python: 3.6
           env: PIP_DEPENDENCIES=''
-
+        - python: 3.7
+          env: PIP_DEPENDENCIES=''
 
         # Try older numpy versions
-        - python: 3.5
-          env: NUMPY_VERSION=1.11
         - python: 3.5
           env: NUMPY_VERSION=1.12
         - python: 3.5
