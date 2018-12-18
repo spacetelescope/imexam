@@ -4,8 +4,6 @@
 the viewer and the imexamine classes
 """
 
-#from __future__ import division, absolute_import
-
 import warnings
 import logging
 import os

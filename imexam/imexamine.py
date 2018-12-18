@@ -70,7 +70,7 @@ except ImportError:
 __all__ = ["Imexamine"]
 
 
-class Imexamine(object):
+class Imexamine:
     """The imexamine class controls plotting and analysis functions."""
 
     def __init__(self):
@@ -132,7 +132,7 @@ class Imexamine(object):
     def show_fit_models(self):
         """Print the available astropy models for plot fits."""
         self.log.info("The available astropy models for fitting"
-                      "are: {}".format(self._fit_models))
+                      "are: {0}".format(self._fit_models))
 
     def set_option_funcs(self):
         """Define the dictionary which maps imexam keys to their functions.
@@ -167,7 +167,7 @@ class Imexamine(object):
         """Print the imexam options to screen."""
         keys = self.get_options()
         for key in keys:
-            print("{:s} {:s}".format(key, self.option_descrip(key)))
+            print("{0:s} {1:s}".format(key, self.option_descrip(key)))
 
     def do_option(self, x, y, key):
         """Run the imexam option.

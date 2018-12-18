@@ -2,8 +2,6 @@
 
 """Functions to help enable math and fitting in the main examine code"""
 
-#from __future__ import division
-
 import numpy as np
 import warnings
 
