@@ -23,8 +23,6 @@ http://hea-www.harvard.edu/saord/xpa/
 
 """
 
-#from __future__ import division, absolute_import
-
 import os
 import shutil
 import numpy as np
