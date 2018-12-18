@@ -23,6 +23,12 @@ import matplotlib.pyplot as plt
 if not plt.isinteractive():
     plt.ion()
 
+import matplotlib.pyplot as plt
+# turn on interactive mode for plotting
+# so that plt.show becomes non-blocking
+if not plt.isinteractive():
+    plt.ion()
+
 import warnings
 import numpy as np
 import sys
