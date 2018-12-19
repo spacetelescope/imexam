@@ -19,6 +19,8 @@ environment:
           NUMPY_VERION: "stable"
         - PYTHON_VERSION: "3.6"
           NUMPY_VERSION: "stable"
+        - PYTHON_VERSION: "3.7"
+          NUMPY_VERSION: "stable"
 
 matrix:
     fast_finish: true
