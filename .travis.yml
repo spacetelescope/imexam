@@ -96,16 +96,18 @@ matrix:
           env: PIP_DEPENDENCIES=''
 
         # Try older numpy versions
-        - python: 3.5
+        - python: 3.6
           env: NUMPY_VERSION=1.12
-        - python: 3.5
+        - python: 3.6
           env: NUMPY_VERSION=1.13
+        - python: 3.6
+          env: NUMPY_VERSION=1.14
 
 
         # Try numpy pre-release
-        - python: 3.5
-          env: NUMPY_VERSION=prerelease
         - python: 3.6
+          env: NUMPY_VERSION=prerelease
+        - python: 3.7
           env: NUMPY_VERSION=prerelease
 
         # Do a coverage tests
@@ -120,9 +122,7 @@ matrix:
     allow_failures:
         # The build with numpy pre-release halts in the middle without
         # showing any obvious reason, thus allowing it to fail for now.
-        - python: 3.5
-          env: NUMPY_VERSION=prerelease
-        - python: 3.6
+        - python: 3.7
           env: NUMPY_VERSION=prerelease
 
 
