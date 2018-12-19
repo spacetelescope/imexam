@@ -9,6 +9,7 @@ import numpy as np
 from numpy.testing import assert_equal
 from astropy.io import fits
 from imexam import util
+import ntpath
 
 #  testing data
 test_data_zeros = np.zeros((100, 100), dtype=np.float)
@@ -139,35 +140,35 @@ def test_simple_image_in_primary():
 
 
 def test_hst_filename():
-    """Verify split of a standard hst filename."""
+    """Verify basename of a standard hst filename."""
 
     hst_name = "hstimagex_cal.fits"
     shortname, extname, extver = util.verify_filename(filename=hst_name)
-    short_compare = shortname.split("/")[-1]
+    short_compare = ntpath.basename(shortname)
     assert_equal(hst_name, short_compare)
     assert_equal(extname, None)
     assert_equal(extver, None)
 
 
 def test_ext_ver_filename():
-    """Verify split of a filname given with ext and ver."""
+    """Verify basename of a filname given with ext and ver."""
 
     hst_name_ext_ver = "hstimagex_cal.fits[sci,1]"
     rootname = "hstimagex_cal.fits"
     shortname, extname, extver = util.verify_filename(filename=hst_name_ext_ver)
-    short_compare = shortname.split("/")[-1]
+    short_compare = ntpath.basename(shortname)
     assert_equal(rootname, short_compare)
     assert_equal(extname, "sci")
     assert_equal(extver, 1)
 
 
 def test_name_ver_filename():
-    """Verify split of a filename given name and ver."""
+    """Verify basename of a filename given name and ver."""
 
     hst_name_ver = "hstimagex_cal.fits[1]"
     rootname = "hstimagex_cal.fits"
     shortname, extname, extver = util.verify_filename(filename=hst_name_ver)
-    short_compare = shortname.split("/")[-1]
+    short_compare = ntpath.basename(shortname)
     assert_equal(rootname, short_compare)
     assert_equal(extname, None)
     assert_equal(extver, 1)
@@ -181,7 +182,7 @@ def test_extver():
     hst_name = "hstimagex_cal.fits"
     shortname, extname, extver = util.verify_filename(filename=hst_name,
                                                       extver=1)
-    short_compare = shortname.split("/")[-1]
+    short_compare = ntpath.basename(shortname)
     assert_equal(hst_name, short_compare)
     assert_equal(extname, None)
     assert_equal(extver, 1)
@@ -193,7 +194,7 @@ def test_extname():
     hst_name = "hstimagex_cal.fits"
     shortname, extname, extver = util.verify_filename(filename=hst_name,
                                                       extname='sci')
-    short_compare = shortname.split("/")[-1]
+    short_compare = ntpath.basename(shortname)
     assert_equal(hst_name, short_compare)
     assert_equal(extname, 'sci')
     assert_equal(extver, None)
@@ -206,7 +207,7 @@ def test_name_ver():
     shortname, extname, extver = util.verify_filename(filename=hst_name,
                                                       extname='sci',
                                                       extver=1)
-    short_compare = shortname.split("/")[-1]
+    short_compare = ntpath.basename(shortname)
     assert_equal(hst_name, short_compare)
     assert_equal(extname, 'sci')
     assert_equal(extver, 1)
