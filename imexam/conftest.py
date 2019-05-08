@@ -20,3 +20,4 @@ pytest_plugins = [
 ]
 
 enable_deprecations_as_exceptions()
+
