@@ -13,15 +13,38 @@ __all__ = ["display_help", "set_logging"]
 
 
 def find_path(target=None):
-    """Find the local path to the target executable"""
-    if target is None:
-        raise TypeError("Expected name of executable")
+    """Find the local path to the target executable.
 
+    Parameters
+    ----------
+    target: None or str
+        The name of the executable to find
+
+    Returns
+    -------
+    The path to the executable or None if not found
+
+    Notes
+    -----
+    This will first look for the target on the users
+    path and then look to see if an alias has been
+    set. It assumes that the user has aliased ds9 to
+    the same name, ds9. If otherwise, the user should
+    specify path in the call to the connect() method.
+    """
+
+    if target is None:
+        raise TypeError("Expected name of target executable")
+
+    found_path = None
     for dirname in os.getenv("PATH").split(":"):
         possible = os.path.join(dirname, target)
         if os.path.isfile(possible):
-            return possible
-    return None
+            found_path = possible
+    if found_path is None:
+        # This will also return None if not set
+        found_path = os.getenv(target)
+    return found_path
 
 
 def list_active_ds9(verbose=True):
