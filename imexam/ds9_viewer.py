@@ -225,7 +225,7 @@ class ds9:
             if not path:
                 self._ds9_path = util.find_path('ds9')
                 if not self._ds9_path:
-                    raise OSError("Could not find ds9 executable on your path")
+                    raise OSError("Could not find ds9 executable on your path or alias")
 
             else:
                 self._ds9_path = path
@@ -471,7 +471,7 @@ class ds9:
     def _stop_process(self):
         """stop the ds9 window process nicely.
 
-        only if this package started it
+        but only if this package started it
         """
         try:
             if self._ds9_process:
