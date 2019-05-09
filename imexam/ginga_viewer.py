@@ -15,15 +15,17 @@ import numpy as np
 from . import util
 from astropy.io import fits
 
-from ginga.misc import log, Settings
-from ginga.AstroImage import AstroImage
-from ginga.BaseImage import BaseImage
-from ginga import cmap
-from ginga.util import paths
-from ginga.util import wcsmod
+try:
+    from ginga.misc import log, Settings
+    from ginga.AstroImage import AstroImage
+    from ginga.BaseImage import BaseImage
+    from ginga import cmap
+    from ginga.util import paths
+    from ginga.util import wcsmod
+    wcsmod.use('AstropyWCS')
+except ImportError:
+    print("Ginga not installed, use other viewer, or no viewer")
 
-
-wcsmod.use('AstropyWCS')
 
 # module variables
 _matplotlib_cmaps_added = False
