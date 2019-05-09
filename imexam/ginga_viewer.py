@@ -585,6 +585,8 @@ class ginga_general:
         if fname is None:
             raise ValueError("No filename or HDU provided")
 
+        image = AstroImage(logger=self.logger)
+
         if isinstance(fname, (fits.hdu.image.PrimaryHDU, fits.hdu.image.ImageHDU)):
             # Simple fits, data + header
             shortname = fname
@@ -593,10 +595,20 @@ class ginga_general:
                 extv = None
                 extver = 0
 
+            if extver:
+                hdu = shortname[extver]
+            else:
+                hdu = shortname
+
         elif isinstance(fname, fits.hdu.hdulist.HDUList):
             shortname = fname
             extn = None
             extv = extver
+
+            if extver:
+                hdu = shortname[extver]
+            else:
+                hdu = shortname
 
         elif isinstance(fname, str):
             shortname, extn, extv = util.verify_filename(fname)
@@ -607,26 +619,21 @@ class ginga_general:
             if extver is None:
                 extver = extv
 
+            # safety for a valid imexam file
+            if ((extv is None) and (extver is None)):
+                mef_file, nextend, first_image = util.check_valid(shortname)
+                extver = first_image  # the extension of the first IMAGE
+
+
         else:
             raise TypeError("Expected FITS data as input")
 
-        # safety for a valid imexam file
-        if ((extv is None) and (extver is None)):
-            mef_file, nextend, first_image = util.check_valid(shortname)
-            extver = first_image  # the extension of the first IMAGE
-
-        image = AstroImage(logger=self.logger)
-
         try:
-            if isinstance(fname, str):
+            if isinstance(shortname, str):
                 with fits.open(shortname) as filedata:
                     hdu = filedata[extver]
                     image.load_hdu(hdu)
             else:
-                if extver:
-                    hdu = shortname[extver]
-                else:
-                    hdu = shortname
                 image.load_hdu(hdu)
             self._set_frameinfo(fname=shortname, hdu=hdu, image=image)
             self.ginga_view.set_image(image)
