@@ -17,10 +17,23 @@ environment:
 
         - PYTHON_VERSION: "3.5"
           NUMPY_VERION: "stable"
+          ASTROPY_VERSION: "stable"
+
         - PYTHON_VERSION: "3.6"
           NUMPY_VERSION: "stable"
+          ASTROPY_VERSION: "stable"
+
         - PYTHON_VERSION: "3.7"
           NUMPY_VERSION: "stable"
+          ASTROPY_VERSION: "stable"
+
+        - PYTHON_VERSION: "3.7"
+          NUMPY_VERSION: "development"
+          CONDA_DEPENDENCIES: "scipy glymur"
+          CONDA_CHANNELS: "conda-forge astrofrog"
+          PIP_DEPENDENCIES: "requests pyparsing"
+          CONDA_CHANNEL_PRIORITY: "True"
+          DEBUG: "True"
 
 matrix:
     fast_finish: true
@@ -37,6 +50,8 @@ install:
     - "powershell ci-helpers/appveyor/install-miniconda.ps1"
     - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
     - "activate test"
+    - "conda --version"
+    - "python --version"
 
 # Not a .NET project, we build in the install step instead
 build: false
