@@ -99,7 +99,7 @@ unsure, then it's fine to report to the main ``imexam`` issue tracker.
 Contributing
 ============
 
-Like the `Astropy`_ project, ``imexam`` is made both by and for its
+Like the `Astropy <https://www.astropy.org/>`__ project, ``imexam`` is made both by and for its
 users.  We accept contributions at all levels, spanning the gamut from
 fixing a typo in the documentation to developing a major new feature.
 We welcome contributors who will abide by the `Python Software
@@ -107,7 +107,7 @@ Foundation Code of Conduct
 <https://www.python.org/psf/codeofconduct/>`_.
 
 ``imexam`` follows the same workflow and coding guidelines as
-`Astropy`_.  The following pages will help you get started with
+`Astropy <https://www.astropy.org/>`__.  The following pages will help you get started with
 contributing fixes, code, or documentation (no git or GitHub
 experience necessary):
 
