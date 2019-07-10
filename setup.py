@@ -123,7 +123,7 @@ cmdclass = {'test': PyTest,
 
 
 package_data = {PACKAGENAME: []}
-ext_modules = []
+ext = []
 
 if not sys.platform.startswith('win'):
     XPALIB_DIR = "cextern/xpa/"
