@@ -43,12 +43,11 @@ platform:
     -x64
 
 # os: Visual Studio 2015 Update 2
-
 install:
     - "git submodule update --init --recursive"
     - "git clone git://github.com/astropy/ci-helpers.git"
     - "powershell ci-helpers/appveyor/install-miniconda.ps1"
-    - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+    - "SET PATH=C:\\%PYTHON%;C:\\%PYTHON%\\Scripts"
     - "activate test"
     - "conda --version"
     - "python --version"

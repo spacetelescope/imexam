@@ -221,6 +221,6 @@ setup(
     zip_safe=False,
     cmdclass=cmdclass,
     package_data=package_data,
-    package_dir={'': './'},
+    package_dir={'': '.'},
     ext_modules=ext,
 )
