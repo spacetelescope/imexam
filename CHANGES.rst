@@ -1,6 +1,7 @@
 version 0.8.2a (unreleased)
 ---------------------------
 - python2->3 class and printing updates
+- removed dependence on astropy_helpers
 
 version 0.8.1 (2018-12-14)
 --------------------------
