@@ -1,7 +1,6 @@
 include README.rst
 include CHANGES.rst
 
-include ah_bootstrap.py
 include ez_setup.py
 include setup.py
 include setup.cfg
@@ -11,12 +10,9 @@ recursive-include docs *
 recursive-include licenses *
 recursive-include scripts *
 recursive-include wrappers *
-recursive-include astropy_helpers *
 recursive-include cextern *
 
 
-exclude astropy_helpers/.git
-exclude astropy_helpers/.gitignore
 exclude cextern/xpa/.git
 exclude cextern/xpa/.gitignore
 exclude cextern/xpa/man
@@ -25,8 +21,6 @@ exclude cextern/xpa/notes
 global-exclude *.pyc *.o
 
 
-prune astropy_helpers/build
-prune astropy_helpers/astropy_helpers/tests
 prune docs/build
 prune docs/api
 prune build
