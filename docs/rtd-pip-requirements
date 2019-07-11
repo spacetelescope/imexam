@@ -1,7 +1,9 @@
-astropy_helpers
 astropy
 numpy
 matplotlib
 Cython
 ginga
 ipython
+astropy-sphinx-theme
+pytest-astropy 
+sphinx-astropy
