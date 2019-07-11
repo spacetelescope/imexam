@@ -1,4 +1,5 @@
-# cython:  c_string_encoding=utf8
+# cython: c_string_encoding = utf8
+# cython: language_level = 3
 
 cdef extern from "stdio.h":
     pass

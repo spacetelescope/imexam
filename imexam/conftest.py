@@ -6,6 +6,7 @@
 
 import os
 import pytest
+from collections import OrderedDict
 
 from . import __version__
 
