@@ -6,13 +6,7 @@ import logging
 import warnings
 from astropy.io import fits
 
-try:
-    import xpa
-    _have_xpa = True
-except ImportError:
-    _have_xpa = False
-
-from .version import version as __version__
+from . import __version__
 
 # To guide any import *
 __all__ = ["display_help", "set_logging"]
