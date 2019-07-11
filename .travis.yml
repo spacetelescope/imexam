@@ -29,7 +29,7 @@ env:
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='Cython matplotlib scipy ipython'
-        - PIP_DEPENDENCIES='photutils'
+        - PIP_DEPENDENCIES='photutils pytest-astropy'
         - MAIN_CMD='python setup.py'
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
