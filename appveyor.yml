@@ -10,7 +10,6 @@ environment:
     global:
         MINICONDA_VERSION: "latest"
         ASTROPY_USE_SYSTEM_PYTEST: 1
-        # CMD_IN_ENV: "cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd"
         PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
                           # of 32 bit and 64 bit builds are needed, move this
                           # to the matrix section.
@@ -51,7 +50,6 @@ install:
     - cmd: call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
     - cmd: set PYTHONUNBUFFERED=1
     - cmd: conda install scipy matplotlib numpy astropy ipython sphinx pytest
-    # - cmd: conda install -n root --quiet --yes obvious-ci
     - cmd: git submodule update --init --recursive
     - cmd: conda info -a
 
@@ -59,5 +57,4 @@ install:
 build: off
 
 test_script:
-    # - "%CMD_IN_ENV% python setup.py test"
     - cmd: python setup.py test
