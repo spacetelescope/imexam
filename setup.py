@@ -92,7 +92,7 @@ except ImportError:
             pass
 
         def run(self):
-            print('!\n! Sphinx is not installed!\n!', file=sys.stderr)
+            print("Sphinx is not installed!!\n", file=sys.stderr)
             exit(1)
 
 
