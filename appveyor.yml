@@ -4,7 +4,7 @@
 environment:
 
     global:
-        PYTHON: "C:\\conda"
+        PYTHON: "C:\\conda3"
         MINICONDA_VERSION: "latest"
         CONDA_DEPENDENCIES: "scipy matplotlib numpy astropy ipython"
         ASTROPY_USE_SYSTEM_PYTEST: 1
@@ -47,7 +47,7 @@ install:
     - "git submodule update --init --recursive"
     - "git clone git://github.com/astropy/ci-helpers.git"
     - "powershell ci-helpers/appveyor/install-miniconda.ps1"
-    - "SET PATH=C:\\%PYTHON%;C:\\%PYTHON%\\Scripts;%PATH%"
+    - "SET PATH=C:\\%PYTHON%\\bin;C:\\%PYTHON%;C:\\%PYTHON%\\Scripts;%PATH%"
     - "conda activate test"
     - "conda --version"
     - "python --version"
