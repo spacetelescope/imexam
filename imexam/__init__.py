@@ -9,6 +9,11 @@ viewing tool, like DS9
 # ----------------------------------------------------------------------------
 from ._astropy_init import *
 # ----------------------------------------------------------------------------
+from pkg_resources import get_distribution, DistributionNotFound
+
+__all__ = ['__version__', '__githash__']
+
+
 
 try:
     from .xpa_wrap import XPA
@@ -31,11 +36,10 @@ if not _ASTROPY_SETUP_:
     except ImportError:
         raise ImportError("astropy required but not found")
 
-    try:
-        from .version import version as __version__
-    except ImportError:
-        __version__ = ''
-    try:
-        from .version import githash as __githash__
-    except ImportError:
-        __githash__ = ''
+
+try:
+    __version__ = get_distribution('imexam').version
+except DistributionNotFound:
+    # package is not installed
+    __version__ = 'unknown'
+    __githash__ = ''
