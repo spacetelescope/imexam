@@ -38,7 +38,8 @@ if not _ASTROPY_SETUP_:
 
 
 try:
-    __version__ = get_distribution('imexam').version
+    release = get_distribution('imexam').version
+    __version__ = '.'.join(release.split('.')[:4])
 except DistributionNotFound:
     # package is not installed
     __version__ = 'unknown'
