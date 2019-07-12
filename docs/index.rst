@@ -86,15 +86,6 @@ provide information about your operating system and a full Python
 stack trace.  The developers will walk you through obtaining a stack
 trace if it is necessary.
 
-``imexam`` uses a package of utilities called `astropy-helpers
-<https://github.com/astropy/astropy-helpers>`_ during building and
-installation.  If you have any build or installation issue mentioning
-the ``astropy_helpers`` or ``ah_bootstrap`` modules please send a
-report to the `astropy-helpers issue tracker
-<https://github.com/astropy/astropy-helpers/issues>`_.  If you are
-unsure, then it's fine to report to the main ``imexam`` issue tracker.
-
-
 
 Contributing
 ============

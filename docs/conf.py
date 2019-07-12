@@ -17,15 +17,18 @@ import importlib
 import sphinx
 import sphinx.environment
 from docutils.utils import get_source_line
-
-
+from pkg_resources import get_distribution
 from distutils.version import LooseVersion
+
 try:
     from ConfigParser import ConfigParser
 except ImportError:
     from configparser import ConfigParser
 conf = ConfigParser()
 
+release = get_distribution('imexam').version
+# for example take major/minor
+version = '.'.join(release.split('.')[:4])
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

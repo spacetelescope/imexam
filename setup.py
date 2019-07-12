@@ -4,7 +4,7 @@
 import sys
 import os
 from distutils.command.clean import clean
-from setuptools import setup, find_packages, Command, Extension
+from setuptools import setup, Command, Extension
 from setuptools.command.test import test as TestCommand
 
 if sys.version_info < (3, 5):
