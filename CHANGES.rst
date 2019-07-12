@@ -1,5 +1,7 @@
 version 0.8.2a (unreleased)
 ---------------------------
+- fix ginga display of HDUList
+- add check for ds9 in alias as well as well as path
 - python2->3 class and printing updates
 - removed dependence on astropy_helpers
 
