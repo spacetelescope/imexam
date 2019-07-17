@@ -97,6 +97,10 @@ if sys.version_info[0] == 2:
         os.path.abspath(os.path.join(os.path.dirname(__file__),
                                      'local/python2_local_links.inv')))
 
+
+# suppress  epub errors for static file formats (.ico) on rtd
+suppress_warnings = ['epub.unknown_project_files']
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
