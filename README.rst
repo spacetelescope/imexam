@@ -29,11 +29,7 @@ imexam is an affiliated package of `AstroPy`_. It was designed to be a lightweig
 For more information please see the `online documentation <http://imexam.readthedocs.io/>`_
 
 
-Note: There are two git submodules in this package. astropy_helpers has a bootstrap which
-will automatically download the relevent code at build time. There is also a submodule
-for the xpa code that talks to DS9, if you are planning to work on developing new code or installing this
-package from a repo download, you need to pull the xpa code using the following command
-after you have cloned the repository and before you "python setup.py install"
+Note: There is one git submodule in this package, a submodule for the xpa code that talks to DS9. If you are planning to work on developing new code or installing this package from a repo download, you need to pull the xpa code using the following command after you have cloned the repository and before you "python setup.py install"
 
 
 ::
