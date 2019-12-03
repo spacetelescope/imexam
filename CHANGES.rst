@@ -1,5 +1,6 @@
 version 0.8.2a (unreleased)
 ---------------------------
+- adapt for change to photutils API for aperture areas (#193)
 - fix ginga display of HDUList
 - add check for ds9 in alias as well as well as path
 - python2->3 class and printing updates
