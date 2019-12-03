@@ -76,7 +76,6 @@ matrix:
 
         - os: linux
         # Check for sphinx doc build warnings - we do this first because
-        # it may run for a long time. Need to use sphinx <1.6 until photutils 0.4 is out.
         - python: 3.5
           env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
 
@@ -99,8 +98,6 @@ matrix:
           env: PIP_DEPENDENCIES=''
 
         # Try older numpy versions
-        - python: 3.5
-          env: NUMPY_VERSION=1.12
         - python: 3.6
           env: NUMPY_VERSION=1.14
         - python: 3.6
