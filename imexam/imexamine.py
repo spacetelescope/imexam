@@ -62,6 +62,9 @@ except ImportError:
 try:
     import photutils
     photutils_installed = True
+    # account for API change
+    from packaging import version
+    photutils_version = version.parse(photutils.__version__)
 except ImportError:
     print("photutils not installed, photometry functionality "
           "in imexam() not available")
@@ -563,8 +566,12 @@ class Imexamine:
                 # annulus aperture sums by the area fo the circular annulus.
                 # The bkg sum with the circular aperture is then
                 # then mean local background tims the circular apreture area.
-                aperture_area = apertures.area()
-                annulus_area = annulus_apertures.area()
+                if photutils_version >= version.parse('0.7'):
+                    aperture_area = apertures.area
+                    annulus_area = annulus_apertures.area
+                else:
+                    aperture_area = apertures.area()
+                    annulus_area = annulus_apertures.area()
 
                 bkg_sum = float(
                     (bkgflux_table['aperture_sum'] *
@@ -1055,7 +1062,10 @@ class Imexamine:
             # annulus aperture sums by the area of the circular annulus.
             # The bkg sum with the circular aperture is then
             # the mean local background times the circular apreture area.
-            annulus_area = annulus_apertures.area()
+            if photutils_version >= version.parse('0.7'):
+                annulus_area = annulus_apertures.area
+            else:
+                annulus_area = annulus_apertures.area()
             sky_per_pix = float(bkgflux_table['aperture_sum'] /
                                 annulus_area)
 
@@ -1331,9 +1341,12 @@ class Imexamine:
             # by the area of the circular annulus. The bkg sum within the
             # circular aperture is then
             # then mean local background times the circular apreture area.
-            aperture_area = apertures.area()
-            annulus_area = annulus_apertures.area()
-
+            if photutils_version >= version.parse('0.7'):
+                aperture_area = apertures.area
+                annulus_area = annulus_apertures.area
+            else:
+                aperture_area = apertures.area()
+                annulus_area = annulus_apertures.area()
             bkg_sum = (
                 bkgflux_table['aperture_sum'] *
                 aperture_area /
