@@ -8,6 +8,13 @@ from astropy.io import fits
 
 from . import __version__
 
+try:    
+    import xpa  
+    _have_xpa = True    
+except ImportError: 
+    _have_xpa = False   
+
+
 # To guide any import *
 __all__ = ["display_help", "set_logging"]
 
