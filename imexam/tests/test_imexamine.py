@@ -18,6 +18,8 @@ except ImportError:
 try:
     import photutils
     HAS_PHOTUTILS = True
+    from packaging import version
+    photutils_version = version.parse(photutils.__version__)
 except ImportError:
     HAS_PHOTUTILS = False
 
@@ -57,7 +59,10 @@ def test_aper_phot(capsys):
     """Check that apertures are as expected from photutils"""
     radius = 5
     apertures = photutils.CircularAperture((50, 50), radius)
-    aperture_area = apertures.area()
+    if photutils_version >= version.parse('0.7'):
+        aperture_area = apertures.area
+    else:
+        aperture_area = apertures.area()
     assert_equal(aperture_area, np.pi * radius**2)
     rawflux_table = photutils.aperture_photometry(
         test_data,
