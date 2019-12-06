@@ -554,7 +554,7 @@ class Imexamine:
                 subpixels=1,
                 method="center")
 
-            sky_per_pix = None
+            sky_per_pix = 0.
             if subsky:
                 annulus_apertures = photutils.CircularAnnulus(
                     (x, y), r_in=inner, r_out=outer)
@@ -578,9 +578,8 @@ class Imexamine:
                      aperture_area /
                      annulus_area)[0])
                 total_flux = rawflux_table['aperture_sum'][0] - bkg_sum
-                sky_per_pix = float(
-                    bkgflux_table['aperture_sum'] /
-                    annulus_area)
+                sky_per_pix = float(bkgflux_table['aperture_sum'] /
+                                    annulus_area)
 
             else:
                 total_flux = float(rawflux_table['aperture_sum'][0])
@@ -597,7 +596,7 @@ class Imexamine:
                                                                              total_flux,
                                                                              mag)
 
-            if sky_per_pix is not None:
+            if subsky:
                 pheader += "sky/pix\t"
                 pstr += "{0:0.2f}\t".format(sky_per_pix)
             if center:
@@ -1070,8 +1069,8 @@ class Imexamine:
                                 annulus_area)
 
             # don't add flux
-            if sky_per_pix < 0:
-                sky_per_pix = 0
+            if sky_per_pix < 0.:
+                sky_per_pix = 0.
                 self.log.info("Sky background negative, setting to zero")
             self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
 
