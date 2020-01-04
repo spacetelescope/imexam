@@ -25,6 +25,7 @@ http://hea-www.harvard.edu/saord/xpa/
 
 import os
 import shutil
+import sys
 import numpy as np
 from subprocess import Popen
 import time
@@ -582,7 +583,8 @@ class ds9:
         # this is the first directory the servers looks for on the path
         env["XPA_TMPDIR"] = self._tmpd_name
 
-        iraf_unix = "{0:s}/.IMT".format(self._tmpd_name)
+        unix_name = "{0:s}/.IMT".format(self._tmpd_name)
+
         # that should be unique enough, something better?
         title = str(time.time())
         try:
@@ -590,7 +592,7 @@ class ds9:
             p = Popen([self._ds9_path,
                        "-xpa", "local",
                        "-unix_only", "-title", title,
-                       "-unix", "{0:s}".format(iraf_unix)],
+                       "-unix", "{0:s}".format(unix_name)],
                       shell=False, env=env)
 
             # wait until ds9 starts and the .IMT socket exists
@@ -632,19 +634,7 @@ class ds9:
         env["XPA_TMPDIR"] = "/tmp/xpa"  # for all local connections
         self._need_to_purge = True
         self._xpa_method = 'local'
-        return xpaname, iraf_unix
-
-    def set_iraf_display(self):
-        """Set the environemnt variable IMTDEV to the current display.
-
-        the socket address of the current imexam.ds9 instance is used
-        Notes
-        -----
-        For example, your pyraf commands will use this ds9 for display.
-
-        TODO: Not sure this is still needed. Stop using IRAF.
-        """
-        os.environ["IMTDEV"] = "unix:{0:s}".format(self._ds9_unix_name)
+        return xpaname, unix_name
 
     def _check_ds9_process(self):
         """Check to see if the ds9 process is still running.
@@ -657,7 +647,7 @@ class ds9:
         """
         if self._ds9_process:
             ret = self._ds9_process.poll()
-            if ret is not None:
+            if ret:
                 raise RuntimeError("The ds9 process is externally killed.")
                 self._purge_local()
 
@@ -1260,8 +1250,8 @@ class ds9:
         else:
             self.set("file multiframe {0:s}".format(filename))
 
-    def mark_region_from_array(
-            self, input_points, ptype="image", textoff=10, size=4):
+    def mark_region_from_array(self, input_points,
+                               ptype="image", textoff=10, size=4):
         """mark ds9 regions regions  given an input list of tuples.
 
          a convienence function, you can also use set_region
@@ -1644,8 +1634,8 @@ class ds9:
         """Create a snap shot of the current window, save in specified format.
 
         This function bypasses the XPA  calling routines to avoid a bug with
-        the X11/XPA interface. Instead is uses the os import function which
-        takes a snapshot of the specified x11 window.
+        the X11/XPA interface. Instead is uses the os function which
+        takes a snapshot of the specified window.
 
         Parameters
         ----------
@@ -1673,36 +1663,33 @@ class ds9:
         else:
             filename += "_snap." + format
 
-        cstring = ['import']
-        cstring.append('-window ')
-        # get the name of the window
-        if "local" in self._xpa_method:
-            win_name = self._xpa_name.split("DS9_")[1].split(".")
-            newname = "SAOImage "
-            newname += (".".join(win_name[0:2]))
-            cstring.append(newname)
-        else:
+        # screencapture works with OSX
+        if sys.platform == "darwin":
+            print("Not implemented for darwin platform")
+            return None
+        else:  # import only works with x11 windows
+            cstring = ['import']
+            cstring.append('-window ')
             cstring.append(self._xpa_name)
+            if "jpeg" in filename:
+                cstring.append(' -quality')
+                cstring.append(str(resolution))
 
-        if "jpeg" in filename:
-            cstring.append(' -quality')
-            cstring.append(str(resolution))
+            cstring.append(filename)
 
-        cstring.append(filename)
-
-        # self.set(cstring)
-        # save the local directory, erase later?
-        call(cstring)
-        print("Image saved to {0:s}".format(filename))
-        logging.info("Image saved to {0:s}".format(filename))
-        return(filename)
+            # self.set(cstring)
+            # save the local directory, erase later?
+            call(cstring)
+            print("Image saved to {0:s}".format(filename))
+            logging.info("Image saved to {0:s}".format(filename))
+            return(filename)
 
     def grab(self):
         """Make a copy of the image view."""
-        backend = get_backend().lower()
-        fname = self.snapsave(format="png")
-        if "nbagg" in backend:  # save inside the notebook
-                data = mpimage.imread(fname)
+        valid_fname = self.snapsave(format="png")
+        if valid_fname:
+            if "nbagg" in get_backend().lower():  # save inside the notebook
+                data = mpimage.imread(valid_fname)
                 plt.clf()
                 return plt.imshow(data, origin="upper")
 
