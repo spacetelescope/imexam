@@ -19,7 +19,7 @@
 
 import matplotlib.pyplot as plt
 # turn on interactive mode for plotting
-# so that plt.show becomes non-blocking
+# so that plotting becomes non-blocking
 if not plt.isinteractive():
     plt.ion()
 
@@ -106,6 +106,9 @@ class Imexamine:
         self.log = logging.getLogger(__name__)
         self.log = set_logging()
 
+        # save the backend that is in use for plotting reference
+        self._mpl_backend = get_backend().lower()
+
     def setlog(self, filename=None, on=True, level=logging.INFO):
             """Turn on and off logging to a logfile or the screen.
 
@@ -189,7 +192,11 @@ class Imexamine:
 
         """
         self.log.debug("pressed: {0}, {1:s}".format(key, self.imexam_option_funcs[key][0].__name__))
-        self.imexam_option_funcs[key][0](x, y, self._data)
+        # dont require input for saving the active figure 
+        if key == 's':
+            self.imexam_option_funcs[key][0]()
+        else:
+            self.imexam_option_funcs[key][0](x, y, self._data)
 
     def get_options(self):
         """Return the imexam options as a key list."""
@@ -334,7 +341,7 @@ class Imexamine:
         else:
             ax.plot(data[int(y), :])
 
-        if pfig is None and 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in self._mpl_backend:
             plt.draw()
             plt.pause(0.001)
         else:
@@ -388,7 +395,7 @@ class Imexamine:
         else:
             ax.plot(data[:, int(x)])
 
-        if pfig is None and 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in self._mpl_backend:
             plt.draw()
             plt.pause(0.001)
         else:
@@ -459,7 +466,7 @@ class Imexamine:
 
         self.log.info(pstr)
 
-    def save_figure(self, x, y, data=None, fig=None):
+    def save_figure(self, fig=None):
         """Save to file the figure that's currently displayed.
 
         this is used for the imexam loop, because there is a standard api
@@ -467,23 +474,18 @@ class Imexamine:
 
         Parameters
         ----------
-        x: int
-            The x location of the object
-        y: int
-            The y location of the object
         data: numpy array
             The data array to work on
         fig: figure for redirect
             Used for interaction with the ginga GUI
         """
-        if data is None:
-            data = self._data
         if fig is None:
             fig = plt.figure(self._figure_name)
         ax = fig.gca()
         fig.savefig(self.plot_name)
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
+
 
     def save(self, filename=None, fig=None):
         """Save to file the figure that's currently displayed.
@@ -648,7 +650,7 @@ class Imexamine:
                 if subsky:
                     annulus_apertures.plot(ax=ax, color='red', alpha=0.75, lw=3)
 
-                if pfig is None and 'nbagg' not in get_backend().lower():
+                if pfig is None and 'nbagg' not in self._mpl_backend:
                     plt.draw()
                     plt.pause(0.001)
                 else:
@@ -840,7 +842,7 @@ class Imexamine:
             ax.plot(fline, yfit, c='r', label=str(fitform.__name__) + " fit")
             ax.legend()
 
-            if pfig is None and 'nbagg' not in get_backend().lower():
+            if pfig is None and 'nbagg' not in self._mpl_backend:
                 plt.draw()
                 plt.pause(0.001)
             else:
@@ -1179,7 +1181,7 @@ class Imexamine:
 
             ax.set_title(title)
 
-            if pfig is None and 'nbagg' not in get_backend().lower():
+            if pfig is None and 'nbagg' not in self._mpl_backend:
                 plt.draw()
                 plt.pause(0.001)
             else:
@@ -1274,7 +1276,7 @@ class Imexamine:
                 ax.plot(radius, flux, 'o')
                 ax.set_title(title)
 
-                if pfig is None and 'nbagg' not in get_backend().lower():
+                if pfig is None and 'nbagg' not in self._mpl_backend:
                     plt.draw()
                     plt.pause(0.001)
                 else:
@@ -1436,14 +1438,14 @@ class Imexamine:
                 ax.set_yscale("log")
             n, bins, patches = ax.hist(flat_data, num_bins,
                                        range=[mini, maxi],
-                                       normed=False,
+                                       density=False,
                                        facecolor='green',
                                        alpha=0.5,
                                        histtype='bar')
             self.log.info("{0} bins "
                           "range:[{1},{2}]".format(num_bins, mini, maxi))
 
-            if pfig is None and 'nbagg' not in get_backend().lower():
+            if pfig is None and 'nbagg' not in self._mpl_backend:
                 plt.draw()
                 plt.pause(0.001)
             else:
@@ -1452,7 +1454,7 @@ class Imexamine:
             hist, bin_edges = np.histogram(flat_data,
                                            num_bins,
                                            range=[mini, maxi],
-                                           normed=False)
+                                           density=False)
             return hist, bin_edges
 
     def contour(self, x, y, data=None, fig=None):
@@ -1516,7 +1518,7 @@ class Imexamine:
         if self.contour_pars["label"][0]:
             ax.clabel(C, inline=1, fontsize=10, fmt="%5.3f")
 
-        if pfig is None and 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in self._mpl_backend:
             plt.draw()
             plt.pause(0.001)
         else:
@@ -1622,7 +1624,7 @@ class Imexamine:
         if self.surface_pars["azim"][0]:
             ax.view_init(elev=10., azim=float(self.surface_pars["azim"][0]))
 
-        if pfig is None and 'nbagg' not in get_backend().lower():
+        if pfig is None and 'nbagg' not in self._mpl_backend:
             plt.draw()
             plt.pause(0.001)
         else:
