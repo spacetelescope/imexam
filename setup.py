@@ -4,13 +4,14 @@
 import sys
 import os
 from distutils.command.clean import clean
+from setuptools.command.install import install
 from setuptools import setup, Command, Extension
 from setuptools.command.test import test as TestCommand
+from subprocess import check_call, CalledProcessError
+
 
 if sys.version_info < (3, 5):
-    error = """
-    Python 3.5 and above is required.
-    """
+    error = """ERROR: imexam requires python >= 3.5."""
     sys.exit(error)
 
 
@@ -191,16 +192,38 @@ if not sys.platform.startswith('win'):
                 clean.run(self)
                 print("cleaning")
 
-        class BuildExtWithConfigure(build_ext):
-            def build_extensions(self):
-                import subprocess
-                subprocess.call(["make", "-f", "Makefile", "clean"],
-                                cwd=XPALIB_DIR)
-                subprocess.call(["sh", "./configure"], cwd=XPALIB_DIR)
-                subprocess.call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
-                build_ext.build_extensions(self)
+        class BuildExtWithConfigure(install):
+            """Configure, build, and install the aXe C code."""
+            user_options = install.user_options +\
+                [('noremake', None, "Don't rebuild the C executables [default True]")]
 
-        cmdclass.update({'build_ext': BuildExtWithConfigure,
+            def initialize_options(self):
+                super().initialize_options()
+                self.noremake = None
+                self.remake = True
+
+            def finalize_options(self):
+                super().finalize_options()
+                if self.noremake:
+                    if not os.access(XPALIB_DIR + "Makefile", os.F_OK):
+                        raise FileNotFoundError("Makefile doesn't exist, let imexam build")
+                    else:
+                        self.remake = False
+
+            def run(self):
+                if self.remake:
+                    CURRENT_ENV = sys.prefix
+                    try:
+                        check_call(["make", "-f", "Makefile", "clean"],
+                                cwd=XPALIB_DIR)
+                        check_call(["sh", "./configure"], cwd=XPALIB_DIR)
+                        check_call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
+                    except CalledProcessError as e:
+                        print(e)
+                        exit(1)
+                install.run(self)
+
+        cmdclass.update({'install': BuildExtWithConfigure,
                          'clean': my_clean})
 
     else:
