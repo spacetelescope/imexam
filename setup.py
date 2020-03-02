@@ -183,14 +183,30 @@ if not sys.platform.startswith('win'):
                                            ('bdist_base', 'bdist_base'))
 
             def run(self):
-                import subprocess
-                subprocess.call(["make", "clean"],
-                                cwd=XPALIB_DIR)
+                print("cleaning")
+                try:
+                    check_call(["make", "clean"], cwd=XPALIB_DIR)
+                except CalledProcessError as e:
+                    print(e)
+                    exit(1)                    
                 if os.access(CONF_H_NAME, os.F_OK):
                     os.remove(CONF_H_NAME)
                 os.remove("wrappers/xpa.c")
+
+                current_env = sys.prefix + "/bin/"
+                xpa_bins = ["xpaaccess",
+                            "xpaget",
+                            "xpainfo",
+                            "xpamb",
+                            "xpans",
+                            "xpaset",
+                            ]
+                for file in xpa_bins:
+                    myfile = current_env + file
+                    if os.access(myfile, os.F_OK):
+                        os.remove(myfile)
+
                 clean.run(self)
-                print("cleaning")
 
         class BuildExtWithConfigure(install):
             """Configure, build, and install the aXe C code."""
