@@ -1,5 +1,9 @@
 version 0.8.2a (unreleased)
 ---------------------------
+- updated example jupyter notebooks to be compatible with current master
+- changed the ext_build process a little and added a flag to skip remaking the c code
+- remove leftover iraf variable names
+- removed support for the grab function under Darwin
 - add deleted import of xpa back to utils (#192)
 - adapt for change to photutils API for aperture areas (#193)
 - fix ginga display of HDUList

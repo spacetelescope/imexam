@@ -512,7 +512,7 @@ class Imexamine:
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
 
-    def aper_phot(self, x, y, data=None, fig=None):
+    def aper_phot(self, x, y, data=None, genplot=True, fig=None):
         """Perform aperture photometry.
 
         uses photutils functions, photutils must be available
@@ -525,6 +525,10 @@ class Imexamine:
             The y location of the object
         data: numpy array
             The data array to work on
+        genplot: bool
+            plot the apertures to a figure; if false then the
+            tuple of (apertures, annulus_apertures,total_flux, sky_per_pix)
+            is returned
         fig: figure object for redirect
             Used for interaction with the ginga GUI
         """
@@ -612,7 +616,7 @@ class Imexamine:
             self.total_flux = total_flux
 
             self.log.info(pheader + pstr)
-            if self.aper_phot_pars["genplot"][0]:
+            if genplot:
                 pfig = fig
                 if fig is None:
                     # Make sure figure is square so round stars look round
@@ -655,6 +659,8 @@ class Imexamine:
                     plt.pause(0.001)
                 else:
                     fig.canvas.draw()
+            else:
+                return (apertures, annulus_apertures, total_flux, sky_per_pix)
 
     def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None, col=False):
         """compute the 1D fit to the line of data using the specified form.
