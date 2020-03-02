@@ -228,7 +228,6 @@ if not sys.platform.startswith('win'):
 
             def run(self):
                 if self.remake:
-                    CURRENT_ENV = sys.prefix
                     try:
                         check_call(["make", "-f", "Makefile", "clean"],
                                 cwd=XPALIB_DIR)
