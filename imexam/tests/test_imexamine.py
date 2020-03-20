@@ -227,13 +227,13 @@ def test_curve_of_growth():
     flux = []
 
     # Run the aperture phot on this to build up the expected fluxes
-    plots.aper_phot_pars['genplot'][0] = False
     plots.aper_phot_pars['subsky'][0] = False
+    plots.aper_phot_pars['center_com'][0] = False
 
     for rad in rads:
         plots.aper_phot_pars['radius'][0] = rad
-        plots.aper_phot(12, 12)
-        flux.append(plots.total_flux)
+        apertures, annulus_apertures, rawflux_table, sky_per_pix = plots.aper_phot(12, 12, genplot=False)
+        flux.append(rawflux_table['aperture_sum'][0])
 
     assert_array_equal(rads, rad_out)
     assert_allclose(flux, flux_out, 1e-6)

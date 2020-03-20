@@ -62,6 +62,7 @@ except ImportError:
 try:
     import photutils
     photutils_installed = True
+    from photutils.centroids import centroid_com
     # account for API change
     from packaging import version
     photutils_version = version.parse(photutils.__version__)
@@ -164,6 +165,7 @@ class Imexamine:
                                     'e': (self.contour, 'Return a contour plot in a region around the cursor'),
                                     's': (self.save_figure, 'Save current figure to disk as [plot_name]'),
                                     'b': (self.gauss_center, 'Return the 2D gauss fit center of the object'),
+                                    'd': (self.com_center, 'Return the Center of Mass fit center of the object'),
                                     'w': (self.surface, 'Display a surface plot around the cursor location'),
                                     '2': (self.new_plot_window, 'Make the next plot in a new window'),
                                     't': (self.cutout, 'Make a fits image cutout using pointer location')
@@ -255,6 +257,7 @@ class Imexamine:
         self.contour_def_pars = imexam_defpars.contour_pars
         self.report_stat_def_pars = imexam_defpars.report_stat_pars
         self.cutout_def_pars = imexam_defpars.cutout_pars
+        self.com_center_def_pars = imexam_defpars.com_center_pars
         self._define_local_pars()
 
     def _define_local_pars(self):
@@ -273,6 +276,7 @@ class Imexamine:
         self.contour_pars = deepcopy(self.contour_def_pars)
         self.report_stat_pars = deepcopy(self.report_stat_def_pars)
         self.cutout_pars = deepcopy(self.cutout_def_pars)
+        self.com_center_pars = deepcopy(self.com_center_def_pars)
 
     def unlearn_all(self):
         """reset the default parameters for all functions."""
@@ -512,28 +516,55 @@ class Imexamine:
         pstr = "plot saved to {0:s}".format(self.plot_name)
         self.log.info(pstr)
 
-    def aper_phot(self, x, y, data=None, genplot=True, fig=None):
+    def aper_phot(self, x, y, data=None,
+                  genplot=True, fig=None,
+                  error=None):
         """Perform aperture photometry.
 
-        uses photutils functions, photutils must be available
+        Uses photutils functions, photutils must be available
 
         Parameters
         ----------
         x: int
             The x location of the object
+
         y: int
             The y location of the object
+
         data: numpy array
             The data array to work on
+
         genplot: bool
             plot the apertures to a figure; if false then the
-            tuple of (apertures, annulus_apertures,total_flux, sky_per_pix)
-            is returned
+            tuple of (apertures, annulus_apertures,rawflux_table, sky_per_pix)
+            is returned.
+
         fig: figure object for redirect
             Used for interaction with the ginga GUI
+
+        error: float array
+            If error is not None, then it should be given the
+            error array for the corresponding data image.
+            error is assumed to include all sources of error,
+            including the Poisson error of the sources 
+            See the docs for photutils for more details.
+            The returned table will include a 'aperture_sum_err' column
+            in addition to 'aperture_sum'. 'aperture_sum_err'
+            provides the propagated uncertainty associated with
+            'aperture_sum'.
+
+
+        Returns
+        -------
+        plot or the tuple of apertures, annulus_apertures, rawflux_table, sky_per_pix.
+        Where apertures and annulus_apertures are photuils objects, or None
+
         """
         if data is None:
             data = self._data
+        if error is not None:
+            if (data.shape != error.shape):
+                raise AttributeError("Data and error arrays don't match")
 
         center = False
         if not photutils_installed:
@@ -541,12 +572,14 @@ class Imexamine:
         else:
             if self.aper_phot_pars["center"][0]:
                 center = True
-                delta = 10
-                amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
-                                                             delta=delta)
+                delta = self.aper_phot_pars["delta"][0]
+                if self.aper_phot_pars["center_com"][0]:
+                    x, y = self.com_center(data, delta=delta)
+                else:
+                    amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
+                                                                 delta=delta)
 
-            # XXX TODO:  Do I beleive that these all have to be ints?
-            radius = int(self.aper_phot_pars["radius"][0])
+            radius = self.aper_phot_pars["radius"][0]
             width = int(self.aper_phot_pars["width"][0])
             inner = int(self.aper_phot_pars["skyrad"][0])
             subsky = bool(self.aper_phot_pars["subsky"][0])
@@ -558,9 +591,11 @@ class Imexamine:
                 data,
                 apertures,
                 subpixels=1,
+                error=error,
                 method="center")
 
             sky_per_pix = 0.
+            annulus_apertures = None
             if subsky:
                 annulus_apertures = photutils.CircularAnnulus(
                     (x, y), r_in=inner, r_out=outer)
@@ -606,14 +641,17 @@ class Imexamine:
                 pheader += "sky/pix\t"
                 pstr += "{0:0.2f}\t".format(sky_per_pix)
             if center:
-                pheader += "fwhm(pix)"
-                pstr += "{0:0.2f}".format(math_helper.gfwhm(sigma)[0])
+                # center of mass estimator
+                if self.aper_phot_pars["center_com"][0]:
+                    pheader += "center of mass(x,y)"
+                    pstr += "{0:0.2f},{1:0.2f}".format(x, y)
+                else:
+                    pheader += "fwhm(x,y)"
+                    x, y = math_helper.gfwhm(sigma, sigmay)
+                    pstr += "{0:0.2f},{1:0.2f}".format(x, y)
 
             pheader = pheader.expandtabs(15)
             pstr = pstr.expandtabs(15)
-
-            # Save the total flux for unit testing things later
-            self.total_flux = total_flux
 
             self.log.info(pheader + pstr)
             if genplot:
@@ -630,7 +668,10 @@ class Imexamine:
                                                                                         total_flux, mag,
                                                                                         sky_per_pix)
                     if center:
-                        title += ", fwhm={:0.2f}".format(math_helper.gfwhm(sigma)[0])
+                        if self.aper_phot_pars["center_com"][0]:
+                            title+= ", CoM({:0.2f},{:0.2f})".format(xcenter,ycenter)
+                        else:
+                            title += ", FWHM={:0.2f}".format(math_helper.gfwhm(sigma)[0])
                     ax.set_title(title)
                 else:
                     ax.set_title(self.aper_phot_pars["title"][0])
@@ -660,7 +701,7 @@ class Imexamine:
                 else:
                     fig.canvas.draw()
             else:
-                return (apertures, annulus_apertures, total_flux, sky_per_pix)
+                return (apertures, annulus_apertures, rawflux_table, sky_per_pix)
 
     def line_fit(self, x, y, data=None, form=None, genplot=True, fig=None, col=False):
         """compute the 1D fit to the line of data using the specified form.
@@ -890,8 +931,59 @@ class Imexamine:
         if not genplot:
             return result
 
-    def gauss_center(self, x, y, data=None, delta=10, sigma_factor=0):
-        """Return the 2d gaussian fit center of the data.
+    def com_center(self, x, y, data=None, delta=None, oversample=1.):
+        """ Return the center of mass of the object at x,y 
+        
+        Parameters
+        ----------
+        x: int
+            The x location of the object
+        y: int
+            The y location of the object
+        data: numpy array
+            The data array to work on
+        delta: int
+            The range of data values (bounding box) to use around the x,y
+            location for calculating the center
+        oversample: int
+            Oversampling factors of pixel indices. If oversampling
+            is a scalar this is treated as both x and y directions
+            having the same oversampling factor; otherwise it is
+            treated as (x_oversamp, y_oversamp)
+
+
+        """
+        if data is None:
+            data = self._data
+
+        # reset delta for small arrays
+        if delta >= len(data) / 4:
+            delta = delta // 2
+
+        if delta is None:
+            delta = int(self.com_center_pars['delta'][0])
+        xx = int(x)
+        yy = int(y)
+
+        #  flipped from xpa
+        chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
+
+        try:
+            xcenter, ycenter = centroid_com(chunk)
+
+            pstr = "xc={0:4f}\tyc={1:4f}".format((xcenter + xx - delta),
+                                                 (ycenter + yy - delta))
+        except AttributeError:
+            raise AttributeError("Problem with center of mass")
+        self.log.info(pstr)
+
+        return (xcenter + xx - delta,
+                ycenter + yy - delta)
+
+
+    def gauss_center(self, x, y, data=None, delta=10,
+                     sigma_factor=0):
+        """Return the Gaussian 2D fit center of the object at (x,y).
 
         Parameters
         ----------
@@ -1224,10 +1316,14 @@ class Imexamine:
             delta = 10  # chunk size to find center
             subpixels = 10  # for line fit later
 
-            # center using a 2d gaussian
+            # center using a center of mass
             if self.curve_of_growth_pars["center"][0]:
-                # pull out a small chunk
-                amp, centerx, centery, sigma, sigmay = \
+                if self.aper_phot_pars["center_com"][0]:
+                    # use the center of mass
+                    centerx, centery = self.com_center(x, y, data, delta=delta)
+                else:
+                    # user the gaussian2d
+                    amp, centerx, centery, sigma, sigmay = \
                     self.gauss_center(x, y, data, delta=delta)
             else:
                 centery = y
@@ -1719,6 +1815,10 @@ class Imexamine:
             self.aper_phot_pars = imexam_defpars.aper_phot_pars
         else:
             self.aper_phot_pars = user_dict
+
+    def set_com_center_pars(self):
+        """ set paramters for the center of mass function"""
+        self.com_center_pars = imexam_defpars.radial_profile_pars
 
     def set_radial_pars(self):
         """set parameters for radial profile plots."""
