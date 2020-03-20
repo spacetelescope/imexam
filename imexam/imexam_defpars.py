@@ -8,7 +8,8 @@ or we could create a method to let them set from a json or text file maybe
 
 # aperture photometry parameters
 aper_phot_pars = {"function": ["aper_phot", ],
-                  "center": [True, "Center the object location using a 2d gaussian fit"],
+                  "center": [True, "Center the object (choose center_type)"],
+                  "center_com": [False, "gaussian2d, True=center of mass"],
                   "width": [5, "Width of sky annulus in pixels"],
                   "subsky": [True, "Subtract a sky background?"],
                   "skyrad": [15, "Distance to start sky annulus is pixels"],
@@ -19,8 +20,13 @@ aper_phot_pars = {"function": ["aper_phot", ],
                   "color_min": [None, "Minimum color value"],
                   "color_max": [None, "Maximum color value"],
                   "cmap": ['Greys', "Matplotlib colormap to use"],
+                  "delta": [10, "bounding box for centering measurement"],
                   }
 
+com_center_pars = {"function": ["com_center",],
+                   "delta": [10, "bounding box size"],
+                   "oversample": [1., "oversample pixels by"],
+                   }
 
 # box statistics
 report_stat_pars = {"function": ["report_stat", ],
@@ -54,7 +60,7 @@ curve_of_growth_pars = {"function": ["curve_of_growth", ],
                         "title": [None, "Title of the plot"],
                         "xlabel": ["radius", "The string for the xaxis label"],
                         "ylabel": ["Encircled Flux", "The string for the yaxis label"],
-                        "center": [True, "Solve for center using 2d Gaussian? [bool]"],
+                        "center": [True, "Fit for center? [bool]"],
                         "background": [True, "Fit and subtract background? [bool]"],
                         "buffer": [25., "Background inner radius in pixels,from center of star"],
                         "width": [5., "Background annulus width in pixels"],
