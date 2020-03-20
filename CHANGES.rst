@@ -1,7 +1,8 @@
 version 0.8.2a (unreleased)
 ---------------------------
-- update aper_phot to return photometry without plotting
-- updated example jupyter notebooks to be compatible with current master
+- added option for center of mass to aperature photometry centering
+- update aper_phot to return tuple of photometry information without plotting
+- updated example jupyter notebooks to be compatible with current functionality
 - changed the ext_build process a little and added a flag to skip remaking the c code
 - remove leftover iraf variable names
 - removed support for the grab function under Darwin
