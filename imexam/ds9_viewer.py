@@ -40,7 +40,7 @@ from subprocess import call
 
 # The XPA class controls interaction with DS9
 from .xpa_wrap import XPA
-from xpa import XpaException
+from imexamxpa import XpaException
 
 from . import util
 from astropy.io import fits
@@ -202,6 +202,9 @@ class ds9:
         self._ds9_process = None
         self._ds9_path = None
 
+        # see if the package logger was already started
+        self.log = logging.getLogger(__name__)
+
         # An existing ds9 was suggested. Confirm existence
         # and attach.
         if target:
@@ -216,8 +219,7 @@ class ds9:
                     if target in window:
                         self._xpa_name = target
             if not self._xpa_name:
-                print("\nDS9 target: {0:s} doesn't exist.\n{1}".format(target,
-                                                                       list(active)))
+                print(f"\nDS9 target: {target} doesn't exist.\n{list(active)}")
                 raise ValueError(
                     "Please choose an existing target."
                 )
@@ -483,7 +485,7 @@ class ds9:
                         self._process_list.remove(self._ds9_process)
 
         except XpaException as e:
-            print("XPA Exception: {0}".format(e))
+            print(f"XPA Exception: {repr(e)}")
 
     def _purge_local(self):
         """remove temporary directories from the unix socket."""
@@ -543,7 +545,7 @@ class ds9:
 
         except Exception as e:  # refine error class
             warnings.warn("Opening ds9 failed")
-            print("Exception: {}".format(repr(e)))
+            print(f"Exception: {repr(e)}")
             from signal import SIGTERM
             try:
                 pidtokill = p.pid
@@ -606,10 +608,9 @@ class ds9:
             if wait_time == 0:
                 from signal import SIGTERM
                 os.kill(p.pid, SIGTERM)
-                print(
-                    "Connection timeout with the ds9. Try to increase the \
+                print(f"Connection timeout with the ds9. Try to increase the \
                     *wait_time* parameter (current value \
-                    is  {0:d} s)".format(self.wait_time,))
+                    is  {self.wait_time} s)")
 
         except (OSError, ValueError, AttributeError) as e:
             warnings.warn("Starting ds9 failed")
@@ -692,7 +693,7 @@ class ds9:
         try:
             xpa_string = self.get("imexam any coordinate image")
         except XpaException as e:
-            print("Xpa problem reading cursor: {0}".format(repr(e)))
+            print(f"Xpa problem reading cursor: {repr(e)}")
             raise KeyError
         except ValueError:
             raise ValueError("Outside of data range")
@@ -1073,7 +1074,7 @@ class ds9:
                 try:
                     header = self.get("fits header")
                 except XpaException as e:
-                    print("XPA Exception getting header: {0}".format(e))
+                    print(f"XPA Exception getting header: {repr(e)}")
                     return None
 
             return header
@@ -1241,14 +1242,14 @@ class ds9:
         if not filename:
             print("No filename specified")
         else:
-            self.set("file mecube new {0:s}".format(filename))
+            self.set(f"file mecube new {filename}")
 
     def load_mef_as_multi(self, filename=None):
         """Load a Mult-Extension-Fits image into multiple frames."""
         if not filename:
             print("No filename specified")
         else:
-            self.set("file multiframe {0:s}".format(filename))
+            self.set(f"file multiframe {filename}")
 
     def mark_region_from_array(self, input_points,
                                ptype="image", textoff=10, size=4):
@@ -1290,7 +1291,7 @@ class ds9:
             if rtype == "circle":
                 pline = rtype + " " + \
                     str(location[x]) + " " + str(location[y]) + " " + str(size)
-                print(pline)
+                self.log.info(pline)
                 self.set_region(pline)
 
             try:
@@ -1298,7 +1299,7 @@ class ds9:
                     pline = "text " + str(float(location[x]) + textoff) +\
                             " " + str(float(location[y]) + textoff) + " '" +\
                             str(location[comment]) + "' #font=times"
-                    print(pline)
+                    self.log.info(pline)
                     self.set_region(pline)
             except IndexError:
                 pass
@@ -1337,8 +1338,8 @@ class ds9:
             f.close()
 
         except IOError as e:
-            warnings.warn("Unable to open input file")
-            print("{0}".format(e))
+            warnings.warn(f"Unable to open input file")
+            print("{repr(e)}")
             raise ValueError
 
         # assumed defaults for simple regions file
@@ -1371,7 +1372,7 @@ class ds9:
                 f.write(pline)
         f.close()
 
-        print("output reg file saved to: {0:s}".format(out))
+        self.log.info(f"output reg file saved to: {out}")
 
     def match(self, coordsys="wcs", frame=True, crop=False, fslice=False,
               scale=False, bin=False, colorbar=False, smooth=False,
@@ -1507,8 +1508,7 @@ class ds9:
             cstring = "rotate {0:s}".format(str(value))
             self.set(cstring)
         cstring = "Image rotated at {0:s}".format(self.get("rotate"))
-        print(cstring)
-        logging.info(cstring)
+        self.log.info(cstring)
 
     def save_regions(self, filename=None):
         """save the regions in the current window to a DS9 style regions file.
@@ -1583,14 +1583,14 @@ class ds9:
 
           """
         mode_scale = ["zscale", "zmax", "minmax"]
-        cstring = "scale {0:s}".format(scale)
+        cstring = f"scale {scale}"
 
         if scale in mode_scale:
-            cstring = "scale mode {0:s}".format(scale)
+            cstring = f"scale mode {scale}"
         try:
             self.set(cstring)
         except (XpaException, ValueError):
-            print("{0:s} not valid".format(cstring))
+            print(f"{cstring} not valid")
             print(_help)
 
     def set_region(self, region_string=""):
@@ -1608,7 +1608,7 @@ class ds9:
         set_region("line 0 400 3 400 #color=red")
 
         """
-        command = "regions command {{ {0:s} }}\n".format(region_string)
+        command = f"regions command {{ {region_string} }}\n"
         self.set(command)
 
     def showme(self):
@@ -1680,8 +1680,8 @@ class ds9:
             # self.set(cstring)
             # save the local directory, erase later?
             call(cstring)
-            print("Image saved to {0:s}".format(filename))
-            logging.info("Image saved to {0:s}".format(filename))
+            print(f"Image saved to {filename}")
+            self.log.info(f"Image saved to {filename}")
             return(filename)
 
     def grab(self):

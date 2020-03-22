@@ -9,13 +9,13 @@ Software Dependencies
     * XPA: https://github.com/ericmandel/xpa
 *   Ginga (image display - optional )
 
-astropy >= 1.0
+astropy >= 3.0
 
-python >= 2.7
+python >= 3.5
 
-numpy >= 1.7.0
+numpy >= 1.12.0
 
-photutils > 0.2
+photutils
     This must be installed to enable the photometry options for imexam() but
     it is not required
 

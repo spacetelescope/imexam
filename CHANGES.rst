@@ -1,5 +1,6 @@
 version 0.8.2a (unreleased)
 ---------------------------
+- renamed xpa extension for compatibility
 - added option for center of mass to aperature photometry centering
 - update aper_phot to return tuple of photometry information without plotting
 - updated example jupyter notebooks to be compatible with current functionality

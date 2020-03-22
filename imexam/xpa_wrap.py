@@ -1,6 +1,6 @@
 """Licensed under a 3-clause BSD style license - see LICENSE.rst."""
 
-from xpa import xpa
+from imexamxpa import xpa
 
 
 class XPA(xpa):

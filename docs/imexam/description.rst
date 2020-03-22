@@ -13,15 +13,15 @@ The ``imexam`` library can be used standalone, without a viewer, to create the p
 
 You can connect to an already open DS9 window by specifying the title or the XPA_METHOD. The ``XPA_METHOD`` is the address in the File->Information dialog. If users don't specify a title in the ds9 window when they open one up, ds9 will just call the window "ds9", so you can end up with multiple windows with the same name. This works for DS9 because the XPA_METHOD is always unique. The most straightforward way is for users to open the DS9 windows with explicit titles, and then tell imexam to connect to that window::
 
-    python> !ds9 -title megan
-    python> window=imexam.connect('megan')
+    python> !ds9 -title custom_title
+    python> window=imexam.connect('custom-title')
 
 However, if there are windows already open with no unique titles, the best way is to connect using the method. The ``list_active_ds9`` function can be used to return a dictionary which contains the information for all the windows, but it's keys are the unique XPA_METHOD strings.::
 
     In [3]: !ds9&
     In [4]: imexam.list_active_ds9()
-    DS9 ds9 gs c0a80106:61894 sosey
-    Out[4]: {'c0a80106:61894': ('ds9', 'sosey', 'DS9', 'gs')}
+    DS9 ds9 gs c0a80106:61894 username
+    Out[4]: {'c0a80106:61894': ('ds9', 'username', 'DS9', 'gs')}
 
 Using this dictionary, you can also you can return the list of windows you can connect to without too much thinking, making it easy to encorporate into your own scripts as well:::
 
@@ -29,7 +29,7 @@ Using this dictionary, you can also you can return the list of windows you can c
     In [1]: import imexam
 
     In [2]: windows=imexam.list_active_ds9()
-    DS9 ds9 gs c0a80106:61915 sosey
+    DS9 ds9 gs c0a80106:61915 username
 
     In [3]: list(windows)
     Out[3]: ['c0a80106:61915']
@@ -37,8 +37,8 @@ Using this dictionary, you can also you can return the list of windows you can c
     In [4]: !ds9&
 
     In [5]: windows=imexam.list_active_ds9()
-    DS9 ds9 gs c0a80106:61915 sosey
-    DS9 ds9 gs c0a80106:61923 sosey
+    DS9 ds9 gs c0a80106:61915 username
+    DS9 ds9 gs c0a80106:61923 username
 
     In [6]: list(windows)
     Out[6]: ['c0a80106:61915', 'c0a80106:61923']
@@ -48,12 +48,12 @@ Using this dictionary, you can also you can return the list of windows you can c
 But you can also use it as below to cycle through connecting to a set of windows:::
 
     In [8]: windows=imexam.list_active_ds9()
-    DS9 ds9 gs c0a80106:61915 sosey
-    DS9 ds9 gs c0a80106:61923 sosey
+    DS9 ds9 gs c0a80106:61915 username
+    DS9 ds9 gs c0a80106:61923 username
 
     In [9]: ds=imexam.connect(windows.popitem()[0]) #connect to first window, remove as possible window
     In [10]: windows
-    Out[11]: {'c0a80106:61923': ('ds9', 'sosey', 'DS9', 'gs')}
+    Out[11]: {'c0a80106:61923': ('ds9','username', 'DS9', 'gs')}
 
     In [12]: w2=imexam.connect(windows.popitem()[0])
 
@@ -96,6 +96,9 @@ These are some tips on installing the package, or tracking down problems you mig
     conda install imexam -c http://ssb.stsci.edu/astroconda
 
 
+If you want to build the documentation locally, clone the git repository and then issue the document build command from the imexam directory:
+
+    # python setup.py build_sphinx
 
 If you want to have access to the photometry features of the ``imexam()`` analysis, download and install ``photutils`` - another of the astropy associated packages. The full list of astropy packages can be found here: https://github.com/astropy. If ``photutils`` is not installed, ``imexam`` should issue a nice statement saying that the photometry options are not available upon import, and any time an analysis key is pressed during the ``imexam()`` function loop which requires ``photutils`` to render a result.
 
@@ -103,13 +106,12 @@ If you want to have access to the photometry features of the ``imexam()`` analys
 Usage
 -----
 
-``imexam`` displays plots using matplotlib, if you find that no windows are popping up after installation it's probably the backend that was loaded. One quick way to get things started is to load ipython  and use the %matplotlib magic, this will make sure the proper display backend loads when matplotlib is imported::
+``imexam`` displays plots using matplotlib, if you find that no windows are popping up after installation it's probably the backend that was loaded. One quick way to get things started is to load ipython::
 
     >ipython
-    >%matplotlib
     >import imexam
 
-Matplotlib magic should also be used inside the Jupyter notebook or proper interaction with the plots. Before importing ``imexam`` into the notebook, specify the ``notebook`` backend if you wish to save your plots into the notebook itself. Otherwise you can use the standard ipython magics.
+Matplotlib magic can also be used inside the Jupyter notebook for interaction with the plots. If one of the standard backends is used the plots should be saved into the cell from which the command was issued. The notebook backend (nbagg) will require you to close the plotting window from inside the cell.
 
 
 ``imexam`` is a class based library. The user creates an object which is tied to a specific image viewing window, such as a DS9 window. In order to interact with multiple  windows the user must create multiple objects. Each object stores all the relevent information about the window and data with which it is associated.
