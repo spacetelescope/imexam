@@ -9,7 +9,7 @@ from astropy.io import fits
 from . import __version__
 
 try:    
-    import xpa  
+    import imexamxpa  
     _have_xpa = True    
 except ImportError: 
     _have_xpa = False   
@@ -78,7 +78,7 @@ def list_active_ds9(verbose=True):
     seeing it when I call this function. I think because it's only
     listening on the inet socket which starts by default in the OS.
     That's if xpans is installed on the machine. Otherwise, no
-    nameserver is running at all. This helps with object cont
+    nameserver is running at all.
     """
     session_dict = {}
 
@@ -113,11 +113,11 @@ def display_help():
         import webbrowser
         # grab the version that's installed
         if "dev" not in __version__:
-            url += "en/v{0:s}/".format(__version__)
+            url += f"en/v{__version__}/"
         webbrowser.open(url)
     except ImportError:
         warnings.warn(
-            "webbrowser module not installed, see {0:s} for help".format(url))
+            f"webbrowser module not installed, see {url} for help")
         raise ImportError
 
 
@@ -129,13 +129,13 @@ def display_xpa_help():
         webbrowser.open(url)
     except ImportError:
         warnings.warn(
-            "webbrowser module not installed, see {0:s} for help".format(url))
+            f"webbrowser module not installed, see {url} for help")
         raise ImportError
 
 
 # Set up logging ability for the user
 # consider making a private logging level for data retension
-def set_logging(filename=None, on=True, level=logging.INFO):
+def set_logging(filename=None, on=True, level=logging.WARNING):
     """Turn on or off logging to file or stdout.
 
     Parameters
@@ -179,7 +179,7 @@ def set_logging(filename=None, on=True, level=logging.INFO):
                                                delay=True)
             file_handler.setLevel(logging.INFO)
             file_handler.setFormatter(formatter)
-            print("Saving imexam commands to {0:s}".format(repr(filename)))
+            print(f"Saving imexam commands to {repr(filename)}")
             root.addHandler(file_handler)
 
         if not stream_attached:
@@ -250,7 +250,7 @@ def check_valid(fits_data=None):
         try:
             fits_image = fits.open(fits_data)
         except IOError:
-            msg = "Error opening file {0:s}".format(repr(fits_data))
+            msg = f"Error opening file {repr(fits_data)}"
             log.warning(msg)
             raise IOError(msg)
         try:

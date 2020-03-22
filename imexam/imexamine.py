@@ -20,8 +20,8 @@
 import matplotlib.pyplot as plt
 # turn on interactive mode for plotting
 # so that plotting becomes non-blocking
-if not plt.isinteractive():
-    plt.ion()
+# if not plt.isinteractive():
+#     plt.ion()
 
 import warnings
 import numpy as np
@@ -110,7 +110,7 @@ class Imexamine:
         # save the backend that is in use for plotting reference
         self._mpl_backend = get_backend().lower()
 
-    def setlog(self, filename=None, on=True, level=logging.INFO):
+    def setlog(self, filename=None, on=True, level=logging.WARNING):
             """Turn on and off logging to a logfile or the screen.
 
             Parameters
@@ -138,8 +138,8 @@ class Imexamine:
 
     def show_fit_models(self):
         """Print the available astropy models for plot fits."""
-        self.log.info("The available astropy models for fitting"
-                      "are: {0}".format(self._fit_models))
+        self.log.info(f"The available astropy models for fitting"
+                      f"are: {self._fit_models}")
 
     def set_option_funcs(self):
         """Define the dictionary which maps imexam keys to their functions.
@@ -175,7 +175,7 @@ class Imexamine:
         """Print the imexam options to screen."""
         keys = self.get_options()
         for key in keys:
-            print("{0:s} {1:s}".format(key, self.option_descrip(key)))
+            print(f"{key} {self.option_descrip(key)}")
 
     def do_option(self, x, y, key):
         """Run the imexam option.
@@ -193,7 +193,7 @@ class Imexamine:
             The key which was pressed
 
         """
-        self.log.debug("pressed: {0}, {1:s}".format(key, self.imexam_option_funcs[key][0].__name__))
+        self.log.debug(f"pressed: {key}, {self.imexam_option_funcs[key][0].__name__}")
         # dont require input for saving the active figure 
         if key == 's':
             self.imexam_option_funcs[key][0]()
@@ -297,7 +297,7 @@ class Imexamine:
             data = self._data
         self._figure_name = "imexam" + str(len(self._plot_windows) + 1)
         self._plot_windows.append(self._figure_name)
-        self.log.info("Plots now directed towards {0:s}".format(self._figure_name))
+        self.log.info(f"Plots now directed towards {self._figure_name}")
 
     def plot_line(self, x, y, data=None, fig=None):
         """line plot of data at point x.
@@ -315,7 +315,7 @@ class Imexamine:
         """
         if data is None:
             data = self._data
-        self.log.info("Line at {0} {1}".format(x, y))
+        self.log.info(f"Line at {x} {y}")
 
         pfig = fig
         if fig is None:
@@ -325,7 +325,7 @@ class Imexamine:
         ax = fig.gca()
 
         if self.lineplot_pars["title"][0] is None:
-            ax.set_title("{0:s} line at {1:d}".format(self._datafile, int(y)))
+            ax.set_title(f"{self._datafile} line at {int(y)}")
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
@@ -349,7 +349,7 @@ class Imexamine:
             plt.draw()
             plt.pause(0.001)
         else:
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
 
     def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y.
@@ -367,7 +367,7 @@ class Imexamine:
         """
         if data is None:
             data = self._data
-        self.log.info("Column at {0} {1}".format(x, y))
+        self.log.info(f"Column at {x} {y}")
 
         pfig = fig
         if fig is None:
@@ -377,7 +377,7 @@ class Imexamine:
         ax = fig.gca()
 
         if self.colplot_pars["title"][0] is None:
-            ax.set_title("{0:s} column at {1:d}".format(self._datafile, int(x)))
+            ax.set_title(f"{self._datafile} column at {int(x)}")
         else:
             ax.set_title(self.colplot_pars["title"][0])
         ax.set_xlabel(self.colplot_pars["xlabel"][0])
@@ -403,7 +403,7 @@ class Imexamine:
             plt.draw()
             plt.pause(0.001)
         else:
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
 
     def show_xy_coords(self, x, y, data=None):
         """print the x,y,value to the screen.
@@ -419,7 +419,7 @@ class Imexamine:
         """
         if data is None:
             data = self._data
-        info = "{0} {1}  {2}".format(x, y, data[int(y), int(x)])
+        info = f"{x} {y}  {data[int(y), int(x)]}"
         self.log.info(info)
 
     def report_stat(self, x, y, data=None):
@@ -452,19 +452,15 @@ class Imexamine:
                 stat = getattr(stats, "describe")
                 nobs, minmax, mean, var, skew, kurt = stat(data[ymin:ymax,
                                                            xmin:xmax].flatten())
-                pstr = ("[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: \nnobs: "
-                        "{5}\nminmax: {6}\nmean {7}\nvariance: {8}\nskew: "
-                        "{9}\nkurtosis: {10}".format(ymin, ymax, xmin, xmax,
-                                                     name, nobs, minmax, mean,
-                                                     var, skew, kurt))
+                pstr = (f"[{ymin}:{ymax},{xmin}:{xmax}] {name}: \nnobs: "
+                        f"{nobs}\nminmax: {minmax}\nmean {mean}\nvariance: {var}\nskew: "
+                        f"{skew}\nkurtosis: {kurt}")
             except AttributeError:
                 warnings.warn("Invalid stat specified")
         else:
             try:
                 stat = getattr(np, name)
-                pstr = "[{0:d}:{1:d},{2:d}:{3:d}] {4:s}: {5}".format(
-                       ymin, ymax, xmin, xmax, name,
-                       (stat(data[ymin:ymax, xmin:xmax])))
+                pstr = f"[{ymin}:{ymax},{xmin}:{xmax}] {name}: {stat(data[ymin:ymax, xmin:xmax])}"
             except AttributeError:
                 warnings.warn("Invalid stat specified")
 
@@ -487,7 +483,7 @@ class Imexamine:
             fig = plt.figure(self._figure_name)
         ax = fig.gca()
         fig.savefig(self.plot_name)
-        pstr = "plot saved to {0:s}".format(self.plot_name)
+        pstr = f"plot saved to {self.plot_name}"
         self.log.info(pstr)
 
 
@@ -513,7 +509,7 @@ class Imexamine:
             fig = plt.figure(self._figure_name)
         ax = fig.gca()
         fig.savefig(self.plot_name)
-        pstr = "plot saved to {0:s}".format(self.plot_name)
+        pstr = f"plot saved to {self.plot_name}"
         self.log.info(pstr)
 
     def aper_phot(self, x, y, data=None,
@@ -572,11 +568,14 @@ class Imexamine:
         else:
             if self.aper_phot_pars["center"][0]:
                 center = True
-                delta = self.aper_phot_pars["delta"][0]
+                delta = int(self.aper_phot_pars["delta"][0])
                 if self.aper_phot_pars["center_com"][0]:
-                    x, y = self.com_center(data, delta=delta)
+                    # get center from center of mass
+                    xx, yy = self.com_center(x, y, data=data, delta=delta)
+                    sigma = 0.
+                    sigmay = 0.
                 else:
-                    amp, x, y, sigma, sigmay = self.gauss_center(x, y, data,
+                    amp, xx, yy, sigma, sigmay = self.gauss_center(x, y, data,
                                                                  delta=delta)
 
             radius = self.aper_phot_pars["radius"][0]
@@ -586,7 +585,7 @@ class Imexamine:
 
             outer = inner + width
 
-            apertures = photutils.CircularAperture((x, y), radius)
+            apertures = photutils.CircularAperture((xx, yy), radius)
             rawflux_table = photutils.aperture_photometry(
                 data,
                 apertures,
@@ -598,7 +597,7 @@ class Imexamine:
             annulus_apertures = None
             if subsky:
                 annulus_apertures = photutils.CircularAnnulus(
-                    (x, y), r_in=inner, r_out=outer)
+                    (xx, yy), r_in=inner, r_out=outer)
                 bkgflux_table = photutils.aperture_photometry(
                     data,
                     annulus_apertures)
@@ -630,25 +629,21 @@ class Imexamine:
             mag = magzero - 2.5 * (np.log10(total_flux))
 
             # Construct the output strings (header and parameter values)
-            pheader = "x\ty\tradius\tflux\tmag(zpt={0:0.2f})\t".format(magzero)
-            pstr = "\n{0:.2f}\t{1:0.2f}\t{2:d}\t{3:0.2f}\t{4:0.2f}\t".format(x,
-                                                                             y,
-                                                                             radius,
-                                                                             total_flux,
-                                                                             mag)
+            pheader = f"x\ty\tradius\tflux\tmag(zpt={magzero:0.2})\t"
+            pstr = f"\n{x:.2f}\t{y:0.2f}\t{radius}\t{total_flux:0.2}\t{mag:0.2}\t"
 
             if subsky:
                 pheader += "sky/pix\t"
-                pstr += "{0:0.2f}\t".format(sky_per_pix)
+                pstr += f"{sky_per_pix:0.3f}\t"
             if center:
                 # center of mass estimator
                 if self.aper_phot_pars["center_com"][0]:
                     pheader += "center of mass(x,y)"
-                    pstr += "{0:0.2f},{1:0.2f}".format(x, y)
+                    pstr += f"{xx:0.2f},{yy:0.2f}"
                 else:
                     pheader += "fwhm(x,y)"
-                    x, y = math_helper.gfwhm(sigma, sigmay)
-                    pstr += "{0:0.2f},{1:0.2f}".format(x, y)
+                    fwhmx, fwhmy = math_helper.gfwhm(sigma, sigmay)
+                    pstr += f"{sigma:0.2f},{sigmay:0.2f}"
 
             pheader = pheader.expandtabs(15)
             pstr = pstr.expandtabs(15)
@@ -661,17 +656,15 @@ class Imexamine:
                     fig = plt.figure(self._figure_name, figsize=[5, 5])
                 fig.clf()
                 fig.add_subplot(111)
-                ax = plt.gca()
+                ax = fig.gca()
 
                 if self.aper_phot_pars["title"][0] is None:
-                    title = "x= {:0.2f}, y={:0.2f}, flux={:0.1f}, \nmag={:0.1f}, sky={:0.1f}".format(x, y,
-                                                                                        total_flux, mag,
-                                                                                        sky_per_pix)
+                    title = f"x= {xx:0.2f}, y={yy:0.2f}, flux={total_flux:0.1f}, \nmag={mag:0.1f}, sky={sky_per_pix:0.1f}"
                     if center:
                         if self.aper_phot_pars["center_com"][0]:
-                            title+= ", CoM({:0.2f},{:0.2f})".format(xcenter,ycenter)
+                            title+= f", CoM({xx:0.2f},{yy:0.2f})"
                         else:
-                            title += ", FWHM={:0.2f}".format(math_helper.gfwhm(sigma)[0])
+                            title += f", FWHM={math_helper.gfwhm(sigma)[0]:0.2f}"
                     ax.set_title(title)
                 else:
                     ax.set_title(self.aper_phot_pars["title"][0])
@@ -684,22 +677,24 @@ class Imexamine:
                                    self.aper_phot_pars['color_max'][0]]
 
                 pad = outer * 1.2  # XXX TODO: Bad magic number
-                ax.imshow(data[int(y - pad):int(y + pad),
-                               int(x - pad):int(x + pad)],
+                print(xx,yy,pad)
+                ax.imshow(data[int(yy - pad):int(yy + pad),
+                               int(xx - pad):int(xx + pad)],
                           vmin=color_range[0], vmax=color_range[1],
-                          extent=[int(x - pad), int(x + pad),
-                                  int(y - pad), int(y + pad)], origin='lower',
+                          extent=[int(xx - pad), int(xx + pad),
+                                  int(yy - pad), int(yy + pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
 
                 apertures.plot(ax=ax, color='green', alpha=0.75, lw=3)
                 if subsky:
                     annulus_apertures.plot(ax=ax, color='red', alpha=0.75, lw=3)
 
-                if pfig is None and 'nbagg' not in self._mpl_backend:
+                if pfig is None:
                     plt.draw()
                     plt.pause(0.001)
+                    plt.show()
                 else:
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
             else:
                 return (apertures, annulus_apertures, rawflux_table, sky_per_pix)
 
@@ -747,10 +742,8 @@ class Imexamine:
             if form in self._fit_models:
                 fitform = getattr(models, form)
             else:
-                raise ValueError("Functional form not in available: {}"
-                                 .format(self._fit_models))
-
-        self.log.info("using model: {0}".format(fitform))
+                raise ValueError(f"Functional form not in available: {self._fit_models}")
+        self.log.info(f"using model: {fitform}")
 
         # Used for Polynomial1D fitting
         degree = int(pars["order"][0])
@@ -824,7 +817,7 @@ class Imexamine:
 
         # make a plot
         if pars["title"][0] is None:
-            title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
+            title = f"{self._datafile}: {int(x)} {int(y)}\n"
         else:
             title = pars["title"][0]
 
@@ -850,38 +843,30 @@ class Imexamine:
 
             if fitform.name is "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
-                ax.set_title("{0:s} amp={1:8.2f} mean={2:9.2f},"
-                             "fwhm={3:9.2f}".format(title,
-                                                    fitted.amplitude_0.value,
-                                                    fitted.mean_0.value,
-                                                    fwhmx))
-                pstr = "({0:d},{1:d}) mean={2:9.2f}, fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.mean_0.value, fwhmx)
+                ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f}"
+                             f" mean={fitted.mean_0.value:9.2f},"
+                             f"fwhm={fwhmx:9.2f}")
+                pstr = f"({int(x):d},{int(y):d}) mean={fitted.mean_0.value:9.2f}, fwhm={fwhmx:9.2f}"
                 self.log.info(pstr)
             elif fitform.name is "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha_0.value,
                                           fitted.gamma_0.value)
-                ax.set_title("{0:s} amp={1:8.2f} fwhm={2:9.2f}".format(
-                    title, fitted.amplitude_0.value, mfwhm))
-                pstr = "({0:d},{1:d}) amp={2:8.2f} fwhm={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude_0.value, mfwhm)
+                ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f}"
+                             f" fwhm={mfwhm:9.2f}")
+                pstr = f"({int(x):d},{int(y):d}) amp={fitted.amplitude_0.value:8.2f} fwhm={mfwhm:9.2f}"
                 self.log.info(pstr)
             elif fitform.name is "MexicanHat1D":
-                ax.set_title("{0:s} amp={1:8.2f} sigma={2:8.2f}".format(
-                    title, fitted.amplitude_0.value, fitted.sigma_0.value))
-                pstr = "({0:d},{1:d}) amp={2:8.2f} sigma={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude_0.value, fitted.sigma_0.value)
+                ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f} sigma={fitted.sigma_0.value:8.2f}")
+                pstr = f"({int(x):d},{int(y):d}) amp={fitted.amplitude_0.value:8.2f} sigma={fitted.sigma_0.value:9.2f}"
                 self.log.info(pstr)
             elif fitform.name is "Polynomial1D":
-                ax.set_title("{0:s} degree={1:d}".format(title, degree))
-                pstr = "({0:d},{1:d}) degree={2:d}".format(int(x), int(y), degree)
+                ax.set_title(f"{title} degree={degree}")
+                pstr = f"({int(x):d},{int(y):d}) degree={degree}"
                 self.log.info(fitted.parameters)
                 self.log.info(pstr)
             elif fitform.name is "AiryDisk2D":
-                ax.set_title("{0:s} amp={1:8.2f} radius={2:8.2f}".format(
-                    title, fitted.amplitude_0.value, fitted.radius_0.value))
-                pstr = "({0:d},{1:d}) amp={2:8.2f} radius={3:9.2f}".format(
-                    int(x), int(y), fitted.amplitude_0.value, fitted.radius_0.value)
+                ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f} radius={fitted.radius_0.value:8.2f}")
+                pstr = f"({int(x):d},{int(y):d}) amp={fitted.amplitude_0.value:8.2f} radius={fitted.radius_0.value:9.2f}"
                 self.log.info(pstr)
             else:
                 warnings.warn("Unsupported functional form specified for fit")
@@ -893,7 +878,7 @@ class Imexamine:
                 plt.draw()
                 plt.pause(0.001)
             else:
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
 
         else:
             return fitted
@@ -956,6 +941,9 @@ class Imexamine:
         if data is None:
             data = self._data
 
+        if delta is None:
+            delta = int(self.com_center_pars['delta'][0])
+
         # reset delta for small arrays
         if delta >= len(data) / 4:
             delta = delta // 2
@@ -971,8 +959,7 @@ class Imexamine:
         try:
             xcenter, ycenter = centroid_com(chunk)
 
-            pstr = "xc={0:4f}\tyc={1:4f}".format((xcenter + xx - delta),
-                                                 (ycenter + yy - delta))
+            pstr = f"xc={(xcenter + xx - delta):.4f}\tyc={(ycenter + yy - delta):.4f}"                                                 
         except AttributeError:
             raise AttributeError("Problem with center of mass")
         self.log.info(pstr)
@@ -1021,9 +1008,7 @@ class Imexamine:
             xsigma = fit.x_stddev_0.value
             ysigma = fit.y_stddev_0.value
 
-            pstr = "xc={0:4f}\tyc={1:4f}".format(
-                (xcenter + xx - delta),
-                (ycenter + yy - delta))
+            pstr = f"xc={(xcenter + xx - delta):.4f}\tyc={(ycenter + yy - delta):.4f}"
             self.log.info(pstr)
             return (amp,
                     xcenter + xx - delta,
@@ -1032,8 +1017,7 @@ class Imexamine:
                     ysigma)
 
         except (RuntimeError, UserWarning) as e:
-            self.log.info("Warning: {0:s}, returning zeros "
-                          "for fit".format(str(e)))
+            self.log.info(f"Warning: {str(e)}, returning zeros for fit")
             return (0, 0, 0, 0, 0)
 
     def radial_profile(self, x, y, data=None, form=None,
@@ -1090,7 +1074,7 @@ class Imexamine:
                 fitform = getattr(models, pars["func"][0])
             else:
                 if form not in self._fit_models:
-                    msg = "{0:s} not supported for fitting".format(form)
+                    msg = f"{form} not supported for fitting"
                     self.log.info(msg)
                     raise ValueError(msg)
                 else:
@@ -1172,16 +1156,14 @@ class Imexamine:
             if sky_per_pix < 0.:
                 sky_per_pix = 0.
                 self.log.info("Sky background negative, setting to zero")
-            self.log.info("Background per pixel: {0:f}".format(sky_per_pix))
-
+            self.log.info(f"Background per pixel: {sky_per_pix}")
             flux -= sky_per_pix
 
             if getdata:
-                self.log.info("Sky per pixel: {0} using "
-                              "(rad={1}->{2})".format(sky_per_pix,
-                                                      inner, inner + width))
+                self.log.info(f"Sky per pixel: {sky_per_pix} using "
+                              f"(rad={inner}->{inner + width})")
         if getdata:
-            info = "\nat (x,y)={0:f},{1:f}\n".format(centerx, centery)
+            info = f"\nat (x,y)={centerx},{centery}\n"
             self.log.info(info)
             self.log.info(radius, flux)
 
@@ -1198,11 +1180,9 @@ class Imexamine:
                                                   weighted=True)
 
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
-                legend = ("Max. pix. flux = {0:9.3f}\n"
-                          "amp = {1:9.3f}\n"
-                          "fwhm = {2:9.3f}".format(np.max(flux),
-                                                   fitted.amplitude_0.value,
-                                                   fwhmx))
+                legend = (f"Max. pix. flux = {np.max(flux):9.3f}\n"
+                          f"amp = {fitted.amplitude_0.value:9.3f}\n"
+                          f"fwhm = {fwhmx:9.3f}")
                 self.log.info(legend)
                 legendx = datasize / 2
                 legendy = np.max(flux) / 2
@@ -1214,11 +1194,9 @@ class Imexamine:
                                                    weighted=True)
                 mfwhm = math_helper.mfwhm(fitted.alpha_0.value,
                                           fitted.gamma_0.value)
-                legend = ("Max. pix. flux = {0:9.3f}\n"
-                          "amp = {1:9.3f}\n"
-                          "fwhm = {2:9.3f}".format(np.max(flux),
-                                                   fitted.amplitude_0.value,
-                                                   mfwhm))
+                legend = (f"Max. pix. flux = {np.max(flux):9.3f}\n"
+                          f"amp = {fitted.amplitude_0.value:9.3f}\n"
+                          f"fwhm = {mfwhm:9.3f}")
                 legendx = datasize / 2
                 legendy = np.max(flux) / 2
 
@@ -1227,12 +1205,12 @@ class Imexamine:
                                                     sigma_factor=sig_factor,
                                                     center_at=0,
                                                     weighted=True)
-                legend = ("Max. pix. flux = {0:9.3f}\n".format(np.max(flux)))
+                legend = (f"Max. pix. flux = {np.max(flux):9.3f}\n")
                 legendx = datasize / 2
                 legendy = np.max(flux) / 2
 
             if fitted is None:
-                msg = "Problem with the {0:s} fit".format(fitform.name)
+                msg = f"Problem with the {fitform.name} fit"
                 self.log.info(msg)
                 raise ValueError(msg)
 
@@ -1250,7 +1228,7 @@ class Imexamine:
             ax = fig.gca()
 
             if subtract_background:
-                ytitle = ("Flux ( sky/pix = {0:8.2f} )".format(sky_per_pix))
+                ytitle = (f"Flux ( sky/pix = {sky_per_pix:8.2f} )")
             else:
                 ytitle = pars["ylabel"][0]
             ax.set_xlabel(pars["xlabel"][0])
@@ -1264,11 +1242,9 @@ class Imexamine:
 
             if pars["title"][0] is None:
                 if fitplot:
-                    title = ("Radial Profile at ({0:d},{1:d}) with {2:s}"
-                             .format(icenterx, icentery, fitform.name))
+                    title = f"Radial Profile at ({icenterx},{icentery}) with {fitform.name}"
                 else:
-                    title = "Radial Profile for {0} {1}".format(icenterx,
-                                                                icentery)
+                    title = f"Radial Profile for {icenterx} {icentery}"
             else:
                 title = pars["title"][0]
 
@@ -1283,7 +1259,7 @@ class Imexamine:
                 plt.draw()
                 plt.pause(0.001)
             else:
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
         else:
             return radius, flux
 
@@ -1320,7 +1296,7 @@ class Imexamine:
             if self.curve_of_growth_pars["center"][0]:
                 if self.aper_phot_pars["center_com"][0]:
                     # use the center of mass
-                    centerx, centery = self.com_center(x, y, data, delta=delta)
+                    centerx, centery = self.com_center(x, y, delta=delta)
                 else:
                     # user the gaussian2d
                     amp, centerx, centery, sigma, sigmay = \
@@ -1355,8 +1331,7 @@ class Imexamine:
                     flux.append(aper_flux)
             if getdata:
                 rapert = np.arange(1, rapert, 1)
-                info = "\nat (x,y)={0:d},{1:d}\nradii:{2}\nflux:{3}".format(
-                    int(centerx), int(centery), rapert, flux)
+                info = f"\nat (x,y)={int(centerx)},{int(centery)}\nradii:{rapert}\nflux:{flux}"
                 self.log.info(info)
             if genplot:
                 pfig = fig
@@ -1367,9 +1342,7 @@ class Imexamine:
                 ax = fig.gca()
 
                 if self.curve_of_growth_pars["title"][0] is None:
-                    title = "{0}: {1} {2}".format(self._datafile,
-                                                  int(x),
-                                                  int(y))
+                    title = f"{self._datafile}: {int(x)} {int(y)}\n"
                 else:
                     title = self.curve_of_growth_pars["title"][0]
 
@@ -1382,7 +1355,7 @@ class Imexamine:
                     plt.draw()
                     plt.pause(0.001)
                 else:
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
 
             else:
                 return rapert, flux
@@ -1527,7 +1500,7 @@ class Imexamine:
             ax = fig.gca()
 
             if self.histogram_pars["title"][0] is None:
-                title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
+                title = f"{self._datafile}: {int(x)} {int(y)}\n"
             else:
                 title = self.histogram_pars["title"][0]
             ax.set_title(title)
@@ -1544,14 +1517,14 @@ class Imexamine:
                                        facecolor='green',
                                        alpha=0.5,
                                        histtype='bar')
-            self.log.info("{0} bins "
-                          "range:[{1},{2}]".format(num_bins, mini, maxi))
+            self.log.info(f"{num_bins} bins "
+                          f"range:[{mini},{maxi}]")
 
             if pfig is None and 'nbagg' not in self._mpl_backend:
                 plt.draw()
                 plt.pause(0.001)
             else:
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
         else:
             hist, bin_edges = np.histogram(flat_data,
                                            num_bins,
@@ -1585,7 +1558,7 @@ class Imexamine:
         ax = fig.gca()
 
         if self.contour_pars["title"][0] is None:
-            title = "{0} {1} {2}".format(self._datafile, int(x), int(y))
+            title = f"{self._datafile} {int(x)} {int(y)}"
         else:
             title = self.contour_pars["title"][0]
         ax.set_title(title)
@@ -1595,7 +1568,7 @@ class Imexamine:
         colormap = self.contour_pars["cmap"][0]
         lsty = self.contour_pars["linestyles"][0]
 
-        self.log.info("contour centered at: {0} {1}".format(x, y))
+        self.log.info(f"contour centered at: {x} {y}")
         deltax = int(self.contour_pars["ncolumns"][0] / 2.)
         deltay = int(self.contour_pars["nlines"][0] / 2.)
         xx = int(x)
@@ -1624,7 +1597,7 @@ class Imexamine:
             plt.draw()
             plt.pause(0.001)
         else:
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
 
     def surface(self, x, y, data=None, fig=None):
         """plot a surface around the specified location.
@@ -1654,7 +1627,7 @@ class Imexamine:
 
         title = self.surface_pars["title"][0]
         if title is None:
-            title = "{0}: {1} {2}".format(self._datafile, int(x), int(y))
+            title = f"{self._datafile}: {int(x)} {int(y)}"
         ax.set_title(title)
         ax.set_xlabel(self.surface_pars["xlabel"][0])
         ax.set_ylabel(self.surface_pars["ylabel"][0])
@@ -1730,7 +1703,7 @@ class Imexamine:
             plt.draw()
             plt.pause(0.001)
         else:
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
 
     def cutout(self, x, y, data=None, size=None, fig=None):
         """Make a fits cutout around the pointer location without wcs.
@@ -1756,14 +1729,14 @@ class Imexamine:
 
         xx = int(x)
         yy = int(y)
-        prefix = "cutout_{0}_{1}_".format(xx, yy)
+        prefix = f"cutout_{xx}_{yy}_"
         fname = tempfile.mkstemp(prefix=prefix, suffix=".fits", dir="./")[-1]
         cutout = data[yy - size:yy + size, xx - size:xx + size]
         hdu = fits.PrimaryHDU(cutout)
         hdulist = fits.HDUList([hdu])
         hdulist[0].header['EXTEND'] = False
         hdulist.writeto(fname)
-        self.log.info("Cutout at ({0},{1}) saved to {2:s}".format(xx, yy, fname))
+        self.log.info(f"Cutout at ({xx},{yy}) saved to {fname}")
 
     def register(self, user_funcs):
         """register a new imexamine function made by the user as an option.
@@ -1785,9 +1758,9 @@ class Imexamine:
 
         for key in user_funcs.keys():
             if key in self.imexam_option_funcs.keys():
-                warnings.warn("{0:s} is not a unique key".format(key))
-                warnings.warn("{0:s}".format(self.imexam_option_funcs[key]))
-                raise ValueError("{0:s} is not a unique key".format(key))
+                warnings.warn(f"{key} is not a unique key")
+                warnings.warn(f"{self.imexam_option_funcs[key]}")
+                raise ValueError(f"{key} is not a unique key")
             elif key == 'q':
                 warnings.warn("q is reserved as the quit key")
                 raise ValueError("q is reserved for the quit key")
@@ -1796,9 +1769,8 @@ class Imexamine:
                 self._add_user_function(user_funcs[key][0])
                 self.imexam_option_funcs[key] = (
                     self.__getattribute__(func_name), user_funcs[key][1])
-                self.log.info(
-                    "User function: {0:s} added to imexam options with "
-                    "key {1:s}".format(func_name, key))
+                self.log.info(f"User function: {func_name} added to imexam options with "
+                    f"key {key}")
 
     @classmethod
     def _add_user_function(cls, func):

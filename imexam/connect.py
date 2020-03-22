@@ -18,7 +18,7 @@ except ImportError:
     have_ginga = False
 
 try:
-    import xpa
+    import imexamxpa
     have_xpa = True
     from .ds9_viewer import ds9
 except ImportError:
@@ -212,8 +212,7 @@ class Connect:
         print("\nPress 'q' to quit\n")
         keys = self.exam.get_options()  # possible commands
         self.exam.print_options()
-        cstring = "Current image {0}".format(self.get_filename(),)
-        print(cstring)
+        print(f"Current image {self.get_filename()}")
 
         # set defaults
         self._current_frame = self.frame()
@@ -265,9 +264,7 @@ class Connect:
                                 self.exam.do_option(
                                     x, y, current_key)
                 except KeyError:
-                    print(
-                        "Invalid key, use\n: {0}".format(
-                            self.exam.print_options()))
+                    print(f"Invalid key, use\n: {self.exam.print_options()}")
                     self.exam._close_plots()
 
     def _check_frame(self):
@@ -282,12 +279,10 @@ class Connect:
             self.exam.set_data(self.window.get_data())
             self._current_frame = frame
             try:
-                cstring = "\nCurrent image {0:s}".format(
-                        self.get_frame_info()['filename'],)
+                cstring = f"\nCurrent image {self.get_frame_info()['filename']}"
             except TypeError:
                 cstring = "\nuser array in frame"
             self.log.info(cstring)
-            print(cstring)
 
     def _check_slice(self):
         """check if the user switched slice images."""
@@ -295,10 +290,8 @@ class Connect:
         if self._current_slice != this_slice:
             self.exam.set_data(self.window.get_data())
             self._current_slice = this_slice
-            cstring = "\nCurrent slice {0:s}".format(
-                self.get_frame_info()['naxis'],)
+            cstring = f"\nCurrent slice {self.get_frame_info()['naxis']}"
             self.log.info(cstring)
-            print(cstring)
 
     #  Implement the following functions in your viewer class
 
@@ -518,10 +511,10 @@ class Connect:
             print("You need to specify the key-name for the function")
             return None
         if key in self.exam._reserved_keys:
-            print("{0:s} is reserved".format(key))
+            print(f"{key} is reserved")
             return None
         if key not in self.exam.imexam_option_funcs:
-                print("Key not available")
+                print(f"{key} not available")
                 return None
         fname = self.exam.imexam_option_funcs[key][0].__name__
         parname = fname + "_pars"
@@ -558,11 +551,11 @@ class Connect:
             print("No information for parameters available")
             return
         if item not in current_dict:
-            print("No parameter of that name in dictionary")
+            print(f"No parameter {item} of that name in dictionary")
             return
         else:
             current_dict[item][0] = value
-            print("set {0}: {1} to {2}".format(parname, item, value))
+            print(f"set {parname}: {item} to {value}")
             return
 
     def aimexam(self, get_name=False):
@@ -703,7 +696,6 @@ class Connect:
             self.exam.get_plot_name()  # show the current default
         else:
             if os.access(filename, os.F_OK):
-                warnings.warn(
-                    "File with that name already exists:{0s}".format(filename))
+                warnings.warn(f"File with that name already exists:{filename}")
             else:
                 self.exam.set_plot_name(filename)

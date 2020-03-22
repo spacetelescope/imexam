@@ -132,9 +132,7 @@ class ginga_general:
                 cmap.add_matplotlib_cmaps()
                 _matplotlib_cmaps_added = True
             except Exception as e:
-                print(
-                    "Failed to load matplotlib colormaps: {0}".format(
-                        repr(e)))
+                print(f"Failed to load matplotlib colormaps: {repr(e)}")
 
         # bindings preferences shared with other ginga viewers
         bind_prefs = self.prefs.createCategory('bindings')
@@ -193,7 +191,7 @@ class ginga_general:
         self._capturing = False
         top_canvas = self.ginga_view.get_canvas()
         top_canvas.delete_object_by_tag("imexam-canvas")
-        self.logger.debug("canvas deleted top={0:s}".format(top_canvas.objects))
+        self.logger.debug(f"canvas deleted top={top_canvas.objects}")
 
     def __str__(self):
         """Return viewer name."""
@@ -334,7 +332,7 @@ class ginga_general:
                 # did we get a key event?
                 if len(self._keyvals) > 0:
                     (k, x, y) = self._keyvals
-                    print("key pressed:{0:s} on x:{1} y:{2}".format(k, x, y))
+                    print(f"key pressed:{k} on x:{x} y:{y}")
                     break
 
         # ginga is returning 0 based indexes
@@ -503,10 +501,8 @@ class ginga_general:
         data_x, data_y = self.ginga_view.get_last_data_xy()
 
         if "q" not in keyname:
-            print("read: {0:s} at {1}, {2}".format(keyname, data_x, data_y))
-
-        self.logger.debug("key {0:s} pressed at data {1:f},{2:f}".format(
-            keyname, data_x, data_y))
+            print(f"read: {keyname} at {data_x}, {data_y}")
+        self.logger.debug(f"key {keyname} pressed at data {data_x},{data_y}")
 
         if keyname == 'q':
             # temporarily switch to non-imexam mode
@@ -532,14 +528,11 @@ class ginga_general:
         # this will be picked up by the caller in readcursor()
         self._keyvals = (keyname, data_x, data_y)
         with self._rlock:
-            self.logger.debug(
-                "x,y,data dim: {0:f} {1:f} {2:d}".format(
-                data_x, data_y, data.ndim))
-            self.logger.debug("exam={0:s}".format(str(self.exam)))
+            self.logger.debug(f"x,y,data dim: {data_x} {data_y} {data.ndim}")
+            self.logger.debug(f"exam={self.exam}")
 
             # call the imexam function directly
-            self.logger.debug(
-                "calling examine function key={0}".format(keyname))
+            self.logger.debug(f"calling examine function key={keyname}")
             try:
                 method = self.exam.imexam_option_funcs[keyname][0]
             except KeyError:
@@ -547,12 +540,12 @@ class ginga_general:
             try:
                 method(data_x, data_y, data)
             except Exception as e:
-                self.logger.error("Failed examine function: {0:s}".format(repr(e)))
+                self.logger.error(f"Failed examine function: {repr(e)}")
                 try:
                     # log traceback, if possible
                     (type, value, tb) = sys.exc_info()
                     tb_str = "".join(traceback.format_tb(tb))
-                    self.logger.error("Traceback:\n {0:s}".format(tb_str))
+                    self.logger.error(f"Traceback:\n {tb_str}")
                 except Exception:
                     tb_str = "Traceback information unavailable."
                     self.logger.error(tb_str)
@@ -638,7 +631,7 @@ class ginga_general:
             self._set_frameinfo(fname=shortname, hdu=hdu, image=image)
             self.ginga_view.set_image(image)
         except Exception as e:
-            self.logger.error("Exception loading image: {0}".format(repr(e)))
+            self.logger.error(f"Exception loading image: {repr(e)}")
             raise Exception(repr(e))
 
     def panto_image(self, x, y):
@@ -698,7 +691,7 @@ class ginga_general:
             self.ginga_view.rotate(value)
 
         rot_deg = self.ginga_view.get_rotation()
-        print("Image rotated at {0:f} deg".format(rot_deg))
+        self.logger(f"Image rotated at {rot_deg} deg")
 
     def transform(self, flipx=None, flipy=None, swapxy=None):
         """Transform the frame.
@@ -813,7 +806,7 @@ class ginga_general:
             self.ginga_view.zoom_to(zoomlevel)
 
         except Exception as e:
-            print("problem with zoom: {0:s}".format(repr(e)))
+            print(f"problem with zoom: {repr(e)}")
 
     def blink(self):
         """Blink multiple frames."""
@@ -945,7 +938,7 @@ class ginga(ginga_general):
             warnings.warn(
                 "webbrowser module not installed, see the installed \
                 doc directory for the HTML help pages")
-            print("Open a new browser window for: {0}".format(self.ginga_view.url()))
+            print(f"Open a new browser window for: {self.ginga_view.url()}")
 
     def _create_viewer(self, bind_prefs, viewer_prefs,
                        opencv=False, threads=1):

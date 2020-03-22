@@ -3,6 +3,7 @@
 
 import sys
 import os
+import importlib
 from distutils.command.clean import clean
 from setuptools.command.install import install
 from setuptools import setup, Command, Extension
@@ -13,19 +14,6 @@ from subprocess import check_call, CalledProcessError
 if sys.version_info < (3, 5):
     error = """ERROR: imexam requires python >= 3.5."""
     sys.exit(error)
-
-
-if not sys.platform.startswith('win'):
-    try:
-        from Cython.Distutils import build_ext
-        from Cython.Build import cythonize
-        use_cython = True
-        CYTHON_SOURCE = "wrappers/xpa.pyx"
-    except ImportError:
-        from distutils.command import build_ext
-        use_cython = False
-        print("Building without Cython")
-        CYTHON_SOURCE = "wrappers/xpa.c"
 
 
 class PyTest(TestCommand):
@@ -68,6 +56,7 @@ try:
              'only update when it completes, rather than continuously as is '
              'normally the case.'))
 
+
         def initialize_options(self):
             BuildDoc.initialize_options(self)
 
@@ -75,14 +64,14 @@ try:
             BuildDoc.finalize_options(self)
 
         def run(self):
-            build_cmd = self.reinitialize_command('build_ext')
-            build_cmd.inplace = 1
-            self.run_command('build_ext')
+            # build_cmd = self.reinitialize_command('build_ext')
+            # self.run_command('build_ext')
             retcode = build_main(['-W', '--keep-going', '-b', 'html', './docs', './docs/_build/html'])
             if retcode != 0:
                 sys.exit(retcode)
 
 except ImportError:
+    print("Sphinx is not installed!!\n", file=sys.stderr)
     class BuildSphinx(Command):
         user_options = []
 
@@ -93,7 +82,6 @@ except ImportError:
             pass
 
         def run(self):
-            print("Sphinx is not installed!!\n", file=sys.stderr)
             exit(1)
 
 
@@ -118,18 +106,32 @@ URL = metadata.get('url', 'http://astropy.org')
 HOMEPAGE = metadata.get('homepage', '')
 
 
-cmdclass = {'test': PyTest,
-            'build_sphinx': BuildSphinx,
-            }
 
 
 package_data = {PACKAGENAME: []}
 ext = []
 
-if not sys.platform.startswith('win'):
-    XPALIB_DIR = "cextern/xpa/"
-    CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
+cmdclass = {'test': PyTest,
+            'build_sphinx': BuildSphinx,
+            }
 
+
+if not sys.platform.startswith('win'):
+    try:
+        from Cython.Distutils import build_ext
+        from Cython.Build import cythonize
+        use_cython = True
+        print("Building with Cython")
+        CYTHON_SOURCE = "wrappers/xpa.pyx"
+    except ImportError:
+        from distutils.command import build_ext
+        use_cython = False
+        print("Building without Cython")
+        CYTHON_SOURCE = "wrappers/xpa.c"
+
+    XPALIB_DIR = "./cextern/xpa/"
+    XPA_LIBNAME = "imexamxpa"
+    CONF_H_NAME = os.path.join(XPALIB_DIR, "conf.h")
     # We only need to compile with these
     XPA_FILES = """acl.c
                    client.c
@@ -148,12 +150,14 @@ if not sys.platform.startswith('win'):
                    """.split()
 
     package_data[PACKAGENAME].extend(XPA_FILES)
+    suffix_lib =  importlib.machinery.EXTENSION_SUFFIXES[0]
+    package_data[PACKAGENAME].extend(XPA_LIBNAME+suffix_lib)
 
     XPA_SOURCES = [os.path.join(XPALIB_DIR, c) for c in XPA_FILES]
     XPALIB_DEFINES = [("HAVE_CONFIG_H", "1")]
     XPA_SOURCES.append(CYTHON_SOURCE)
 
-    xpa_module = Extension("xpa",
+    xpa_module = Extension(XPA_LIBNAME,
                            sources=XPA_SOURCES,
                            include_dirs=[XPALIB_DIR],
                            define_macros=XPALIB_DEFINES,
@@ -161,7 +165,7 @@ if not sys.platform.startswith('win'):
                            )
     if use_cython:
         ext = cythonize(xpa_module)
-
+        current_env = sys.prefix
         class my_clean(Command):
             user_options = []
 
@@ -178,12 +182,12 @@ if not sys.platform.startswith('win'):
                                            ('build_base', 'build_base'),
                                            ('build_lib', 'build_lib'),
                                            ('build_scripts', 'build_scripts'),
-                                           ('build_temp', 'build_temp'))
+                                           ('build_temp', 'build_temp'),
+                                           )
                 self.set_undefined_options('bdist',
                                            ('bdist_base', 'bdist_base'))
 
             def run(self):
-                print("cleaning")
                 try:
                     check_call(["make", "clean"], cwd=XPALIB_DIR)
                 except CalledProcessError as e:
@@ -193,7 +197,6 @@ if not sys.platform.startswith('win'):
                     os.remove(CONF_H_NAME)
                 os.remove("wrappers/xpa.c")
 
-                current_env = sys.prefix + "/bin/"
                 xpa_bins = ["xpaaccess",
                             "xpaget",
                             "xpainfo",
@@ -202,13 +205,14 @@ if not sys.platform.startswith('win'):
                             "xpaset",
                             ]
                 for file in xpa_bins:
-                    myfile = current_env + file
+                    myfile = current_env + "/bin/" + file
                     if os.access(myfile, os.F_OK):
+                        print(f"removing {myfile}")
                         os.remove(myfile)
 
                 clean.run(self)
 
-        class BuildExtWithConfigure(install):
+        class InstallWithRemake(install):
             """Configure, build, and install the aXe C code."""
             user_options = install.user_options +\
                 [('noremake', None, "Don't rebuild the C executables [default True]")]
@@ -231,16 +235,30 @@ if not sys.platform.startswith('win'):
                     try:
                         check_call(["make", "-f", "Makefile", "clean"],
                                 cwd=XPALIB_DIR)
-                        check_call(["sh", "./configure"], cwd=XPALIB_DIR)
-                        check_call(["make", "-f", "Makefile"], cwd=XPALIB_DIR)
+                        check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
+                        check_call(["make", "-f", "Makefile", "install"], cwd=XPALIB_DIR)
                     except CalledProcessError as e:
                         print(e)
                         exit(1)
                 install.run(self)
 
-        cmdclass.update({'install': BuildExtWithConfigure,
-                         'clean': my_clean})
 
+        class BuildExtWithConfigure(build_ext):
+            """Configure, build, and install the aXe C code."""
+            
+            def initialize_options(self):
+                super().initialize_options()
+
+            def build_extensions(self):
+                super().build_extensions()
+
+            def run(self):
+                build_ext.run(self)
+                
+
+        cmdclass.update({'install' : InstallWithRemake,
+                         'clean' : my_clean,
+                         'build_ext' : BuildExtWithConfigure})
     else:
         ext = [xpa_module]
 
