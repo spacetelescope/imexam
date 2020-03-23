@@ -1,7 +1,7 @@
 
-=========
-Example 2
-=========
+===================
+Aperture Photometry
+===================
 
 Aperture Photometry
 -------------------
@@ -62,13 +62,20 @@ Let's take this information and set the radii for our quick aperture photometry:
 
     In [1]: viewer.aimexam()
     Out[2]:
-    {'center': [True, 'Center the object location using a 2d gaussian fit'],
-    'function': ['aper_phot'],
-    'radius': [5, 'Radius of aperture for star flux'],
-    'skyrad': [15, 'Distance to start sky annulus is pixels'],
-    'subsky': [True, 'Subtract a sky background?'],
-    'width': [5, 'Width of sky annulus in pixels'],
-    'zmag': [25.0, 'zeropoint for the magnitude calculation']}
+    {'function': ['aper_phot'],
+     'center': [True, 'Center the object (choose center_type)'],
+     'center_com': [False, 'gaussian2d, True=center of mass'],
+     'width': [5, 'Width of sky annulus in pixels'],
+     'subsky': [True, 'Subtract a sky background?'],
+     'skyrad': [15, 'Distance to start sky annulus is pixels'],
+     'radius': [5, 'Radius of aperture for star flux'],
+     'zmag': [25.0, 'zeropoint for the magnitude calculation'],
+     'title': [None, 'Title of the plot'],
+     'scale': ['zscale', 'How to scale the image'],
+     'color_min': [None, 'Minimum color value'],
+     'color_max': [None, 'Maximum color value'],
+     'cmap': ['Greys', 'Matplotlib colormap to use'],
+     'delta': [10, 'bounding box for centering measurement']}
 
     In [3]: viewer.set_plot_pars('a','radius',4)
     set aper_phot_pars: radius to 4
@@ -138,23 +145,24 @@ Assuming we've already connected to the ``DS9`` window where the data is display
 
     Press 'q' to quit
 
-    2	Make the next plot in a new window
-    a	Aperture sum, with radius region_size
-    b	Return the 2D gauss fit center of the object
-    c	Return column plot
-    e	Return a contour plot in a region around the cursor
-    g	Return curve of growth plot
-    h	Return a histogram in the region around the cursor
-    j	1D [Gaussian1D default] line fit
-    k	1D [Gaussian1D default] column fit
-    l	Return line plot
-    m	Square region stats, in [region_size],default is median
-    r	Return the radial profile plot
-    s	Save current figure to disk as [plot_name]
-    t	Make a fits image cutout using pointer location
-    w	Display a surface plot around the cursor location
-    x	Return x,y,value of pixel
-    y	Return x,y,value of pixel
+    2 Make the next plot in a new window
+    a Aperture sum, with radius region_size 
+    b Return the 2D gauss fit center of the object
+    c Return column plot
+    d Return the Center of Mass fit center of the object
+    e Return a contour plot in a region around the cursor
+    g Return curve of growth plot
+    h Return a histogram in the region around the cursor
+    j 1D [Gaussian1D default] line fit 
+    k 1D [Gaussian1D default] column fit
+    l Return line plot
+    m Square region stats, in [region_size],default is median
+    r Return the radial profile plot
+    s Save current figure to disk as [plot_name]
+    t Make a fits image cutout using pointer location
+    w Display a surface plot around the cursor location
+    x Return x,y,value of pixel
+    y Return x,y,value of pixel
     Current image /Users/sosey/test_images/iacs01t4q_flt.fits
 
     xc=462.938220	yc=377.260860

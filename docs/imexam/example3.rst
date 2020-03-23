@@ -1,7 +1,7 @@
 
-=========
-Example 3
-=========
+====================================
+Interaction with Daophot and Astropy
+====================================
 
 Advanced Usage - Interact with Daophot and Astropy
 --------------------------------------------------
