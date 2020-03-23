@@ -1,7 +1,7 @@
 
-=========
-Example 1
-=========
+===========
+Basic Usage
+===========
 
 .. note:: More examples in the form of Jupyter notebooks can be downloaded from the git repository and are contained in the "example_notebooks" directory.
 

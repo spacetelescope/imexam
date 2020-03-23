@@ -1,7 +1,7 @@
 
-=========
-Example 4
-=========
+=====================
+Loading an Image Cube
+=====================
 
 Load and examine an image CUBE
 ------------------------------

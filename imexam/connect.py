@@ -580,6 +580,17 @@ class Connect:
         else:
             return(self.exam.colplot_pars)
 
+    def dimexam(self, get_name=False):
+        """Show the current parameters for the 'd' key.
+
+        Either returns the name of the function associated with the keyname
+        Or it returns the dictionary of plotting parameters for that key
+        """
+        if get_name:
+            return self.exam.imexam_option_funcs['d'][0].__name__
+        else:
+            return(self.exam.com_center_pars)
+
     def eimexam(self, get_name=False):
         """Show the current parameters for the 'e' key, returns dict."""
         if get_name:

@@ -957,7 +957,7 @@ class Imexamine:
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
 
         try:
-            xcenter, ycenter = centroid_com(chunk)
+            xcenter, ycenter = centroid_com(chunk, oversample=oversample)
 
             pstr = f"xc={(xcenter + xx - delta):.4f}\tyc={(ycenter + yy - delta):.4f}"                                                 
         except AttributeError:

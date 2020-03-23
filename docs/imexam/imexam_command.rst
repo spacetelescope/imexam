@@ -9,27 +9,31 @@ This is the main method which allows live interaction with the image display whe
 
 **Current recognized keys available during imexam are:** ::
 
-    2   Make the next plot in a new window
-    a   Aperture sum, with radius region_size 
-    b   Return the 2D gauss fit center of the object
-    c   Return column plot
-    e   Return a contour plot in a region around the cursor
-    g   Return curve of growth plot
-    h   Return a histogram in the region around the cursor
-    j   1D [Gaussian1D default] line fit 
-    k   1D [Gaussian1D default] column fit
-    l   Return line plot
-    m   Square region stats, in [region_size],default is median
-    r   Return the radial profile plot
-    s   Save current figure to disk as [plot_name]
-    t   Make a fits image cutout using pointer location
-    w   Display a surface plot around the cursor location
-    x   Return x,y,value of pixel
-    y   Return x,y,value of pixel
+    2 Make the next plot in a new window
+    a Aperture sum, with radius region_size 
+    b Return the 2D gauss fit center of the object
+    c Return column plot
+    d Return the Center of Mass fit center of the object
+    e Return a contour plot in a region around the cursor
+    g Return curve of growth plot
+    h Return a histogram in the region around the cursor
+    j 1D [Gaussian1D default] line fit 
+    k 1D [Gaussian1D default] column fit
+    l Return line plot
+    m Square region stats, in [region_size],default is median
+    r Return the radial profile plot
+    s Save current figure to disk as [plot_name]
+    t Make a fits image cutout using pointer location
+    w Display a surface plot around the cursor location
+    x Return x,y,value of pixel
+    y Return x,y,value of pixel
+
 
      aimexam(): return a dict of current parameters for aperture photometery
 
      cimexam(): return dict of current parameters for column plots
+
+     dimexam(): return the center of mass around the current position
 
      eimexam(): return dict of current parameters for contour plots
 
@@ -128,29 +132,35 @@ Aperture photometry is performed when you press the "a" key. It is implemented u
 
 Currently, the calculation which is performed is similar to the "," or "a" IRAF imexamine keys. It is circular aperture photometry, centered on the mouse location at the time the key is pressed, with a background annulus subtraction for the sky. The radius of the aperture is set with the region_size keyword (default to 5 pixels). The annulus size is also set to the width, and taken a distance of skyrad pixels from the center. The pixels used to calculate the enclosed flux are those whose centers fall inside the radius distance, in the same way that IRAF imexamine computes the flux.
 
+If `center` is set to True, and `center_com` is set to False, then a 2D Gaussian profile will be
+used to refine the center of the object. If `center_com` is set to True, then a center of mass will
+instead be calculated, using the `delta` box size around the object.
+
 These are the default parameters for aperture photometry. They live in a dictionary in the exam object::
 
     The direct access:
 
     viewer.exam.aper_phot_pars= {'function':["aperphot",],
-                    'center':[True,"Center the object location using a Gaussian2D fit"],
+                    'center': [True, "Center the object (choose center_type)"],
+                    'center_com': [False, "gaussian2d, True=center of mass"],
                     'width':[5,"Width of sky annulus in pixels"],
                     'subsky':[True,"Subtract a sky background?"],
                     'skyrad':[15,"Distance to start sky annulus is pixels"],
                     'radius':[5,"Radius of aperture for star flux"],
                     'zmag':[25.,"zeropoint for the magnitude calculation"],
-                    'genplot': [True, 'Plot the apertures'], 
                     'title': [None, 'Title of the plot'],
                     'scale': ['zscale', 'How to scale the image'],
                     'color_min': [None, 'Minimum color value'],
                     'color_max': [None, 'Maximum color value'],
-                    'cmap': ['Greys', 'Matplotlib colormap to use']
+                    'cmap': ['Greys', 'Matplotlib colormap to use'],
+                    'delta': [10, "bounding box for centering measurement"],
                     }
     Using the convenience function:
 
     In [1]: viewer.aimexam()
     Out[2]:
-    {'center': [True, 'Center the object location using a 2d gaussian fit'],
+    {'center': [True, "Center the object (choose center_type)"],
+     'center_com': [False, "gaussian2d, True=center of mass"],
      'function': ['aper_phot'],
      'radius': [5, 'Radius of aperture for star flux'],
      'skyrad': [15, 'Distance to start sky annulus is pixels'],
@@ -162,7 +172,8 @@ These are the default parameters for aperture photometry. They live in a diction
      'scale': ['zscale', 'How to scale the image'],
      'color_min': [None, 'Minimum color value'],
      'color_max': [None, 'Maximum color value'],
-     'cmap': ['Greys', 'Matplotlib colormap to use']}
+     'cmap': ['Greys', 'Matplotlib colormap to use'],
+     'delta': [10, "bounding box for centering measurement"]}
 
 In order to change the width of the photometry aperture around the object you would do this:::
 
@@ -184,6 +195,13 @@ This is the resulting plot:
     :height: 400
     :width: 400
     :alt: Plot of aperture photometry apertures
+
+Using the Center of Mass::
+
+    com_center_pars = {"function": ["com_center",],
+                       "delta": [10, "bounding box size"],
+                       "oversample": [1., "oversample pixels by"],
+                       }
 
 
 Available 1D profiles

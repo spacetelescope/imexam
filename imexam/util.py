@@ -9,7 +9,7 @@ from astropy.io import fits
 from . import __version__
 
 try:    
-    import imexamxpa  
+    import imexamxpa  as xpa
     _have_xpa = True    
 except ImportError: 
     _have_xpa = False   
