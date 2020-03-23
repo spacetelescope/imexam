@@ -1,7 +1,7 @@
 
-=========
-Example 5
-=========
+======================
+Usage Without A Viewer
+======================
 
 Use the imexamine library standalone to create plots without viewing
 --------------------------------------------------------------------

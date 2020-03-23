@@ -166,23 +166,25 @@ The available key mappings should be printed to your terminal::
 
     Press 'q' to quit
 
-    2   Make the next plot in a new window
-    a   Aperture sum, with radius region_size 
-    b   Return the 2D gauss fit center of the object
-    c   Return column plot
-    e   Return a contour plot in a region around the cursor
-    g   Return curve of growth plot
-    h   Return a histogram in the region around the cursor
-    j   1D [Gaussian1D default] line fit 
-    k   1D [Gaussian1D default] column fit
-    l   Return line plot
-    m   Square region stats, in [region_size],default is median
-    r   Return the radial profile plot
-    s   Save current figure to disk as [plot_name]
-    t   Make a fits image cutout using pointer location
-    w   Display a surface plot around the cursor location
-    x   Return x,y,value of pixel
-    y   Return x,y,value of pixel
+    2 Make the next plot in a new window
+    a Aperture sum, with radius region_size 
+    b Return the 2D gauss fit center of the object
+    c Return column plot
+    d Return the Center of Mass fit center of the object
+    e Return a contour plot in a region around the cursor
+    g Return curve of growth plot
+    h Return a histogram in the region around the cursor
+    j 1D [Gaussian1D default] line fit 
+    k 1D [Gaussian1D default] column fit
+    l Return line plot
+    m Square region stats, in [region_size],default is median
+    r Return the radial profile plot
+    s Save current figure to disk as [plot_name]
+    t Make a fits image cutout using pointer location
+    w Display a surface plot around the cursor location
+    x Return x,y,value of pixel
+    y Return x,y,value of pixel
+
 
 
 Look at the window below, I've started the imexam loop
