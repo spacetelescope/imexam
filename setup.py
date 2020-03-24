@@ -5,6 +5,7 @@ import sys
 import os
 import importlib
 from distutils.command.clean import clean
+from distutils.command.install_lib import install_lib
 from setuptools.command.install import install
 from setuptools import setup, Command, Extension
 from setuptools.command.test import test as TestCommand
@@ -64,8 +65,6 @@ try:
             BuildDoc.finalize_options(self)
 
         def run(self):
-            # build_cmd = self.reinitialize_command('build_ext')
-            # self.run_command('build_ext')
             retcode = build_main(['-W', '--keep-going', '-b', 'html', './docs', './docs/_build/html'])
             if retcode != 0:
                 sys.exit(retcode)
@@ -166,6 +165,7 @@ if not sys.platform.startswith('win'):
     if use_cython:
         ext = cythonize(xpa_module)
         current_env = sys.prefix
+
         class my_clean(Command):
             user_options = []
 
@@ -209,6 +209,8 @@ if not sys.platform.startswith('win'):
                     if os.access(myfile, os.F_OK):
                         print(f"removing {myfile}")
                         os.remove(myfile)
+                    if os.access(XPA_LIBNAME+suffix_lib, os.F_OK):
+                        os.remove(XPA_LIBNAME+suffix_lib)
 
                 clean.run(self)
 
@@ -242,6 +244,13 @@ if not sys.platform.startswith('win'):
                         exit(1)
                 install.run(self)
 
+        class MyInstallLib(install_lib):
+            def initialize_options(self):
+                super().initialize_options()
+            def finalize_options(self):
+                super().finalize_options()
+            def run(self):
+                install_lib.run(self)
 
         class BuildExtWithConfigure(build_ext):
             """Configure, build, and install the aXe C code."""
@@ -253,12 +262,23 @@ if not sys.platform.startswith('win'):
                 super().build_extensions()
 
             def run(self):
+                try:
+                    check_call(["make", "-f", "Makefile", "clean"],cwd=XPALIB_DIR)
+                    check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
+                    check_call(["make", "-f", "Makefile", "install"], cwd=XPALIB_DIR)
+                except CalledProcessError as e:
+                    print(e)
+                    exit(1)
                 build_ext.run(self)
+
                 
 
         cmdclass.update({'install' : InstallWithRemake,
                          'clean' : my_clean,
-                         'build_ext' : BuildExtWithConfigure})
+                         'develop': InstallWithRemake,
+                         'build_ext' : BuildExtWithConfigure,
+                         })
+
     else:
         ext = [xpa_module]
 
