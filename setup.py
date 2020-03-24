@@ -7,6 +7,8 @@ import importlib
 from distutils.command.clean import clean
 from distutils.command.install_lib import install_lib
 from setuptools.command.install import install
+from setuptools.command.develop import develop
+from setuptools.command.build_py import build_py
 from setuptools import setup, Command, Extension
 from setuptools.command.test import test as TestCommand
 from subprocess import check_call, CalledProcessError
@@ -226,6 +228,7 @@ if not sys.platform.startswith('win'):
 
             def finalize_options(self):
                 super().finalize_options()
+                self.inplace = 1
                 if self.noremake:
                     if not os.access(XPALIB_DIR + "Makefile", os.F_OK):
                         raise FileNotFoundError("Makefile doesn't exist, let imexam build")
@@ -244,20 +247,20 @@ if not sys.platform.startswith('win'):
                         exit(1)
                 install.run(self)
 
-        class MyInstallLib(install_lib):
-            def initialize_options(self):
-                super().initialize_options()
+        class MyBuildPy(build_py):
             def finalize_options(self):
                 super().finalize_options()
+                self.package_data = package_data
             def run(self):
-                install_lib.run(self)
+                build_py.run(self)
 
+        
         class BuildExtWithConfigure(build_ext):
             """Configure, build, and install the aXe C code."""
             
             def initialize_options(self):
                 super().initialize_options()
-
+                self.inplace = 1
             def build_extensions(self):
                 super().build_extensions()
 
@@ -275,7 +278,7 @@ if not sys.platform.startswith('win'):
 
         cmdclass.update({'install' : InstallWithRemake,
                          'clean' : my_clean,
-                         'develop': InstallWithRemake,
+                         'build_py': MyBuildPy,
                          'build_ext' : BuildExtWithConfigure,
                          })
 
