@@ -1,41 +1,30 @@
-language: c
+language: python
+
+os: linux
+services: xvfb
+
+# Setting sudo to false opts in to Travis-CI container-based builds.
+sudo: false
 
 # Cache can be cleared from the travis settings menu, see docs currently at
 # https://docs.travis-ci.com/user/caching#Clearing-Caches
 cache:
   - ccache
 
-
-os:
-    - linux
-
-# Setting sudo to false opts in to Travis-CI container-based builds.
-sudo: false
-
-
 # The apt packages below are needed for sphinx builds, which can no longer
 # be installed with sudo apt-get.
 addons:
     apt:
         packages:
-            - graphviz
-            - texlive-latex-extra
             - dvipng
 
 env:
     global:
-        # SET DEFAULTS TO AVOID REPEATING IN MOST CASES
-        - SETUP_XVFB=True
-        - PYTHON_VERSION=3.6
-        - NUMPY_VERSION=stable
-        - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='Cython matplotlib scipy ipython'
-        - PIP_DEPENDENCIES='photutils pytest-astropy pytest-cov'
-        - MAIN_CMD='python setup.py'
-        - SETUP_CMD='test'
-        - CONDA_CHANNELS='astropy-ci-extras astropy'
-        - SETUP_XVFB=True
-        - EVENT_TYPE='push pull_request'
+        # https://docs.travis-ci.com/user/environment-variables/        
+        - NUMPY=1.14
+        - ASTROPY=4.0
+        - PYTHON=3.5
+        - CONDA_DEPENDENCIES='scipy matplotlib ipython Cython setuptools_scm pip pytest'
 
         # PEP8 errors/warnings:
         # E101 - mix of tabs and spaces
@@ -53,105 +42,74 @@ env:
         # E902 - IOError
         - FLAKE8_OPT="--select=E101,W191,W291,W292,W293,W391,E111,E112,E113,E502,E722,E901,E902"
 
+before_install:
+  # Install the latest version of Miniconda
+  - uname -a
+  - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda3.sh
+  - chmod +x miniconda3.sh
+  - ./miniconda3.sh -b
+  - export PATH=/home/travis/miniconda3/bin:$PATH
+  - python --version
 
-    matrix:
-        # make sure that egg_info works without dependencies
-        - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
-        - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
-        - PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
+install:
+    # You can add any CONDA channels you may need here. CONDA supports
+    # both the commands add and append. The only difference is that 
+    # the add command places the channel at the front of the priority 
+    # list, while append does the opposite.
+    - conda config --add channels conda-forge
+    - conda config --add channels astropy
+    - conda create --yes -n test python=$PYTHON
+    - source activate test
+    - conda install -y numpy=$NUMPY astropy=$ASTROPY
+    - conda install -y $CONDA_DEPENDENCIES
+    # - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule update --init --recursive
+    - pip install pytest-pep8 
+    - pip install pytest-cov
+    - pip install coveralls
+    - pip install sphinx-automodapi
+    - pip install photutils
+    - pip install sphinx-astropy
+    - pip install graphviz
+    - pip install -e .
 
 
-matrix:
+jobs:
 
     # Don't wait for allowed failures
     fast_finish: true
 
     include:
-        # Try MacOS X
-        - os: osx
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES
-
-
-        - os: linux
         # Check for sphinx doc build warnings - we do this first because
         - python: 3.5
-          env: SETUP_CMD='build_sphinx -w' CONDA_DEPENDENCIES='Cython ipython scipy matplotlib ginga'
-
-       # Try Astropy development and LTS versions
-        - python: 3.5
-          env: ASTROPY_VERSION=lts
-        - python: 3.5
-          env: ASTROPY_VERSION=development
-        - python: 3.6
-          env: ASTROPY_VERSION=development
-        - python: 3.7
-          env: ASTROPY_VERSION=development
-
-        # Try with optional dependencies disabled
-        - python: 3.5
-          env: PIP_DEPENDENCIES=''
-        - python: 3.6
-          env: PIP_DEPENDENCIES=''
-        - python: 3.7
-          env: PIP_DEPENDENCIES=''
+          script: python setup.py build_sphinx -w
 
         # Try older numpy versions
         - python: 3.6
-          env: NUMPY_VERSION=1.14
+          env: numpy=1.14
         - python: 3.6
-          env: NUMPY_VERSION=1.15
-        - python: 3.6
-          env: NUMPY_VERSION=1.16
+          env: numpy=1.15
         - python: 3.7
-          env: NUMPY_VERSION=1.14
+          env: numpy=1.14
         - python: 3.7
-          env: NUMPY_VERSION=1.15
+          env: numpy=1.15
         - python: 3.7
-          env: NUMPY_VERSION=1.16
+          env: astropy=3.2.3 numpy=1.15
+        - python: 3.8
+          env: astropy=4.0 numpy=1.18
         
 
         # Do coverage tests
-        - python: 3.5
-          env: SETUP_CMD='test --cov'
+        - python: 3.7
+          env: test --cov
 
 
         # Do a pep8 test
-        - python: 3.5
-          env: MAIN_CMD="flake8 imexam --count $FLAKE8_OPT" SETUP_CMD=''
-
-    allow_failures:
         - python: 3.7
-          env: NUMPY_VERSION=prerelease
-        - python: 3.8
-          env: NUMPY_VERSION=prerelease
+          script: flake8 imexam --count $FLAKE8_OPT
 
 
-before_install:
-    - uname -a
-    - python --version
-    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( sudo Xvfb :99 -ac -screen 0 1024x768x8; sleep 3; echo ok )& fi
 
-    # We now use the ci-helpers package to set up our testing environment.
-    # This is done by using Miniconda and then using conda and pip to install
-    # dependencies. Which dependencies are installed using conda and pip is
-    # determined by the CONDA_DEPDENDENCIES and PIP_DEPENDENCIES variables,
-    # which should be space-delimited lists of package names. See the README
-    # in https://github.com/astropy/ci-helpers for information about the full
-    # list of environment variables that can be used to customize your
-    # environment. In some cases, ci-helpers may not offer enough flexibility
-    # in how to install a package, in which case you can have additional
-    # commands in the install: section below.
-
-
-install:
-    - git clone git://github.com/astropy/ci-helpers.git
-    - source ci-helpers/travis/setup_conda.sh
-    - pip install pytest-pep8 
-    - pip install pytest
-    - pip install pytest-cov
-    - pip install coveralls
 
     # As described above, using ci-helpers, you should be able to set up an
     # environment with dependencies installed using conda and pip, but in some
@@ -162,11 +120,8 @@ install:
     # section if they are needed before setting up conda) to install any
     # other dependencies.
 
-
-script:
-    # - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ( xvfb-run -a $MAIN_CMD  $SETUP_CMD ) fi
-    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( $MAIN_CMD $SETUP_CMD ) fi
+script: python setup.py test
 
 
 after_success:
-    - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls --rcfile='imexam/tests/coveragerc'; fi
+    - coveralls --rcfile='imexam/tests/coveragerc'

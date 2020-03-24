@@ -5,9 +5,7 @@ import sys
 import os
 import importlib
 from distutils.command.clean import clean
-from distutils.command.install_lib import install_lib
 from setuptools.command.install import install
-from setuptools.command.develop import develop
 from setuptools.command.build_py import build_py
 from setuptools import setup, Command, Extension
 from setuptools.command.test import test as TestCommand
@@ -67,12 +65,15 @@ try:
             BuildDoc.finalize_options(self)
 
         def run(self):
+            build_cmd = self.reinitialize_command('build_ext')
+            build_cmd.inplace = 1
+            self.run_command('build_ext')
             retcode = build_main(['-W', '--keep-going', '-b', 'html', './docs', './docs/_build/html'])
             if retcode != 0:
                 sys.exit(retcode)
 
 except ImportError:
-    print("Sphinx is not installed!!\n", file=sys.stderr)
+    print("Sphinx is not installed!!\n")
     class BuildSphinx(Command):
         user_options = []
 
@@ -83,7 +84,7 @@ except ImportError:
             pass
 
         def run(self):
-            exit(1)
+            pass
 
 
 try:
