@@ -17,7 +17,7 @@ import importlib
 import sphinx
 import sphinx.environment
 from docutils.utils import get_source_line
-from pkg_resources import get_distribution
+# from pkg_resources import get_distribution
 from distutils.version import LooseVersion
 
 try:
@@ -25,8 +25,12 @@ try:
 except ImportError:
     from configparser import ConfigParser
 conf = ConfigParser()
+conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
+setup_cfg = dict(conf.items('metadata'))
 
-release = get_distribution('imexam').version
+from pkg_resources import get_distribution
+release = get_distribution(setup_cfg['package_name']).version
+
 # for example take major/minor
 version = '.'.join(release.split('.')[:4])
 

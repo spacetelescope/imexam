@@ -194,7 +194,7 @@ class Imexamine:
 
         """
         self.log.debug(f"pressed: {key}, {self.imexam_option_funcs[key][0].__name__}")
-        # dont require input for saving the active figure 
+        # dont require input for saving the active figure
         if key == 's':
             self.imexam_option_funcs[key][0]()
         else:
@@ -542,7 +542,7 @@ class Imexamine:
             If error is not None, then it should be given the
             error array for the corresponding data image.
             error is assumed to include all sources of error,
-            including the Poisson error of the sources 
+            including the Poisson error of the sources
             See the docs for photutils for more details.
             The returned table will include a 'aperture_sum_err' column
             in addition to 'aperture_sum'. 'aperture_sum_err'
@@ -917,8 +917,8 @@ class Imexamine:
             return result
 
     def com_center(self, x, y, data=None, delta=None, oversample=1.):
-        """ Return the center of mass of the object at x,y 
-        
+        """ Return the center of mass of the object at x,y
+
         Parameters
         ----------
         x: int
@@ -959,7 +959,7 @@ class Imexamine:
         try:
             xcenter, ycenter = centroid_com(chunk, oversample=oversample)
 
-            pstr = f"xc={(xcenter + xx - delta):.4f}\tyc={(ycenter + yy - delta):.4f}"                                                 
+            pstr = f"xc={(xcenter + xx - delta):.4f}\tyc={(ycenter + yy - delta):.4f}"
         except AttributeError:
             raise AttributeError("Problem with center of mass")
         self.log.info(pstr)
