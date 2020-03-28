@@ -239,9 +239,9 @@ if not sys.platform.startswith('win'):
             def run(self):
                 if self.remake:
                     try:
+                        check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
                         check_call(["make", "-f", "Makefile", "clean"],
                                 cwd=XPALIB_DIR)
-                        check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
                         check_call(["make", "-f", "Makefile", "install"], cwd=XPALIB_DIR)
                     except CalledProcessError as e:
                         print(e)
