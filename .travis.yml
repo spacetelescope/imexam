@@ -23,7 +23,7 @@ env:
         # https://docs.travis-ci.com/user/environment-variables/        
         - NUMPY=1.14
         - ASTROPY=4.0
-        - PYTHON=3.5
+        - PYTHON=3.7
         - CONDA_DEPENDENCIES='scipy matplotlib ipython Cython setuptools_scm pip pytest'
 
         # PEP8 errors/warnings:
@@ -81,7 +81,7 @@ jobs:
 
     include:
         # Check for sphinx doc build warnings - we do this first because
-        - python: 3.5
+        - python: 3.7
           script: python setup.py build_sphinx -w
 
         # Try older numpy versions
