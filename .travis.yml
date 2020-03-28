@@ -21,10 +21,10 @@ addons:
 env:
     global:
         # https://docs.travis-ci.com/user/environment-variables/        
-        - NUMPY=1.14
+        - NUMPY=1.17
         - ASTROPY=4.0
         - PYTHON=3.7
-        - CONDA_DEPENDENCIES='scipy matplotlib ipython Cython setuptools_scm pip pytest'
+        - CONDA_DEPENDENCIES='scipy matplotlib pyqt ginga ipython Cython setuptools_scm pip pytest'
 
         # PEP8 errors/warnings:
         # E101 - mix of tabs and spaces
@@ -40,7 +40,7 @@ env:
         # E722 - do not use bare except
         # E901 - SyntaxError or IndentationError
         # E902 - IOError
-        - FLAKE8_OPT="--select=E101,W191,W291,W292,W293,W391,E111,E112,E113,E502,E722,E901,E902"
+        - FLAKE8_OPT="--select=E101,W191,W291,W292,W293,E111,E112,E113,E502,E722,E901,E902"
 
 before_install:
   # Install the latest version of Miniconda
@@ -49,30 +49,25 @@ before_install:
   - chmod +x miniconda3.sh
   - ./miniconda3.sh -b
   - export PATH=/home/travis/miniconda3/bin:$PATH
+  - conda config --add channels conda-forge
+  - conda config --add channels astropy
   - python --version
+  - git submodule update --init --recursive
 
 install:
-    # You can add any CONDA channels you may need here. CONDA supports
-    # both the commands add and append. The only difference is that 
-    # the add command places the channel at the front of the priority 
-    # list, while append does the opposite.
-    - conda config --add channels conda-forge
-    - conda config --add channels astropy
-    - conda create --yes -n test python=$PYTHON
+    - conda create --yes -n test python=$PYTHON numpy=$NUMPY
     - source activate test
-    - conda install -y numpy=$NUMPY astropy=$ASTROPY
+    - conda install -y  astropy=$ASTROPY
     - conda install -y $CONDA_DEPENDENCIES
-    # - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-    - git submodule update --init --recursive
     - pip install pytest-pep8 
     - pip install pytest-cov
     - pip install coveralls
     - pip install sphinx-automodapi
     - pip install photutils
+    - pip install flake8
     - pip install sphinx-astropy
     - pip install graphviz
-    - pip install -e .
-
+    - python setup.py build_ext --inplace
 
 jobs:
 
@@ -82,21 +77,24 @@ jobs:
     include:
         # Check for sphinx doc build warnings - we do this first because
         - python: 3.7
-          script: python setup.py build_sphinx -w
+          env: numpy=1.17
+          script: python setup.py build_sphinx
 
         # Try older numpy versions
         - python: 3.6
-          env: numpy=1.14
+          env: numpy=1.15 astropy=3.2.3  
         - python: 3.6
-          env: numpy=1.15
+          env: numpy=1.16
+        - python: 3.6
+          env: numpy=1.17
         - python: 3.7
-          env: numpy=1.14
+          env: numpy=1.18
         - python: 3.7
-          env: numpy=1.15
-        - python: 3.7
-          env: astropy=3.2.3 numpy=1.15
+          env: numpy=1.17
         - python: 3.8
-          env: astropy=4.0 numpy=1.18
+          env: numpy=1.17
+        - python: 3.8
+          env: numpy=1.18
         
 
         # Do coverage tests
