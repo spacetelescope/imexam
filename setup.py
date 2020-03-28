@@ -65,9 +65,11 @@ try:
             BuildDoc.finalize_options(self)
 
         def run(self):
-            build_cmd = self.reinitialize_command('build_ext')
-            build_cmd.inplace = 1
-            self.run_command('build_ext')
+            try:
+                import imexam
+            except ImportError as e:
+                build_cmd = self.reinitialize_command('build_ext')
+                build_cmd.inplace = 1
             retcode = build_main(['-W', '--keep-going', '-b', 'html', './docs', './docs/_build/html'])
             if retcode != 0:
                 sys.exit(retcode)
@@ -192,7 +194,8 @@ if not sys.platform.startswith('win'):
 
             def run(self):
                 try:
-                    check_call(["make", "clean"], cwd=XPALIB_DIR)
+                    if os.access(XPALIB_DIR + "Makefile", os.F_OK):
+                        check_call(["make", "clean"], cwd=XPALIB_DIR)
                 except CalledProcessError as e:
                     print(e)
                     exit(1)                    
@@ -240,9 +243,7 @@ if not sys.platform.startswith('win'):
                 if self.remake:
                     try:
                         check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
-                        check_call(["make", "-f", "Makefile", "clean"],
-                                cwd=XPALIB_DIR)
-                        check_call(["make", "-f", "Makefile", "install"], cwd=XPALIB_DIR)
+                        check_call(["make", "install"], cwd=XPALIB_DIR)
                     except CalledProcessError as e:
                         print(e)
                         exit(1)
@@ -267,9 +268,9 @@ if not sys.platform.startswith('win'):
 
             def run(self):
                 try:
-                    check_call(["make", "-f", "Makefile", "clean"],cwd=XPALIB_DIR)
                     check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
-                    check_call(["make", "-f", "Makefile", "install"], cwd=XPALIB_DIR)
+                    check_call(["make", "clean"],cwd=XPALIB_DIR)
+                    check_call(["make", "install"], cwd=XPALIB_DIR)
                 except CalledProcessError as e:
                     print(e)
                     exit(1)

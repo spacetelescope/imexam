@@ -1,4 +1,5 @@
 astropy
+scipy
 numpy
 matplotlib
 Cython
@@ -7,3 +8,4 @@ ipython
 astropy-sphinx-theme
 pytest-astropy 
 sphinx-astropy
+sphinx-automodapi

@@ -8,11 +8,11 @@ from astropy.io import fits
 
 from . import __version__
 
-try:    
+try:
     import imexamxpa  as xpa
-    _have_xpa = True    
-except ImportError: 
-    _have_xpa = False   
+    _have_xpa = True
+except ImportError:
+    _have_xpa = False
 
 
 # To guide any import *
