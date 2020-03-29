@@ -28,8 +28,12 @@ conf = ConfigParser()
 conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
 setup_cfg = dict(conf.items('metadata'))
 
-from pkg_resources import get_distribution
-release = get_distribution(setup_cfg['package_name']).version
+try:
+    import imexam
+    release = imexam.__version__
+except ImportError:
+    from pkg_resources import get_distribution
+    release = get_distribution(setup_cfg['package_name']).version
 
 # for example take major/minor
 version = '.'.join(release.split('.')[:4])
