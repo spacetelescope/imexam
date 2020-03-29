@@ -31,6 +31,10 @@ environment:
         - PYTHON_VERSION: "3.7"
           NUMPY_VERSION: "stable"
           ASTROPY_VERSION: "development"
+ 
+        - PYTHON_VERSION: "3.8"
+          NUMPY_VERSION: "stable"
+          ASTROPY_VERSION: "development"
 
 
 matrix:
@@ -49,7 +53,7 @@ install:
     - cmd: set OLDPATH=
     - cmd: call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
     - cmd: set PYTHONUNBUFFERED=1
-    - cmd: conda install scipy matplotlib numpy astropy ipython sphinx pytest
+    - cmd: conda install scipy matplotlib numpy astropy ipython sphinx pytest pytest-cov
     - cmd: git submodule update --init --recursive
     - cmd: conda info -a
 
