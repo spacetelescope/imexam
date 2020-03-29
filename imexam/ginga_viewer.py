@@ -6,7 +6,6 @@
 """
 
 import sys
-import os
 import traceback
 import warnings
 import threading

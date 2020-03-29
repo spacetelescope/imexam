@@ -18,10 +18,11 @@ if sys.version_info < (3, 5):
 
 
 class PyTest(TestCommand):
+    user_options = []
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
-        self.pytest_args = [PACKAGENAME]
+        self.pytest_args = ["--cov", PACKAGENAME]
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -75,7 +76,7 @@ try:
                 sys.exit(retcode)
 
 except ImportError:
-    print("Sphinx is not installed!!\n")
+    print("Sphinx is not installed, can't build documents!!\n")
     class BuildSphinx(Command):
         user_options = []
 
@@ -125,12 +126,12 @@ if not sys.platform.startswith('win'):
         from Cython.Distutils import build_ext
         from Cython.Build import cythonize
         use_cython = True
-        print("Building with Cython")
+        print("Cython found")
         CYTHON_SOURCE = "wrappers/xpa.pyx"
     except ImportError:
         from distutils.command import build_ext
         use_cython = False
-        print("Building without Cython")
+        print("Cython not found")
         CYTHON_SOURCE = "wrappers/xpa.c"
 
     XPALIB_DIR = "./cextern/xpa/"
@@ -172,6 +173,7 @@ if not sys.platform.startswith('win'):
         current_env = sys.prefix
 
         class my_clean(Command):
+            """ This is a full on clean, including docs"""
             user_options = []
 
             def initialize_options(self):
@@ -217,7 +219,10 @@ if not sys.platform.startswith('win'):
                         os.remove(myfile)
                     if os.access(XPA_LIBNAME+suffix_lib, os.F_OK):
                         os.remove(XPA_LIBNAME+suffix_lib)
-
+                try:
+                    check_call(["make", "clean"], cwd="./docs")
+                except CalledProcessError as e:
+                    print(e)
                 clean.run(self)
 
         class InstallWithRemake(install):
