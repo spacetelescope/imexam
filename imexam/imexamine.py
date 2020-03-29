@@ -315,6 +315,8 @@ class Imexamine:
         """
         if data is None:
             data = self._data
+        x = int(x)
+        y = int(y)
         self.log.info(f"Line at {x} {y}")
 
         pfig = fig
@@ -325,12 +327,12 @@ class Imexamine:
         ax = fig.gca()
 
         if self.lineplot_pars["title"][0] is None:
-            ax.set_title(f"{self._datafile} line at {int(y)}")
+            ax.set_title(f"{self._datafile} line at {y}")
         ax.set_xlabel(self.lineplot_pars["xlabel"][0])
         ax.set_ylabel(self.lineplot_pars["ylabel"][0])
 
         if not self.lineplot_pars["xmax"][0]:
-            xmax = len(data[int(y), :])
+            xmax = len(data[y, :])
         else:
             xmax = self.lineplot_pars["xmax"][0]
         ax.set_xlim(self.lineplot_pars["xmin"][0], xmax)
@@ -341,9 +343,9 @@ class Imexamine:
             ax.set_yscale("log")
 
         if bool(self.lineplot_pars["pointmode"][0]):
-            ax.plot(data[int(y), :], self.lineplot_pars["marker"][0])
+            ax.plot(data[y, :], self.lineplot_pars["marker"][0])
         else:
-            ax.plot(data[int(y), :])
+            ax.plot(data[y, :])
 
         if pfig is None and 'nbagg' not in self._mpl_backend:
             plt.draw()
@@ -367,6 +369,8 @@ class Imexamine:
         """
         if data is None:
             data = self._data
+        x = int(x)
+        y = int(y)
         self.log.info(f"Column at {x} {y}")
 
         pfig = fig
@@ -377,14 +381,14 @@ class Imexamine:
         ax = fig.gca()
 
         if self.colplot_pars["title"][0] is None:
-            ax.set_title(f"{self._datafile} column at {int(x)}")
+            ax.set_title(f"{self._datafile} column at {x}")
         else:
             ax.set_title(self.colplot_pars["title"][0])
         ax.set_xlabel(self.colplot_pars["xlabel"][0])
         ax.set_ylabel(self.colplot_pars["ylabel"][0])
 
         if not self.colplot_pars["xmax"][0]:
-            xmax = len(data[:, int(x)])
+            xmax = len(data[:, x])
         else:
             xmax = self.colplot_pars["xmax"][0]
         ax.set_xlim(self.colplot_pars["xmin"][0], xmax)
@@ -395,9 +399,9 @@ class Imexamine:
         if self.colplot_pars["logy"][0]:
             ax.set_yscale("log")
         if bool(self.colplot_pars["pointmode"][0]):
-            ax.plot(data[:, int(x)], self.colplot_pars["marker"][0])
+            ax.plot(data[:, x], self.colplot_pars["marker"][0])
         else:
-            ax.plot(data[:, int(x)])
+            ax.plot(data[:, x])
 
         if pfig is None and 'nbagg' not in self._mpl_backend:
             plt.draw()
@@ -758,7 +762,7 @@ class Imexamine:
 
         # fit the center with a 2d gaussian
         if pars["center"][0]:
-            if fitform.name is not "Polynomial1D":
+            if fitform.name != "Polynomial1D":
                 amp, xout, yout, sigma, sigmay = self.gauss_center(xx,
                                                                    yy,
                                                                    data,
@@ -786,21 +790,21 @@ class Imexamine:
             sig_factor = 0
 
         # fit model to data
-        if fitform.name is "Gaussian1D":
+        if fitform.name == "Gaussian1D":
             xr = np.arange(len(chunk))
             fitted = math_helper.fit_gauss_1d(xr, chunk, sigma_factor=sig_factor)
             fitted.mean_0.value += delta_add
-        elif fitform.name is "Moffat1D":
+        elif fitform.name == "Moffat1D":
             fitted = math_helper.fit_moffat_1d(chunk, sigma_factor=sig_factor)
             fitted.x_0_0.value += delta_add
-        elif fitform.name is "MexicanHat1D":
+        elif fitform.name == "MexicanHat1D":
             fitted = math_helper.fit_mex_hat_1d(chunk, sigma_factor=sig_factor)
             fitted.x_0_0.value += delta_add
-        elif fitform.name is "Polynomial1D":
+        elif fitform.name == "Polynomial1D":
             fitted = math_helper.fit_poly_n(chunk, deg=degree, sigma_factor=sig_factor)
             if fitted is None:
                 raise ValueError("Problem with the Poly1D fit")
-        elif fitform.name is "AiryDisk2D":
+        elif fitform.name == "AiryDisk2D":
             fitted = math_helper.fit_airy_2d(chunk, sigma_factor=sig_factor)
             if fitted is None:
                 raise ValueError("Problem with the AiryDisk2D fit")
@@ -810,7 +814,7 @@ class Imexamine:
         xline = np.arange(len(chunk)) + delta_add
         fline = np.linspace(xline[0], xline[-1], 100)  # finer sample
 
-        if fitform.name is "AiryDisk2D":
+        if fitform.name == "AiryDisk2D":
             yfit = fitted(fline, fline * 0 + fitted.y_0_0.value)
         else:
             yfit = fitted(fline)
@@ -841,30 +845,30 @@ class Imexamine:
             else:
                 ax.plot(xline, chunk, label="data", linestyle='-')
 
-            if fitform.name is "Gaussian1D":
+            if fitform.name == "Gaussian1D":
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
                 ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f}"
                              f" mean={fitted.mean_0.value:9.2f},"
                              f"fwhm={fwhmx:9.2f}")
                 pstr = f"({int(x):d},{int(y):d}) mean={fitted.mean_0.value:9.2f}, fwhm={fwhmx:9.2f}"
                 self.log.info(pstr)
-            elif fitform.name is "Moffat1D":
+            elif fitform.name == "Moffat1D":
                 mfwhm = math_helper.mfwhm(fitted.alpha_0.value,
                                           fitted.gamma_0.value)
                 ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f}"
                              f" fwhm={mfwhm:9.2f}")
                 pstr = f"({int(x):d},{int(y):d}) amp={fitted.amplitude_0.value:8.2f} fwhm={mfwhm:9.2f}"
                 self.log.info(pstr)
-            elif fitform.name is "MexicanHat1D":
+            elif fitform.name == "MexicanHat1D":
                 ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f} sigma={fitted.sigma_0.value:8.2f}")
                 pstr = f"({int(x):d},{int(y):d}) amp={fitted.amplitude_0.value:8.2f} sigma={fitted.sigma_0.value:9.2f}"
                 self.log.info(pstr)
-            elif fitform.name is "Polynomial1D":
+            elif fitform.name == "Polynomial1D":
                 ax.set_title(f"{title} degree={degree}")
                 pstr = f"({int(x):d},{int(y):d}) degree={degree}"
                 self.log.info(fitted.parameters)
                 self.log.info(pstr)
-            elif fitform.name is "AiryDisk2D":
+            elif fitform.name == "AiryDisk2D":
                 ax.set_title(f"{title} amp={fitted.amplitude_0.value:8.2f} radius={fitted.radius_0.value:8.2f}")
                 pstr = f"({int(x):d},{int(y):d}) amp={fitted.amplitude_0.value:8.2f} radius={fitted.radius_0.value:9.2f}"
                 self.log.info(pstr)
@@ -1173,7 +1177,7 @@ class Imexamine:
         if fitplot:
             fline = np.linspace(0, datasize, 100)  # finer sample
             # fit model to data
-            if fitform.name is "Gaussian1D":
+            if fitform.name == "Gaussian1D":
                 fitted = math_helper.fit_gauss_1d(radius, flux,
                                                   sigma_factor=sig_factor,
                                                   center_at=0,
@@ -1187,7 +1191,7 @@ class Imexamine:
                 legendx = datasize / 2
                 legendy = np.max(flux) / 2
 
-            elif fitform.name is "Moffat1D":
+            elif fitform.name == "Moffat1D":
                 fitted = math_helper.fit_moffat_1d(flux,
                                                    sigma_factor=sig_factor,
                                                    center_at=0,
@@ -1200,7 +1204,7 @@ class Imexamine:
                 legendx = datasize / 2
                 legendy = np.max(flux) / 2
 
-            elif fitform.name is "MexicanHat1D":
+            elif fitform.name == "MexicanHat1D":
                 fitted = math_helper.fit_mex_hat_1d(flux,
                                                     sigma_factor=sig_factor,
                                                     center_at=0,

@@ -21,9 +21,6 @@ addons:
 env:
     global:
         # https://docs.travis-ci.com/user/environment-variables/        
-        - NUMPY=1.17
-        - ASTROPY=4.0
-        - PYTHON=3.7
         - CONDA_DEPENDENCIES='scipy matplotlib pyqt ginga ipython Cython setuptools_scm pip pytest'
 
         # PEP8 errors/warnings:
@@ -41,6 +38,13 @@ env:
         # E901 - SyntaxError or IndentationError
         # E902 - IOError
         - FLAKE8_OPT="--select=E101,W191,W291,W292,W293,E111,E112,E113,E502,E722,E901,E902"
+    jobs:
+        NUMPY=1.15
+        NUMPY=1.16
+        NUMPY=1.17
+        NUMPY=1.18
+        ASTROPY=4.0
+        ASTROPY=3.2.3
 
 before_install:
   # Install the latest version of Miniconda
@@ -52,7 +56,8 @@ before_install:
   - conda config --add channels conda-forge
   - conda config --add channels astropy
   - python --version
-  - git submodule update --init --recursive
+  # travis clones submodules by default
+  # - git submodule update --init --recursive
 
 install:
     - conda create --yes -n test python=$PYTHON numpy=$NUMPY
@@ -69,6 +74,8 @@ install:
     - pip install graphviz
     - python setup.py build_ext --inplace
 
+script: python setup.py test
+
 jobs:
 
     # Don't wait for allowed failures
@@ -76,49 +83,38 @@ jobs:
 
     include:
         # Check for sphinx doc build warnings - we do this first because
-        - python: 3.7
-          env: numpy=1.17
+        - name: "Test documentation build"
+          env: NUMPY=1.17 PYTHON=3.7
           script: python setup.py build_sphinx
 
         # Try older numpy versions
         - python: 3.6
-          env: numpy=1.15 astropy=3.2.3  
+          env: NUMPY=1.15 ASTROPY=3.2.3
         - python: 3.6
-          env: numpy=1.16
+          env: NUMPY=1.16 ASTROPY=4.0
         - python: 3.6
-          env: numpy=1.17
+          env: NUMPY=1.17 ASTROPY=4.0
         - python: 3.7
-          env: numpy=1.18
+          env: NUMPY=1.18 ASTROPY=4.0
         - python: 3.7
-          env: numpy=1.17
+          env: NUMPY=1.17 ASTROPY=4.0
         - python: 3.8
-          env: numpy=1.17
+          env: NUMPY=1.17 ASTROPY=4.0
         - python: 3.8
-          env: numpy=1.18
+          env: NUMPY=1.18 ASTROPY=4.0
         
 
         # Do coverage tests
-        - python: 3.7
-          env: test --cov
+        - name: "Test coverage status"
+          python: 3.7
+          env: ASTROPY=4.0 NUMPY=1.17
+          script: py.test --cov
 
 
         # Do a pep8 test
-        - python: 3.7
+        - name: "Test pep8 requirements"
+          env: PYTHON=3.7 ASTROPY=4.0 NUMPY=1.17
           script: flake8 imexam --count $FLAKE8_OPT
-
-
-
-
-    # As described above, using ci-helpers, you should be able to set up an
-    # environment with dependencies installed using conda and pip, but in some
-    # cases this may not provide enough flexibility in how to install a
-    # specific dependency (and it will not be able to install non-Python
-    # dependencies). Therefore, you can also include commands below (as
-    # well as at the start of the install section or in the before_install
-    # section if they are needed before setting up conda) to install any
-    # other dependencies.
-
-script: python setup.py test
 
 
 after_success:

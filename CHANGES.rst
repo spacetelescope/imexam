@@ -1,6 +1,7 @@
 version 0.8.2a (unreleased)
 ---------------------------
-- renamed xpa extension for compatibility
+- cleanup of travis tests and general package reorg
+- renamed xpa extension for compatibility and updated to version 2.1.19
 - added option for center of mass to aperature photometry centering
 - update aper_phot to return tuple of photometry information without plotting
 - updated example jupyter notebooks to be compatible with current functionality
