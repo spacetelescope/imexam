@@ -16,7 +16,7 @@ __all__ = ['__version__', '__githash__']
 
 
 try:
-    from .xpa_wrap import XPA
+    from . import imexamxpa
     _have_xpa = True
 except ImportError:
     _have_xpa = False

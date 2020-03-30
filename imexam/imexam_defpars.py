@@ -25,7 +25,7 @@ aper_phot_pars = {"function": ["aper_phot", ],
 
 com_center_pars = {"function": ["com_center",],
                    "delta": [10, "bounding box size"],
-                   "oversample": [1., "oversample pixels by"],
+                   "oversampling": [1., "oversample pixels by"],
                    }
 
 # box statistics
