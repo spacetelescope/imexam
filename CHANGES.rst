@@ -1,4 +1,4 @@
-version 0.8.2a (unreleased)
+version 0.9 (released)
 ---------------------------
 - moved extension local to imexam 
 - cleanup of travis tests and general package reorg
