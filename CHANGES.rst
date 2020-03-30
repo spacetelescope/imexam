@@ -1,4 +1,4 @@
-version 0.9.1 (unreleased)
+version 0.9.1 (released)
 -------------------------
 - updated classifiers in pypi
 - cleanup of branch
