@@ -156,13 +156,13 @@ if not sys.platform.startswith('win'):
 
     package_data[PACKAGENAME].extend(XPA_FILES)
     suffix_lib =  importlib.machinery.EXTENSION_SUFFIXES[0]
-    package_data[PACKAGENAME].extend(XPA_LIBNAME+suffix_lib)
+    package_data[PACKAGENAME].append(XPA_LIBNAME+suffix_lib)
 
     XPA_SOURCES = [os.path.join(XPALIB_DIR, c) for c in XPA_FILES]
     XPALIB_DEFINES = [("HAVE_CONFIG_H", "1")]
     XPA_SOURCES.append(CYTHON_SOURCE)
 
-    xpa_module = Extension(XPA_LIBNAME,
+    xpa_module = Extension("imexam."+XPA_LIBNAME,
                            sources=XPA_SOURCES,
                            include_dirs=[XPALIB_DIR],
                            define_macros=XPALIB_DEFINES,
@@ -254,13 +254,6 @@ if not sys.platform.startswith('win'):
                         exit(1)
                 install.run(self)
 
-        class MyBuildPy(build_py):
-            def finalize_options(self):
-                super().finalize_options()
-                self.package_data = package_data
-            def run(self):
-                build_py.run(self)
-
         
         class BuildExtWithConfigure(build_ext):
             """Configure, build, and install the aXe C code."""
@@ -285,7 +278,6 @@ if not sys.platform.startswith('win'):
 
         cmdclass.update({'install' : InstallWithRemake,
                          'clean' : my_clean,
-                         'build_py': MyBuildPy,
                          'build_ext' : BuildExtWithConfigure,
                          })
 
@@ -307,6 +299,6 @@ setup(
     zip_safe=False,
     cmdclass=cmdclass,
     package_data=package_data,
-    package_dir={'': '.'},
+    package_dir={'imexam': 'imexam'},
     ext_modules=ext,
 )

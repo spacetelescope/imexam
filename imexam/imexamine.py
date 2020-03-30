@@ -110,7 +110,7 @@ class Imexamine:
         # save the backend that is in use for plotting reference
         self._mpl_backend = get_backend().lower()
 
-    def setlog(self, filename=None, on=True, level=logging.WARNING):
+    def setlog(self, filename=None, on=True, level=logging.INFO):
             """Turn on and off logging to a logfile or the screen.
 
             Parameters
@@ -920,7 +920,7 @@ class Imexamine:
         if not genplot:
             return result
 
-    def com_center(self, x, y, data=None, delta=None, oversample=1.):
+    def com_center(self, x, y, data=None, delta=None, oversampling=1.):
         """ Return the center of mass of the object at x,y
 
         Parameters
@@ -934,7 +934,7 @@ class Imexamine:
         delta: int
             The range of data values (bounding box) to use around the x,y
             location for calculating the center
-        oversample: int
+        oversampling: int
             Oversampling factors of pixel indices. If oversampling
             is a scalar this is treated as both x and y directions
             having the same oversampling factor; otherwise it is
@@ -961,7 +961,7 @@ class Imexamine:
         chunk = data[yy - delta:yy + delta, xx - delta:xx + delta]
 
         try:
-            xcenter, ycenter = centroid_com(chunk, oversample=oversample)
+            xcenter, ycenter = centroid_com(chunk, oversampling=oversampling)
 
             pstr = f"xc={(xcenter + xx - delta):.4f}\tyc={(ycenter + yy - delta):.4f}"
         except AttributeError:

@@ -135,7 +135,7 @@ def display_xpa_help():
 
 # Set up logging ability for the user
 # consider making a private logging level for data retension
-def set_logging(filename=None, on=True, level=logging.WARNING):
+def set_logging(filename=None, on=True, level=logging.INFO):
     """Turn on or off logging to file or stdout.
 
     Parameters
