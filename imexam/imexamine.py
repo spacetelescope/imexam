@@ -696,7 +696,6 @@ class Imexamine:
                 if pfig is None:
                     plt.draw()
                     plt.pause(0.001)
-                    plt.show()
                 else:
                     fig.canvas.draw_idle()
             else:
