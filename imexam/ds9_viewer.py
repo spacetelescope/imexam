@@ -40,7 +40,7 @@ from subprocess import call
 
 # The XPA class controls interaction with DS9
 from .xpa_wrap import XPA
-from imexamxpa import XpaException
+from .imexamxpa import XpaException
 
 from . import util
 from astropy.io import fits
