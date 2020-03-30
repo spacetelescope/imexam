@@ -2,7 +2,7 @@ version 0.9.1 (2020-03-30)
 -------------------------
 - updated classifiers in pypi
 
-version 0.9 (2020-03-30)
+version 0.9 (released)
 ---------------------------
 - moved extension local to imexam 
 - cleanup of travis tests and general package reorg
