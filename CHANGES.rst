@@ -1,5 +1,9 @@
-version 0.9.1 (unreleased)
--------------------------
+version 0.9.2.dev (unreleased)
+------------------------------
+
+
+version 0.9.1 (2020-03-30)
+--------------------------
 - updated classifiers in pypi
 - cleanup of branch
 
