@@ -1109,7 +1109,7 @@ class ds9:
         """Embed the viewer in a notebook."""
         print("Not Implemented for DS9")
 
-    def load_fits(self, fname, extver=None, mecube=False):
+    def load_fits(self, fname, extver=None, mecube=False, autoscale=True):
         """convenience function to load fits image to current frame.
 
         Parameters
@@ -1125,6 +1125,10 @@ class ds9:
 
         mecube: bool, optional
             If mecube is True, load the fits file as a cube into ds9
+
+        autoscale: bool
+            If true, the image will be autoscaled to zoom-to-fit as well
+            as flux autoscaled upon load
 
         Notes
         -----
@@ -1183,6 +1187,9 @@ class ds9:
             self._viewer[frame]['user_array'] = None
         else:
             self.view(fname[extver].data)
+        if autoscale:
+            self.zoom()
+            self.scale()
 
     def load_region(self, filename):
         """Load regions from a file which uses ds9 standard formatting.

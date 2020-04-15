@@ -25,6 +25,7 @@ version 0.9 (2020-03-30)
 - add check for ds9 in alias as well as well as path
 - python2->3 class and printing updates
 - removed dependence on astropy_helpers
+- added autoscale option to the ds9 load_fits that will zoom-to-fit and zscale by default
 
 version 0.8.1 (2018-12-14)
 --------------------------
