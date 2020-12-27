@@ -771,8 +771,9 @@ class Imexamine:
                         self.log.warning("Problem with centering, "
                                          "pixel coords")
                 else:
-                    xx = int(xout)
-                    yy = int(yout)
+                    # +0.5 ensures rounding float->int, rather than truncating
+                    xx = int(xout+0.5)
+                    yy = int(yout+0.5)
         if col:
             line = data[:, xx]
             chunk = line[yy - delta:yy + delta]
