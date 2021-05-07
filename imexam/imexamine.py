@@ -1160,7 +1160,7 @@ class Imexamine:
                 sky_per_pix = 0.
                 self.log.info("Sky background negative, setting to zero")
             self.log.info(f"Background per pixel: {sky_per_pix}")
-            flux -= sky_per_pix
+            flux = flux - sky_per_pix
 
             if getdata:
                 self.log.info(f"Sky per pixel: {sky_per_pix} using "
