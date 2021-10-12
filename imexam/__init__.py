@@ -14,7 +14,6 @@ from pkg_resources import get_distribution, DistributionNotFound
 __all__ = ['__version__', '__githash__']
 
 
-
 try:
     from . import imexamxpa  # noqa
     _have_xpa = True

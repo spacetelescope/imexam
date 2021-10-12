@@ -616,7 +616,6 @@ class ginga_general:
                 mef_file, nextend, first_image = util.check_valid(shortname)
                 extver = first_image  # the extension of the first IMAGE
 
-
         else:
             raise TypeError("Expected FITS data as input")
 

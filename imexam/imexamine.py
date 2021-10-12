@@ -665,7 +665,7 @@ class Imexamine:
                     title = f"x= {xx:0.2f}, y={yy:0.2f}, flux={total_flux:0.1f}, \nmag={mag:0.1f}, sky={sky_per_pix:0.1f}"
                     if center:
                         if self.aper_phot_pars["center_com"][0]:
-                            title+= f", CoM({xx:0.2f},{yy:0.2f})"
+                            title += f", CoM({xx:0.2f},{yy:0.2f})"
                         else:
                             title += f", FWHM={math_helper.gfwhm(sigma)[0]:0.2f}"
                     ax.set_title(title)
@@ -680,7 +680,7 @@ class Imexamine:
                                    self.aper_phot_pars['color_max'][0]]
 
                 pad = outer * 1.2  # XXX TODO: Bad magic number
-                print(xx,yy,pad)
+                print(xx, yy, pad)
                 ax.imshow(data[int(yy - pad):int(yy + pad),
                                int(xx - pad):int(xx + pad)],
                           vmin=color_range[0], vmax=color_range[1],
@@ -766,8 +766,8 @@ class Imexamine:
                                                                    data,
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
-                       yout > data.shape[0]):
-                   self.log.warning("Problem with centering, pixel coords")
+                        yout > data.shape[0]):
+                    self.log.warning("Problem with centering, pixel coords")
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -967,7 +967,6 @@ class Imexamine:
 
         return (xcenter + xx - delta,
                 ycenter + yy - delta)
-
 
     def gauss_center(self, x, y, data=None, delta=10,
                      sigma_factor=0):

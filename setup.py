@@ -57,7 +57,6 @@ try:
              'only update when it completes, rather than continuously as is '
              'normally the case.'))
 
-
         def initialize_options(self):
             BuildDoc.initialize_options(self)
 
@@ -108,9 +107,6 @@ AUTHOR_EMAIL = metadata.get('author_email', 'help@stsci.edu')
 LICENSE = metadata.get('license', 'BSD-3-Clause')
 URL = metadata.get('url', 'http://astropy.org')
 HOMEPAGE = metadata.get('homepage', '')
-
-
-
 
 package_data = {PACKAGENAME: []}
 ext = []
@@ -246,13 +242,13 @@ if not sys.platform.startswith('win'):
             def run(self):
                 if self.remake:
                     try:
-                        check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
+                        check_call(["sh", "./configure",
+                                    "--prefix="+current_env], cwd=XPALIB_DIR)
                         check_call(["make", "install"], cwd=XPALIB_DIR)
                     except CalledProcessError as e:
                         print(e)
                         exit(1)
                 install.run(self)
-
 
         class BuildExtWithConfigure(build_ext):
             """Configure, build, and install the aXe C code."""
@@ -265,15 +261,14 @@ if not sys.platform.startswith('win'):
 
             def run(self):
                 try:
-                    check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
-                    check_call(["make", "clean"],cwd=XPALIB_DIR)
+                    check_call(["sh", "./configure",
+                                "--prefix="+current_env], cwd=XPALIB_DIR)
+                    check_call(["make", "clean"], cwd=XPALIB_DIR)
                     check_call(["make", "install"], cwd=XPALIB_DIR)
                 except CalledProcessError as e:
                     print(e)
                     exit(1)
                 build_ext.run(self)
-
-
 
         cmdclass.update({'install' : InstallWithRemake,
                          'clean' : my_clean,
