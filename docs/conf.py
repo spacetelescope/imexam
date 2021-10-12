@@ -66,9 +66,9 @@ rst_epilog = """.. _imexam: high-level_API.html"""
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = setup_cfg['package_name']
+project = setup_cfg['name']
 author = setup_cfg['author']
-copyright = f'{datetime.utcnow().year}, {author}'
+copyright = f'2011-{datetime.utcnow().year}, {author}'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

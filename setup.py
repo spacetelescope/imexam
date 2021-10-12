@@ -1,94 +1,71 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+# NOTE: The configuration for the package, including the name, version, and
+# other information are set in the setup.cfg file.
+
 import sys
+
+# First provide helpful messages if contributors try and run legacy commands
+# for tests or docs.
+
+TEST_HELP = """
+Note: running tests is no longer done using 'python setup.py test'. Instead
+you will need to run:
+
+    tox -e test
+
+If you don't already have tox installed, you can install it with:
+
+    pip install tox
+
+If you only want to run part of the test suite, you can also use pytest
+directly with::
+
+    pip install -e .[test]
+    pytest
+
+For more information, see:
+
+  http://docs.astropy.org/en/latest/development/testguide.html#running-tests
+"""
+
+if 'test' in sys.argv:
+    print(TEST_HELP)
+    sys.exit(1)
+
+DOCS_HELP = """
+Note: building the documentation is no longer done using
+'python setup.py build_docs'. Instead you will need to run:
+
+    tox -e build_docs
+
+If you don't already have tox installed, you can install it with:
+
+    pip install tox
+
+You can also build the documentation with Sphinx directly using::
+
+    pip install -e .[docs]
+    cd docs
+    make html
+
+For more information, see:
+
+  http://docs.astropy.org/en/latest/install.html#builddocs
+"""
+
+if 'build_docs' in sys.argv or 'build_sphinx' in sys.argv:
+    print(DOCS_HELP)
+    sys.exit(1)
+
+
 import os
 import importlib
 from distutils.command.clean import clean
 from setuptools.command.install import install
 from setuptools import setup, Command, Extension
-from setuptools.command.test import test as TestCommand
 from subprocess import check_call, CalledProcessError
-
-
-if sys.version_info < (3, 5):
-    error = """ERROR: imexam requires python >= 3.5."""
-    sys.exit(error)
-
-
-class PyTest(TestCommand):
-    user_options = []
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = ["--cov", PACKAGENAME]
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        try:
-            import pytest
-        except ImportError:
-            print('Unable to run tests...')
-            print('To continue, please install "pytest":')
-            print('    pip install pytest')
-            exit(1)
-
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
-
-
-try:
-    from sphinx.cmd.build import build_main
-    from sphinx.setup_command import BuildDoc
-
-    class BuildSphinx(BuildDoc):
-        """Build Sphinx documentation after compiling C source files"""
-
-        description = 'Build Sphinx documentation'
-        user_options = BuildDoc.user_options[:]
-        user_options.append(
-            ('keep-going', 'k',
-             'Parses the sphinx output and sets the return code to 1 if there '
-             'are any warnings. Note that this will cause the sphinx log to '
-             'only update when it completes, rather than continuously as is '
-             'normally the case.'))
-
-        def initialize_options(self):
-            BuildDoc.initialize_options(self)
-
-        def finalize_options(self):
-            BuildDoc.finalize_options(self)
-
-        def run(self):
-            try:
-                import imexam  # noqa
-            except ImportError:
-                build_cmd = self.reinitialize_command('build_ext')
-                build_cmd.inplace = 1
-            retcode = build_main(['-W', '--keep-going', '-b', 'html',
-                                  './docs', './docs/_build/html'])
-            if retcode != 0:
-                sys.exit(retcode)
-
-except ImportError:
-    print("Sphinx is not installed, can't build documents!!\n")
-
-    class BuildSphinx(Command):
-        user_options = []
-
-        def initialize_options(self):
-            pass
-
-        def finalize_options(self):
-            pass
-
-        def run(self):
-            pass
-
 
 try:
     from ConfigParser import ConfigParser
@@ -100,23 +77,11 @@ conf.read(['setup.cfg'])
 
 # Get some values from the setup.cfg
 metadata = dict(conf.items('metadata'))
-PACKAGENAME = metadata.get('package_name', 'imexam')
-DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
-LONG_DESCRIPTION = metadata.get('long_description', 'A package to help perform \
-                                image examination and plotting')
-AUTHOR = metadata.get('author', 'STScI')
-AUTHOR_EMAIL = metadata.get('author_email', 'help@stsci.edu')
-LICENSE = metadata.get('license', 'BSD-3-Clause')
-URL = metadata.get('url', 'http://astropy.org')
-HOMEPAGE = metadata.get('homepage', '')
-
+PACKAGENAME = metadata.get('name', 'imexam')
 package_data = {PACKAGENAME: []}
+
 ext = []
-
-cmdclass = {'test': PyTest,
-            'build_sphinx': BuildSphinx,
-            }
-
+cmdclass = {}
 
 if not sys.platform.startswith('win'):
     try:
@@ -282,20 +247,25 @@ if not sys.platform.startswith('win'):
         ext = [xpa_module]
 
 
-setup(
-    name=PACKAGENAME,
-    description=DESCRIPTION,
-    setup_requires=['setuptools_scm'],
-    provides=[PACKAGENAME],
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
-    license=LICENSE,
-    long_description=LONG_DESCRIPTION,
-    use_2to3=False,
-    use_scm_version=True,
-    zip_safe=False,
-    cmdclass=cmdclass,
-    package_data=package_data,
-    package_dir={'imexam': 'imexam'},
-    ext_modules=ext,
-)
+VERSION_TEMPLATE = """
+# Note that we need to fall back to the hard-coded version if either
+# setuptools_scm can't be imported or setuptools_scm can't determine the
+# version, so we catch the generic 'Exception'.
+try:
+    from setuptools_scm import get_version
+    version = get_version(root='..', relative_to=__file__)
+except Exception:
+    version = '{version}'
+""".lstrip()
+
+
+# Import these after the above checks to ensure they are printed even if
+# extensions_helpers is not installed
+from setuptools import setup  # noqa
+
+
+setup(use_scm_version={'write_to': os.path.join('imexam', 'version.py'),
+                       'write_to_template': VERSION_TEMPLATE},
+      cmdclass=cmdclass,
+      package_data=package_data,
+      ext_modules=ext)

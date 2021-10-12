@@ -9,10 +9,6 @@ viewing tool, like DS9
 # ----------------------------------------------------------------------------
 from ._astropy_init import *  # noqa
 # ----------------------------------------------------------------------------
-from pkg_resources import get_distribution, DistributionNotFound
-
-__all__ = ['__version__', '__githash__']
-
 
 try:
     from . import imexamxpa  # noqa
@@ -20,26 +16,11 @@ try:
 except ImportError:
     _have_xpa = False
 
-if not _ASTROPY_SETUP_:  # noqa
-    # import high level functions into the imexam namespace
-    if _have_xpa:
-        from .util import list_active_ds9, find_path  # noqa
-        from .util import display_help, display_xpa_help  # noqa
+# import high level functions into the imexam namespace
+if _have_xpa:
+    from .util import list_active_ds9, find_path  # noqa
+    from .util import display_help, display_xpa_help  # noqa
 
-    from .util import set_logging  # noqa
-    from . import connect as _connect
-    connect = _connect.Connect
-
-    try:
-        import astropy  # noqa
-    except ImportError:
-        raise ImportError("astropy required but not found")
-
-
-try:
-    release = get_distribution('imexam').version
-    __version__ = '.'.join(release.split('.')[:4])
-except DistributionNotFound:
-    # package is not installed
-    __version__ = 'unknown'
-    __githash__ = ''
+from .util import set_logging  # noqa
+from . import connect as _connect
+connect = _connect.Connect
