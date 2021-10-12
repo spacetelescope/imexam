@@ -4,10 +4,10 @@
     :width: 600
     :alt: Example imexam workspace
 
-The above image is an example desktop interfacing with DS9. 
+The above image is an example desktop interfacing with DS9.
 
 
-``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight library that enables users to explore data using common methods which are consistant across viewers. 
+``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight library that enables users to explore data using common methods which are consistant across viewers.
 The power of this python tool is that it is essentially a library of plotting
 and analysis routines that can be directed towards any viewer. It attempts to
 standardize the analysis interface so that no matter
@@ -15,21 +15,21 @@ what viewer is in use the calls and results are the same.  It can also be used
 without connecting to any viewer since the calls take only data and location
 information. This means that given a data array and a list of x,y positions
 you can create plots and return information without having to interact with
-the viewers, just by calling the functions directly either from a a command line 
+the viewers, just by calling the functions directly either from a a command line
 shell or from a private script.
 
-`imexam` can be used: 
+``imexam`` can be used:
 
 * from a command line interface
 * through a Jupyter notebook or through a Jupyter console
 * with multiple viewers, such as DS9 or Ginga (submit a github issue or PR to add others)
-* without a viewer as a simple library to make plots and grab quick photometry information. 
+* without a viewer as a simple library to make plots and grab quick photometry information.
 
 
 ``imexam`` may be used as a replacement for the IRAF imexamine task. You should be able
 to perform all of the most used functions that ``imexamine`` provided in IRAF, but
 you also gain the flexibility of python and the ability to add your own analysis functions.
-The standalone library has also been used as a replacement for `psfmeasure`.
+The standalone library has also been used as a replacement for ``psfmeasure``.
 
 .. image:: _static/ginga_desktop_html5.png
     :height: 400
@@ -56,7 +56,7 @@ Simple Walkthrough
 
 
   Getting started with a basic walk though a simple use case <imexam/walkthrough.rst>
-  
+
 
 User documentation
 ==================
@@ -71,7 +71,7 @@ User documentation
     Dependencies <imexam/dependencies.rst>
     IRAF-imexamine Capabilites <imexam/iraf_imexam.rst>
     Comparison with IRAF <imexam/comparison_iraf.rst>
-    
+
 
 Reporting Issues
 ================
