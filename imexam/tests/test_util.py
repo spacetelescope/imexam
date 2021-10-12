@@ -46,6 +46,7 @@ def test_invalid_MEF_table():
     assert_equal(nextend, 1)
     assert_equal(first_image, None)
 
+
 def test_image_and_table_extensions():
     """Validate an MEF with an image in the first and
     a table in the second extension."""

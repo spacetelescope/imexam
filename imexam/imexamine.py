@@ -111,20 +111,20 @@ class Imexamine:
         self._mpl_backend = get_backend().lower()
 
     def setlog(self, filename=None, on=True, level=logging.INFO):
-            """Turn on and off logging to a logfile or the screen.
+        """Turn on and off logging to a logfile or the screen.
 
-            Parameters
-            ----------
-            filename: str, optional
-                Name of the  output file to record log information
-            on: bool, optional
-                True by default, turn the logging on or off
-            level: logging class, optional
-                set the level for logging messages, turn off screen messages
-                by setting to logging.CRITICAL
+        Parameters
+        ----------
+        filename: str, optional
+            Name of the  output file to record log information
+        on: bool, optional
+            True by default, turn the logging on or off
+        level: logging class, optional
+            set the level for logging messages, turn off screen messages
+            by setting to logging.CRITICAL
 
-            """
-            self.log = set_logging(filename, on, level)
+        """
+        self.log = set_logging(filename, on, level)
 
     def _close_plots(self):
         """Make sure to release plot memory at end of exam loop."""
@@ -490,7 +490,6 @@ class Imexamine:
         pstr = f"plot saved to {self.plot_name}"
         self.log.info(pstr)
 
-
     def save(self, filename=None, fig=None):
         """Save to file the figure that's currently displayed.
 
@@ -580,7 +579,7 @@ class Imexamine:
                     sigmay = 0.
                 else:
                     amp, xx, yy, sigma, sigmay = self.gauss_center(x, y, data,
-                                                                 delta=delta)
+                                                                   delta=delta)
 
             radius = self.aper_phot_pars["radius"][0]
             width = int(self.aper_phot_pars["width"][0])
@@ -767,9 +766,8 @@ class Imexamine:
                                                                    data,
                                                                    delta=delta)
                 if (xout < 0 or yout < 0 or xout > data.shape[1] or
-                   yout > data.shape[0]):
-                        self.log.warning("Problem with centering, "
-                                         "pixel coords")
+                       yout > data.shape[0]):
+                   self.log.warning("Problem with centering, pixel coords")
                 else:
                     xx = int(xout)
                     yy = int(yout)
@@ -1772,8 +1770,8 @@ class Imexamine:
                 self._add_user_function(user_funcs[key][0])
                 self.imexam_option_funcs[key] = (
                     self.__getattribute__(func_name), user_funcs[key][1])
-                self.log.info(f"User function: {func_name} added to imexam options with "
-                    f"key {key}")
+                self.log.info(f"User function: {func_name} added to imexam "
+                              f"options with key {key}")
 
     @classmethod
     def _add_user_function(cls, func):

@@ -97,7 +97,7 @@ def list_active_ds9(verbose=True):
                     for line in sessions:
                         print(line)
         except (ValueError, xpa.XpaException):
-                print("No active sessions registered")
+            print("No active sessions registered")
 
     else:
         print("XPA nameserver not installed or not on PATH, \
@@ -237,7 +237,7 @@ def check_valid(fits_data=None):
     mef_file = False
 
     if fits_data is None:
-            raise ValueError("No filename or FITS object provided")
+        raise ValueError("No filename or FITS object provided")
     if isinstance(fits_data, fits.hdu.hdulist.HDUList):
         mef_file = True
         fits_image = fits_data
