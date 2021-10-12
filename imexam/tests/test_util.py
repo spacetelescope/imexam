@@ -12,7 +12,7 @@ from imexam import util
 import ntpath
 
 #  testing data
-test_data_zeros = np.zeros((100, 100), dtype=np.float)
+test_data_zeros = np.zeros((100, 100), dtype=float)
 
 
 def test_invalid_simple_fits():

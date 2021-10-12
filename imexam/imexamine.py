@@ -1128,7 +1128,7 @@ class Imexamine:
             radius = r.ravel()[indices]
 
         else:  # sum the flux in integer bins
-            radius = r.ravel()[indices].astype(np.int)
+            radius = r.ravel()[indices].astype(int)
             flux = np.bincount(radius, data_chunk.ravel()[indices])
             radbc = np.bincount(radius)
             flux = flux / radbc

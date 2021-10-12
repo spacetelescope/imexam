@@ -23,7 +23,7 @@ except ImportError:
 
 
 # make some data to test with
-test_data = np.zeros((100, 100), dtype=np.float)
+test_data = np.zeros((100, 100), dtype=float)
 test_data[45:55, 45:55] = 3.0
 xx, yy = np.meshgrid(np.arange(100), np.arange(100))
 
@@ -191,7 +191,7 @@ def test_radial_profile_cumulative():
     flux_in = flux_in[indices]
 
     # now bin the radflux like we expect
-    rad_in = rad_in.astype(np.int)
+    rad_in = rad_in.astype(int)
     flux_in = np.bincount(rad_in, flux_in) / np.bincount(rad_in)
     rad_in = np.arange(len(flux_in))
     assert (data.array[x0, y0] == flux_in[0])
