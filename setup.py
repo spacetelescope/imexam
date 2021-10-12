@@ -6,7 +6,6 @@ import os
 import importlib
 from distutils.command.clean import clean
 from setuptools.command.install import install
-from setuptools.command.build_py import build_py
 from setuptools import setup, Command, Extension
 from setuptools.command.test import test as TestCommand
 from subprocess import check_call, CalledProcessError
@@ -67,7 +66,7 @@ try:
 
         def run(self):
             try:
-                import imexam
+                import imexam  # noqa
             except ImportError as e:
                 build_cmd = self.reinitialize_command('build_ext')
                 build_cmd.inplace = 1
@@ -200,7 +199,7 @@ if not sys.platform.startswith('win'):
                         check_call(["make", "clean"], cwd=XPALIB_DIR)
                 except CalledProcessError as e:
                     print(e)
-                    exit(1)                    
+                    exit(1)
                 if os.access(CONF_H_NAME, os.F_OK):
                     os.remove(CONF_H_NAME)
                 os.remove("wrappers/xpa.c")
@@ -254,10 +253,10 @@ if not sys.platform.startswith('win'):
                         exit(1)
                 install.run(self)
 
-        
+
         class BuildExtWithConfigure(build_ext):
             """Configure, build, and install the aXe C code."""
-            
+
             def initialize_options(self):
                 super().initialize_options()
                 self.inplace = 1
@@ -274,7 +273,7 @@ if not sys.platform.startswith('win'):
                     exit(1)
                 build_ext.run(self)
 
-                
+
 
         cmdclass.update({'install' : InstallWithRemake,
                          'clean' : my_clean,

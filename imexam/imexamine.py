@@ -57,7 +57,7 @@ else:
 try:
     from io import StringIO
 except ImportError:
-    from cString import StringIO
+    from cString import StringIO  # noqa
 
 try:
     import photutils
@@ -1616,7 +1616,7 @@ class Imexamine:
         fig: figure for redirect
             Used for interaction with the ginga GUI
         """
-        from mpl_toolkits.mplot3d import Axes3D
+        from mpl_toolkits.mplot3d import Axes3D  # noqa
         from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
         if data is None:

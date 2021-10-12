@@ -942,7 +942,7 @@ class ginga(ginga_general):
     def _create_viewer(self, bind_prefs, viewer_prefs,
                        opencv=False, threads=1):
         """Ginga setup for data display in an HTML5 browser."""
-        from ginga.web.pgw import Widgets
+        from ginga.web.pgw import Widgets  # noqa
 
         # Set opencv to True if you have a non-buggy python OpenCv bindings
         # --it greatly speeds up some operations

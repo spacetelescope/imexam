@@ -18,7 +18,7 @@ except ImportError:
     have_ginga = False
 
 try:
-    from . import imexamxpa
+    from . import imexamxpa  # noqa
     have_xpa = True
     from .ds9_viewer import ds9
 except ImportError:
