@@ -10,14 +10,14 @@ This is the main method which allows live interaction with the image display whe
 **Current recognized keys available during imexam are:** ::
 
     2 Make the next plot in a new window
-    a Aperture sum, with radius region_size 
+    a Aperture sum, with radius region_size
     b Return the 2D gauss fit center of the object
     c Return column plot
     d Return the Center of Mass fit center of the object
     e Return a contour plot in a region around the cursor
     g Return curve of growth plot
     h Return a histogram in the region around the cursor
-    j 1D [Gaussian1D default] line fit 
+    j 1D [Gaussian1D default] line fit
     k 1D [Gaussian1D default] column fit
     l Return line plot
     m Square region stats, in [region_size],default is median
@@ -56,7 +56,7 @@ This is the main method which allows live interaction with the image display whe
      timexam(): return a dict of the current parameters for image cutouts
 
 
-.. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: http://matplotlib.org/api/markers_api.html#module-matplotlib.markers
+.. note:: Some of the plots accept a marker type, any valid Matplotlib marker may be specified. See this page for the full list: https://matplotlib.org/api/markers_api.html#module-matplotlib.markers
 
 
 The ``imexam`` key dictionary is stored inside the user object as  <object_name>.exam.imexam_option_funcs{}. Each key in the dictionary is the keyboard key to recognize from the user, it's associated value is a tuple which contains the name of the function to call and a description of what that function does. "q" is always assumed to be the returned key when the user wishes to quit interaction with the window. Users may change the default settings for each of the imexamine recognized keys by editing the associated dictionary. You can edit it directly, by accessing each of the values by their keyname and then reset mydict to values you prefer. You can also create a new dictionary of function which maps to your own
@@ -66,7 +66,7 @@ However, you can access the same dictionary and customize the plotting parameter
     #customize the plotting parameters (or any function in the imexam loop)
     viewer.set_plot_pars('e','title','This is my favorite galaxy')
     viewer.set_plot_pars('e','ncontours',4)
-    viewer.set_plot_pars('e','cmap','YlOrRd') #see http://matplotlib.org/users/colormaps.html
+    viewer.set_plot_pars('e','cmap','YlOrRd') #see https://matplotlib.org/users/colormaps.html
 
 where the full dictionary of available values can be found using the ``eimexam()`` function described above.::
 
@@ -403,7 +403,7 @@ Returned to the screen is the data information from the plot, the (x,y) location
 
     viewer.set_plot_pars('g',"rplot",25)  #set the default radius larger
 
-    xc=577.242311	yc=634.578361
+    xc=577.242311   yc=634.578361
 
     at (x,y)=577,634
     radii:[ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25]
@@ -479,7 +479,7 @@ Here's what it looks like if we change some of the default parameters::
     :alt: contour plot
 
 
-.. note:: You can use any of the matplotlib standard cmaps, see the following link for more information: http://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps
+.. note:: You can use any of the matplotlib standard cmaps, see the following link for more information: https://matplotlib.org/api/pyplot_summary.html?highlight=colormaps#matplotlib.pyplot.colormaps
 
 
 Surface Plots
@@ -582,24 +582,24 @@ Okay, so let's try out our new function! We should be able to see it in the list
 
         Press 'q' to quit
 
-        2	Make the next plot in a new window
-        a	Aperture sum, with radius region_size
-        b	Return the 2D gauss fit center of the object
-        c	Return column plot
-        e	Return a contour plot in a region around the cursor
-        g	Return curve of growth plot
-        h	Return a histogram in the region around the cursor
-        j	1D [Gaussian1D default] line fit
-        k	1D [Gaussian1D default] column fit
-        l	Return line plot
-        m	Square region stats, in [region_size],default is median
-        p	Save cursor location to file
-        r	Return the radial profile plot
-        s	Save current figure to disk as [plot_name]
-        t	Make a fits image cutout using pointer location
-        w	Display a surface plot around the cursor location
-        x	Return x,y,value of pixel
-        y	Return x,y,value of pixel
+        2   Make the next plot in a new window
+        a   Aperture sum, with radius region_size
+        b   Return the 2D gauss fit center of the object
+        c   Return column plot
+        e   Return a contour plot in a region around the cursor
+        g   Return curve of growth plot
+        h   Return a histogram in the region around the cursor
+        j   1D [Gaussian1D default] line fit
+        k   1D [Gaussian1D default] column fit
+        l   Return line plot
+        m   Square region stats, in [region_size],default is median
+        p   Save cursor location to file
+        r   Return the radial profile plot
+        s   Save current figure to disk as [plot_name]
+        t   Make a fits image cutout using pointer location
+        w   Display a surface plot around the cursor location
+        x   Return x,y,value of pixel
+        y   Return x,y,value of pixel
 
         Current image /Users/sosey/test_images/iacs01t4q_flt.fits
         pressed: p, save_to_file
@@ -616,7 +616,7 @@ During a single viewer.imexam() session, you can choose to send your plots to mu
 
     #run aperture photometry("a"):
 
-    xc=576.522433	yc=634.578085
+    xc=576.522433   yc=634.578085
     x              y              radius         flux           mag(zpt=25.00) sky            fwhm
     576.52         634.58         5              1560462.68     9.52           10996.52       5.58
 
@@ -629,7 +629,7 @@ During a single viewer.imexam() session, you can choose to send your plots to mu
     Plots now directed towards imexam3
 
     #the resulting curve of growth information on the screen
-    xc=576.855763	yc=634.911425
+    xc=576.855763   yc=634.911425
 
     at (x,y)=576,634
     radii:[1 2 3 4 5 6 7 8]
@@ -652,5 +652,5 @@ As an aside, you can use the GUI tools on the bottom of the plot windows to move
 
 
 
-.. _photutils: http://github.com/astropy/photutils/
-.. _scipy.stats.describe:  http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.describe.html
+.. _photutils: https://github.com/astropy/photutils/
+.. _scipy.stats.describe:  https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.describe.html

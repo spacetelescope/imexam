@@ -65,8 +65,7 @@ class ds9:
     DS9's xpa access points are documented in the reference manual,
     but the can also be returned to the user with a call to xpaset.
 
-    http://hea-www.harvard.edu/saord/ds9/ref/xpa.html
-
+    http://ds9.si.edu/doc/ref/xpa.html
 
     Parameters
     ----------

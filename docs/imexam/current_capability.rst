@@ -29,9 +29,7 @@ Not all viewers have all commands implemented, commands which are available
 but not yet fully implemented should return an error to that affect.
 
 **alignwcs**\ (on=True):
-    Align the images in the viewer using the WCS in their headers
-
-    ::
+    Align the images in the viewer using the WCS in their headers::
 
         viewer.alignwcs()
 
@@ -353,11 +351,9 @@ For example, in DS9::
     Turn on and off ``imexam`` logging to the a file. You can set the filename to
     something specific or let the package record to the default logfile.
     Once you give the object a logfile name, it will continue to use that
-    file until you change it.
+    file until you change it::
 
-    ::
-
-        In [5]: viewer.setlog()
+        >>> viewer.setlog()
         Saving ``imexam`` commands to imexam_log.txt
 
 This is what's displayed in the terminal when you use imexam():

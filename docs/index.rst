@@ -4,10 +4,10 @@
     :width: 600
     :alt: Example imexam workspace
 
-The above image is an example desktop interfacing with DS9. 
+The above image is an example desktop interfacing with DS9.
 
 
-``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight library that enables users to explore data using common methods which are consistant across viewers. 
+``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight library that enables users to explore data using common methods which are consistant across viewers.
 The power of this python tool is that it is essentially a library of plotting
 and analysis routines that can be directed towards any viewer. It attempts to
 standardize the analysis interface so that no matter
@@ -15,21 +15,21 @@ what viewer is in use the calls and results are the same.  It can also be used
 without connecting to any viewer since the calls take only data and location
 information. This means that given a data array and a list of x,y positions
 you can create plots and return information without having to interact with
-the viewers, just by calling the functions directly either from a a command line 
+the viewers, just by calling the functions directly either from a a command line
 shell or from a private script.
 
-`imexam` can be used: 
+``imexam`` can be used:
 
 * from a command line interface
 * through a Jupyter notebook or through a Jupyter console
 * with multiple viewers, such as DS9 or Ginga (submit a github issue or PR to add others)
-* without a viewer as a simple library to make plots and grab quick photometry information. 
+* without a viewer as a simple library to make plots and grab quick photometry information.
 
 
 ``imexam`` may be used as a replacement for the IRAF imexamine task. You should be able
 to perform all of the most used functions that ``imexamine`` provided in IRAF, but
 you also gain the flexibility of python and the ability to add your own analysis functions.
-The standalone library has also been used as a replacement for `psfmeasure`.
+The standalone library has also been used as a replacement for ``psfmeasure``.
 
 .. image:: _static/ginga_desktop_html5.png
     :height: 400
@@ -56,7 +56,7 @@ Simple Walkthrough
 
 
   Getting started with a basic walk though a simple use case <imexam/walkthrough.rst>
-  
+
 
 User documentation
 ==================
@@ -71,7 +71,7 @@ User documentation
     Dependencies <imexam/dependencies.rst>
     IRAF-imexamine Capabilites <imexam/iraf_imexam.rst>
     Comparison with IRAF <imexam/comparison_iraf.rst>
-    
+
 
 Reporting Issues
 ================
@@ -95,21 +95,18 @@ users.  We accept contributions at all levels, spanning the gamut from
 fixing a typo in the documentation to developing a major new feature.
 We welcome contributors who will abide by the `Python Software
 Foundation Code of Conduct
-<https://www.python.org/psf/codeofconduct/>`_.
+<https://www.python.org/psf/conduct/>`_.
 
 ``imexam`` follows the same workflow and coding guidelines as
 `Astropy <https://www.astropy.org/>`__.  The following pages will help you get started with
 contributing fixes, code, or documentation (no git or GitHub
 experience necessary):
 
-* `How to make a code contribution <http://astropy.readthedocs.io/en/stable/development/workflow/development_workflow.html>`_
+* `How to make a code contribution <https://docs.astropy.org/en/latest/development/workflow/development_workflow.html>`_
 
-* `Coding Guidelines <http://docs.astropy.io/en/latest/development/codeguide.html>`_
+* `Coding Guidelines <https://docs.astropy.org/en/latest/development/codeguide.html>`_
 
-* `Try the development version <http://astropy.readthedocs.io/en/stable/development/workflow/get_devel_version.html>`_
-
-* `Developer Documentation <http://docs.astropy.org/en/latest/#developer-documentation>`_
-
+* `Developer Documentation <https://docs.astropy.org/en/latest/#developer-documentation>`_
 
 For the complete list of contributors please see the `imexam
 contributors page on Github
