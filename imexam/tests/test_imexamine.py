@@ -215,11 +215,14 @@ def test_radial_profile_cumulative():
 @pytest.mark.skipif('not HAS_PHOTUTILS')
 def test_curve_of_growth():
     """Test the curve of growth functionality."""
-    from astropy.convolution import Gaussian2DKernel
-    data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
+    from astropy.modeling.models import Gaussian2D
+    y, x = np.mgrid[0:101, 0:101]
+    xcen = ycen = 50
+    model = Gaussian2D(1.5, xcen, ycen, 3, 3)
+    data = model(x, y)
     plots = Imexamine()
-    plots.set_data(data.array)
-    rad_out, flux_out = plots.curve_of_growth(12, 12, genplot=False)
+    plots.set_data(data)
+    rad_out, flux_out = plots.curve_of_growth(xcen, ycen, genplot=False)
 
     rads = [1, 2, 3, 4, 5, 6, 7, 8]
     flux = []
@@ -230,7 +233,7 @@ def test_curve_of_growth():
 
     for rad in rads:
         plots.aper_phot_pars['radius'][0] = rad
-        apertures, annulus_apertures, rawflux_table, sky_per_pix = plots.aper_phot(12, 12, genplot=False)
+        apertures, annulus_apertures, rawflux_table, sky_per_pix = plots.aper_phot(xcen, ycen, genplot=False)
         flux.append(rawflux_table['aperture_sum'][0])
 
     assert_array_equal(rads, rad_out)
