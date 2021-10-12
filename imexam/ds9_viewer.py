@@ -45,6 +45,8 @@ from .imexamxpa import XpaException
 from . import util
 from astropy.io import fits
 
+__all__ = ['ds9']
+
 
 class UnsupportedDatatypeException(Exception):
     pass
@@ -52,8 +54,6 @@ class UnsupportedDatatypeException(Exception):
 
 class UnsupportedImageShapeException(Exception):
     pass
-
-__all__ = ['ds9']
 
 
 class ds9:
@@ -702,7 +702,7 @@ class ds9:
 
         # ds9 is returning 1 based array, set to 0-based since
         # imexamine uses numpy for array crunching
-        return float(x)-1, float(y)-1, str(k)
+        return float(x) - 1, float(y) - 1, str(k)
 
     def alignwcs(self, on=True):
         """align wcs.
@@ -1338,7 +1338,7 @@ class ds9:
             f.close()
 
         except IOError as e:
-            warnings.warn(f"Unable to open input file")
+            warnings.warn("Unable to open input file")
             print("{repr(e)}")
             raise ValueError
 

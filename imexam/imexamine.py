@@ -1116,7 +1116,7 @@ class Imexamine:
         y, x = np.indices(data_chunk.shape)  # index of all pixels
         y = y - datasize
         x = x - datasize
-        r = np.sqrt((x-xfrac)**2 + (y-yfrac)**2)
+        r = np.sqrt((x - xfrac)**2 + (y - yfrac)**2)
 
         indices = np.argsort(r.flat)  # sorted indices
 
@@ -1137,7 +1137,7 @@ class Imexamine:
             width = pars["width"][0]
             annulus_apertures = photutils.CircularAnnulus((centerx, centery),
                                                           r_in=inner,
-                                                          r_out=inner+width)
+                                                          r_out=inner + width)
             bkgflux_table = photutils.aperture_photometry(data,
                                                           annulus_apertures)
 
@@ -1300,7 +1300,7 @@ class Imexamine:
                 else:
                     # user the gaussian2d
                     amp, centerx, centery, sigma, sigmay = \
-                    self.gauss_center(x, y, data, delta=delta)
+                        self.gauss_center(x, y, data, delta=delta)
             else:
                 centery = y
                 centerx = x

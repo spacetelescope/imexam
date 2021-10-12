@@ -66,15 +66,17 @@ try:
         def run(self):
             try:
                 import imexam  # noqa
-            except ImportError as e:
+            except ImportError:
                 build_cmd = self.reinitialize_command('build_ext')
                 build_cmd.inplace = 1
-            retcode = build_main(['-W', '--keep-going', '-b', 'html', './docs', './docs/_build/html'])
+            retcode = build_main(['-W', '--keep-going', '-b', 'html',
+                                  './docs', './docs/_build/html'])
             if retcode != 0:
                 sys.exit(retcode)
 
 except ImportError:
     print("Sphinx is not installed, can't build documents!!\n")
+
     class BuildSphinx(Command):
         user_options = []
 
@@ -150,7 +152,7 @@ if not sys.platform.startswith('win'):
                    """.split()
 
     package_data[PACKAGENAME].extend(XPA_FILES)
-    suffix_lib =  importlib.machinery.EXTENSION_SUFFIXES[0]
+    suffix_lib = importlib.machinery.EXTENSION_SUFFIXES[0]
     package_data[PACKAGENAME].append(XPA_LIBNAME+suffix_lib)
 
     XPA_SOURCES = [os.path.join(XPALIB_DIR, c) for c in XPA_FILES]
@@ -256,6 +258,7 @@ if not sys.platform.startswith('win'):
             def initialize_options(self):
                 super().initialize_options()
                 self.inplace = 1
+
             def build_extensions(self):
                 super().build_extensions()
 
@@ -270,9 +273,9 @@ if not sys.platform.startswith('win'):
                     exit(1)
                 build_ext.run(self)
 
-        cmdclass.update({'install' : InstallWithRemake,
-                         'clean' : my_clean,
-                         'build_ext' : BuildExtWithConfigure,
+        cmdclass.update({'install': InstallWithRemake,
+                         'clean': my_clean,
+                         'build_ext': BuildExtWithConfigure,
                          })
 
     else:
