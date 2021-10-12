@@ -102,14 +102,11 @@ Foundation Code of Conduct
 contributing fixes, code, or documentation (no git or GitHub
 experience necessary):
 
-* `How to make a code contribution <http://astropy.readthedocs.io/en/stable/development/workflow/development_workflow.html>`_
+* `How to make a code contribution <https://docs.astropy.org/en/latest/development/workflow/development_workflow.html>`_
 
-* `Coding Guidelines <http://docs.astropy.io/en/latest/development/codeguide.html>`_
+* `Coding Guidelines <https://docs.astropy.org/en/latest/development/codeguide.html>`_
 
-* `Try the development version <http://astropy.readthedocs.io/en/stable/development/workflow/get_devel_version.html>`_
-
-* `Developer Documentation <http://docs.astropy.org/en/latest/#developer-documentation>`_
-
+* `Developer Documentation <https://docs.astropy.org/en/latest/#developer-documentation>`_
 
 For the complete list of contributors please see the `imexam
 contributors page on Github
