@@ -61,7 +61,7 @@ But you can also use it as below to cycle through connecting to a set of windows
     Out[31]: {}
 
 
-In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in its package documentation: http://ginga.readthedocs.org/en/latest/. If you are using Python 3 you should also install Pillow which will aid in the image display. The Ginga documentation will tell you of any of it's other dependencies. If you install Ginga you will have access to another display tool for your images and data, the HTML5 widget. You can find the source code on GitHub, but you can also install it with ``pip`` or ``conda``.
+In order to use the Ginga widget display you must have Ginga installed. More information about Ginga can be found in its package documentation: https://ginga.readthedocs.io/en/latest/. If you are using Python 3 you should also install Pillow which will aid in the image display. The Ginga documentation will tell you of any of it's other dependencies. If you install Ginga you will have access to another display tool for your images and data, the HTML5 widget. You can find the source code on GitHub, but you can also install it with ``pip`` or ``conda``.
 
 You can access this help file on your locally installed copy of the package by using the imexam.display_help() call after import. This will display the help in your web browser.
 

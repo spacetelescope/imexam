@@ -95,7 +95,7 @@ users.  We accept contributions at all levels, spanning the gamut from
 fixing a typo in the documentation to developing a major new feature.
 We welcome contributors who will abide by the `Python Software
 Foundation Code of Conduct
-<https://www.python.org/psf/codeofconduct/>`_.
+<https://www.python.org/psf/conduct/>`_.
 
 ``imexam`` follows the same workflow and coding guidelines as
 `Astropy <https://www.astropy.org/>`__.  The following pages will help you get started with

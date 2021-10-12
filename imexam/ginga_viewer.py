@@ -2,7 +2,7 @@
 
    This class supports communication with a Ginga-based viewer.
    For default key and mouse shortcuts in a Ginga window, see:
-   https://ginga.readthedocs.org/en/latest/quickref.html
+   https://ginga.readthedocs.io/en/latest/quickref.html
 """
 
 import sys
