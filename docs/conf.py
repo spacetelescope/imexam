@@ -12,6 +12,7 @@
 # See astropy.sphinx.conf for which values are set there.
 import datetime
 import os
+from os.path import join
 import sys
 import importlib
 import sphinx
@@ -83,6 +84,7 @@ def check_sphinx_version(expected_version):
 def _warn_node(self, msg, node, **kwargs):
     if not msg.startswith('nonlocal image URI found:'):
         self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
+
 
 sphinx.environment.BuildEnvironment.warn_node = _warn_node
 
@@ -236,7 +238,6 @@ html_theme_options = {
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-from os.path import join
 html_favicon = join('_static', 'imexam.ico')
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,

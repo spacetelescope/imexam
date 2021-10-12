@@ -23,7 +23,7 @@ aper_phot_pars = {"function": ["aper_phot", ],
                   "delta": [10, "bounding box for centering measurement"],
                   }
 
-com_center_pars = {"function": ["com_center",],
+com_center_pars = {"function": ["com_center"],
                    "delta": [10, "bounding box size"],
                    "oversampling": [1., "oversample pixels by"],
                    }

@@ -6,7 +6,6 @@ import os
 import importlib
 from distutils.command.clean import clean
 from setuptools.command.install import install
-from setuptools.command.build_py import build_py
 from setuptools import setup, Command, Extension
 from setuptools.command.test import test as TestCommand
 from subprocess import check_call, CalledProcessError
@@ -58,7 +57,6 @@ try:
              'only update when it completes, rather than continuously as is '
              'normally the case.'))
 
-
         def initialize_options(self):
             BuildDoc.initialize_options(self)
 
@@ -67,16 +65,18 @@ try:
 
         def run(self):
             try:
-                import imexam
-            except ImportError as e:
+                import imexam  # noqa
+            except ImportError:
                 build_cmd = self.reinitialize_command('build_ext')
                 build_cmd.inplace = 1
-            retcode = build_main(['-W', '--keep-going', '-b', 'html', './docs', './docs/_build/html'])
+            retcode = build_main(['-W', '--keep-going', '-b', 'html',
+                                  './docs', './docs/_build/html'])
             if retcode != 0:
                 sys.exit(retcode)
 
 except ImportError:
     print("Sphinx is not installed, can't build documents!!\n")
+
     class BuildSphinx(Command):
         user_options = []
 
@@ -109,9 +109,6 @@ AUTHOR_EMAIL = metadata.get('author_email', 'help@stsci.edu')
 LICENSE = metadata.get('license', 'BSD-3-Clause')
 URL = metadata.get('url', 'http://astropy.org')
 HOMEPAGE = metadata.get('homepage', '')
-
-
-
 
 package_data = {PACKAGENAME: []}
 ext = []
@@ -155,7 +152,7 @@ if not sys.platform.startswith('win'):
                    """.split()
 
     package_data[PACKAGENAME].extend(XPA_FILES)
-    suffix_lib =  importlib.machinery.EXTENSION_SUFFIXES[0]
+    suffix_lib = importlib.machinery.EXTENSION_SUFFIXES[0]
     package_data[PACKAGENAME].append(XPA_LIBNAME+suffix_lib)
 
     XPA_SOURCES = [os.path.join(XPALIB_DIR, c) for c in XPA_FILES]
@@ -200,7 +197,7 @@ if not sys.platform.startswith('win'):
                         check_call(["make", "clean"], cwd=XPALIB_DIR)
                 except CalledProcessError as e:
                     print(e)
-                    exit(1)                    
+                    exit(1)
                 if os.access(CONF_H_NAME, os.F_OK):
                     os.remove(CONF_H_NAME)
                 os.remove("wrappers/xpa.c")
@@ -247,38 +244,38 @@ if not sys.platform.startswith('win'):
             def run(self):
                 if self.remake:
                     try:
-                        check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
+                        check_call(["sh", "./configure",
+                                    "--prefix="+current_env], cwd=XPALIB_DIR)
                         check_call(["make", "install"], cwd=XPALIB_DIR)
                     except CalledProcessError as e:
                         print(e)
                         exit(1)
                 install.run(self)
 
-        
         class BuildExtWithConfigure(build_ext):
             """Configure, build, and install the aXe C code."""
-            
+
             def initialize_options(self):
                 super().initialize_options()
                 self.inplace = 1
+
             def build_extensions(self):
                 super().build_extensions()
 
             def run(self):
                 try:
-                    check_call(["sh", "./configure","--prefix="+current_env], cwd=XPALIB_DIR)
-                    check_call(["make", "clean"],cwd=XPALIB_DIR)
+                    check_call(["sh", "./configure",
+                                "--prefix="+current_env], cwd=XPALIB_DIR)
+                    check_call(["make", "clean"], cwd=XPALIB_DIR)
                     check_call(["make", "install"], cwd=XPALIB_DIR)
                 except CalledProcessError as e:
                     print(e)
                     exit(1)
                 build_ext.run(self)
 
-                
-
-        cmdclass.update({'install' : InstallWithRemake,
-                         'clean' : my_clean,
-                         'build_ext' : BuildExtWithConfigure,
+        cmdclass.update({'install': InstallWithRemake,
+                         'clean': my_clean,
+                         'build_ext': BuildExtWithConfigure,
                          })
 
     else:

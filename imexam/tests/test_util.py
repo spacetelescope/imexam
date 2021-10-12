@@ -12,7 +12,7 @@ from imexam import util
 import ntpath
 
 #  testing data
-test_data_zeros = np.zeros((100, 100), dtype=np.float)
+test_data_zeros = np.zeros((100, 100), dtype=float)
 
 
 def test_invalid_simple_fits():
@@ -45,6 +45,7 @@ def test_invalid_MEF_table():
     assert_equal(mef_file, True)
     assert_equal(nextend, 1)
     assert_equal(first_image, None)
+
 
 def test_image_and_table_extensions():
     """Validate an MEF with an image in the first and

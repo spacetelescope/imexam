@@ -18,7 +18,7 @@ except ImportError:
     have_ginga = False
 
 try:
-    from . import imexamxpa
+    from . import imexamxpa  # noqa
     have_xpa = True
     from .ds9_viewer import ds9
 except ImportError:
@@ -514,8 +514,8 @@ class Connect:
             print(f"{key} is reserved")
             return None
         if key not in self.exam.imexam_option_funcs:
-                print(f"{key} not available")
-                return None
+            print(f"{key} not available")
+            return None
         fname = self.exam.imexam_option_funcs[key][0].__name__
         parname = fname + "_pars"
         return fname, parname
