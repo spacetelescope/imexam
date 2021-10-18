@@ -100,7 +100,6 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
         x0 = center_at
         fluxmax = max(data)
 
-
     # assumes negligable background
     if weighted:
         z = np.nan_to_num(1. / np.sqrt(data))  # use as weight
@@ -168,15 +167,14 @@ def fit_gauss_1d(radius, flux, sigma_factor=0, center_at=None, weighted=False):
     if radius.shape != flux.shape:
         raise ValueError("Expected same sizes for radius and flux")
 
-    
     if center_at is None:
-        center_mean = sum(radius)/len(radius)
+        center_mean = sum(radius) / len(radius)
         fixed = {'amplitude': False}
-        bounds = {'amplitude': (flux.max()/2.,flux.max())}
+        bounds = {'amplitude': (flux.max() / 2., flux.max())}
     else:
         center_mean = center_at
         fixed = {'mean': True, 'amplitude': True}
-        bounds = {'amplitude': (flux.max()/2., flux.max())}
+        bounds = {'amplitude': (flux.max() / 2., flux.max())}
 
     # assumes negligable background
     if weighted:
@@ -194,7 +192,7 @@ def fit_gauss_1d(radius, flux, sigma_factor=0, center_at=None, weighted=False):
 
     # Gaussian1D + a constant
     model = (models.Gaussian1D(amplitude=flux.max(),
-                               mean=center_mean, stddev=1., 
+                               mean=center_mean, stddev=1.,
                                fixed=fixed,
                                bounds=bounds) +
              models.Polynomial1D(c0=flux.min(), degree=0))

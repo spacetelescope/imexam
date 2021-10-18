@@ -507,8 +507,8 @@ class Imexamine:
 
         if fig is None:
             fig = self._plot_windows[-1]
-        
-        fig.savefig(self.plot_name)        
+
+        fig.savefig(self.plot_name)
         pstr = f"plot {fig.number} saved to {self.plot_name}"
         self.log.info(pstr)
 
@@ -879,7 +879,6 @@ class Imexamine:
                 fig.canvas.draw_idle()
             self._plot_windows[-1] = plt.gcf()
 
-
         else:
             return fitted
 
@@ -1053,7 +1052,7 @@ class Imexamine:
                 form = getattr(models, pars["func"][0])
             if form.name not in self._fit_models:
                 raise ValueError(f"Functional {form.name} not in available: {self._fit_models}")
-           
+
             self.log.info(f"using model: {form}")
 
         subtract_background = bool(pars["background"][0])
@@ -1061,7 +1060,6 @@ class Imexamine:
             self.log.warning("Install photutils to enable "
                              "background subtraction")
             subtract_background = False
-        
 
         getdata = bool(pars["getdata"][0])
         delta = int(pars["delta"][0])
@@ -1085,8 +1083,8 @@ class Imexamine:
             datasize = 3
 
         if pars["center"][0]:
-            xx=int(x)
-            yy=int(y)
+            xx = int(x)
+            yy = int(y)
             data_chunk = data[yy - datasize:yy + datasize,
                               xx - datasize:xx + datasize]
             amp, xx, yy, sigma, sigmay = self.gauss_center(xx,
@@ -1167,12 +1165,11 @@ class Imexamine:
             self.log.info(info)
             self.log.info(radius, flux)
 
-
         # Fit the functional form to the radial profile flux
         if fitplot:
             fline = np.linspace(0, datasize, 100)  # finer sample
             # fit model to data
-            if form.name == "Gaussian1D":# make center radii at max ********
+            if form.name == "Gaussian1D":  # make center radii at max ********
 
                 fitted = math_helper.fit_gauss_1d(radius, flux,
                                                   sigma_factor=sig_factor,
@@ -1211,7 +1208,7 @@ class Imexamine:
                 legendy = np.max(flux) / 2
 
             if fitted is None:
-                msg = f"Problem with the {fitform.name} fit"
+                msg = f"Problem with the {form.name} fit"
                 self.log.info(msg)
                 raise ValueError(msg)
 
