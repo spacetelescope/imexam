@@ -101,6 +101,7 @@ class Imexamine:
                             "Moffat1D",
                             "MexicanHat1D",
                             "AiryDisk2D",
+                            "Gaussian2D",
                             "Polynomial1D"]
 
         # see if the package logger was already started
@@ -633,7 +634,7 @@ class Imexamine:
 
             # Construct the output strings (header and parameter values)
             pheader = f"x\ty\tradius\tflux\tmag(zpt={magzero:0.2})\t"
-            pstr = f"\n{x:.2f}\t{y:0.2f}\t{radius}\t{total_flux:0.2}\t{mag:0.2}\t"
+            pstr = f"\n{xx:.2f}\t{yy:0.2f}\t{radius}\t{total_flux:0.2}\t{mag:0.2}\t"
 
             if subsky:
                 pheader += "sky/pix\t"
@@ -680,7 +681,6 @@ class Imexamine:
                                    self.aper_phot_pars['color_max'][0]]
 
                 pad = outer * 1.2  # XXX TODO: Bad magic number
-                print(xx, yy, pad)
                 ax.imshow(data[int(yy - pad):int(yy + pad),
                                int(xx - pad):int(xx + pad)],
                           vmin=color_range[0], vmax=color_range[1],
@@ -726,7 +726,7 @@ class Imexamine:
         The background is currently ignored
 
         If centering is True in the parameter set, then the center
-        is fit with a 2d gaussian, not performed for Polynomial1D
+        is fit with a 2d gaussian, center is not performed for Polynomial1D
         """
 
         # Set which parameters to use
@@ -949,8 +949,6 @@ class Imexamine:
         if delta >= len(data) / 4:
             delta = delta // 2
 
-        if delta is None:
-            delta = int(self.com_center_pars['delta'][0])
         xx = int(x)
         yy = int(y)
 
@@ -1046,18 +1044,32 @@ class Imexamine:
 
         """
         pars = self.radial_profile_pars
+        
+        if data is None:
+            data = self._data
+
+        fitplot = bool(pars["fitplot"][0])
+        if fitplot:
+            if form is None:
+                form = getattr(models, pars["func"][0])
+            if form.name not in self._fit_models:
+                raise ValueError(f"Functional {form.name} not in available: {self._fit_models}")
+           
+            self.log.info(f"using model: {form}")
 
         subtract_background = bool(pars["background"][0])
         if not photutils_installed and subtract_background:
             self.log.warning("Install photutils to enable "
                              "background subtraction")
             subtract_background = False
-
-        if data is None:
-            data = self._data
+        
 
         getdata = bool(pars["getdata"][0])
-        center = pars["center"][0]
+        delta = int(pars["delta"][0])
+
+        # reset delta for small arrays
+        if delta >= len(data) / 4:
+            delta = delta // 2
 
         # be careful with the clipping since most
         # of the data will be near the low value
@@ -1067,41 +1079,30 @@ class Imexamine:
         else:
             sig_factor = 0
 
-        fitplot = bool(pars["fitplot"][0])
-
-        if fitplot:
-            if form is None:
-                fitform = getattr(models, pars["func"][0])
-            else:
-                if form not in self._fit_models:
-                    msg = f"{form} not supported for fitting"
-                    self.log.info(msg)
-                    raise ValueError(msg)
-                else:
-                    fitform = getattr(models, form)
-
         # cut the data down to size and center cutout
         datasize = int(pars["rplot"][0])
         if datasize < 3:
             self.log.info("Insufficient pixels, resetting chunk size to 3.")
             datasize = 3
 
-        if center:
-            # reset delta for small arrays
-            # make it odd if it's even
-            if ((datasize % 2) == 0):
-                datasize = datasize + 1
-            xx = int(x)
-            yy = int(y)
-            #  flipped from xpa
+        if pars["center"][0]:
+            xx=int(x)
+            yy=int(y)
             data_chunk = data[yy - datasize:yy + datasize,
                               xx - datasize:xx + datasize]
-            amp, centerx, centery, sigmax, sigmay = self.gauss_center(xx, yy, data, delta=datasize)
-
+            amp, xx, yy, sigma, sigmay = self.gauss_center(xx,
+                                                           yy,
+                                                           data,
+                                                           delta=delta)
+            if (xx < 0 or yy < 0 or xx > data.shape[1] or
+                    yy > data.shape[0]):
+                self.log.warning("Problem with centering, pixel coords")
+            else:
+                centerx = xx
+                centery = yy
         else:
-            centery = y
             centerx = x
-
+            centery = y
         icenterx = int(centerx)
         icentery = int(centery)
 
@@ -1157,7 +1158,7 @@ class Imexamine:
                 sky_per_pix = 0.
                 self.log.info("Sky background negative, setting to zero")
             self.log.info(f"Background per pixel: {sky_per_pix}")
-            flux -= sky_per_pix
+            flux = flux - sky_per_pix
 
             if getdata:
                 self.log.info(f"Sky per pixel: {sky_per_pix} using "
@@ -1167,17 +1168,18 @@ class Imexamine:
             self.log.info(info)
             self.log.info(radius, flux)
 
+
         # Fit the functional form to the radial profile flux
-        # TODO: Ignore sky subtracted pixels that push flux
-        # below zero?
         if fitplot:
             fline = np.linspace(0, datasize, 100)  # finer sample
             # fit model to data
-            if fitform.name == "Gaussian1D":
+            if form.name == "Gaussian1D":# make center radii at max ********
+
                 fitted = math_helper.fit_gauss_1d(radius, flux,
                                                   sigma_factor=sig_factor,
-                                                  center_at=0,
+                                                  center_at=radius[0],
                                                   weighted=True)
+                print(f"fitline: {fitted}")
 
                 fwhmx, fwhmy = math_helper.gfwhm(fitted.stddev_0.value)
                 legend = (f"Max. pix. flux = {np.max(flux):9.3f}\n"
@@ -1187,10 +1189,10 @@ class Imexamine:
                 legendx = datasize / 2
                 legendy = np.max(flux) / 2
 
-            elif fitform.name == "Moffat1D":
+            elif form.name == "Moffat1D":
                 fitted = math_helper.fit_moffat_1d(flux,
                                                    sigma_factor=sig_factor,
-                                                   center_at=0,
+                                                   center_at=radius[0],
                                                    weighted=True)
                 mfwhm = math_helper.mfwhm(fitted.alpha_0.value,
                                           fitted.gamma_0.value)
@@ -1200,10 +1202,10 @@ class Imexamine:
                 legendx = datasize / 2
                 legendy = np.max(flux) / 2
 
-            elif fitform.name == "MexicanHat1D":
+            elif form.name == "MexicanHat1D":
                 fitted = math_helper.fit_mex_hat_1d(flux,
                                                     sigma_factor=sig_factor,
-                                                    center_at=0,
+                                                    center_at=radius[0],
                                                     weighted=True)
                 legend = (f"Max. pix. flux = {np.max(flux):9.3f}\n")
                 legendx = datasize / 2
@@ -1242,14 +1244,14 @@ class Imexamine:
 
             if pars["title"][0] is None:
                 if fitplot:
-                    title = f"Radial Profile at ({icenterx},{icentery}) with {fitform.name}"
+                    title = f"Radial Profile at ({icenterx},{icentery}) with {form.name}"
                 else:
                     title = f"Radial Profile for {icenterx} {icentery}"
             else:
                 title = pars["title"][0]
 
             if fitplot:
-                ax.plot(fline, yfit, linestyle='-', c='r', label=fitform.name)
+                ax.plot(fline, yfit, linestyle='-', c='r', label=form.name)
                 ax.set_xlim(0, datasize, 0.5)
                 ax.text(legendx, legendy, legend)
 
@@ -1622,7 +1624,7 @@ class Imexamine:
         if fig is None:
             fig = plt.figure(self._figure_name)
         fig.clf()
-        fig.add_subplot(111)
+        fig.add_subplot(111, projection='3d')
         ax = fig.gca(projection='3d')
 
         title = self.surface_pars["title"][0]

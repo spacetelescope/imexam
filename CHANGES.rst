@@ -1,6 +1,8 @@
 version 0.9.2.dev (unreleased)
 ------------------------------
-
+ - updated the gauss1d to set fixed fitting parameters and improve FWHM estimate(#165, #238)
+ - fixed background sky subtraction (#210)
+ - formatting fix for print statement in aper phot plot (#205)
 
 version 0.9.1 (2020-03-30)
 --------------------------

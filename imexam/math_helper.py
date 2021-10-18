@@ -93,10 +93,13 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
     ldata = len(data)
 
     # guesstimate mean
-    if center_at:
-        x0 = 0
-    else:
+    if center_at is None:
         x0 = int(ldata / 2.)
+        fluxmax = max(data)
+    else:
+        x0 = center_at
+        fluxmax = max(data)
+
 
     # assumes negligable background
     if weighted:
@@ -115,7 +118,7 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
         fit = fitter
 
     # Moffat1D + constant
-    model = (models.Moffat1D(amplitude=max(data),
+    model = (models.Moffat1D(amplitude=fluxmax,
                              x_0=x0,
                              gamma=gamma,
                              alpha=alpha) +
@@ -165,12 +168,15 @@ def fit_gauss_1d(radius, flux, sigma_factor=0, center_at=None, weighted=False):
     if radius.shape != flux.shape:
         raise ValueError("Expected same sizes for radius and flux")
 
-    # guesstimate the mean
-    # assumes ordered radius
+    
     if center_at is None:
-        delta = int(len(radius) / 2.)
+        center_mean = sum(radius)/len(radius)
+        fixed = {'amplitude': False}
+        bounds = {'amplitude': (flux.max()/2.,flux.max())}
     else:
-        delta = center_at
+        center_mean = center_at
+        fixed = {'mean': True, 'amplitude': True}
+        bounds = {'amplitude': (flux.max()/2., flux.max())}
 
     # assumes negligable background
     if weighted:
@@ -187,8 +193,10 @@ def fit_gauss_1d(radius, flux, sigma_factor=0, center_at=None, weighted=False):
         fit = fitter
 
     # Gaussian1D + a constant
-    model = (models.Gaussian1D(amplitude=flux.max() - flux.min(),
-                               mean=delta, stddev=1.) +
+    model = (models.Gaussian1D(amplitude=flux.max(),
+                               mean=center_mean, stddev=1., 
+                               fixed=fixed,
+                               bounds=bounds) +
              models.Polynomial1D(c0=flux.min(), degree=0))
 
     with warnings.catch_warnings():
