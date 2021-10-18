@@ -91,11 +91,11 @@ class Imexamine:
         self._define_default_pars()
         # default plot name saved with "s" key
         self.plot_name = "imexam_plot.pdf"
-        # let users have multiple plot windows, the list stores their names
+        # let users have multiple plot windows, the list stores their instance reference
         self._plot_windows = list()
         # this contains the name of the current plotting window
         self._figure_name = "imexam"
-        self._plot_windows.append(self._figure_name)
+        self._plot_windows.append(plt.gcf())
         self._reserved_keys = ['q', '2']  # not to be changed with user funcs
         self._fit_models = ["Gaussian1D",
                             "Moffat1D",
@@ -130,7 +130,7 @@ class Imexamine:
     def _close_plots(self):
         """Make sure to release plot memory at end of exam loop."""
         for plot in self._plot_windows:
-            plt.close()
+            plt.close(plot)
 
     def close(self):
         """For use with the Imexamine object standalone."""
@@ -296,8 +296,9 @@ class Imexamine:
         """
         if data is None:
             data = self._data
+        # save the old figure
+        self._plot_windows.append(plt.gcf())
         self._figure_name = "imexam" + str(len(self._plot_windows) + 1)
-        self._plot_windows.append(self._figure_name)
         self.log.info(f"Plots now directed towards {self._figure_name}")
 
     def plot_line(self, x, y, data=None, fig=None):
@@ -353,6 +354,7 @@ class Imexamine:
             plt.pause(0.001)
         else:
             fig.canvas.draw_idle()
+        self._plot_windows[-1] = plt.gcf()
 
     def plot_column(self, x, y, data=None, fig=None):
         """column plot of data at point y.
@@ -409,6 +411,7 @@ class Imexamine:
             plt.pause(0.001)
         else:
             fig.canvas.draw_idle()
+        self._plot_windows[-1] = plt.gcf()
 
     def show_xy_coords(self, x, y, data=None):
         """print the x,y,value to the screen.
@@ -479,17 +482,10 @@ class Imexamine:
 
         Parameters
         ----------
-        data: numpy array
-            The data array to work on
         fig: figure for redirect
             Used for interaction with the ginga GUI
         """
-        if fig is None:
-            fig = plt.figure(self._figure_name)
-        ax = fig.gca()
-        fig.savefig(self.plot_name)
-        pstr = f"plot saved to {self.plot_name}"
-        self.log.info(pstr)
+        self.save(fig=fig)
 
     def save(self, filename=None, fig=None):
         """Save to file the figure that's currently displayed.
@@ -510,10 +506,10 @@ class Imexamine:
             self.set_plot_name(self._figure_name + ".pdf")
 
         if fig is None:
-            fig = plt.figure(self._figure_name)
-        ax = fig.gca()
-        fig.savefig(self.plot_name)
-        pstr = f"plot saved to {self.plot_name}"
+            fig = self._plot_windows[-1]
+        
+        fig.savefig(self.plot_name)        
+        pstr = f"plot {fig.number} saved to {self.plot_name}"
         self.log.info(pstr)
 
     def aper_phot(self, x, y, data=None,
@@ -697,6 +693,7 @@ class Imexamine:
                     plt.pause(0.001)
                 else:
                     fig.canvas.draw_idle()
+                self._plot_windows[-1] = plt.gcf()
             else:
                 return (apertures, annulus_apertures, rawflux_table, sky_per_pix)
 
@@ -880,6 +877,8 @@ class Imexamine:
                 plt.pause(0.001)
             else:
                 fig.canvas.draw_idle()
+            self._plot_windows[-1] = plt.gcf()
+
 
         else:
             return fitted
@@ -1044,7 +1043,7 @@ class Imexamine:
 
         """
         pars = self.radial_profile_pars
-        
+
         if data is None:
             data = self._data
 
@@ -1262,6 +1261,7 @@ class Imexamine:
                 plt.pause(0.001)
             else:
                 fig.canvas.draw_idle()
+            self._plot_windows[-1] = plt.gcf()
         else:
             return radius, flux
 
@@ -1358,6 +1358,7 @@ class Imexamine:
                     plt.pause(0.001)
                 else:
                     fig.canvas.draw_idle()
+                self._plot_windows[-1] = plt.gcf()
 
             else:
                 return rapert, flux
@@ -1527,6 +1528,7 @@ class Imexamine:
                 plt.pause(0.001)
             else:
                 fig.canvas.draw_idle()
+            self._plot_windows[-1] = plt.gcf()
         else:
             hist, bin_edges = np.histogram(flat_data,
                                            num_bins,
@@ -1600,6 +1602,7 @@ class Imexamine:
             plt.pause(0.001)
         else:
             fig.canvas.draw_idle()
+        self._plot_windows[-1] = plt.gcf()
 
     def surface(self, x, y, data=None, fig=None):
         """plot a surface around the specified location.
@@ -1706,6 +1709,7 @@ class Imexamine:
             plt.pause(0.001)
         else:
             fig.canvas.draw_idle()
+        self._plot_windows[-1] = plt.gcf()
 
     def cutout(self, x, y, data=None, size=None, fig=None):
         """Make a fits cutout around the pointer location without wcs.
