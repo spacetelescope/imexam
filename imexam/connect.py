@@ -53,7 +53,7 @@ class Connect:
         The name of the image viewer you want to use, DS9 is the default
 
     wait_time: int, optional
-        The time to wait for a connection to be eastablished before quitting
+        The time to wait for a connection to be established before quitting
 
     Attributes
     ----------
