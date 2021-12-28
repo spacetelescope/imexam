@@ -1017,7 +1017,7 @@ class ds9:
 
         astropy.io.fits stores data in row-major format. So a 4d image would be
         [NAXIS4, NAXIS3, NAXIS2, NAXIS1]
-        just the one image is retured in the case of multidimensional data, not
+        just the one image is returned in the case of multidimensional data, not
         the cube
 
         """
