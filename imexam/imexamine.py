@@ -1042,7 +1042,7 @@ class Imexamine:
         form: string
             The string name of the form of the fit to use
         genplot: bool
-            Generate the plot if True, else retfurn the fit data
+            Generate the plot if True, else return the fit data
 
         """
         pars = self.radial_profile_pars
