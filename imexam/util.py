@@ -231,7 +231,7 @@ def check_valid(fits_data=None):
     """
     log = logging.getLogger(__name__)
     found_image = False  # Does it contain an IMAGE XTENSION
-    nextend = 0  # how many extenions does it have
+    nextend = 0  # how many extensions does it have
     first_image = None  # what extension has the first image?
     fits_file = False
     mef_file = False
