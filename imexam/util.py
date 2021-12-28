@@ -122,7 +122,7 @@ def display_help():
 
 
 def display_xpa_help():
-    """Display help for XPA Acccess Points."""
+    """Display help for XPA Access Points."""
     url = "http://ds9.si.edu/doc/ref/xpa.html"
     try:
         import webbrowser
