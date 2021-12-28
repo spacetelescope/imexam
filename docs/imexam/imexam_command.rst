@@ -290,7 +290,7 @@ You can also choose to use the `scipy.stats.describe`_ function if you have scip
     pressed: m, report_stat
     [551:556,653:658] describe:
     nobs: 25
-    minamx: (0.51326549, 0.85604763)
+    minmax: (0.51326549, 0.85604763)
     mean 0.6851165890693665
     variance: 0.00780616095289588
     skew: 0.05719175934791565
