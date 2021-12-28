@@ -109,7 +109,7 @@ box         cehjklruv.  Draw box around graph?
 buffer      r.          Buffer distance for background subtraction
 ceiling     es          Data ceiling for contour and surface plots
 center      jkr.        Find center for radial plot and photometry?
-constant    uv          Constant value for boundry extension in vector plots
+constant    uv          Constant value for boundary extension in vector plots
 dashpat     e           Dash pattern for contour plot
 eparam      cehjklrsuv. Edit parameters
 fill        e           Fill viewport vs enforce unity aspect ratio?
