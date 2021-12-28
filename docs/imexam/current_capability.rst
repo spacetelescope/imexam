@@ -269,7 +269,7 @@ Now let's load the region file into our image:
 
 
 **readcursor**\ ():
-    Returns image coordinate postion and key pressed as a tuple of the
+    Returns image coordinate position and key pressed as a tuple of the
     for float(x), float(y), str(key).
 
     ::

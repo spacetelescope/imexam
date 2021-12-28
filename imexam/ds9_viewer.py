@@ -683,7 +683,7 @@ class ds9:
         return self.xpa.get(param)
 
     def readcursor(self):
-        """Returns the image coordinate postion and key pressed.
+        """Returns the image coordinate position and key pressed.
 
         Notes
         -----

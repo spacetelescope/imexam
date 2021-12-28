@@ -307,7 +307,7 @@ class ginga_general:
         pass
 
     def readcursor(self):
-        """Returns image coordinate postion and key pressed."""
+        """Returns image coordinate position and key pressed."""
         # insert canvas to trap keyboard events if not already inserted
         if not self._capturing:
             self._capture()

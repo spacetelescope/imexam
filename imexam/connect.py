@@ -296,7 +296,7 @@ class Connect:
     #  Implement the following functions in your viewer class
 
     def readcursor(self):
-        """Return the image coordinate postion and key pressed.
+        """Return the image coordinate position and key pressed.
 
         in the form of x,y,str with array offset
         """
