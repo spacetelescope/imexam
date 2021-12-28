@@ -273,7 +273,7 @@ class ds9:
         The absolute path reference is stored to make XPA happy in all cases,
         wherever the user started the DS9 process.
 
-        The only consistant way to return which cube and slice that is
+        The only consistent way to return which cube and slice that is
         displayed is with the call to "file" which has the full plane=x:y
         information, but only when looking at something other than the first
         extension for each plane. In this case, you have to look at the header

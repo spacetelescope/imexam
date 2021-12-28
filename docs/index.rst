@@ -7,7 +7,7 @@
 The above image is an example desktop interfacing with DS9.
 
 
-``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight library that enables users to explore data using common methods which are consistant across viewers.
+``imexam`` is an affiliated package of AstroPy. It was designed to be a lightweight library that enables users to explore data using common methods which are consistent across viewers.
 The power of this python tool is that it is essentially a library of plotting
 and analysis routines that can be directed towards any viewer. It attempts to
 standardize the analysis interface so that no matter
