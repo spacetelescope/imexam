@@ -240,7 +240,7 @@ Convenience functions for DS9's (XPA) commands
 **snapsave** (filename,format=None,resolution=100):
     create a snap shot of the current window and save in specified format. If no format is specified the filename extension is used
 
-       filename: str, optioan
+       filename: str, option
            filename of output image, the extension in the filename can also be used to specify the format
            If no filename is specified, then the filename will be constructed from the name of the
            currently displayed image with _snap.jpg appended.
