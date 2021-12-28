@@ -237,7 +237,7 @@ You can also just load the plotting library for use without a viewer:
 ---------------------------------------------------------------------
 This is useful when you want to make batch plots or return information .
 from scripts You can also save the lotting data returned and use it    .
-futher, or design your own plot                                        .
+further, or design your own plot                                       .
 
 ::
 
