@@ -229,7 +229,7 @@ Connecting to a DS9 window which was started from the system prompt:
 Examples can be found in the package documentation, online
 documentation, and imexam.display_help() will pull up the installed
 package documentation in a web browser. You can also download the
-examply Jupyter notebooks available in the example_notebooks directory
+example Jupyter notebooks available in the example_notebooks directory
 above.
 
 
