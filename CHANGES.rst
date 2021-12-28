@@ -12,7 +12,7 @@ version 0.9 (2020-03-30)
 - moved extension local to imexam 
 - cleanup of travis tests and general package reorg
 - renamed xpa extension for compatibility and updated to version 2.1.19
-- added option for center of mass to aperature photometry centering
+- added option for center of mass to aperture photometry centering
 - update aper_phot to return tuple of photometry information without plotting
 - optional error array can be sent to aper_phot when using without plotting
 - updated example jupyter notebooks to be compatible with current functionality

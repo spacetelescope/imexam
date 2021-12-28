@@ -125,8 +125,8 @@ This will use Ginga (instead of the default DS9) for the viewer::
     :alt: Data used for imexam command examples
 
 
-Circular Apterture Photometry
------------------------------
+Circular Aperture Photometry
+----------------------------
 
 Aperture photometry is performed when you press the "a" key. It is implemented using the `photutils`_ python package, an affiliated package of astropy that is still in development.
 

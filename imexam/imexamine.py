@@ -608,7 +608,7 @@ class Imexamine:
                 # to calculate the mean local background, divide the circular
                 # annulus aperture sums by the area fo the circular annulus.
                 # The bkg sum with the circular aperture is then
-                # then mean local background tims the circular apreture area.
+                # then mean local background tims the circular aperture area.
                 if photutils_version >= version.parse('0.7'):
                     aperture_area = apertures.area
                     annulus_area = annulus_apertures.area
@@ -1144,7 +1144,7 @@ class Imexamine:
             # to calculate the mean local background, divide the circular
             # annulus aperture sums by the area of the circular annulus.
             # The bkg sum with the circular aperture is then
-            # the mean local background times the circular apreture area.
+            # the mean local background times the circular aperture area.
             if photutils_version >= version.parse('0.7'):
                 annulus_area = annulus_apertures.area
             else:
@@ -1416,7 +1416,7 @@ class Imexamine:
             # annulus aperture sums
             # by the area of the circular annulus. The bkg sum within the
             # circular aperture is then
-            # then mean local background times the circular apreture area.
+            # then mean local background times the circular aperture area.
             if photutils_version >= version.parse('0.7'):
                 aperture_area = apertures.area
                 annulus_area = annulus_apertures.area
