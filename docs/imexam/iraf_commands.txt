@@ -120,8 +120,8 @@ interval    e           Contour interval (0 for default)
 iterations  ar          Iterations on fitting radius
 label       e           Draw axis labels for contour plot?
 logfile                 Log file name
-logx        chjklruv.   Plot x axis logrithmically?
-logy        chjklruv.   Plot y axis logrithmically?
+logx        chjklruv.   Plot x axis logarithmically?
+logy        chjklruv.   Plot y axis logarithmically?
 magzero     r.          Magnitude zero for photometry
 majrx       cehjklruv.  Number of major tick marks on x axis
 majry       cehjklruv.  Number of major tick marks on y axis
