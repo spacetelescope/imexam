@@ -829,7 +829,7 @@ class ginga_general:
         raise NotImplementedError
 
     def hideme(self):
-        """Lower the display window in prededence."""
+        """Lower the display window in precedence."""
         raise NotImplementedError
 
     def load_region(self, *args, **kwargs):
@@ -883,7 +883,7 @@ class ginga_general:
         raise NotImplementedError
 
     def showme(self):
-        """Raise the precendence of the display window."""
+        """Raise the precedence of the display window."""
         raise NotImplementedError
 
     def showpix(self, *args, **kwargs):
