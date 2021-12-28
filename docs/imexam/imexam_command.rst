@@ -612,7 +612,7 @@ Okay, so let's try out our new function! We should be able to see it in the list
 Plot Multiple Windows
 ---------------------
 
-During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the "2"  key. This will save the current plotting window on your desktop and send the next plot to a new window. The plotting windows will be closed when you exit the imexam loop, so be sure to use the "s" key to save a quick copy of any plots you'd like to save for refernce. Here's what that might look like::
+During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the "2"  key. This will save the current plotting window on your desktop and send the next plot to a new window. The plotting windows will be closed when you exit the imexam loop, so be sure to use the "s" key to save a quick copy of any plots you'd like to save for reference. Here's what that might look like::
 
     #run aperture photometry("a"):
 
