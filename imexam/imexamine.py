@@ -1789,7 +1789,7 @@ class Imexamine:
             self.aper_phot_pars = user_dict
 
     def set_com_center_pars(self):
-        """ set paramters for the center of mass function"""
+        """ set parameters for the center of mass function"""
         self.com_center_pars = imexam_defpars.radial_profile_pars
 
     def set_radial_pars(self):
