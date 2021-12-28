@@ -133,7 +133,7 @@ class ds9:
     _mef_file: boolean
         The file is a multi-extension fits file
 
-    _iscube: bookean
+    _iscube: boolean
         The file is a multiextension fits file, and one of the extensions
         contains at least 1 additional extension (3D or more)
 
