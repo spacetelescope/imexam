@@ -133,7 +133,7 @@ but not yet fully implemented should return an error to that affect.
           'user_array': None}}
 
 **grab**\ ():
-    Take a snapshop of the image view
+    Take a snapshot of the image view
 
 
 **grid**\ (on=True, param=False):

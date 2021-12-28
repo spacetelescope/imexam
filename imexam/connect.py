@@ -165,7 +165,7 @@ class Connect:
         self.window.reopen()
 
     def grab(self):
-        """Display a snapshop of the current image in the browser window."""
+        """Display a snapshot of the current image in the browser window."""
         return self.window.grab()
 
     def get_filename(self):
