@@ -273,7 +273,7 @@ def check_valid(fits_data=None):
                     first_image = nextend  # The number of the extension
                     found_image = True
             except KeyError:
-                # There doens't have to be an 'XTENSION' keyword in the global(0) if
+                # There doesn't have to be an 'XTENSION' keyword in the global(0) if
                 # the MEF has data there, so check for naxis if its an image
                 # and tfields if it's table data
                 if nextend == 0:
