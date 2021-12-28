@@ -237,7 +237,7 @@ The column fit parameters are similar::
                      "background":[False, "Solve for background? [bool]"],
                      "width":[10.0, "Background  width in pixels"],
                      "xorder":[0, "Background terms to fit, 0=median"],
-                     "rplot":[20., "Plo tting radius in pixels"],
+                     "rplot":[20., "Plotting radius in pixels"],
                      "pointmode":[True,"plot points instead of lines? [bool]"],
                      "logx":[False, "log scale x-axis?"],
                      "logy":[False, "log scale y-axis?"],
