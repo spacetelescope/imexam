@@ -40,7 +40,7 @@ class ginga_general:
     """ A base class which controls all interactions between the user and the
     ginga widget.
 
-    The ginga contructor creates a new window using the
+    The ginga constructor creates a new window using the
     ginga backend.
 
     Parameters

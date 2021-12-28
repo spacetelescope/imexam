@@ -59,7 +59,7 @@ class UnsupportedImageShapeException(Exception):
 class ds9:
     """Control all interactions between the user and the DS9 window.
 
-    The ds9() contructor takes a ds9 target as its main argument.
+    The ds9() constructor takes a ds9 target as its main argument.
     If none is given, then a new window and process will be started.
 
     DS9's xpa access points are documented in the reference manual,
