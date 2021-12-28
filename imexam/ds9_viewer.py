@@ -1254,7 +1254,7 @@ class ds9:
                                ptype="image", textoff=10, size=4):
         """mark ds9 regions regions  given an input list of tuples.
 
-         a convienence function, you can also use set_region
+         a convenience function, you can also use set_region
 
         Parameters
         ----------
