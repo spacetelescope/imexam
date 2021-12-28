@@ -69,7 +69,7 @@ User documentation
     Convenience functions for the XPA <imexam/xpa_commands.rst>
     Examples <imexam/examples.rst>
     Dependencies <imexam/dependencies.rst>
-    IRAF-imexamine Capabilites <imexam/iraf_imexam.rst>
+    IRAF-imexamine Capabilities <imexam/iraf_imexam.rst>
     Comparison with IRAF <imexam/comparison_iraf.rst>
 
 
