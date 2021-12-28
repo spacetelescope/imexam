@@ -284,5 +284,5 @@ If you get an error about not finding the file "import" when you use the grab() 
 * screen grab a copy of the window yourself (grabbing saves any overlays as well)
 * move the DS9 window to the appropriate screen and issue the saveimage command, assuming "a" is your control object, that would look like: a.window.xpa.set("saveimage ds9.jpeg")
 
-If you are experiencing an issue not related to those descibed above you can open a new issue on the ``imexam`` `GitHub issue tracker
+If you are experiencing an issue not related to those described above you can open a new issue on the ``imexam`` `GitHub issue tracker
 <https://github.com/spacetelescope/imexam/issues>`_. You can view older closed issues there as well.
