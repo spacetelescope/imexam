@@ -23,7 +23,7 @@ However, if there are windows already open with no unique titles, the best way i
     DS9 ds9 gs c0a80106:61894 username
     Out[4]: {'c0a80106:61894': ('ds9', 'username', 'DS9', 'gs')}
 
-Using this dictionary, you can also you can return the list of windows you can connect to without too much thinking, making it easy to encorporate into your own scripts as well:::
+Using this dictionary, you can also you can return the list of windows you can connect to without too much thinking, making it easy to incorporate into your own scripts as well:::
 
 
     In [1]: import imexam
