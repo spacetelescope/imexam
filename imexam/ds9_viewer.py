@@ -757,7 +757,7 @@ class ds9:
             [load <filename>]
             [save <filename>]
             [invert true|false]
-            [value <constrast> <bias>]
+            [value <contrast> <bias>]
             [tag [load|save] <filename>]
             [tag delete]
             [match]
