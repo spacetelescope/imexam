@@ -556,7 +556,7 @@ class Imexamine:
         Returns
         -------
         plot or the tuple of apertures, annulus_apertures, rawflux_table, sky_per_pix.
-        Where apertures and annulus_apertures are photuils objects, or None
+        Where apertures and annulus_apertures are photutils objects, or None
 
         """
         if data is None:
