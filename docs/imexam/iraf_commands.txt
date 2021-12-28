@@ -140,7 +140,7 @@ nloutput                Number of lines in output image
 nlstat                  Number of lines in statistics box
 output			Output image root name
 pointmode   chjkluv     Plot points instead of lines?
-radius      r.          Radius of object aperture for radial plot and photmetry
+radius      r.          Radius of object aperture for radial plot and photometry
 round       cehjklruv.  Round axes to nice values?
 rplot       jkr.        Radius to plot in 1D and radial profile plots
 select                  Select image or display frame

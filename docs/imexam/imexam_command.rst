@@ -29,7 +29,7 @@ This is the main method which allows live interaction with the image display whe
     y Return x,y,value of pixel
 
 
-     aimexam(): return a dict of current parameters for aperture photometery
+     aimexam(): return a dict of current parameters for aperture photometry
 
      cimexam(): return dict of current parameters for column plots
 
