@@ -1433,7 +1433,7 @@ class Imexamine:
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
     def histogram(self, x, y, data=None, genplot=True, fig=None):
-        """Calulate a histogram of the data values.
+        """Calculate a histogram of the data values.
 
         Parameters
         ----------
