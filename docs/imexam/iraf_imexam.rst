@@ -5,7 +5,7 @@ IRAF imexamine capabilities
 These are the capabilities of the IRAF version of the imexam task, called with **imexamine [input [frame]]**, which lives in images.tv.imexamine. The following are imexamines input options:
 
 
-    *  **input** is an optional list of images to be examined. If specified, images are examined in turn, displaying them automatically. If no images are specfied the images currently loaded into the image display are examined.
+    *  **input** is an optional list of images to be examined. If specified, images are examined in turn, displaying them automatically. If no images are specified the images currently loaded into the image display are examined.
     
     *   **output** contains the rootname for output images created with the "t" key. If no name is specified then the name of the input image is used. A three digit numver is appended to the rootname, such as ".001", starting with 1 until no image is found with that name. Successive output images are numbered sequentially
     
