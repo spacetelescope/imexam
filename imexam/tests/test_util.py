@@ -152,7 +152,7 @@ def test_hst_filename():
 
 
 def test_ext_ver_filename():
-    """Verify basename of a filname given with ext and ver."""
+    """Verify basename of a filename given with ext and ver."""
 
     hst_name_ext_ver = "hstimagex_cal.fits[sci,1]"
     rootname = "hstimagex_cal.fits"
