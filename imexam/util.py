@@ -221,7 +221,7 @@ def check_valid(fits_data=None):
         The number of extension in the file
     first_image: int, None
         The extension that contains the first image data.
-        None will be returned when no IMAGE xtension is found
+        None will be returned when no IMAGE extension is found
 
     Notes
     -----
@@ -303,7 +303,7 @@ def verify_filename(filename=None, extver=None, extname=None):
         The name of the file to verify
 
     extver: int
-        extsion number which corresponds to extname
+        extension number which corresponds to extname
 
     extname: string
         the name of the extension
