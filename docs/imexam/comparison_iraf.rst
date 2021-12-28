@@ -1,4 +1,4 @@
-Comparison with the IRAF verison of imexamine
+Comparison with the IRAF version of imexamine
 =============================================
 The following is a comparison of the outputs, returned values and user options for this module versus imexamine in IRAF
 

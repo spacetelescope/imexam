@@ -107,7 +107,7 @@ def list_active_ds9(verbose=True):
 
 
 def display_help():
-    """Display RTD html help for the installed verison in a browser window."""
+    """Display RTD html help for the installed version in a browser window."""
     url = "http://imexam.readthedocs.io/"
     try:
         import webbrowser
