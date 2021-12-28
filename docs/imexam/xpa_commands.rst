@@ -99,7 +99,7 @@ Convenience functions for DS9's (XPA) commands
 
 **grid** (on=True, param=False):
     turn the grid on and off
-    if param is True, then a diaglog is opened for the grid parameters
+    if param is True, then a dialog is opened for the grid parameters
 
 **hideme** ():
     lower the ds9 window on your display
