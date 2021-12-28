@@ -427,7 +427,7 @@ class Imexamine:
         self.log.info(info)
 
     def report_stat(self, x, y, data=None):
-        """report the statisic of values in a box with side region_size.
+        """report the statistic of values in a box with side region_size.
 
         The statistic can be any numpy function
 
