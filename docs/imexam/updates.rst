@@ -108,7 +108,7 @@ version 0.6.1 (2016-07-16)
 - if users pass an nddata object to view()  without a data reference it assumes one, but you can always specify which extension
 - added better user access function for changing plotting/function parameters used to make plots
 - updated to Read The Docs new site name
-- replaced ipython dependency in the docs build with Jupyter
+- replaced IPython dependency in the docs build with Jupyter
 - removed local copy of doc build, referenced to RTD instead, users should make PDF copy for offline work
 - added the ginga embed functionality so that users can choose to embed the viewing window inside the notebook
 
