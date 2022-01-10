@@ -23,7 +23,7 @@ version 0.9 (2020-03-30)
 - adapt for change to photutils API for aperture areas (#193)
 - fix ginga display of HDUList
 - add check for ds9 in alias as well as well as path
-- python2->3 class and printing updates
+- Python 2->3 class and printing updates
 - removed dependence on astropy_helpers
 
 version 0.8.1 (2018-12-14)
@@ -68,7 +68,7 @@ version 0.7.0 (2017-01-19)
 - fixed a text error in the display_help() so that now the correct version loads the documentation
 - Windows users can now install from source. The setup will ignore the cython and xpa necessary to build the DS9 interaction, and users will only be able to use the Ginga HTML5 window, they can also use the Imexamine() functions without any graphical interface.
 - Documentation updates, mostly specific information for Windows users
-- Added python 3.6 to the test matrix as well as AppVeyor for the windows build
+- Added Python 3.6 to the test matrix as well as AppVeyor for the windows build
 - Updated XPA module to v2.1.18
 - Made fits checker smarter to deal with older simple fits files where EXTEND is true but there are no extensions
 - fixed bug in fits loader for ds9 multi-extension FITS files, made load_fits() prefer the extension specified in the key rather than the image name
@@ -80,7 +80,7 @@ version 0.6.4dev (unreleased)
 - fixed a text error in the display_help() so that now the correct version loads the documentation
 - Windows users can now install from source. The setup will ignore the cython and xpa necessary to build the DS9 interaction, and users will only be able to use the Ginga HTML5 window, they can also use the Imexamine() functions without any graphical interface.
 - Documentation updates, mostly specific information for Windows users
-- Added python 3.6 to the test matrix as well as AppVeyor for the windows build
+- Added Python 3.6 to the test matrix as well as AppVeyor for the windows build
 - Updated XPA module to v2.1.18
 - Made fits checker smarter to deal with older simple fits files where EXTEND is true but there are no extensions
 - fixed bug in fits loader for ds9 multi-extension FITS files, made load_fits() prefer the extension specified in the key rather than the image name
