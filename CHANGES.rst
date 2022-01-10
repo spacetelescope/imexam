@@ -10,7 +10,7 @@ version 0.9.1 (2020-03-30)
 version 0.9 (2020-03-30)
 ---------------------------
 - moved extension local to imexam 
-- cleanup of travis tests and general package reorg
+- cleanup of Travis tests and general package reorg
 - renamed xpa extension for compatibility and updated to version 2.1.19
 - added option for center of mass to aperture photometry centering
 - update aper_phot to return tuple of photometry information without plotting
@@ -30,7 +30,7 @@ version 0.8.1 (2018-12-14)
 --------------------------
 ** THIS WILL BE THE LAST VERSION THAT SUPPORT Python 2.7 **
 
-- travis and AppVeyor testing updates
+- Travis and AppVeyor testing updates
 - radial profile plot centering fixed to more correctly calculate the fractional center offsets
 - cumulative radial profile flux calculation should now be correct
 - the fit_gauss_1d function call was changed to accept the radius and flux array so that they

@@ -25,7 +25,7 @@ version 0.8.1 (2018-12-14)
 --------------------------
 ** THIS WILL BE THE LAST VERSION THAT SUPPORT Python 2.7 **
 
-- travis and AppVeyor testing updates
+- Travis and AppVeyor testing updates
 - radial profile plot centering fixed to more correctly calculate the fractional center offsets
 - cumulative radial profile flux calculation should now be correct
 - the fit_gauss_1d function call was changed to accept the radius and flux array so that they
