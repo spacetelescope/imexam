@@ -15,7 +15,7 @@ version 0.9 (2020-03-30)
 - added option for center of mass to aperture photometry centering
 - update aper_phot to return tuple of photometry information without plotting
 - optional error array can be sent to aper_phot when using without plotting
-- updated example jupyter notebooks to be compatible with current functionality
+- updated example Jupyter notebooks to be compatible with current functionality
 - changed the ext_build process a little and added a flag to skip remaking the c code
 - remove leftover iraf variable names
 - removed support for the grab function under Darwin
@@ -92,7 +92,7 @@ version 0.6.3 (2017-01-01)
 - The imexamine class was updated so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
 - A dictionary is now returned to the user when they request information on the active DS9 windows which are available.
 - Tests updated to be consistent with new package logging
-- Documentation and the jupyter examples updated
+- Documentation and the Jupyter examples updated
 - Fixed bug with loading user specified fits extensions for both ginga and ds9
 
 
@@ -106,14 +106,14 @@ version 0.6.1 (2016-07-16)
 --------------------------
 - Ginga viewer support for images in matplotlib and QT backend removed, but replaced with HTML5 canvas viewer which is faster and simpler for users to both use and install.
 - replaced custom fits with astropy.modeling, enabling Gaussian2d, Gaussian1d, Moffat1D and MexicanHat1D fits for lines and centering
-- General bug fixes and documentation updates, including example jupyter notebooks
+- General bug fixes and documentation updates, including example Jupyter notebooks
 - Updated the default title display on plots to use the image name or specify an array was used
 - added astropy_helpers as a submodule
 - made xpa a submodule
 - if users pass an nddata object to view()  without a data reference it assumes one, but you can always specify which extension
 - added better user access function for changing plotting/function parameters used to make plots
 - updated to Read The Docs new site name
-- replaced ipython dependency in the docs build with jupyter
+- replaced ipython dependency in the docs build with Jupyter
 - removed local copy of doc build, referenced to RTD instead, users should make PDF copy for offline work
 - added the ginga embed functionality so that users can choose to embed the viewing window inside the notebook
 
