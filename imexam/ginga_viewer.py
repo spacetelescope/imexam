@@ -40,7 +40,7 @@ class ginga_general:
     """ A base class which controls all interactions between the user and the
     ginga widget.
 
-    The ginga contructor creates a new window using the
+    The ginga constructor creates a new window using the
     ginga backend.
 
     Parameters
@@ -307,7 +307,7 @@ class ginga_general:
         pass
 
     def readcursor(self):
-        """Returns image coordinate postion and key pressed."""
+        """Returns image coordinate position and key pressed."""
         # insert canvas to trap keyboard events if not already inserted
         if not self._capturing:
             self._capture()
@@ -418,7 +418,7 @@ class ginga_general:
         for analysis
 
         astropy.io.fits stores data in row-major format. So a 4d image would be
-        [NAXIS4, NAXIS3, NAXIS2, NAXIS1] just the one image is retured in the
+        [NAXIS4, NAXIS3, NAXIS2, NAXIS1] just the one image is returned in the
         case of multidimensional data, not the cube
 
         """
@@ -829,7 +829,7 @@ class ginga_general:
         raise NotImplementedError
 
     def hideme(self):
-        """Lower the display window in prededence."""
+        """Lower the display window in precedence."""
         raise NotImplementedError
 
     def load_region(self, *args, **kwargs):
@@ -883,7 +883,7 @@ class ginga_general:
         raise NotImplementedError
 
     def showme(self):
-        """Raise the precendence of the display window."""
+        """Raise the precedence of the display window."""
         raise NotImplementedError
 
     def showpix(self, *args, **kwargs):

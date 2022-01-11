@@ -5,7 +5,7 @@ This package can be used on Windows, Linux, and MacOS operating systems.
 Windows users may download the git repository or do a direct pip install from the git repository. However, they will not have default access to DS9 because compiling the cython+xpa code cannot currently be done with default installed software. Instead, Windows users should make sure they install the Ginga viewer for image examination and plotting using it's HTML5 viewer. You will have all the same imexam functionality available to you, including the use of Jupyter notebooks and screen plotting.
 
 
-``imexam`` currently provides display support two viewers: DS9 and Ginga. The default, when no parameters are supplied to the connect call, is for imexam to start up it's own DS9 process and shut it down nicely upon exit. A Ginga widget using an HTML5 backend is also available as a viewer, most usefull when interacting with the package inside a Jupyter notebook. The package is designed so that it may easily accept other display devices in the future. Additionally, an experimental ginga plugin is available which allows use of the basic ginga gui and interaction with the image display and plots in the imexam style.
+``imexam`` currently provides display support two viewers: DS9 and Ginga. The default, when no parameters are supplied to the connect call, is for imexam to start up it's own DS9 process and shut it down nicely upon exit. A Ginga widget using an HTML5 backend is also available as a viewer, most useful when interacting with the package inside a Jupyter notebook. The package is designed so that it may easily accept other display devices in the future. Additionally, an experimental ginga plugin is available which allows use of the basic ginga gui and interaction with the image display and plots in the imexam style.
 
 The ``imexam`` library can be used standalone, without a viewer, to create the plots which are available in the interactive sessions by importing the plotting object and feeding the functions your data with x,y coordinates for the plots. It can also be used within the Jupyter notebook framework with either DS9 or the HTML5 backend for viewing. In either case, the images and plots may be saved inside the notebook in conjunction with the notebook (nbAgg) matplotlib backend. If you choose to interact with separate plotting windows, it's still possible to grab an image of the current image display or plot and save it inside the notebook.
 
@@ -23,7 +23,7 @@ However, if there are windows already open with no unique titles, the best way i
     DS9 ds9 gs c0a80106:61894 username
     Out[4]: {'c0a80106:61894': ('ds9', 'username', 'DS9', 'gs')}
 
-Using this dictionary, you can also you can return the list of windows you can connect to without too much thinking, making it easy to encorporate into your own scripts as well:::
+Using this dictionary, you can also you can return the list of windows you can connect to without too much thinking, making it easy to incorporate into your own scripts as well:::
 
 
     In [1]: import imexam
@@ -284,5 +284,5 @@ If you get an error about not finding the file "import" when you use the grab() 
 * screen grab a copy of the window yourself (grabbing saves any overlays as well)
 * move the DS9 window to the appropriate screen and issue the saveimage command, assuming "a" is your control object, that would look like: a.window.xpa.set("saveimage ds9.jpeg")
 
-If you are experiencing an issue not related to those descibed above you can open a new issue on the ``imexam`` `GitHub issue tracker
+If you are experiencing an issue not related to those described above you can open a new issue on the ``imexam`` `GitHub issue tracker
 <https://github.com/spacetelescope/imexam/issues>`_. You can view older closed issues there as well.

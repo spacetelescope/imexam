@@ -81,7 +81,7 @@ displays the same image to each one::
 
 
 It's also possible to load a FITS image object that you already have opened in your
-python session, if no extension is given, then the first IMAGE exension that is found
+python session, if no extension is given, then the first IMAGE extension that is found
 will be loaded as a numpy array::
 
     from astropy.io import fits

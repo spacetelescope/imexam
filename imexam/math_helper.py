@@ -82,7 +82,7 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
         None by default, set to value to use as center
     weighted: bool
         if weighted is True, then weight the values by basic
-        uncertainty hueristic
+        uncertainty heuristic
 
     Returns
     -------
@@ -98,7 +98,7 @@ def fit_moffat_1d(data, gamma=2., alpha=1., sigma_factor=0.,
     else:
         x0 = int(ldata / 2.)
 
-    # assumes negligable background
+    # assumes negligible background
     if weighted:
         z = np.nan_to_num(1. / np.sqrt(data))  # use as weight
 
@@ -155,7 +155,7 @@ def fit_gauss_1d(radius, flux, sigma_factor=0, center_at=None, weighted=False):
         array size.
     weighted: bool
         if weighted is True, then weight the values by basic
-        uncertainty hueristic
+        uncertainty heuristic
 
     Returns
     -------
@@ -172,7 +172,7 @@ def fit_gauss_1d(radius, flux, sigma_factor=0, center_at=None, weighted=False):
     else:
         delta = center_at
 
-    # assumes negligable background
+    # assumes negligible background
     if weighted:
         z = np.nan_to_num(np.log(flux))
 
@@ -277,7 +277,7 @@ def fit_mex_hat_1d(data, sigma_factor=0, center_at=None, weighted=False):
         None by default, set to value to use as center
     weighted: bool
         if weighted is True, then weight the values by basic
-        uncertainty hueristic
+        uncertainty heuristic
 
     Returns
     -------
@@ -289,7 +289,7 @@ def fit_mex_hat_1d(data, sigma_factor=0, center_at=None, weighted=False):
     else:
         x0 = int(ldata / 2.)
 
-    # assumes negligable background
+    # assumes negligible background
     if weighted:
         z = np.nan_to_num(1. / np.sqrt(data))  # use as weight
 

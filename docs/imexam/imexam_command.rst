@@ -29,7 +29,7 @@ This is the main method which allows live interaction with the image display whe
     y Return x,y,value of pixel
 
 
-     aimexam(): return a dict of current parameters for aperture photometery
+     aimexam(): return a dict of current parameters for aperture photometry
 
      cimexam(): return dict of current parameters for column plots
 
@@ -125,8 +125,8 @@ This will use Ginga (instead of the default DS9) for the viewer::
     :alt: Data used for imexam command examples
 
 
-Circular Apterture Photometry
------------------------------
+Circular Aperture Photometry
+----------------------------
 
 Aperture photometry is performed when you press the "a" key. It is implemented using the `photutils`_ python package, an affiliated package of astropy that is still in development.
 
@@ -237,7 +237,7 @@ The column fit parameters are similar::
                      "background":[False, "Solve for background? [bool]"],
                      "width":[10.0, "Background  width in pixels"],
                      "xorder":[0, "Background terms to fit, 0=median"],
-                     "rplot":[20., "Plo tting radius in pixels"],
+                     "rplot":[20., "Plotting radius in pixels"],
                      "pointmode":[True,"plot points instead of lines? [bool]"],
                      "logx":[False, "log scale x-axis?"],
                      "logy":[False, "log scale y-axis?"],
@@ -290,7 +290,7 @@ You can also choose to use the `scipy.stats.describe`_ function if you have scip
     pressed: m, report_stat
     [551:556,653:658] describe:
     nobs: 25
-    minamx: (0.51326549, 0.85604763)
+    minmax: (0.51326549, 0.85604763)
     mean 0.6851165890693665
     variance: 0.00780616095289588
     skew: 0.05719175934791565
@@ -612,7 +612,7 @@ Okay, so let's try out our new function! We should be able to see it in the list
 Plot Multiple Windows
 ---------------------
 
-During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the "2"  key. This will save the current plotting window on your desktop and send the next plot to a new window. The plotting windows will be closed when you exit the imexam loop, so be sure to use the "s" key to save a quick copy of any plots you'd like to save for refernce. Here's what that might look like::
+During a single viewer.imexam() session, you can choose to send your plots to multiple windows. Each window may only be used once, but if you would like to plot multiple things to compare, either the same plots for multiple  objects or multiple types of plots for a single object, you can press the "2"  key. This will save the current plotting window on your desktop and send the next plot to a new window. The plotting windows will be closed when you exit the imexam loop, so be sure to use the "s" key to save a quick copy of any plots you'd like to save for reference. Here's what that might look like::
 
     #run aperture photometry("a"):
 

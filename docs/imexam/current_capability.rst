@@ -133,7 +133,7 @@ but not yet fully implemented should return an error to that affect.
           'user_array': None}}
 
 **grab**\ ():
-    Take a snapshop of the image view
+    Take a snapshot of the image view
 
 
 **grid**\ (on=True, param=False):
@@ -269,7 +269,7 @@ Now let's load the region file into our image:
 
 
 **readcursor**\ ():
-    Returns image coordinate postion and key pressed as a tuple of the
+    Returns image coordinate position and key pressed as a tuple of the
     for float(x), float(y), str(key).
 
     ::

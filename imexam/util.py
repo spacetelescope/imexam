@@ -107,7 +107,7 @@ def list_active_ds9(verbose=True):
 
 
 def display_help():
-    """Display RTD html help for the installed verison in a browser window."""
+    """Display RTD html help for the installed version in a browser window."""
     url = "http://imexam.readthedocs.io/"
     try:
         import webbrowser
@@ -122,7 +122,7 @@ def display_help():
 
 
 def display_xpa_help():
-    """Display help for XPA Acccess Points."""
+    """Display help for XPA Access Points."""
     url = "http://ds9.si.edu/doc/ref/xpa.html"
     try:
         import webbrowser
@@ -134,7 +134,7 @@ def display_xpa_help():
 
 
 # Set up logging ability for the user
-# consider making a private logging level for data retension
+# consider making a private logging level for data retention
 def set_logging(filename=None, on=True, level=logging.INFO):
     """Turn on or off logging to file or stdout.
 
@@ -221,17 +221,17 @@ def check_valid(fits_data=None):
         The number of extension in the file
     first_image: int, None
         The extension that contains the first image data.
-        None will be returned when no IMAGE xtension is found
+        None will be returned when no IMAGE extension is found
 
     Notes
     -----
     Drizzled images put a table in the first extension and an image in
-    the zero extension, so this function checks for the first occurrance
+    the zero extension, so this function checks for the first occurrence
     of 'IMAGE' in 'XTENSION', which is a required keyword.
     """
     log = logging.getLogger(__name__)
     found_image = False  # Does it contain an IMAGE XTENSION
-    nextend = 0  # how many extenions does it have
+    nextend = 0  # how many extensions does it have
     first_image = None  # what extension has the first image?
     fits_file = False
     mef_file = False
@@ -273,7 +273,7 @@ def check_valid(fits_data=None):
                     first_image = nextend  # The number of the extension
                     found_image = True
             except KeyError:
-                # There doens't have to be an 'XTENSION' keyword in the global(0) if
+                # There doesn't have to be an 'XTENSION' keyword in the global(0) if
                 # the MEF has data there, so check for naxis if its an image
                 # and tfields if it's table data
                 if nextend == 0:
@@ -303,7 +303,7 @@ def verify_filename(filename=None, extver=None, extname=None):
         The name of the file to verify
 
     extver: int
-        extsion number which corresponds to extname
+        extension number which corresponds to extname
 
     extname: string
         the name of the extension

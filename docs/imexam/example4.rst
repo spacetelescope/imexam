@@ -33,7 +33,7 @@ You can use all the regular imexam methods with this image, including imexam() a
 
 
 
-Now I'm going to use the Cube dialog to change the slice I'm looking at to (4,14) -> as displayed in the dialog. DS9 displayed 1-indexed numbers, and the fits utitlity behind imexam uses 0-indexed numbers, so expect the return to be off by a value of 1.
+Now I'm going to use the Cube dialog to change the slice I'm looking at to (4,14) -> as displayed in the dialog. DS9 displayed 1-indexed numbers, and the fits utility behind imexam uses 0-indexed numbers, so expect the return to be off by a value of 1.
 
 
 Let's ask for the information again::

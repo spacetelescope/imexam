@@ -114,7 +114,7 @@ def test_gauss_center():
 
     from astropy.convolution import Gaussian2DKernel
 
-    # This creates a 2D normalized gaussian kernal with
+    # This creates a 2D normalized gaussian kernel with
     # a set amplitude. Guess off-center
     amp = 0.0015915494309189533
     size = 81.0

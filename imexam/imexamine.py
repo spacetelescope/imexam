@@ -427,7 +427,7 @@ class Imexamine:
         self.log.info(info)
 
     def report_stat(self, x, y, data=None):
-        """report the statisic of values in a box with side region_size.
+        """report the statistic of values in a box with side region_size.
 
         The statistic can be any numpy function
 
@@ -556,7 +556,7 @@ class Imexamine:
         Returns
         -------
         plot or the tuple of apertures, annulus_apertures, rawflux_table, sky_per_pix.
-        Where apertures and annulus_apertures are photuils objects, or None
+        Where apertures and annulus_apertures are photutils objects, or None
 
         """
         if data is None:
@@ -608,7 +608,7 @@ class Imexamine:
                 # to calculate the mean local background, divide the circular
                 # annulus aperture sums by the area fo the circular annulus.
                 # The bkg sum with the circular aperture is then
-                # then mean local background tims the circular apreture area.
+                # then mean local background tims the circular aperture area.
                 if photutils_version >= version.parse('0.7'):
                     aperture_area = apertures.area
                     annulus_area = annulus_apertures.area
@@ -1042,7 +1042,7 @@ class Imexamine:
         form: string
             The string name of the form of the fit to use
         genplot: bool
-            Generate the plot if True, else retfurn the fit data
+            Generate the plot if True, else return the fit data
 
         """
         pars = self.radial_profile_pars
@@ -1144,7 +1144,7 @@ class Imexamine:
             # to calculate the mean local background, divide the circular
             # annulus aperture sums by the area of the circular annulus.
             # The bkg sum with the circular aperture is then
-            # the mean local background times the circular apreture area.
+            # the mean local background times the circular aperture area.
             if photutils_version >= version.parse('0.7'):
                 annulus_area = annulus_apertures.area
             else:
@@ -1416,7 +1416,7 @@ class Imexamine:
             # annulus aperture sums
             # by the area of the circular annulus. The bkg sum within the
             # circular aperture is then
-            # then mean local background times the circular apreture area.
+            # then mean local background times the circular aperture area.
             if photutils_version >= version.parse('0.7'):
                 aperture_area = apertures.area
                 annulus_area = annulus_apertures.area
@@ -1433,7 +1433,7 @@ class Imexamine:
                 float(rawflux_table['aperture_sum'][0]), bkg_sum, skysub_flux)
 
     def histogram(self, x, y, data=None, genplot=True, fig=None):
-        """Calulate a histogram of the data values.
+        """Calculate a histogram of the data values.
 
         Parameters
         ----------
@@ -1789,7 +1789,7 @@ class Imexamine:
             self.aper_phot_pars = user_dict
 
     def set_com_center_pars(self):
-        """ set paramters for the center of mass function"""
+        """ set parameters for the center of mass function"""
         self.com_center_pars = imexam_defpars.radial_profile_pars
 
     def set_radial_pars(self):

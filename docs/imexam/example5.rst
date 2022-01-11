@@ -62,7 +62,7 @@ You can then save the current plot using the save method:
 
     plots.close() # close the plot window
 
-Where the extname specifies the format of the file, ex: jpg or pdf. A pdf file will be the default output, using the curent self.plot_name.
+Where the extname specifies the format of the file, ex: jpg or pdf. A pdf file will be the default output, using the current self.plot_name.
 
 .. image:: ../_static/example_5a.png
     :height: 400

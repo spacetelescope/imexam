@@ -53,7 +53,7 @@ class Connect:
         The name of the image viewer you want to use, DS9 is the default
 
     wait_time: int, optional
-        The time to wait for a connection to be eastablished before quitting
+        The time to wait for a connection to be established before quitting
 
     Attributes
     ----------
@@ -165,7 +165,7 @@ class Connect:
         self.window.reopen()
 
     def grab(self):
-        """Display a snapshop of the current image in the browser window."""
+        """Display a snapshot of the current image in the browser window."""
         return self.window.grab()
 
     def get_filename(self):
@@ -296,7 +296,7 @@ class Connect:
     #  Implement the following functions in your viewer class
 
     def readcursor(self):
-        """Return the image coordinate postion and key pressed.
+        """Return the image coordinate position and key pressed.
 
         in the form of x,y,str with array offset
         """

@@ -7,9 +7,9 @@ Updates to the package
 version 0.8.2 (unreleased)
 ---------------------------
 - renamed xpa extension for compatibility
-- added option for center of mass to aperature photometry centering
+- added option for center of mass to aperture photometry centering
 - update aper_phot to return tuple of photometry information without plotting
-- updated example jupyter notebooks to be compatible with current functionality
+- updated example Jupyter notebooks to be compatible with current functionality
 - changed the ext_build process a little and added a flag to skip remaking the c code
 - remove leftover iraf variable names
 - removed support for the grab function under Darwin
@@ -17,7 +17,7 @@ version 0.8.2 (unreleased)
 - adapt for change to photutils API for aperture areas (#193)
 - fix ginga display of HDUList
 - add check for ds9 in alias as well as well as path
-- python2->3 class and printing updates
+- Python 2->3 class and printing updates
 - removed dependence on astropy_helpers
 
 
@@ -25,7 +25,7 @@ version 0.8.1 (2018-12-14)
 --------------------------
 ** THIS WILL BE THE LAST VERSION THAT SUPPORT Python 2.7 **
 
-- travis and appveyor testing updates
+- Travis and AppVeyor testing updates
 - radial profile plot centering fixed to more correctly calculate the fractional center offsets
 - cumulative radial profile flux calculation should now be correct
 - the fit_gauss_1d function call was changed to accept the radius and flux array so that they
@@ -54,7 +54,7 @@ version 0.8.0 (2017-11-06)
   
 version 0.7.1 (2017-02-06)
 --------------------------
-- fixed xpa bug holdout from updating for windows specific code
+- fixed xpa bug holdout from updating for Windows specific code
 - changed default connection type from local to inet when XPA_METHOD not specified in users environment
 
 
@@ -63,7 +63,7 @@ version 0.7.0 (2017-01-19)
 - fixed a text error in the display_help() so that now the correct version loads the documentation
 - Windows users can now install from source. The setup will ignore the cython and xpa necessary to build the DS9 interaction, and users will only be able to use the Ginga HTML5 window, they can also use the Imexamine() functions without any graphical interface.
 - Documentation updates, mostly specific information for Windows users
-- Added python 3.6 to the test matrix as well as apveyor for the windows build
+- Added Python 3.6 to the test matrix as well as AppVeyor for the Windows build
 - Updated XPA module to v2.1.18
 - Made fits checker smarter to deal with older simple fits files where EXTEND is true but there are no extensions
 - fixed bug in fits loader for ds9 multi-extension FITS files, made load_fits() prefer the extension specified in the key rather than the image name
@@ -75,7 +75,7 @@ version 0.6.4dev (unreleased)
 - fixed a text error in the display_help() so that now the correct version loads the documentation
 - Windows users can now install from source. The setup will ignore the cython and xpa necessary to build the DS9 interaction, and users will only be able to use the Ginga HTML5 window, they can also use the Imexamine() functions without any graphical interface.
 - Documentation updates, mostly specific information for Windows users
-- Added python 3.6 to the test matrix as well as apveyor for the windows build
+- Added Python 3.6 to the test matrix as well as AppVeyor for the Windows build
 - Updated XPA module to v2.1.18
 - Made fits checker smarter to deal with older simple fits files where EXTEND is true but there are no extensions
 - fixed bug in fits loader for ds9 multi-extension FITS files, made load_fits() prefer the extension specified in the key rather than the image name
@@ -87,7 +87,7 @@ version 0.6.3 (2017-01-01)
 - The imexamine class was updated so that analysis functions could be more easily called by external entities. This was primarily to support ginga plugins, and a new imexam plugin for ginga.
 - A dictionary is now returned to the user when they request information on the active DS9 windows which are available.
 - Tests updated to be consistent with new package logging
-- Documentation and the jupyter examples updated
+- Documentation and the Jupyter examples updated
 - Fixed bug with loading user specified fits extensions for both ginga and ds9
 
 
@@ -101,14 +101,14 @@ version 0.6.1 (2016-07-16)
 --------------------------
 - Ginga viewer support for images in matplotlib and QT backend removed, but replaced with HTML5 canvas viewer which is faster and simpler for users to both use and install.
 - replaced custom fits with astropy.modeling, enabling Gaussian2d, Gaussian1d, Moffat1D and MexicanHat1D fits for lines and centering
-- General bug fixes and documentation updates, including example jupyter notebooks
+- General bug fixes and documentation updates, including example Jupyter notebooks
 - Updated the default title display on plots to use the image name or specify an array was used
 - added astropy_helpers as a submodule
 - made xpa a submodule
 - if users pass an nddata object to view()  without a data reference it assumes one, but you can always specify which extension
 - added better user access function for changing plotting/function parameters used to make plots
 - updated to Read The Docs new site name
-- replaced ipython dependency in the docs build with jupyter
+- replaced IPython dependency in the docs build with Jupyter
 - removed local copy of doc build, referenced to RTD instead, users should make PDF copy for offline work
 - added the ginga embed functionality so that users can choose to embed the viewing window inside the notebook
 
@@ -121,7 +121,7 @@ version 0.5.3dev (unreleased)
 
 version 0.5.2 (released)
 ------------------------
- - windows build change
+ - Windows build change
 
 
 version 0.5.1 (released)

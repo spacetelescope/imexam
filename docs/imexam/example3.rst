@@ -45,7 +45,7 @@ I'll use the IRAF DAOFind to find objects in my field:
 
     #set up some finding parameters, you can make this more explicit
     iraf.daophot.findpars.threshold=3.0 #3sigma detections only
-    iraf.daophot.findpars.nsigma=1.5 #width of convolution kernal in sigma
+    iraf.daophot.findpars.nsigma=1.5 #width of convolution kernel in sigma
     iraf.daophot.findpars.ratio=1.0 #ratio of gaussian axes
     iraf.daophot.findpars.theta=0.
     iraf.daophot.findpars.sharplo=0.2 #lower bound on feature

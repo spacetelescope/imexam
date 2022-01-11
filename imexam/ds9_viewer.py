@@ -59,7 +59,7 @@ class UnsupportedImageShapeException(Exception):
 class ds9:
     """Control all interactions between the user and the DS9 window.
 
-    The ds9() contructor takes a ds9 target as its main argument.
+    The ds9() constructor takes a ds9 target as its main argument.
     If none is given, then a new window and process will be started.
 
     DS9's xpa access points are documented in the reference manual,
@@ -133,7 +133,7 @@ class ds9:
     _mef_file: boolean
         The file is a multi-extension fits file
 
-    _iscube: bookean
+    _iscube: boolean
         The file is a multiextension fits file, and one of the extensions
         contains at least 1 additional extension (3D or more)
 
@@ -273,7 +273,7 @@ class ds9:
         The absolute path reference is stored to make XPA happy in all cases,
         wherever the user started the DS9 process.
 
-        The only consistant way to return which cube and slice that is
+        The only consistent way to return which cube and slice that is
         displayed is with the call to "file" which has the full plane=x:y
         information, but only when looking at something other than the first
         extension for each plane. In this case, you have to look at the header
@@ -683,7 +683,7 @@ class ds9:
         return self.xpa.get(param)
 
     def readcursor(self):
-        """Returns the image coordinate postion and key pressed.
+        """Returns the image coordinate position and key pressed.
 
         Notes
         -----
@@ -757,7 +757,7 @@ class ds9:
             [load <filename>]
             [save <filename>]
             [invert true|false]
-            [value <constrast> <bias>]
+            [value <contrast> <bias>]
             [tag [load|save] <filename>]
             [tag delete]
             [match]
@@ -1017,7 +1017,7 @@ class ds9:
 
         astropy.io.fits stores data in row-major format. So a 4d image would be
         [NAXIS4, NAXIS3, NAXIS2, NAXIS1]
-        just the one image is retured in the case of multidimensional data, not
+        just the one image is returned in the case of multidimensional data, not
         the cube
 
         """
@@ -1254,7 +1254,7 @@ class ds9:
                                ptype="image", textoff=10, size=4):
         """mark ds9 regions regions  given an input list of tuples.
 
-         a convienence function, you can also use set_region
+         a convenience function, you can also use set_region
 
         Parameters
         ----------
