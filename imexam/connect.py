@@ -233,7 +233,7 @@ class Connect:
                 # This loop now recognizes the arrow keys
                 # for moving the cursor in the window, it calls
                 # the windows cursor function. However, depending
-                # on how the use has their windowing focus setup
+                # on how the user has their windowing focus setup
                 # they might loose focus on the DS9 window and have to
                 # move the cursor to gain focus again, is there a way
                 # around this? Cursor is not implemented in the ginga
