@@ -632,8 +632,8 @@ class Imexamine:
             mag = magzero - 2.5 * (np.log10(total_flux))
 
             # Construct the output strings (header and parameter values)
-            pheader = f"x\ty\tradius\tflux\tmag(zpt={magzero:0.2})\t"
-            pstr = f"\n{x:.2f}\t{y:0.2f}\t{radius}\t{total_flux:0.2}\t{mag:0.2}\t"
+            pheader = f"x\ty\tradius\tflux\tmag(zpt={magzero:0.3f})\t"
+            pstr = f"\n{x:.2f}\t{y:0.2f}\t{radius}\t{total_flux:0.2}\t{mag:0.3f}\t"
 
             if subsky:
                 pheader += "sky/pix\t"
@@ -662,7 +662,7 @@ class Imexamine:
                 ax = fig.gca()
 
                 if self.aper_phot_pars["title"][0] is None:
-                    title = f"x= {xx:0.2f}, y={yy:0.2f}, flux={total_flux:0.1f}, \nmag={mag:0.1f}, sky={sky_per_pix:0.1f}"
+                    title = f"x= {xx:0.2f}, y={yy:0.2f}, flux={total_flux:0.2f}, \nmag={mag:0.3f}, sky={sky_per_pix:0.2f}"
                     if center:
                         if self.aper_phot_pars["center_com"][0]:
                             title += f", CoM({xx:0.2f},{yy:0.2f})"
@@ -688,9 +688,9 @@ class Imexamine:
                                   int(yy - pad), int(yy + pad)], origin='lower',
                           cmap=self.aper_phot_pars['cmap'][0])
 
-                apertures.plot(ax=ax, color='green', alpha=0.75, lw=3)
+                apertures.plot(axes=ax, color='green', alpha=0.75, lw=3)
                 if subsky:
-                    annulus_apertures.plot(ax=ax, color='red', alpha=0.75, lw=3)
+                    annulus_apertures.plot(axes=ax, color='red', alpha=0.75, lw=3)
 
                 if pfig is None:
                     plt.draw()
