@@ -4,21 +4,23 @@
 the viewer and the imexamine classes
 """
 
-import warnings
+import astropy
 import logging
 import os
-import astropy
+import warnings
 
 from .util import set_logging
 
 try:
     from .ginga_viewer import ginga
+
     have_ginga = True
 except ImportError:
     have_ginga = False
 
 try:
     from . import imexamxpa  # noqa
+
     have_xpa = True
     from .ds9_viewer import ds9
 except ImportError:
@@ -567,7 +569,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['a'][0].__name__
         else:
-            return(self.exam.aper_phot_pars)
+            return (self.exam.aper_phot_pars)
 
     def cimexam(self, get_name=False):
         """Show the current parameters for the 'c' key.
@@ -578,7 +580,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['c'][0].__name__
         else:
-            return(self.exam.colplot_pars)
+            return (self.exam.colplot_pars)
 
     def dimexam(self, get_name=False):
         """Show the current parameters for the 'd' key.
@@ -589,14 +591,14 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['d'][0].__name__
         else:
-            return(self.exam.com_center_pars)
+            return (self.exam.com_center_pars)
 
     def eimexam(self, get_name=False):
         """Show the current parameters for the 'e' key, returns dict."""
         if get_name:
             return self.exam.imexam_option_funcs['e'][0].__name__
         else:
-            return(self.exam.contour_pars)
+            return (self.exam.contour_pars)
 
     def himexam(self, get_name=False):
         """Show the current parameters for 'h' key, returns dict.
@@ -607,7 +609,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['h'][0].__name__
         else:
-            return(self.exam.histogram_pars)
+            return (self.exam.histogram_pars)
 
     def jimexam(self, get_name=False):
         """Show the current parameters for 1D fit line plots, returns dict.
@@ -618,7 +620,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['j'][0].__name__
         else:
-            return(self.exam.line_fit_pars)
+            return (self.exam.line_fit_pars)
 
     def kimexam(self, get_name=False):
         """Show the current parameters for 1D fit column plots, returns dict.
@@ -629,7 +631,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['k'][0].__name__
         else:
-            return(self.exam.column_fit_pars)
+            return (self.exam.column_fit_pars)
 
     def limexam(self, get_name=False):
         """Show the current parameters for  line plots, returns dict.
@@ -640,7 +642,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['l'][0].__name__
         else:
-            return(self.exam.lineplot_pars)
+            return (self.exam.lineplot_pars)
 
     def mimexam(self, get_name=False):
         """Show the current parameters for statistical regions, returns dict.
@@ -651,7 +653,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['m'][0].__name__
         else:
-            return(self.exam.report_stat_pars)
+            return (self.exam.report_stat_pars)
 
     def gimexam(self, get_name=False):
         """Show the current parameters for curve of growth plots, returns dict.
@@ -662,7 +664,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['g'][0].__name__
         else:
-            return(self.exam.curve_of_growth_pars)
+            return (self.exam.curve_of_growth_pars)
 
     def rimexam(self, get_name=False):
         """Show the current parameters for curve of growth plots, returns dict.
@@ -673,7 +675,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['r'][0].__name__
         else:
-            return(self.exam.radial_profile_pars)
+            return (self.exam.radial_profile_pars)
 
     def wimexam(self, get_name=False):
         """Show the current parameters for surface plots, returns dict.
@@ -684,7 +686,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['w'][0].__name__
         else:
-            return(self.exam.surface_pars)
+            return (self.exam.surface_pars)
 
     def timexam(self, get_name=False):
         """Show current parameters for image cutouts,returns dict.
@@ -695,7 +697,7 @@ class Connect:
         if get_name:
             return self.exam.imexam_option_funcs['t'][0].__name__
         else:
-            return(self.exam.cutout_pars)
+            return (self.exam.cutout_pars)
 
     def unlearn(self):
         """Unlearn all the imexam parameters and reset to default."""
