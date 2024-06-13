@@ -646,7 +646,7 @@ class Imexamine:
                 else:
                     pheader += "fwhm(x,y)"
                     fwhmx, fwhmy = math_helper.gfwhm(sigma, sigmay)
-                    pstr += f"{sigma:0.2f},{sigmay:0.2f}"
+                    pstr += f"{fwhmx:0.2f},{fwhmy:0.2f}"
 
             pheader = pheader.expandtabs(15)
             pstr = pstr.expandtabs(15)
