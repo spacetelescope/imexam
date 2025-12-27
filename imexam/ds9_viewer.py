@@ -23,27 +23,26 @@ http://hea-www.harvard.edu/saord/xpa/
 
 """
 
+import atexit
+import logging
+import matplotlib.image as mpimage
+import matplotlib.pyplot as plt
+import numpy as np
 import os
 import shutil
 import sys
-import numpy as np
-from subprocess import Popen
 import time
 import warnings
-import logging
-from tempfile import mkdtemp
-import matplotlib.image as mpimage
-import matplotlib.pyplot as plt
+from astropy.io import fits
 from matplotlib import get_backend
-import atexit
+from subprocess import Popen
 from subprocess import call
-
-# The XPA class controls interaction with DS9
-from .xpa_wrap import XPA
-from .imexamxpa import XpaException
+from tempfile import mkdtemp
 
 from . import util
-from astropy.io import fits
+from .imexamxpa import XpaException
+# The XPA class controls interaction with DS9
+from .xpa_wrap import XPA
 
 __all__ = ['ds9']
 
@@ -507,7 +506,7 @@ class ds9:
         except OSError:
             warnings.warn(
                 "Warning : couldn't delete the temporary \
-                directory ({0:s})".format(self._tmpd_name,))
+                directory ({0:s})".format(self._tmpd_name, ))
 
         self._need_to_purge = False
 
@@ -576,9 +575,9 @@ class ds9:
 
         self._tmpd_name = mkdtemp(
             prefix="xpa_" +
-            env.get(
-                "USER",
-                ""),
+                   env.get(
+                       "USER",
+                       ""),
             dir="/tmp")
 
         # this is the first directory the servers looks for on the path
@@ -1289,14 +1288,14 @@ class ds9:
         for location in input_points:
             if rtype == "circle":
                 pline = rtype + " " + \
-                    str(location[x]) + " " + str(location[y]) + " " + str(size)
+                        str(location[x]) + " " + str(location[y]) + " " + str(size)
                 self.log.info(pline)
                 self.set_region(pline)
 
             try:
-                if(len(str(location[comment])) > 0):
-                    pline = "text " + str(float(location[x]) + textoff) +\
-                            " " + str(float(location[y]) + textoff) + " '" +\
+                if (len(str(location[comment])) > 0):
+                    pline = "text " + str(float(location[x]) + textoff) + \
+                            " " + str(float(location[y]) + textoff) + " '" + \
                             str(location[comment]) + "' #font=times"
                     self.log.info(pline)
                     self.set_region(pline)
@@ -1354,7 +1353,7 @@ class ds9:
             words = lines[i].split(',')
             x.append(words[0].strip())
             y.append(words[1].strip())
-            if(len(words) > 2 and labels):
+            if (len(words) > 2 and labels):
                 text.append(words[2].strip())
 
         # now write out to a reg file
@@ -1362,12 +1361,12 @@ class ds9:
         f = open(out, 'w')
         for i in range(0, len(lines), 1):
             pline = "image; " + point + \
-                "(" + x[i] + "," + y[i] + "," + str(size) + ")\n"
+                    "(" + x[i] + "," + y[i] + "," + str(size) + ")\n"
             f.write(pline)
-            if(len(text) > 0):
+            if (len(text) > 0):
                 pline = "image;text(" + str(float(x[i]) + delta) + "," + \
-                    str(float(y[i]) + delta) + \
-                    "{ " + text[i] + " })# font=\"time 12 bold\"\n"
+                        str(float(y[i]) + delta) + \
+                        "{ " + text[i] + " })# font=\"time 12 bold\"\n"
                 f.write(pline)
         f.close()
 
@@ -1681,7 +1680,7 @@ class ds9:
             call(cstring)
             print(f"Image saved to {filename}")
             self.log.info(f"Image saved to {filename}")
-            return(filename)
+            return (filename)
 
     def grab(self):
         """Make a copy of the image view."""

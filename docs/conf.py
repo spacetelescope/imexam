@@ -13,10 +13,10 @@
 # the global Astropy configuration which is loaded here before anything
 # else. See astropy.sphinx.conf for which values are set there.
 
-from configparser import ConfigParser
-from datetime import datetime
 import os
 import sys
+from configparser import ConfigParser
+from datetime import datetime
 
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
@@ -29,7 +29,6 @@ except ImportError:
 conf = ConfigParser()
 conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
 setup_cfg = dict(conf.items('metadata'))
-
 
 # -- General configuration ----------------------------------------------------
 # By default, highlight as Python 3.
@@ -53,16 +52,16 @@ exclude_patterns.append('_templates')  # noqa
 rst_epilog = """.. _imexam: high-level_API.html"""
 
 # Render inheritance diagrams in SVG
-#graphviz_output_format = "svg"
+# graphviz_output_format = "svg"
 #
-#graphviz_dot_args = [
+# graphviz_dot_args = [
 #    '-Nfontsize=10',
 #    '-Nfontname=Helvetica Neue, Helvetica, Arial, sans-serif',
 #    '-Efontsize=10',
 #    '-Efontname=Helvetica Neue, Helvetica, Arial, sans-serif',
 #    '-Gfontsize=10',
 #    '-Gfontname=Helvetica Neue, Helvetica, Arial, sans-serif'
-#]
+# ]
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
@@ -77,9 +76,8 @@ __import__(project)
 package = sys.modules[project]
 
 # The short X.Y version.
-version = package.__version__.split('-', 1)[0]                                  # The full version, including alpha/beta/rc tags.
+version = package.__version__.split('-', 1)[0]  # The full version, including alpha/beta/rc tags.
 release = package.__version__
-
 
 # -- Options for HTML output ------------------------------------------------
 # The global astropy configuration uses a custom theme,
@@ -130,26 +128,23 @@ htmlhelp_basename = project + 'doc'
 html_static_path = ['_static']
 html_style = 'imexam.css'
 
-
 # -- Options for LaTeX output -------------------------------------------------
 # Grouping the document tree into LaTeX files. List of tuples (source
 # start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [('index', project + '.tex', project + u' Documentation',                         author, 'manual')]
+latex_documents = [('index', project + '.tex', project + u' Documentation', author, 'manual')]
 latex_logo = '_static/imexam_logo.pdf'
 
-                                                                                # -- Options for manual page output ------------------------------------------- # One entry per manual page. List of tuples (source start file, name,
+# -- Options for manual page output ------------------------------------------- # One entry per manual page. List of tuples (source start file, name,
 # description, authors, manual section).
 man_pages = [('index', project.lower(), project + u' Documentation',
               [author], 1)]
-
 
 # -- Resolving issue number to links in changelog -----------------------------
 github_project = setup_cfg['github_project']
 github_issues_url = f'https://github.com/{github_project}/issues/'
 
-
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
-nitpicky = False
+nitpicky = True
 nitpick_ignore = []
 
 # Some warnings are impossible to suppress, and you can list specific
@@ -170,7 +165,6 @@ if os.path.isfile(nitpick_filename):
         dtype, target = line.split(None, 1)
         target = target.strip()
         nitpick_ignore.append((dtype, target))
-
 
 # -- Options for linkcheck output ---------------------------------------------
 linkcheck_retry = 5
