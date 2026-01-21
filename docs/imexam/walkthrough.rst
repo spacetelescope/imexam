@@ -12,7 +12,7 @@ First you need to import the package
     import imexam
 
 
-Usage with D9 (the current default viewer)
+Usage with DS9 (the current default viewer)
 ------------------------------------------
 Start up a ``DS9`` window (DS9 is the default viewer):
 

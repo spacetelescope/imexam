@@ -15,7 +15,7 @@ First you need to import the package
     import imexam
 
 
-Usage with D9 (the current default viewer)
+Usage with DS9 (the current default viewer)
 ------------------------------------------
 If you are on a windows system, and DS9 is not be available, move on to the Ginga specification.
 
