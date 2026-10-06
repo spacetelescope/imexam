@@ -61,12 +61,20 @@ except ImportError:
 
 try:
     import photutils
+    try:
+        from photutils.aperture import (CircularAperture,
+                                        CircularAnnulus,
+                                        aperture_photometry)
+    except (ImportError, AttributeError):
+        from photutils import (CircularAperture,
+                               CircularAnnulus,
+                               aperture_photometry)
     photutils_installed = True
     from photutils.centroids import centroid_com
     # account for API change
     from packaging import version
     photutils_version = version.parse(photutils.__version__)
-except ImportError:
+except Exception:
     print("photutils not installed, photometry functionality "
           "in imexam() not available")
     photutils_installed = False
@@ -588,8 +596,8 @@ class Imexamine:
 
             outer = inner + width
 
-            apertures = photutils.CircularAperture((xx, yy), radius)
-            rawflux_table = photutils.aperture_photometry(
+            apertures = CircularAperture((xx, yy), radius)
+            rawflux_table = aperture_photometry(
                 data,
                 apertures,
                 subpixels=1,
@@ -599,9 +607,9 @@ class Imexamine:
             sky_per_pix = 0.
             annulus_apertures = None
             if subsky:
-                annulus_apertures = photutils.CircularAnnulus(
+                annulus_apertures = CircularAnnulus(
                     (xx, yy), r_in=inner, r_out=outer)
-                bkgflux_table = photutils.aperture_photometry(
+                bkgflux_table = aperture_photometry(
                     data,
                     annulus_apertures)
 
@@ -1135,11 +1143,11 @@ class Imexamine:
         if subtract_background:
             inner = pars["skyrad"][0]
             width = pars["width"][0]
-            annulus_apertures = photutils.CircularAnnulus((centerx, centery),
-                                                          r_in=inner,
-                                                          r_out=inner + width)
-            bkgflux_table = photutils.aperture_photometry(data,
-                                                          annulus_apertures)
+            annulus_apertures = CircularAnnulus((centerx, centery),
+                                                r_in=inner,
+                                                r_out=inner + width)
+            bkgflux_table = aperture_photometry(data,
+                                                annulus_apertures)
 
             # to calculate the mean local background, divide the circular
             # annulus aperture sums by the area of the circular annulus.
@@ -1398,17 +1406,17 @@ class Imexamine:
             if data is None:
                 data = self._data
 
-            apertures = photutils.CircularAperture((x, y), radsize)
-            rawflux_table = photutils.aperture_photometry(
+            apertures = CircularAperture((x, y), radsize)
+            rawflux_table = aperture_photometry(
                 data,
                 apertures,
                 subpixels=1,
                 method="center")
 
             outer = sky_inner + skywidth
-            annulus_apertures = photutils.CircularAnnulus(
+            annulus_apertures = CircularAnnulus(
                 (x, y), r_in=sky_inner, r_out=outer)
-            bkgflux_table = photutils.aperture_photometry(
+            bkgflux_table = aperture_photometry(
                 data,
                 annulus_apertures)
 

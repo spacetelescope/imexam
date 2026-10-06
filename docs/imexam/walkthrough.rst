@@ -145,7 +145,7 @@ You can also load a numpy array directly, we'll create an example array
 and display it to our viewer::
 
     import numpy as np
-    array = np.ones((100,100), dtype=np.float) * np.random.rand(100)
+    array = np.ones((100,100), dtype=float) * np.random.rand(100)
     viewer.view(array)
     viewer.zoom()  # by default, zoom-to-fit, or give it a scale factor
 

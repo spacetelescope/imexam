@@ -15,10 +15,14 @@ except ImportError:
 
 try:
     import photutils
+    try:
+        from photutils.aperture import CircularAperture, aperture_photometry
+    except (ImportError, AttributeError):
+        from photutils import CircularAperture, aperture_photometry
     HAS_PHOTUTILS = True
     from packaging import version
     photutils_version = version.parse(photutils.__version__)
-except ImportError:
+except Exception:
     HAS_PHOTUTILS = False
 
 
@@ -56,13 +60,13 @@ def test_line_plot():
 def test_aper_phot(capsys):
     """Check that apertures are as expected from photutils"""
     radius = 5
-    apertures = photutils.CircularAperture((50, 50), radius)
+    apertures = CircularAperture((50, 50), radius)
     if photutils_version >= version.parse('0.7'):
         aperture_area = apertures.area
     else:
         aperture_area = apertures.area()
     assert_equal(aperture_area, np.pi * radius**2)
-    rawflux_table = photutils.aperture_photometry(
+    rawflux_table = aperture_photometry(
         test_data,
         apertures,
         subpixels=1,
@@ -141,6 +145,8 @@ def test_radial_profile():
     data = Gaussian2DKernel(1.5, x_size=25, y_size=25)
     xx, yy = np.meshgrid(np.arange(25), np.arange(25))
     x0, y0 = np.where(data.array == data.array.max())
+    x0 = int(x0[0])
+    y0 = int(y0[0])
 
     rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
     rad_in = rad_in.ravel()
@@ -181,6 +187,8 @@ def test_radial_profile_cumulative():
     data = Gaussian2DKernel(1.5, x_size=ksize, y_size=ksize)
     xx, yy = np.meshgrid(np.arange(ksize), np.arange(ksize))
     x0, y0 = np.where(data.array == data.array.max())
+    x0 = int(x0[0])
+    y0 = int(y0[0])
     rad_in = np.sqrt((xx - x0)**2 + (yy - y0)**2)
 
     rad_in = rad_in.ravel()
